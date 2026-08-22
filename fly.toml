@@ -1,11 +1,13 @@
 app = "sonora-fan"
-primary_region = "gru"  # ou "iad", "ams" – mude para a sua região
+primary_region = "gru"   # ou "iad", "ams" conforme sua preferência
 
 [build]
   dockerfile = "Dockerfile"
 
 [env]
   PORT = "3000"
+  # A chave abaixo pode ser removida se você definir via secrets (recomendado)
+  # YOUTUBE_API_KEY = "AIzaSyB--8a_0tAr9Mf2mxy0oWq7rB0qyacci3I"
 
 [http_service]
   internal_port = 3000
