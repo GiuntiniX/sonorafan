@@ -32,15 +32,48 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: '*' },
-  perMessageDeflate: true
+  perMessageDeflate: true, // compressão
 });
 
 // ========== MIDDLEWARES ==========
+// Forçar HTTPS em produção (Render já fornece SSL, mas garantimos)
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] !== 'https' && process.env.NODE_ENV === 'production') {
+    return res.redirect('https://' + req.headers.host + req.url);
+  }
+  next();
+});
+
+// Cabeçalhos de segurança
+app.use((req, res, next) => {
+  // HSTS: força HTTPS por 1 ano
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
+  // CSP: restringe fontes de recursos
+  res.setHeader('Content-Security-Policy', [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://www.youtube.com https://www.gstatic.com https://cdn.jsdelivr.net https://*.firebaseio.com https://*.googleapis.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "img-src 'self' data: https://img.youtube.com https://source.unsplash.com https://encrypted-tbn0.gstatic.com",
+    "connect-src 'self' wss: https://*.firebaseio.com https://*.googleapis.com",
+    "frame-src https://www.youtube.com",
+    "font-src https://fonts.gstatic.com",
+    "worker-src 'self' blob:"
+  ].join('; '));
+
+  // Outros cabeçalhos
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(cookieParser());
 
-// Rate limiting por IP
+// Rate limiting por IP (evita abusos)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -486,7 +519,7 @@ app.post('/api/room/:slug/event', (req, res) => {
   broadcastState(req.params.slug);
   res.json({ success: true });
 });
-// ===== PLAYSLIST =====
+// ===== PLAYLIST =====
 app.post('/api/room/:slug/playlist', (req, res) => {
   const room = rooms.get(req.params.slug);
   if (!room) return res.status(404).json({ error: 'Sala não encontrada' });
@@ -981,7 +1014,7 @@ io.on('connection', (socket) => {
     } catch (e) { console.error('Erro no like:', e.message); }
   });
 
-  // ===== PALMAS (Clap) =====
+  // ===== PALMAS =====
   socket.on('clap', ({ room }) => {
     if (!room) return;
     const roomData = rooms.get(room);
@@ -1012,7 +1045,6 @@ io.on('connection', (socket) => {
     if (!room) return;
     const playlist = room.playlists.find(p => p.id === playlistId);
     if (!playlist) { socket.emit('error', 'Playlist não encontrada'); return; }
-    // Adiciona as músicas da playlist à fila (respeitando limites)
     let added = 0;
     for (const song of playlist.queue) {
       if (room.queue.length >= settings.maxQueue) break;
