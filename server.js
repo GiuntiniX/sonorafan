@@ -120,7 +120,7 @@ async function loadAllUsers() {
 }
 loadAllUsers();
 
-rooms.set('lounge', createRoom('lounge', 'Lounge Sonora', 'Sistema'));
+rooms.set('lounge', createRoom('lounge', 'Lounge VibeChat', 'Sistema'));
 console.log('✅ Sala inicial "lounge" criada com sucesso!');
 
 // ========== FUNÇÕES AUXILIARES ==========
@@ -168,6 +168,23 @@ function addSystemMsg(slug, text) {
   if (room.chatHistory.length > 300) room.chatHistory.shift();
   io.to(slug).emit('chat', msg);
 }
+
+// 🔧 Remapeia votos após uma remoção no índice `removedIdx`
+function remapVotesAfterRemoval(slug, removedIdx) {
+  const votes = getRoomVotes(slug);
+  const newVotes = {};
+  Object.keys(votes).forEach(k => {
+    const oldIdx = parseInt(k, 10);
+    if (oldIdx === removedIdx) return;
+    if (oldIdx > removedIdx) newVotes[oldIdx - 1] = votes[k];
+    else newVotes[oldIdx] = votes[k];
+  });
+  roomVotes.set(slug, newVotes);
+  io.to(slug).emit('votesState', newVotes);
+  return newVotes;
+}
+
+// 🔧 Mantida para modo rádio, mas não é mais chamada a cada addSong/advanceQueue
 function autoShuffle(room) {
   if (!room || room.queue.length <= 1) return;
   const current = room.queue[room.currentIndex];
@@ -179,62 +196,74 @@ function autoShuffle(room) {
   }
   room.queue = [current, ...rest];
   room.currentIndex = 0;
-  const votes = getRoomVotes(room.slug);
-  const newVotes = {};
-  room.queue.forEach((track, idx) => {
-    const oldIndex = room.queue.findIndex(t => t.id === track.id);
-    if (votes[oldIndex] !== undefined) newVotes[idx] = votes[oldIndex];
-  });
-  roomVotes.set(room.slug, newVotes);
   broadcastState(room.slug);
 }
-function advanceQueue(slug) {
+
+// ⭐ VERSÃO CORRIGIDA DE advanceQueue
+function advanceQueue(slug, force = false) {
   const room = rooms.get(slug);
-  if (!room || !room.isPlaying || room.queue.length === 0) {
-    if (room && room.waitingQueue.length > 0) {
-      const next = room.waitingQueue.shift();
-      room.queue.push(next);
-      if (!room.isPlaying) {
-        room.isPlaying = true;
-        room.currentIndex = 0;
-        room.startedAt = Date.now();
-        room.lastAdvanceAt = Date.now();
-        addSystemMsg(slug, `▶ ${next.title} — ${next.artist}`);
-        broadcastState(slug);
-        return true;
-      }
+  if (!room) return false;
+
+  // Fila totalmente vazia (principal + espera)
+  if (room.queue.length === 0 && room.waitingQueue.length === 0) {
+    if (room.isPlaying) {
+      room.isPlaying = false;
+      addSystemMsg(slug, '🏁 Fila encerrada. Adicione músicas!');
+      io.to(slug).emit('queueEmpty');
+      broadcastState(slug);
     }
     return false;
   }
-  if (Date.now() - room.lastAdvanceAt < 10000) return false;
+
+  // Guarda anti-duplo-avanço (2s). `force = true` ignora (usado em videoEnded).
+  if (!force && Date.now() - room.lastAdvanceAt < 2000) return false;
   room.lastAdvanceAt = Date.now();
-  const current = room.queue[room.currentIndex];
-  if (current) { room.history.push(current); if (room.history.length > 50) room.history.shift(); updateMostVoted(room, current); }
-  room.queue.shift();
-  room.currentIndex = 0;
-  room.startedAt = Date.now();
-  room.votes = { up: Math.floor(Math.random() * 8) + 1, down: 0 };
-  room.skipVotes = new Set();
-  if (room.queue.length === 0 && room.waitingQueue.length > 0) {
+
+  // Remove a música ATUAL pelo índice correto (não por shift)
+  let removedIdx = -1;
+  if (room.queue.length > 0) {
+    removedIdx = room.currentIndex;
+    const current = room.queue[removedIdx];
+    if (current) {
+      room.history.push(current);
+      if (room.history.length > 50) room.history.shift();
+      updateMostVoted(room, current);
+    }
+    room.queue.splice(removedIdx, 1);
+  }
+
+  // Puxa da fila de espera SEMPRE que a principal ficar vazia
+  while (room.queue.length === 0 && room.waitingQueue.length > 0) {
     const next = room.waitingQueue.shift();
     room.queue.push(next);
-    addSystemMsg(slug, `📥 Música da fila de espera: ${next.title} — ${next.artist}`);
+    addSystemMsg(slug, `📥 Entrou da espera: ${next.title} — ${next.artist}`);
   }
-  const votes = getRoomVotes(slug);
-  const newVotes = {};
-  room.queue.forEach((_, i) => { if (votes[i + 1]) newVotes[i] = votes[i + 1]; });
-  roomVotes.set(slug, newVotes);
-  autoShuffle(room);
-  broadcastState(slug);
+
+  // Reset de posição
+  room.currentIndex = 0;
+  room.startedAt = Date.now();
+  room.votes = { up: 0, down: 0 };
+  room.skipVotes = new Set();
+
+  // Remapeia votos corretamente (corrige bug do findIndex anterior)
+  if (removedIdx >= 0) remapVotesAfterRemoval(slug, removedIdx);
+
   if (room.queue.length > 0) {
+    room.isPlaying = true;
     const next = room.queue[0];
     addSystemMsg(slug, `▶ ${next.title} — ${next.artist}`);
+  } else if (room.radioMode) {
+    startRadio(slug);
   } else {
-    if (room.radioMode) { startRadio(slug); }
-    else { room.isPlaying = false; broadcastState(slug); addSystemMsg(slug, '🏁 Fila encerrada. Adicione músicas!'); io.to(slug).emit('queueEmpty'); }
+    room.isPlaying = false;
+    addSystemMsg(slug, '🏁 Fila encerrada. Adicione músicas!');
+    io.to(slug).emit('queueEmpty');
   }
+
+  broadcastState(slug);
   return true;
 }
+
 async function startRadio(slug) {
   const room = rooms.get(slug);
   if (!room || !room.radioMode) return;
@@ -247,9 +276,21 @@ async function startRadio(slug) {
     const data = await response.json();
     const items = data.items.map(item => ({ id: item.id.videoId, title: item.snippet.title, artist: item.snippet.channelTitle, duration: null }));
     for (const song of items) { if (room.queue.length >= settings.maxQueue) break; song.dj = '🎧 Rádio'; room.queue.push(song); }
-    if (room.queue.length > 0) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); const next = room.queue[0]; addSystemMsg(slug, `📻 Rádio automático: ▶ ${next.title} — ${next.artist}`); broadcastState(slug); }
-  } catch (e) { console.error('Erro no modo rádio:', e.message); addSystemMsg(slug, '⚠️ Erro ao buscar músicas para o rádio.'); room.isPlaying = false; broadcastState(slug); }
+    if (room.queue.length > 0) {
+      room.isPlaying = true; room.currentIndex = 0;
+      room.startedAt = Date.now(); room.lastAdvanceAt = Date.now();
+      const next = room.queue[0];
+      addSystemMsg(slug, `📻 Rádio automático: ▶ ${next.title} — ${next.artist}`);
+      broadcastState(slug);
+    }
+  } catch (e) {
+    console.error('Erro no modo rádio:', e.message);
+    addSystemMsg(slug, '⚠️ Erro ao buscar músicas para o rádio.');
+    room.isPlaying = false; broadcastState(slug);
+  }
 }
+
+// Tick de fallback — avança quando a posição passou da duração conhecida
 setInterval(() => {
   for (const [slug, room] of rooms) {
     if (!room.isPlaying || room.queue.length === 0) continue;
@@ -257,9 +298,10 @@ setInterval(() => {
     if (!track) continue;
     const pos = getPosition(room);
     const duration = track.duration || 180;
-    if (pos >= duration - 2) advanceQueue(slug);
+    if (pos >= duration - 1) advanceQueue(slug);
   }
 }, 2000);
+
 function updateMostVoted(room, track) {
   const upVotes = room.votes?.up || 0;
   if (upVotes > 0) {
@@ -531,7 +573,7 @@ app.post('/api/admin/ban-user', async (req, res) => {
   io.fetchSockets().then(sockets => {
     for (const socket of sockets) {
       if (socket.userEmail === email) {
-        socket.emit('banned', 'Você foi banido do Sonora Fan.');
+        socket.emit('banned', 'Você foi banido do VibeChat.');
         socket.disconnect();
       }
     }
@@ -545,13 +587,20 @@ app.post('/api/admin/remove-song', (req, res) => {
   const room = rooms.get(roomSlug);
   if (!room) return res.status(404).json({ error: 'Sala não encontrada' });
   if (index < 0 || index >= room.queue.length) return res.status(400).json({ error: 'Índice inválido' });
+
   const removed = room.queue.splice(index, 1)[0];
   if (index < room.currentIndex) room.currentIndex--;
-  const votes = getRoomVotes(roomSlug);
-  const newVotes = {};
-  room.queue.forEach((_, i) => { if (votes[i + 1]) newVotes[i] = votes[i + 1]; });
-  roomVotes.set(roomSlug, newVotes);
-  broadcastState(roomSlug);
+  if (index === room.currentIndex) {
+    // Se removeu a atual, avança imediatamente
+    room.currentIndex = 0;
+    room.startedAt = Date.now();
+    room.lastAdvanceAt = 0;
+    remapVotesAfterRemoval(roomSlug, index);
+    advanceQueue(roomSlug, true);
+  } else {
+    remapVotesAfterRemoval(roomSlug, index);
+    broadcastState(roomSlug);
+  }
   addSystemMsg(roomSlug, `🗑️ "${removed.title}" removida pelo admin.`);
   res.json({ success: true });
 });
@@ -777,12 +826,18 @@ io.on('connection', (socket) => {
     for (const [id, s] of io.sockets.sockets) { if (s.userEmail === email) s.emit('userPoints', p); }
   }
 
+  // ⭐ NOVO: handler que faltava — o cliente emite quando o vídeo termina ou dá erro
+  socket.on('videoEnded', () => {
+    if (!currentRoom) return;
+    advanceQueue(currentRoom, true);
+  });
+
   socket.on('voteSkip', () => {
     try {
       if (!currentRoom) return;
       const room = rooms.get(currentRoom);
       if (room.queue.length === 0) return;
-      if (socket.userName === room.admin || adminEmails.has(socket.userEmail)) { advanceQueue(currentRoom); addSystemMsg(currentRoom, `⏭️ ${socket.userName} pulou a música (admin)`); return; }
+      if (socket.userName === room.admin || adminEmails.has(socket.userEmail)) { advanceQueue(currentRoom, true); addSystemMsg(currentRoom, `⏭️ ${socket.userName} pulou a música (admin)`); return; }
       if (room.skipVotes.has(socket.userName)) { socket.emit('error', 'Você já votou para pular.'); return; }
       room.skipVotes.add(socket.userName);
       const totalListeners = room.listenerCount || 1;
@@ -790,7 +845,7 @@ io.on('connection', (socket) => {
       const currentVotes = room.skipVotes.size;
       io.to(currentRoom).emit('skipVoteUpdate', { votes: currentVotes, needed: minVotes });
       addSystemMsg(currentRoom, `🗳️ ${socket.userName} votou para pular (${currentVotes}/${minVotes})`);
-      if (currentVotes >= minVotes) { addSystemMsg(currentRoom, `⏭️ Música pulada por votação! (${currentVotes} votos)`); advanceQueue(currentRoom); room.skipVotes = new Set(); }
+      if (currentVotes >= minVotes) { addSystemMsg(currentRoom, `⏭️ Música pulada por votação! (${currentVotes} votos)`); advanceQueue(currentRoom, true); room.skipVotes = new Set(); }
     } catch (e) { console.error('Erro no voteSkip:', e.message); }
   });
 
@@ -813,10 +868,23 @@ io.on('connection', (socket) => {
         return;
       }
       if (song.duration && song.duration > settings.maxDuration) { socket.emit('error', `⛔ Vídeo muito longo! Duração: ${Math.floor(song.duration / 60)} min. Limite: ${settings.maxDuration / 60} min.`); return; }
-      song.dj = socket.userName; room.queue.push(song); room.lastAddTime.set(socket.userName, now); addPoints(socket.userEmail, 2);
+
+      song.dj = socket.userName;
+      room.queue.push(song);
+      room.lastAddTime.set(socket.userName, now);
+      addPoints(socket.userEmail, 2);
       room.totalSongsAdded = (room.totalSongsAdded || 0) + 1;
-      if (!room.isPlaying && room.queue.length === 1) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); addSystemMsg(currentRoom, `▶ ${song.title} — ${song.artist}`); }
-      else { autoShuffle(room); }
+
+      // ⭐ Inicia reprodução se a sala estava parada (SEM autoShuffle, preserva a ordem)
+      if (!room.isPlaying && room.queue.length > 0) {
+        room.isPlaying = true;
+        room.currentIndex = 0;
+        room.startedAt = Date.now();
+        room.lastAdvanceAt = 0;
+        const next = room.queue[0];
+        addSystemMsg(currentRoom, `▶ ${next.title} — ${next.artist}`);
+      }
+
       broadcastState(currentRoom);
       if (room.discordWebhook) { const msg = `🎵 **${song.title}** por ${song.artist} foi adicionada por ${socket.userName} na sala **${room.name}**`; sendDiscordWebhook(room.discordWebhook, msg); }
       const musicMsg = { _id: Date.now().toString() + Math.random(), user: socket.userName, color: socket.userColor, isSystem: false, isAdmin: socket.isAdmin || false, isMusic: true, musicTitle: song.title, musicArtist: song.artist, createdAt: new Date() };
@@ -842,6 +910,7 @@ io.on('connection', (socket) => {
     } catch (e) { console.error('Erro no like:', e.message); }
   });
 
+  // ⭐ VERSÃO CORRIGIDA — remove por índice e avança imediatamente
   socket.on('videoDuration', ({ duration }) => {
     try {
       if (!currentRoom || !duration) return;
@@ -849,12 +918,15 @@ io.on('connection', (socket) => {
       const track = room.queue[room.currentIndex];
       if (!track) return;
       track.duration = duration;
+
       if (duration > settings.maxDuration) {
-        room.queue.shift(); room.currentIndex = 0; room.isPlaying = false; room.startedAt = Date.now();
-        addSystemMsg(currentRoom, `⛔ A música "${track.title}" foi removida automaticamente por ser muito longa (${Math.floor(duration / 60)} min). Limite: ${settings.maxDuration / 60} min.`);
-        const votes = getRoomVotes(currentRoom); const newVotes = {};
-        room.queue.forEach((_, i) => { if (votes[i + 1]) newVotes[i] = votes[i + 1]; });
-        roomVotes.set(currentRoom, newVotes); broadcastState(currentRoom); io.to(currentRoom).emit('queueEmpty');
+        const removed = room.queue.splice(room.currentIndex, 1)[0];
+        addSystemMsg(currentRoom, `⛔ "${removed.title}" removida (duração ${Math.floor(duration/60)} min > ${settings.maxDuration/60} min).`);
+        remapVotesAfterRemoval(currentRoom, room.currentIndex);
+        room.currentIndex = 0;
+        room.startedAt = Date.now();
+        room.lastAdvanceAt = 0;
+        advanceQueue(currentRoom, true);
         return;
       }
       broadcastState(currentRoom);
@@ -872,12 +944,21 @@ io.on('connection', (socket) => {
       const newQueue = [];
       for (const id of newOrder) { const track = room.queue.find(t => t.id === id); if (track) newQueue.push(track); }
       if (newQueue.length === room.queue.length) {
+        // Preserva votos por ID (mais robusto que por índice)
+        const oldVotes = getRoomVotes(currentRoom);
+        const votesById = {};
+        Object.keys(oldVotes).forEach(k => {
+          const t = room.queue[parseInt(k, 10)];
+          if (t) votesById[t.id] = oldVotes[k];
+        });
         room.queue = newQueue;
         const newIndex = room.queue.findIndex(t => t.id === currentId);
         room.currentIndex = newIndex !== -1 ? newIndex : 0;
-        const votes = getRoomVotes(currentRoom); const newVotes = {};
-        room.queue.forEach((track, i) => { const oldIndex = room.queue.indexOf(track); if (votes[oldIndex]) newVotes[i] = votes[oldIndex]; });
-        roomVotes.set(currentRoom, newVotes); broadcastState(currentRoom);
+        const newVotes = {};
+        room.queue.forEach((t, i) => { if (votesById[t.id]) newVotes[i] = votesById[t.id]; });
+        roomVotes.set(currentRoom, newVotes);
+        io.to(currentRoom).emit('votesState', newVotes);
+        broadcastState(currentRoom);
       }
     } catch (e) { console.error('Erro no reorder:', e.message); }
   });
@@ -898,17 +979,17 @@ io.on('connection', (socket) => {
       if (downIndex > -1) data.down.splice(downIndex, 1);
       if (type === 'up') { data.up.push(socket.userName); addPoints(socket.userEmail, 1); roomData.totalVotesGiven = (roomData.totalVotesGiven || 0) + 1; }
       else if (type === 'down') data.down.push(socket.userName);
+
       if (data.down.length >= DISLIKE_THRESHOLD) {
         const removed = roomData.queue.splice(index, 1)[0];
         if (index < roomData.currentIndex) roomData.currentIndex--;
-        delete votes[index];
-        const newVotes = {};
-        roomData.queue.forEach((_, i) => { if (votes[i + 1]) newVotes[i] = votes[i + 1]; });
-        roomVotes.set(room, newVotes); autoShuffle(roomData); broadcastState(room); io.to(room).emit('voteUpdate', { index, up: data.up, down: data.down, removed: true });
+        remapVotesAfterRemoval(room, index);
+        broadcastState(room);
+        io.to(room).emit('voteUpdate', { index, up: data.up, down: data.down, removed: true });
         addSystemMsg(room, `👎 "${removed.title}" foi removida por votação! (${data.down.length} votos negativos)`);
         return;
       }
-      if (type === 'up') autoShuffle(roomData);
+
       io.to(room).emit('voteUpdate', { index, up: data.up, down: data.down });
       broadcastState(room);
     } catch (e) { console.error('Erro no voteSong:', e.message); }
@@ -934,4 +1015,4 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🎧 Sonora Fan → http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`🎧 VibeChat → http://localhost:${PORT}`));
