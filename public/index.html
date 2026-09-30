@@ -975,6 +975,14 @@
     <div class="modal">
       <h3 data-i18n="createRoom.title">Criar sala</h3>
       <input type="text" id="newRoomName" placeholder="Nome da sala" maxlength="40" data-i18n-placeholder="createRoom.placeholder">
+      <div id="adminRoomOptions" style="display:none;margin-top:6px;text-align:left;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 0;cursor:pointer;">
+          <input type="checkbox" id="optAllowLong" style="width:auto;margin:0;accent-color:var(--accent);"> 🎬 Permitir vídeos longos (até 6h) — somente admin
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 0;cursor:pointer;">
+          <input type="checkbox" id="optAllowLive" style="width:auto;margin:0;accent-color:var(--accent);"> 🔴 Permitir lives do YouTube — somente admin
+        </label>
+      </div>
       <div class="modal-actions">
         <button class="btn-secondary" onclick="closeCreateRoom()" data-i18n="createRoom.cancel">Cancelar</button>
         <button class="btn-primary" onclick="createRoom()" data-i18n="createRoom.create">Criar</button>
@@ -1648,7 +1656,6 @@
         const d = await r.json();
         if (r.ok) {
           toast('🗑️ Música removida!', 'success');
-          socket.emit('videoEnded');
         } else {
           toast(d.error || 'Erro ao remover', 'error');
         }
@@ -1795,6 +1802,7 @@
                 <span class="listeners"><span class="icon">👥</span> <span class="count">${r.listenerCount || 0}</span> ouvintes</span>
                 <span>🎶 ${r.queueLength || 0} na fila</span>
                 ${genreTag}
+                ${r.allowLive ? '<span class="genre-tag" style="background:rgba(239,68,68,.15);color:#fca5a5;font-weight:700;">🔴 LIVE</span>' : ''}
               </div>
               <div class="room-avatars"><span class="avatar-mini">👤</span><span class="avatar-mini">👤</span><span class="avatar-mini">👤</span></div>
             </div>
@@ -1806,13 +1814,17 @@
         console.error('Erro em loadRooms:', e);
       }
     }
-    function showCreateRoom() { $('createRoomModal').classList.add('active'); }
+    function showCreateRoom() {
+      const opts = $('adminRoomOptions');
+      if (opts) opts.style.display = (currentUser && currentUser.email === 'admin@sonora.com') ? 'block' : 'none';
+      $('createRoomModal').classList.add('active');
+    }
     function closeCreateRoom() { $('createRoomModal').classList.remove('active'); }
     async function createRoom() {
       const name = $('newRoomName').value.trim();
       if (!name) return toast('Digite um nome', 'error');
       try {
-        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, color: '#7c3aed' }) });
+        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, color: '#7c3aed', allowLong: $('optAllowLong') ? $('optAllowLong').checked : false, allowLive: $('optAllowLive') ? $('optAllowLive').checked : false }) });
         const d = await r.json();
         if (d.slug) { closeCreateRoom(); joinRoom(d.slug); }
       } catch(e) { toast('Erro ao criar sala', 'error'); }
@@ -1977,7 +1989,7 @@
           div.addEventListener('dragover', (e) => e.preventDefault());
           div.addEventListener('drop', (e) => { e.preventDefault(); const from = parseInt(e.dataTransfer.getData('text/plain')); if (from === i || from === currentIndex) return; const newOrder = queue.map(t => t.id); const [removed] = newOrder.splice(from, 1); newOrder.splice(i, 0, removed); socket.emit('reorderQueue', newOrder); });
         }
-        const votes = queueVotes[i] || { up: [], down: [] };
+        const votes = queueVotes[track.id] || { up: [], down: [] };
         const upCount = votes.up.length;
         const downCount = votes.down.length;
         const userVotedUp = votes.up.includes(myName);
@@ -1987,6 +1999,12 @@
         let scoreClass = '', scoreSymbol = '⚪';
         if (score > 0) { scoreClass = 'positive'; scoreSymbol = '👍'; }
         if (score < 0) { scoreClass = 'negative'; scoreSymbol = '👎'; }
+        const votesHtml = (i === currentIndex) ? '' : `
+          <div class="queue-votes">
+            <button class="vote-btn up ${userVotedUp ? 'voted-up' : ''}" onclick="event.stopPropagation();voteSong('${track.id}', 'up')"><span style="font-size:14px;">👍</span></button>
+            <span class="vote-count ${scoreClass}" title="Total: ${total} votos (${upCount} 👍, ${downCount} 👎)">${total > 0 ? scoreSymbol + score : '0'}</span>
+            <button class="vote-btn down ${userVotedDown ? 'voted-down' : ''}" onclick="event.stopPropagation();voteSong('${track.id}', 'down')"><span style="font-size:14px;">👎</span></button>
+          </div>`;
         div.innerHTML = `
           <span class="pos">${i === currentIndex ? '▶' : i + 1}</span>
           <div class="thumb"><img src="https://img.youtube.com/vi/${track.id}/default.jpg" onerror="this.style.display='none'"></div>
@@ -1995,11 +2013,7 @@
             <div class="artist">${escapeHtml(track.artist || 'Desconhecido')}</div>
           </div>
           <span class="dj">${escapeHtml(track.dj || '')}</span>
-          <div class="queue-votes">
-            <button class="vote-btn up ${userVotedUp ? 'voted-up' : ''}" onclick="event.stopPropagation();voteSong(${i}, 'up')"><span style="font-size:14px;">👍</span></button>
-            <span class="vote-count ${scoreClass}" title="Total: ${total} votos (${upCount} 👍, ${downCount} 👎)">${total > 0 ? scoreSymbol + score : '0'}</span>
-            <button class="vote-btn down ${userVotedDown ? 'voted-down' : ''}" onclick="event.stopPropagation();voteSong(${i}, 'down')"><span style="font-size:14px;">👎</span></button>
-          </div>
+          ${votesHtml}
         `;
         list.appendChild(div);
       });
@@ -2047,10 +2061,13 @@
       }
     }
 
-    function voteSong(index, type) {
+    function voteSong(id, type) {
       if (!currentRoom) { toast('Entre em uma sala para votar', 'error'); return; }
-      if (currentRoomData && currentRoomData.currentIndex === index) { toast('Não é possível votar na música atual', 'error'); return; }
-      socket.emit('voteSong', { index, type, room: currentRoom });
+      if (currentRoomData && currentRoomData.queue) {
+        const idx = currentRoomData.queue.findIndex(t => t.id === id);
+        if (idx === currentRoomData.currentIndex) { toast('Não é possível votar na música atual', 'error'); return; }
+      }
+      socket.emit('voteSong', { id, type, room: currentRoom });
     }
 
     function handleSearchInput(value) {
@@ -2126,6 +2143,8 @@
       }
     }
 
+    function roomLimit() { return (currentRoomData && currentRoomData.maxDuration) || MAX_SONG_DURATION; }
+
     function showPreview(data) {
       const box = $('songPreview');
       box.classList.remove('hidden');
@@ -2135,18 +2154,26 @@
       $('previewTitle').textContent = data.title || 'Música do YouTube';
       $('previewArtist').textContent = data.artist || 'Desconhecido';
       const confirmBtn = document.querySelector('.song-preview-confirm');
+      const lim = roomLimit();
+      const liveOk = currentRoomData && currentRoomData.allowLive;
       if (data.duration > 0) {
-        if (data.duration > MAX_SONG_DURATION) { $('previewStatus').textContent = `⛔ Muito longo! ${formatDuration(data.duration)} > ${MAX_SONG_DURATION/60} min`; $('previewStatus').style.color = 'var(--danger)'; confirmBtn.disabled = true; confirmBtn.textContent = '⛔ Muito longo'; }
-        else if (data.duration > 300) { $('previewStatus').textContent = `⚠️ ${formatDuration(data.duration)} - música longa (máx ${MAX_SONG_DURATION/60} min)`; $('previewStatus').style.color = 'var(--warning)'; confirmBtn.disabled = false; confirmBtn.textContent = '✓ Adicionar'; }
+        if (liveOk) { $('previewStatus').textContent = `📡 ${formatDuration(data.duration)} — vídeos longos/lives permitidos nesta sala`; $('previewStatus').style.color = 'var(--success)'; confirmBtn.disabled = false; confirmBtn.textContent = '✓ Adicionar'; }
+        else if (data.duration > lim) { $('previewStatus').textContent = `⛔ Muito longo! ${formatDuration(data.duration)} > ${Math.floor(lim/60)} min`; $('previewStatus').style.color = 'var(--danger)'; confirmBtn.disabled = true; confirmBtn.textContent = '⛔ Muito longo'; }
+        else if (data.duration > 300) { $('previewStatus').textContent = `⚠️ ${formatDuration(data.duration)} - música longa (máx ${Math.floor(lim/60)} min)`; $('previewStatus').style.color = 'var(--warning)'; confirmBtn.disabled = false; confirmBtn.textContent = '✓ Adicionar'; }
         else { $('previewStatus').textContent = `✅ ${formatDuration(data.duration)} - dentro do limite`; $('previewStatus').style.color = 'var(--success)'; confirmBtn.disabled = false; confirmBtn.textContent = '✓ Adicionar'; }
-      } else { $('previewStatus').textContent = '⚠️ Duração não verificada. O vídeo será verificado ao carregar.'; $('previewStatus').style.color = 'var(--warning)'; confirmBtn.disabled = false; confirmBtn.textContent = '✓ Adicionar (sem verificação)'; }
+      } else {
+        if (liveOk) { $('previewStatus').textContent = '📡 Duração não verificada — lives são permitidas nesta sala'; $('previewStatus').style.color = 'var(--success)'; confirmBtn.disabled = false; confirmBtn.textContent = '✓ Adicionar'; }
+        else { $('previewStatus').textContent = '⚠️ Duração não verificada. O vídeo será verificado ao carregar.'; $('previewStatus').style.color = 'var(--warning)'; confirmBtn.disabled = false; confirmBtn.textContent = '✓ Adicionar (sem verificação)'; }
+      }
       $('previewActions').classList.remove('hidden');
     }
 
     function clearPreview() { $('songPreview').classList.add('hidden'); songData = null; }
     function confirmAdd() {
       if (!songData || !songData.id) { toast('Nenhuma música selecionada', 'error'); return; }
-      if (songData.duration && songData.duration > MAX_SONG_DURATION) { toast(`⛔ Vídeo muito longo! Limite: ${MAX_SONG_DURATION/60} min`, 'error'); return; }
+      const lim = roomLimit();
+      const liveOk = currentRoomData && currentRoomData.allowLive;
+      if (!liveOk && songData.duration && songData.duration > lim) { toast(`⛔ Vídeo muito longo! Limite: ${Math.floor(lim/60)} min`, 'error'); return; }
       const now = Date.now();
       if (now - lastAddTime < COOLDOWN) { const wait = Math.ceil((COOLDOWN - (now - lastAddTime)) / 1000); toast(`Aguarde ${wait}s`, 'error'); return; }
       socket.emit('addSong', { id: songData.id, title: songData.title || 'Música do YouTube', artist: songData.artist || 'Desconhecido', duration: songData.duration || null });
@@ -2280,7 +2307,14 @@
     socket.on('chatHistory', (messages) => { const container = document.getElementById('chatMessagesInner'); if (!container) return; container.innerHTML = ''; const start = Math.max(0, messages.length - 10); messages.slice(start).forEach(m => renderMessage(m)); scrollChatToBottom(); });
     socket.on('likeUpdate', (data) => { const { messageId, likes, users } = data; messageLikesSync[messageId] = { likes, users }; updateLikeDisplay(messageId); });
     socket.on('likesState', (likesData) => { messageLikesSync = likesData || {}; const container = document.getElementById('chatMessagesInner'); if (!container) return; const msgElements = container.querySelectorAll('.msg'); for (const el of msgElements) { const msgId = el.dataset.msgId; if (msgId && messageLikesSync[msgId]) updateLikeDisplay(msgId); } });
-    socket.on('voteUpdate', (data) => { const { index, up, down } = data; queueVotes[index] = { up, down }; if (down.length >= DISLIKE_THRESHOLD) { toast(`👎 Música removida por votação! (${down.length} votos negativos)`, 'error'); if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex); } else { if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex); } });
+    socket.on('voteUpdate', (data) => {
+      const { id, up, down, removed } = data;
+      if (!id) return;
+      if (removed) delete queueVotes[id];
+      else queueVotes[id] = { up, down };
+      if (removed) toast(`👎 Música removida por votação! (${down.length} votos negativos)`, 'error');
+      if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex);
+    });
     socket.on('votesState', (votesData) => { queueVotes = votesData || {}; if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex); });
     socket.on('error', (msg) => toast(msg, 'error'));
     socket.on('isAdmin', (isAdmin) => { amIAdmin = isAdmin || currentUser?.email === 'admin@sonora.com'; if (amIAdmin) { $('adminBadge').classList.remove('hidden'); toast('Você é admin desta sala!', 'success'); } checkAdmin(); });
