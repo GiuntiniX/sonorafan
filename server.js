@@ -168,7 +168,7 @@ async function loadAllUsers() {
 loadAllUsers();
 loadSessions();
 
-rooms.set('lounge', createRoom('lounge', 'Lounge VibeChat', 'Sistema'));
+rooms.set('lounge', createRoom('lounge', 'Lounge SonoraFan', 'Sistema'));
 console.log('✅ Sala inicial "lounge" criada com sucesso!');
 async function loadRooms() {
   try {
@@ -1097,4 +1097,4 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🎧 VibeChat → http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`🎧 SonoraFan → http://localhost:${PORT}`));
