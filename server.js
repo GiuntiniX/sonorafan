@@ -30,35 +30,7 @@ const db = admin.firestore();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: true, credentials: true } });
-
-// ========== SEGURANÇA ==========
-app.disable('x-powered-by');
-app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://i.ytimg.com https://img.youtube.com https://upload.wikimedia.org https://encrypted-tbn0.gstatic.com https://img.magnific.com; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://firebaseinstallations.googleapis.com https://www.googleapis.com https://www.youtube.com ws: wss:; frame-src https://www.youtube.com https://www.youtube-nocookie.com; media-src https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self'");
-  next();
-});
-const rateLimits = new Map();
-setInterval(() => { const now = Date.now(); for (const [k, v] of rateLimits.entries()) if (now > v.reset) rateLimits.delete(k); }, 60000);
-function checkRate(req, res, max, windowMs) {
-  const key = (req.ip || 'unknown') + '|' + req.path;
-  const now = Date.now();
-  let entry = rateLimits.get(key);
-  if (!entry || now > entry.reset) { entry = { count: 0, reset: now + windowMs }; rateLimits.set(key, entry); }
-  entry.count++;
-  if (entry.count > max) { res.status(429).json({ error: 'Muitas tentativas. Aguarde um momento e tente novamente.' }); return false; }
-  return true;
-}
-function requireAdmin(req, res, next) {
-  const token = req.cookies.sessionToken;
-  const email = token ? sessions.get(token) : null;
-  if (!email || !adminEmails.has(email)) return res.status(403).json({ error: 'Acesso restrito a administradores' });
-  next();
-}
+const io = new Server(server, { cors: { origin: '*' } });
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -303,32 +275,7 @@ async function sendDiscordWebhook(webhookUrl, message) {
 }
 
 // ========== ROTAS ==========
-function parseFirebaseClientConfig() {
-  const raw = (process.env.FIREBASE_CLIENT_CONFIG || '').trim();
-  if (raw) {
-    try { return JSON.parse(raw); } catch (e) {}
-    try { return JSON.parse(Buffer.from(raw, 'base64').toString('utf8')); } catch (e) {}
-    return null;
-  }
-  const cfg = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.FIREBASE_DATABASE_URL,
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.FIREBASE_APP_ID,
-  };
-  return cfg.apiKey ? cfg : null;
-}
-
-app.get('/api/firebase-config', (req, res) => {
-  const cfg = parseFirebaseClientConfig();
-  if (!cfg) return res.status(500).json({ error: 'Firebase não configurado no servidor (FIREBASE_CLIENT_CONFIG)' });
-  res.json(cfg);
-});
 app.post('/api/signup', async (req, res) => {
-  if (!checkRate(req, res, 5, 60000)) return;
   const { nome, email, senha, estilos } = req.body;
   if (!nome || nome.length < 2) return res.status(400).json({ error: 'Nome inválido' });
   if (!email || !email.includes('@')) return res.status(400).json({ error: 'E-mail inválido' });
@@ -351,7 +298,6 @@ app.post('/api/signup', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
-  if (!checkRate(req, res, 10, 60000)) return;
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Preencha e-mail' });
 
@@ -364,7 +310,7 @@ app.post('/api/login', async (req, res) => {
 
     const token = crypto.randomBytes(64).toString('hex');
     sessions.set(token, email);
-    res.cookie('sessionToken', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', path: '/' });
+    res.cookie('sessionToken', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'lax', path: '/' });
 
     const points = await getPointsFromFirestore(email);
     res.json({ success: true, user: { ...userData, points: points.points, badges: points.badges } });
@@ -517,7 +463,7 @@ app.post('/api/update-avatar', async (req, res) => {
 });
 
 // ========== ADMIN ROTAS ==========
-app.get('/api/admin/stats', requireAdmin, async (req, res) => {
+app.get('/api/admin/stats', async (req, res) => {
   try {
     const snapshot = await db.collection('users').get();
     const totalUsers = snapshot.size;
@@ -527,7 +473,7 @@ app.get('/api/admin/stats', requireAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/admin/users', requireAdmin, async (req, res) => {
+app.get('/api/admin/users', async (req, res) => {
   try {
     const snapshot = await db.collection('users').get();
     const usersList = [];
@@ -539,14 +485,14 @@ app.get('/api/admin/users', requireAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/admin/promote', requireAdmin, async (req, res) => {
+app.post('/api/admin/promote', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email necessário' });
   adminEmails.add(email);
   res.json({ success: true });
 });
 
-app.post('/api/admin/delete-user', requireAdmin, async (req, res) => {
+app.post('/api/admin/delete-user', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email necessário' });
   try {
@@ -560,7 +506,7 @@ app.post('/api/admin/delete-user', requireAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/admin/kick-user', requireAdmin, (req, res) => {
+app.post('/api/admin/kick-user', (req, res) => {
   const { email, roomSlug } = req.body;
   if (!email || !roomSlug) return res.status(400).json({ error: 'Dados incompletos' });
   const room = rooms.get(roomSlug);
@@ -581,7 +527,7 @@ app.post('/api/admin/kick-user', requireAdmin, (req, res) => {
   });
 });
 
-app.post('/api/admin/ban-user', requireAdmin, async (req, res) => {
+app.post('/api/admin/ban-user', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email necessário' });
   const userData = await getUserFromFirestore(email);
@@ -599,7 +545,7 @@ app.post('/api/admin/ban-user', requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/admin/remove-song', requireAdmin, (req, res) => {
+app.post('/api/admin/remove-song', (req, res) => {
   const { roomSlug, index } = req.body;
   if (roomSlug === undefined || index === undefined) return res.status(400).json({ error: 'Dados incompletos' });
   const room = rooms.get(roomSlug);
@@ -628,7 +574,7 @@ app.post('/api/admin/remove-song', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/admin/clear-all-chats', requireAdmin, (req, res) => {
+app.post('/api/admin/clear-all-chats', (req, res) => {
   for (const [slug, room] of rooms) {
     room.chatHistory = [];
     roomLikes.set(slug, {});
@@ -637,7 +583,7 @@ app.post('/api/admin/clear-all-chats', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/admin/clear-all-rooms', requireAdmin, (req, res) => {
+app.post('/api/admin/clear-all-rooms', (req, res) => {
   for (const [slug, room] of rooms) {
     if (slug === 'lounge') continue;
     io.to(slug).emit('roomClosed', 'Sala removida pelo admin.');
@@ -649,7 +595,7 @@ app.post('/api/admin/clear-all-rooms', requireAdmin, (req, res) => {
   res.json({ success: true });
 });
 
-app.get('/api/admin/export-data', requireAdmin, (req, res) => {
+app.get('/api/admin/export-data', (req, res) => {
   const data = {
     users: Array.from(users.values()),
     rooms: Array.from(rooms.values()).map(r => ({ ...r, lastAddTime: undefined, skipVotes: undefined })),
@@ -783,8 +729,7 @@ io.on('connection', (socket) => {
 
   socket.on('chat', ({ text }) => {
     try {
-      if (!currentRoom || !text || !text.trim()) return;
-      text = String(text).slice(0, 400);
+      if (!currentRoom || !text.trim()) return;
       const room = rooms.get(currentRoom);
       const parts = text.trim().split(' ');
       const command = parts[0].toLowerCase();
@@ -995,31 +940,6 @@ io.on('connection', (socket) => {
       }
       io.to(room).emit('voteUpdate', { id, up: data.up, down: data.down });
     } catch (e) { console.error('Erro no voteSong:', e.message); }
-  });
-
-  socket.on('leaveRoom', () => {
-    try {
-      if (!currentRoom) return;
-      const slug = currentRoom;
-      const room = rooms.get(slug);
-      socket.leave(slug);
-      currentRoom = null;
-      if (room) {
-        room.listenerCount = Math.max(0, room.listenerCount - 1);
-        broadcastState(slug);
-        broadcastUsers(slug);
-        notifyNextWaiting(slug);
-      }
-    } catch (e) { console.error('Erro no leaveRoom:', e.message); }
-  });
-
-  socket.on('adminBroadcast', ({ message }) => {
-    try {
-      if (!socket.isAdmin && !adminEmails.has(socket.userEmail)) return;
-      const msg = String(message || '').slice(0, 200);
-      if (!msg.trim()) return;
-      io.emit('adminBroadcast', { message: msg });
-    } catch (e) { console.error('Erro no adminBroadcast:', e.message); }
   });
 
   socket.on('disconnect', () => {
