@@ -9,18 +9,7 @@
   <!-- ===== CONFIGURAÇÃO FIREBASE ===== -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAF1I-hhlJeiaAWNj6Ze7B6KMP1-iyOBWU",
-      authDomain: "sonorafan-777.firebaseapp.com",
-      databaseURL: "https://sonorafan-777-default-rtdb.firebaseio.com",
-      projectId: "sonorafan-777",
-      storageBucket: "sonorafan-777.firebasestorage.app",
-      messagingSenderId: "790544929713",
-      appId: "1:790544929713:web:aa42cb147b7c4ecfe2a390"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
+  <!-- Config do Firebase agora vem do servidor: /api/firebase-config -->
 
   <style>
     /* ===== ESTILOS GLOBAIS ===== */
@@ -64,102 +53,74 @@
 
     /* ===== LANDING PAGE ===== */
     .landing-screen { position: relative; z-index: 90; flex: 1; overflow-y: auto; background: transparent; }
-    .landing-fx { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-    .landing-fx .glow { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .3; animation: glowPulse 8s ease-in-out infinite alternate; }
-    .glow.g1 { width: 520px; height: 520px; background: var(--accent2); top: -160px; left: -120px; }
-    .glow.g2 { width: 460px; height: 460px; background: var(--accent); bottom: -160px; right: -100px; animation-delay: 2s; }
-    .glow.g3 { width: 320px; height: 320px; background: var(--success); top: 35%; left: 55%; opacity: .15; animation-delay: 4s; }
-    @keyframes glowPulse { from { transform: scale(1); } to { transform: scale(1.3); } }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-    .eq-bars { position: absolute; bottom: 0; left: 0; right: 0; height: 130px; display: flex; align-items: flex-end; gap: 4px; padding: 0 6px; opacity: .45; }
-    .eq-bar { flex: 1; min-width: 3px; background: linear-gradient(180deg, var(--accent), var(--accent2)); border-radius: 3px 3px 0 0; animation: eq 1s ease-in-out infinite alternate; transform-origin: bottom; }
-    @keyframes eq { from { transform: scaleY(.12); } to { transform: scaleY(1); } }
-    .fnote { position: absolute; bottom: -40px; opacity: 0; animation: noteFloat linear infinite; text-shadow: 0 0 14px var(--accent2-glow); }
-    @keyframes noteFloat { 0% { transform: translateY(0) rotate(0deg) scale(.7); opacity: 0; } 8% { opacity: .55; } 92% { opacity: .35; } 100% { transform: translateY(-115vh) rotate(45deg) scale(1.25); opacity: 0; } }
+    .landing-fx { position: fixed; inset: 0; pointer-events: none; z-index: 0; background:
+      radial-gradient(900px 480px at 88% -12%, rgba(124,58,237,.16), transparent 62%),
+      radial-gradient(700px 460px at -12% 112%, rgba(255,107,53,.10), transparent 62%); }
 
-    .landing-inner { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 32px 24px 70px; }
-    .landing-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 44px; flex-wrap: wrap; gap: 16px; }
-    .landing-logo { font-size: 27px; font-weight: 900; letter-spacing: -0.5px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .landing-nav-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .landing-nav-actions .lang-btn { background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; color: var(--text-muted); cursor: pointer; font-size: 12px; font-family: inherit; transition: all 0.15s; }
-    .landing-nav-actions .lang-btn:hover { border-color: var(--accent2); color: var(--text); }
-    .landing-nav-actions .lang-btn.active { border-color: var(--accent); color: var(--text); background: rgba(255,107,53,0.1); }
-    .landing-nav-actions .btn-outline { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-    .landing-nav-actions .btn-outline:hover { border-color: var(--accent2); color: var(--text); background: var(--bg-hover); }
-    .landing-nav-actions .btn-primary { padding: 8px 24px; border-radius: 8px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); background-size: 200% 200%; animation: gradientMove 3s ease infinite, pulseGlow 2s infinite; color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-    .landing-nav-actions .btn-primary:hover { transform: translateY(-2px) scale(1.02); }
+    .landing-inner { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 24px 24px 90px; }
+    .landing-nav { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 24px; margin-bottom: 44px; border-bottom: 1px solid rgba(255,255,255,.06); flex-wrap: wrap; gap: 12px; }
+    .landing-logo { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .landing-nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .landing-nav-actions .lang-btn { background: transparent; border: none; border-radius: 6px; padding: 4px 8px; color: var(--text-muted); cursor: pointer; font-size: 12px; font-family: inherit; transition: all 0.15s; }
+    .landing-nav-actions .lang-btn:hover { color: var(--text); }
+    .landing-nav-actions .lang-btn.active { color: var(--accent); }
+    .landing-nav-actions .btn-outline { padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border-hover); background: transparent; color: var(--text-secondary); font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .landing-nav-actions .btn-outline:hover { border-color: var(--accent2); color: var(--text); }
+    .landing-nav-actions .btn-primary { padding: 8px 20px; border-radius: 999px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); background-size: 200% 200%; animation: gradientMove 5s ease infinite; color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .landing-nav-actions .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,.35); }
     @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(124,58,237,0.4); } 70% { box-shadow: 0 0 0 15px rgba(124,58,237,0); } 100% { box-shadow: 0 0 0 0 rgba(124,58,237,0); } }
 
-    .landing-hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; padding: 36px 0 60px; }
-    .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; letter-spacing: 2px; color: var(--accent); background: rgba(255,107,53,.08); border: 1px solid rgba(255,107,53,.25); padding: 7px 14px; border-radius: 999px; margin-bottom: 20px; }
-    .hero-eyebrow .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); animation: pulse 1.5s infinite; }
-    .landing-hero-text h1 { font-size: 54px; font-weight: 900; line-height: 1.08; color: #fff; margin-bottom: 20px; letter-spacing: -1px; }
+    .landing-hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; padding: 26px 0 84px; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 12px; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 26px; }
+    .hero-eyebrow i { width: 24px; height: 1px; background: var(--accent); display: inline-block; }
+    .landing-hero-text h1 { font-size: clamp(40px, 5.6vw, 66px); font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; color: #fff; margin-bottom: 24px; }
     .landing-hero-text h1 span { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .landing-hero-text p { color: var(--text-secondary); font-size: 19px; line-height: 1.6; margin-bottom: 30px; max-width: 520px; }
-    .landing-hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 28px; }
-    .landing-hero-ctas .btn-hero-secondary { padding: 16px 40px; border-radius: 12px; border: 1px solid var(--border-hover); background: rgba(255,255,255,0.04); color: #fff; font-weight: 600; font-size: 18px; cursor: pointer; transition: all 0.2s; font-family: inherit; backdrop-filter: blur(4px); }
-    .landing-hero-ctas .btn-hero-secondary:hover { background: rgba(255,255,255,0.1); border-color: var(--accent2); transform: translateY(-2px); }
-    .landing-hero-ctas .btn-hero-primary { padding: 16px 40px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); background-size: 200% 200%; animation: gradientMove 3s ease infinite, pulseGlow 2s infinite; color: #fff; font-weight: 700; font-size: 18px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-    .landing-hero-ctas .btn-hero-primary:hover { transform: translateY(-3px) scale(1.02); }
-    .hero-stats { display: flex; gap: 22px; color: var(--text-muted); font-size: 13px; flex-wrap: wrap; font-weight: 500; }
-    .hero-stats span { transition: color .2s; }
-    .hero-stats span:hover { color: var(--text); }
+    .landing-hero-text p { color: var(--text-secondary); font-size: 17px; line-height: 1.7; margin-bottom: 36px; max-width: 460px; }
+    .landing-hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 36px; }
+    .btn-hero-primary { padding: 15px 34px; border-radius: 999px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); background-size: 200% 200%; animation: gradientMove 5s ease infinite; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.25s; font-family: inherit; box-shadow: 0 10px 30px rgba(124,58,237,.28); }
+    .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(124,58,237,.42); }
+    .btn-hero-secondary { padding: 15px 34px; border-radius: 999px; border: 1px solid var(--border-hover); background: transparent; color: var(--text); font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.25s; font-family: inherit; }
+    .btn-hero-secondary:hover { border-color: var(--accent2); background: rgba(255,255,255,.04); transform: translateY(-2px); }
+    .hero-sub-line { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; }
+    .hero-sub-line .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-muted); opacity: .6; }
 
-    .vinyl-wrap { position: relative; display: flex; justify-content: center; align-items: center; }
-    .vinyl-glow { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(circle, var(--accent2-glow), transparent 65%); animation: glowPulse 4s ease-in-out infinite alternate; z-index: -1; }
-    .vinyl { width: 300px; height: 300px; border-radius: 50%; position: relative; background: repeating-radial-gradient(circle at 50% 50%, #17171f 0px, #17171f 2px, #101017 2px, #101017 5px); box-shadow: 0 0 70px rgba(124,58,237,.45), 0 0 0 10px rgba(10,10,16,.9), inset 0 0 30px rgba(0,0,0,.8); animation: spinDisc 5s linear infinite; }
-    @keyframes spinDisc { to { transform: rotate(360deg); } }
-    .vinyl .label { position: absolute; inset: 33%; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: inset 0 0 0 6px rgba(0,0,0,.25); }
-    .vinyl .label::after { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); }
-    .tonearm { position: absolute; top: 6px; right: 12px; width: 90px; height: 6px; background: linear-gradient(90deg, #3a3a4a, #23232e); border-radius: 3px; transform-origin: right center; transform: rotate(18deg); animation: armSwing 3.5s ease-in-out infinite alternate; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
-    .tonearm::after { content: ''; position: absolute; left: -8px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent2); }
-    @keyframes armSwing { from { transform: rotate(14deg); } to { transform: rotate(24deg); } }
+    .vinyl-stage { display: flex; justify-content: center; align-items: center; }
+    .vinyl-frame { padding: 16px; border: 1px solid rgba(255,255,255,.08); border-radius: 50%; }
+    .vinyl2 { width: 280px; height: 280px; border-radius: 50%; position: relative; background: repeating-radial-gradient(circle at 50% 50%, #181820 0px, #181820 1.5px, #0f0f16 1.5px, #0f0f16 4px); box-shadow: 0 30px 70px rgba(0,0,0,.5), inset 0 0 40px rgba(0,0,0,.65), 0 0 90px rgba(124,58,237,.16); animation: spinSlow 18s linear infinite; }
+    .vinyl2::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 130deg, transparent 0deg, rgba(255,255,255,.05) 45deg, transparent 90deg); pointer-events: none; }
+    @keyframes spinSlow { to { transform: rotate(360deg); } }
+    .vinyl2 .vlabel { position: absolute; inset: 35%; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: inset 0 0 0 5px rgba(0,0,0,.25); }
+    .vinyl2 .vlabel::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 10px; height: 10px; border-radius: 50%; background: var(--bg); }
 
-    .ticker { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(0,0,0,.35); backdrop-filter: blur(6px); margin-bottom: 56px; border-radius: 10px; }
-    .ticker-track { display: inline-flex; white-space: nowrap; animation: marquee 26s linear infinite; will-change: transform; }
-    .ticker-track span { display: inline-flex; align-items: center; padding: 13px 22px; font-weight: 800; letter-spacing: 2.5px; font-size: 13px; color: var(--text-secondary); }
-    .ticker-track i { color: var(--accent); font-style: normal; margin: 0 22px; }
-    @keyframes marquee { to { transform: translateX(-50%); } }
+    .hr-line { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent); margin-bottom: 70px; }
+    .sec-head { text-align: center; margin-bottom: 56px; }
+    .sec-label { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+    .sec-title { font-size: clamp(24px, 3.2vw, 34px); font-weight: 700; letter-spacing: -0.02em; }
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 96px; }
+    .fcard { text-align: center; }
+    .ficon-wrap { width: 54px; height: 54px; margin: 0 auto 20px; border-radius: 50%; border: 1px solid var(--border-hover); display: flex; align-items: center; justify-content: center; font-size: 24px; transition: all .3s; }
+    .fcard:hover .ficon-wrap { border-color: var(--accent2); background: rgba(124,58,237,.08); transform: translateY(-4px); }
+    .fcard h3 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .fcard p { color: var(--text-secondary); font-size: 14px; line-height: 1.65; max-width: 280px; margin: 0 auto; }
 
-    .landing-features-title { text-align: center; font-size: 38px; font-weight: 800; margin-bottom: 12px; }
-    .landing-features-sub { text-align: center; color: var(--text-secondary); font-size: 18px; margin-bottom: 48px; }
-    .landing-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 60px; }
-    .landing-feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px 28px; text-align: center; transition: all 0.3s; }
-    .landing-feature-card:hover { border-color: var(--accent2); transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
-    .landing-feature-card .icon { font-size: 52px; display: block; margin-bottom: 16px; }
-    .landing-feature-card:hover .icon { animation: iconBounce .6s ease; }
-    @keyframes iconBounce { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-10px) scale(1.15); } }
-    .landing-feature-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
-    .landing-feature-card p { color: var(--text-secondary); font-size: 15px; line-height: 1.7; }
-
-    .landing-cta-band { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 48px 32px; text-align: center; position: relative; overflow: hidden; }
-    .landing-cta-band::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent)); }
-    .landing-cta-band h2 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
-    .landing-cta-band p { color: var(--text-secondary); font-size: 18px; margin-bottom: 28px; }
-    .landing-cta-band .btn-cta { padding: 16px 48px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); background-size: 200% 200%; animation: gradientMove 3s ease infinite, pulseGlow 2s infinite; color: #fff; font-weight: 700; font-size: 18px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-    .landing-cta-band .btn-cta:hover { transform: translateY(-3px) scale(1.02); }
+    .cta-final { text-align: center; padding: 10px 0 20px; }
+    .cta-final h2 { font-size: clamp(26px, 3.6vw, 40px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 14px; }
+    .cta-final h2 span { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .cta-final p { color: var(--text-muted); font-size: 15px; margin-bottom: 32px; }
+    .btn-cta { padding: 15px 42px; border-radius: 999px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); background-size: 200% 200%; animation: gradientMove 5s ease infinite; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.25s; font-family: inherit; box-shadow: 0 10px 30px rgba(124,58,237,.28); }
+    .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(124,58,237,.42); }
 
     @media (max-width: 992px) {
-      .landing-hero { grid-template-columns: 1fr; text-align: center; padding: 20px 0 48px; }
+      .landing-hero { grid-template-columns: 1fr; text-align: center; gap: 52px; padding: 16px 0 64px; }
+      .hero-eyebrow i { display: none; }
       .landing-hero-text p { margin-left: auto; margin-right: auto; }
-      .landing-hero-ctas, .hero-stats { justify-content: center; }
-      .landing-hero-text h1 { font-size: 42px; }
-      .vinyl { width: 230px; height: 230px; }
-      .tonearm { right: 4px; }
-      .landing-features { grid-template-columns: 1fr 1fr; }
+      .landing-hero-ctas, .hero-sub-line { justify-content: center; }
+      .vinyl2 { width: 230px; height: 230px; }
+      .features { grid-template-columns: 1fr; gap: 40px; margin-bottom: 72px; }
     }
     @media (max-width: 600px) {
-      .landing-hero-text h1 { font-size: 32px; }
-      .vinyl { width: 180px; height: 180px; }
-      .vinyl .label { font-size: 28px; }
-      .tonearm { display: none; }
-      .landing-features { grid-template-columns: 1fr; }
-      .landing-nav { flex-direction: column; align-items: stretch; }
-      .landing-nav-actions { justify-content: center; }
-      .landing-cta-band h2 { font-size: 24px; }
-      .landing-cta-band p { font-size: 16px; }
-      .eq-bars { height: 80px; }
+      .vinyl2 { width: 190px; height: 190px; }
+      .hr-line { margin-bottom: 52px; }
     }
 
     /* ===== LOGIN ===== */
@@ -509,69 +470,7 @@
 
   <!-- ===== LANDING PAGE ===== -->
   <div class="landing-screen" id="landingScreen">
-    <div class="landing-fx">
-      <div class="glow g1"></div>
-      <div class="glow g2"></div>
-      <div class="glow g3"></div>
-        <span class="fnote" style="left:63%;font-size:28px;animation-duration:9.5s;animation-delay:-0.9s;color:var(--accent2)">♬</span>
-        <span class="fnote" style="left:22%;font-size:19px;animation-duration:11.7s;animation-delay:-0.7s;color:var(--accent)">♫</span>
-        <span class="fnote" style="left:70%;font-size:19px;animation-duration:16.6s;animation-delay:-8.6s;color:var(--accent)">♫</span>
-        <span class="fnote" style="left:80%;font-size:28px;animation-duration:10.2s;animation-delay:-3.5s;color:var(--success)">♩</span>
-        <span class="fnote" style="left:62%;font-size:19px;animation-duration:9.9s;animation-delay:-6.8s;color:var(--warning)">♬</span>
-        <span class="fnote" style="left:63%;font-size:25px;animation-duration:9.7s;animation-delay:-1.4s;color:var(--success)">♩</span>
-        <span class="fnote" style="left:63%;font-size:21px;animation-duration:13.1s;animation-delay:-2.9s;color:var(--success)">♫</span>
-        <span class="fnote" style="left:90%;font-size:33px;animation-duration:16.3s;animation-delay:-10.6s;color:var(--success)">♪</span>
-        <span class="fnote" style="left:91%;font-size:24px;animation-duration:13.1s;animation-delay:-12.7s;color:var(--success)">♫</span>
-        <span class="fnote" style="left:70%;font-size:33px;animation-duration:15.2s;animation-delay:-4.6s;color:var(--accent2)">♫</span>
-        <span class="fnote" style="left:32%;font-size:28px;animation-duration:14.9s;animation-delay:-3.2s;color:var(--warning)">♩</span>
-        <span class="fnote" style="left:95%;font-size:16px;animation-duration:16.9s;animation-delay:-11.1s;color:var(--warning)">♩</span>
-        <span class="fnote" style="left:26%;font-size:27px;animation-duration:12.6s;animation-delay:-13.1s;color:var(--success)">♩</span>
-        <span class="fnote" style="left:12%;font-size:23px;animation-duration:9.8s;animation-delay:-6.6s;color:var(--success)">♫</span>
-      <div class="eq-bars">
-        <span class="eq-bar" style="height:76%;animation-duration:1.36s;animation-delay:-0.55s"></span>
-        <span class="eq-bar" style="height:41%;animation-duration:0.66s;animation-delay:-0.75s"></span>
-        <span class="eq-bar" style="height:81%;animation-duration:1.07s;animation-delay:-1.27s"></span>
-        <span class="eq-bar" style="height:62%;animation-duration:0.63s;animation-delay:-0.61s"></span>
-        <span class="eq-bar" style="height:43%;animation-duration:0.79s;animation-delay:-0.77s"></span>
-        <span class="eq-bar" style="height:42%;animation-duration:1.26s;animation-delay:-0.17s"></span>
-        <span class="eq-bar" style="height:63%;animation-duration:1.10s;animation-delay:-0.82s"></span>
-        <span class="eq-bar" style="height:42%;animation-duration:1.06s;animation-delay:-0.56s"></span>
-        <span class="eq-bar" style="height:63%;animation-duration:0.64s;animation-delay:-1.20s"></span>
-        <span class="eq-bar" style="height:72%;animation-duration:0.94s;animation-delay:-0.76s"></span>
-        <span class="eq-bar" style="height:74%;animation-duration:1.05s;animation-delay:-0.95s"></span>
-        <span class="eq-bar" style="height:48%;animation-duration:1.07s;animation-delay:-0.89s"></span>
-        <span class="eq-bar" style="height:82%;animation-duration:0.68s;animation-delay:-1.00s"></span>
-        <span class="eq-bar" style="height:42%;animation-duration:1.10s;animation-delay:-0.69s"></span>
-        <span class="eq-bar" style="height:89%;animation-duration:1.22s;animation-delay:-0.65s"></span>
-        <span class="eq-bar" style="height:93%;animation-duration:0.89s;animation-delay:-0.35s"></span>
-        <span class="eq-bar" style="height:58%;animation-duration:1.16s;animation-delay:-0.34s"></span>
-        <span class="eq-bar" style="height:73%;animation-duration:1.02s;animation-delay:-1.23s"></span>
-        <span class="eq-bar" style="height:92%;animation-duration:0.83s;animation-delay:-1.37s"></span>
-        <span class="eq-bar" style="height:50%;animation-duration:1.01s;animation-delay:-0.23s"></span>
-        <span class="eq-bar" style="height:78%;animation-duration:0.72s;animation-delay:-0.68s"></span>
-        <span class="eq-bar" style="height:40%;animation-duration:1.37s;animation-delay:-0.11s"></span>
-        <span class="eq-bar" style="height:75%;animation-duration:0.87s;animation-delay:-0.49s"></span>
-        <span class="eq-bar" style="height:98%;animation-duration:1.06s;animation-delay:-0.64s"></span>
-        <span class="eq-bar" style="height:46%;animation-duration:1.36s;animation-delay:-0.66s"></span>
-        <span class="eq-bar" style="height:43%;animation-duration:0.65s;animation-delay:-0.98s"></span>
-        <span class="eq-bar" style="height:92%;animation-duration:0.83s;animation-delay:-0.54s"></span>
-        <span class="eq-bar" style="height:79%;animation-duration:0.62s;animation-delay:-0.65s"></span>
-        <span class="eq-bar" style="height:56%;animation-duration:1.09s;animation-delay:-0.69s"></span>
-        <span class="eq-bar" style="height:62%;animation-duration:1.21s;animation-delay:-0.18s"></span>
-        <span class="eq-bar" style="height:66%;animation-duration:0.92s;animation-delay:-1.28s"></span>
-        <span class="eq-bar" style="height:98%;animation-duration:0.66s;animation-delay:-0.63s"></span>
-        <span class="eq-bar" style="height:70%;animation-duration:1.31s;animation-delay:-1.15s"></span>
-        <span class="eq-bar" style="height:70%;animation-duration:1.17s;animation-delay:-1.38s"></span>
-        <span class="eq-bar" style="height:83%;animation-duration:1.37s;animation-delay:-0.21s"></span>
-        <span class="eq-bar" style="height:57%;animation-duration:0.72s;animation-delay:-0.92s"></span>
-        <span class="eq-bar" style="height:36%;animation-duration:0.99s;animation-delay:-0.82s"></span>
-        <span class="eq-bar" style="height:68%;animation-duration:0.83s;animation-delay:-0.20s"></span>
-        <span class="eq-bar" style="height:82%;animation-duration:1.09s;animation-delay:-0.45s"></span>
-        <span class="eq-bar" style="height:51%;animation-duration:1.15s;animation-delay:-0.72s"></span>
-        <span class="eq-bar" style="height:41%;animation-duration:0.97s;animation-delay:-1.22s"></span>
-        <span class="eq-bar" style="height:85%;animation-duration:0.92s;animation-delay:-0.55s"></span>
-      </div>
-    </div>
+    <div class="landing-fx"></div>
     <div class="landing-inner">
       <div class="landing-nav">
         <div class="landing-logo">🎧 VibeChat</div>
@@ -586,55 +485,52 @@
 
       <div class="landing-hero">
         <div class="landing-hero-text">
-          <div class="hero-eyebrow"><span class="dot"></span> AO VIVO • SALAS COLABORATIVAS DE MÚSICA</div>
+          <div class="hero-eyebrow" data-i18n="hero.eyebrow"><i></i>Salas colaborativas de música</div>
           <h1 data-i18n="hero.title">Sua vibe.<br>Sua música. <span>Ao vivo</span>.</h1>
           <p data-i18n="hero.sub">Entre numa sala, adicione seus hits do YouTube e sinta a energia da galera no chat em tempo real.</p>
           <div class="landing-hero-ctas">
-            <button class="btn-hero-secondary" onclick="showLogin()" data-i18n="hero.cta1">🎤 Entrar na sala</button>
             <button class="btn-hero-primary" onclick="openSignup()" data-i18n="hero.cta2">✍️ Criar conta</button>
+            <button class="btn-hero-secondary" onclick="showLogin()" data-i18n="hero.cta1">🎤 Entrar na sala</button>
           </div>
-          <div class="hero-stats">
-            <span>🎧 Salas ao vivo</span>
-            <span>🎵 Fila ilimitada</span>
+          <div class="hero-sub-line">
+            <span>🎵 Fila ilimitada</span><span class="dot"></span>
+            <span>🔴 Salas ao vivo</span><span class="dot"></span>
             <span>💬 Chat em tempo real</span>
-            <span>🗳️ Vote nas músicas</span>
           </div>
         </div>
-        <div class="vinyl-wrap">
-          <div class="vinyl-glow"></div>
-          <div class="vinyl"><div class="label">🎧</div></div>
-          <div class="tonearm"></div>
+        <div class="vinyl-stage">
+          <div class="vinyl-frame">
+            <div class="vinyl2"><div class="vlabel"></div></div>
+          </div>
         </div>
       </div>
 
-      <div class="ticker">
-        <div class="ticker-track">
-          <span>SERTANEJO <i>✦</i> FUNK <i>✦</i> PAGODE <i>✦</i> SAMBA <i>✦</i> MPB <i>✦</i> ROCK <i>✦</i> POP <i>✦</i> ELETRÔNICA <i>✦</i> HIP HOP <i>✦</i> FORRÓ <i>✦</i> GOSPEL <i>✦</i> INDIE <i>✦</i> </span><span>SERTANEJO <i>✦</i> FUNK <i>✦</i> PAGODE <i>✦</i> SAMBA <i>✦</i> MPB <i>✦</i> ROCK <i>✦</i> POP <i>✦</i> ELETRÔNICA <i>✦</i> HIP HOP <i>✦</i> FORRÓ <i>✦</i> GOSPEL <i>✦</i> INDIE <i>✦</i> </span>
-        </div>
-      </div>
+      <div class="hr-line"></div>
 
-      <h2 class="landing-features-title" data-i18n="features.title">🎶 Como funciona</h2>
-      <p class="landing-features-sub" data-i18n="features.sub">Tudo o que você precisa para criar a vibe perfeita</p>
-      <div class="landing-features">
-        <div class="landing-feature-card">
-          <span class="icon">🎵</span>
+      <div class="sec-head">
+        <div class="sec-label" data-i18n="sec.label">Como funciona</div>
+        <h2 class="sec-title" data-i18n="features.title">A vibe perfeita em 3 passos</h2>
+      </div>
+      <div class="features">
+        <div class="fcard">
+          <div class="ficon-wrap">🎵</div>
           <h3 data-i18n="feature1.title">Fila colaborativa ilimitada</h3>
-          <p data-i18n="feature1.desc">Todo mundo adiciona música do YouTube, a fila toca em sincronia para todos. Sem limite de músicas!</p>
+          <p data-i18n="feature1.desc">Todo mundo adiciona música do YouTube e a fila toca em sincronia para a sala inteira. Sem limite de músicas.</p>
         </div>
-        <div class="landing-feature-card">
-          <span class="icon">💬</span>
+        <div class="fcard">
+          <div class="ficon-wrap">💬</div>
           <h3 data-i18n="feature2.title">Chat ao vivo</h3>
-          <p data-i18n="feature2.desc">Comente as músicas, reaja com emojis e curta as escolhas da galera.</p>
+          <p data-i18n="feature2.desc">Comente as músicas, reaja com emojis e curta as escolhas da galera em tempo real.</p>
         </div>
-        <div class="landing-feature-card">
-          <span class="icon">🗳️</span>
+        <div class="fcard">
+          <div class="ficon-wrap">🗳️</div>
           <h3 data-i18n="feature3.title">Votação democrática</h3>
-          <p data-i18n="feature3.desc">Curta ou dispense músicas da fila. Com 10 votos negativos, a música sai!</p>
+          <p data-i18n="feature3.desc">Curta ou dispense músicas da fila. Com 10 votos negativos, a música sai.</p>
         </div>
       </div>
 
-      <div class="landing-cta-band">
-        <h2 data-i18n="band.title">Ainda não tem conta? Crie uma agora!</h2>
+      <div class="cta-final">
+        <h2 data-i18n="band.title">Ainda não tem conta? <span>Crie uma agora!</span></h2>
         <p data-i18n="band.sub">Cadastre-se e entre nas salas para ouvir música com amigos.</p>
         <button class="btn-cta" onclick="openSignup()" data-i18n="band.cta">Criar minha conta 🎵</button>
       </div>
@@ -1030,7 +926,9 @@
         'hero.sub': 'Entre numa sala, adicione seus hits do YouTube e sinta a energia da galera no chat em tempo real.',
         'hero.cta1': '🎤 Entrar na sala',
         'hero.cta2': '✍️ Criar conta',
-        'features.title': '🎶 Como funciona',
+        'hero.eyebrow': 'Salas colaborativas de música',
+        'sec.label': 'Como funciona',
+        'features.title': 'A vibe perfeita em 3 passos',
         'features.sub': 'Tudo o que você precisa para criar a vibe perfeita',
         'feature1.title': 'Fila colaborativa ilimitada',
         'feature1.desc': 'Todo mundo adiciona música do YouTube, a fila toca em sincronia para todos. Sem limite de músicas!',
@@ -1108,7 +1006,9 @@
         'hero.sub': 'Join a room, drop your favorite YouTube hits and feel the crowd energy in the live chat.',
         'hero.cta1': '🎤 Enter the room',
         'hero.cta2': '✍️ Create account',
-        'features.title': '🎶 How it works',
+        'hero.eyebrow': 'Collaborative music rooms',
+        'sec.label': 'How it works',
+        'features.title': 'The perfect vibe in 3 steps',
         'features.sub': 'Everything you need to create the perfect vibe',
         'feature1.title': 'Collaborative queue',
         'feature1.desc': 'Everyone adds YouTube music, the queue plays in sync for everyone.',
@@ -1186,7 +1086,9 @@
         'hero.sub': 'Entra a una sala, añade tus éxitos de YouTube y siente la energía de la banda en el chat en vivo.',
         'hero.cta1': '🎤 Entrar a la sala',
         'hero.cta2': '✍️ Crear cuenta',
-        'features.title': '🎶 Cómo funciona',
+        'hero.eyebrow': 'Salas colaborativas de música',
+        'sec.label': 'Cómo funciona',
+        'features.title': 'El ambiente perfecto en 3 pasos',
         'features.sub': 'Todo lo que necesitas para crear el ambiente perfecto',
         'feature1.title': 'Cola colaborativa',
         'feature1.desc': 'Todos añaden música de YouTube, la cola se reproduce en sincronía para todos.',
@@ -1295,6 +1197,28 @@
       } catch(e) {}
     }
 
+    // ===== FIREBASE — config vem do servidor (não fica exposta no HTML) =====
+    let firebaseReadyPromise = null;
+    let firebaseInitError = null;
+    function firebaseReady() { return !!(firebase.apps && firebase.apps.length); }
+    function ensureFirebase() {
+      if (firebaseReady()) return Promise.resolve();
+      if (!firebaseReadyPromise) {
+        firebaseReadyPromise = fetch('/api/firebase-config')
+          .then(async r => {
+            const data = await r.json().catch(() => ({}));
+            if (!r.ok || !data.apiKey) throw new Error(data.error || 'config');
+            return data;
+          })
+          .then(cfg => { if (!firebase.apps.length) firebase.initializeApp(cfg); firebaseInitError = null; })
+          .catch(() => {
+            firebaseReadyPromise = null;
+            firebaseInitError = 'Firebase não configurado no servidor. Verifique a variável FIREBASE_CLIENT_CONFIG no painel do Render.';
+          });
+      }
+      return firebaseReadyPromise;
+    }
+
     function $(id) { return document.getElementById(id); }
     function toast(msg, type) {
       const el = $('toast');
@@ -1356,6 +1280,7 @@
       if (senha.length < 6) return toast('Senha deve ter 6+ caracteres', 'error');
       if (estilos.length === 0) return toast('Escolha um estilo musical', 'error');
 
+      try { await ensureFirebase(); } catch (e) {}
       const btn = document.querySelector('#signupModal .btn-primary');
       const originalText = btn.innerHTML;
       btn.disabled = true;
@@ -1401,7 +1326,8 @@
         loadFavorites();
         toast('Bem-vindo(a) ' + myName + '! 🎉', 'success');
       } catch(e) {
-        toast(e.message || 'Erro ao criar conta', 'error');
+        if (firebaseInitError && !firebaseReady()) { toast(firebaseInitError, 'error'); }
+        else { toast((e.message || 'Erro ao criar conta').replace('Firebase: ', '').replace('FirebaseError: ', ''), 'error'); }
       } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
@@ -1413,6 +1339,7 @@
       const senha = $('loginPassword').value.trim();
       const errorEl = $('loginError');
       if (!email || !senha) { errorEl.textContent = 'Preencha e-mail e senha'; errorEl.classList.add('show'); return; }
+      try { await ensureFirebase(); } catch (e) {}
       const btn = $('loginBtn');
       btn.disabled = true;
       btn.textContent = 'Entrando...';
@@ -1435,10 +1362,12 @@
         loadFavorites();
         toast('Bem-vindo(a) de volta ' + myName + '!', 'success');
       } catch(e) {
-        if (e.code === 'auth/invalid-credential' || e.message.includes('invalid-credential')) {
-          errorEl.textContent = 'Sem cadastro, venha ser um Fan!';
+        if (firebaseInitError && !firebaseReady()) {
+          errorEl.textContent = firebaseInitError;
+        } else if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || (e.message && e.message.includes('invalid-credential'))) {
+          errorEl.textContent = 'E-mail ou senha inválidos. Se não tem conta, cadastre-se!';
         } else {
-          errorEl.textContent = e.message || 'Erro ao fazer login';
+          errorEl.textContent = (e.message || 'Erro ao fazer login').replace('Firebase: ', '').replace('FirebaseError: ', '');
         }
         errorEl.classList.add('show');
       } finally {
@@ -2345,6 +2274,7 @@
     function init() {
       setLanguage(currentLang);
       applyTheme();
+      try { ensureFirebase(); } catch (e) {}
       const params = new URLSearchParams(window.location.search);
       const room = params.get('room');
       if (room) pendingRoomAfterLogin = room;
