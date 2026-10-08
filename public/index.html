@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>VibeChat — Sua vibe, sua música</title>
+  <title>SonoraFan — Sua vibe, sua música</title>
   <meta name="description" content="Salas colaborativas de música: todo mundo adiciona músicas do YouTube e conversa em tempo real.">
-  <meta property="og:type" content="website"><meta property="og:title" content="VibeChat — Sua vibe, sua música">
+  <meta property="og:type" content="website"><meta property="og:title" content="SonoraFan — Sua vibe, sua música">
   <meta property="og:description" content="Entre numa sala, adicione suas músicas e converse ao vivo com a galera.">
   <meta property="og:image" content="/icon.svg"><meta name="theme-color" content="#7c3aed">
   <link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -495,7 +495,7 @@
       .footer { flex-direction: column; gap: 8px; text-align: center; }
     }
 
-    /* ===== VIBECHAT 2.1 — refinamento visual ===== */
+    /* ===== SONORAFAN 2.1 — refinamento visual ===== */
     :root { --glass: rgba(0,0,0,0.5); }
     .header, .footer { background: var(--glass); }
     .chat-column { background: var(--glass); }
@@ -691,7 +691,7 @@
     </div>
     <div class="landing-inner">
       <div class="landing-nav">
-        <div class="landing-logo">🎧 VibeChat</div>
+        <div class="landing-logo">🎧 SonoraFan</div>
         <div class="landing-nav-actions">
           <button class="lang-btn active" data-lang="pt" onclick="setLanguage('pt')">PT</button>
           <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
@@ -762,14 +762,12 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="logo">🎸</div>
-      <h1>🎧 VibeChat</h1>
+      <h1>🎧 SonoraFan</h1>
       <p data-i18n="login.sub">Entre com sua conta para acessar as salas.</p>
       <div class="login-error" id="loginError" data-i18n="login.error">Credenciais inválidas.</div>
       <input type="email" id="loginEmail" placeholder="E-mail" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
       <input type="password" id="loginPassword" placeholder="Senha" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
       <button id="loginBtn" onclick="doLogin()" data-i18n="login.btn">Entrar no palco</button>
-      <button type="button" class="btn-secondary" id="googleBtn" onclick="googleLogin()" style="width:100%;margin-top:10px;">Entrar com Google</button>
-      <p style="text-align:center;margin-top:12px;font-size:13px;"><a href="#" onclick="forgotPassword();return false;">Esqueci minha senha</a></p>
       <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="/legal.html" target="_blank" rel="noopener">Termos e a Política de Privacidade</a>.</p>
       <div class="login-switch"><span data-i18n="login.switch">Não tem conta?</span> <a onclick="openSignup()" data-i18n="login.signup">Cadastre-se</a></div>
     </div>
@@ -919,7 +917,7 @@
   <div class="screen" id="screen-lobby">
     <div class="app">
       <div class="header">
-        <div class="header-left"><h1>🎧 VibeChat</h1></div>
+        <div class="header-left"><h1>🎧 SonoraFan</h1></div>
         <div class="header-right">
           <div class="user-info" id="userInfo">
             <span id="userAvatar" style="cursor:pointer;" onclick="openAvatarModal()">🎸</span>
@@ -1154,10 +1152,10 @@
   <div class="footer">
     <span>Desenvolvido por <a href="https://www.linkedin.com/in/ggiuntini/" target="_blank">Guilherme Giuntini</a></span>
     <div class="social-icons">
-      <a href="#" onclick="sharePage('whatsapp'); return false;" title="WhatsApp"><span style="font-weight:700;font-size:13px;">WhatsApp</span></a>
-      <a href="#" onclick="sharePage('twitter'); return false;" title="Twitter"><span style="font-weight:700;font-size:13px;">X</span></a>
-      <a href="#" onclick="sharePage('facebook'); return false;" title="Facebook"><span style="font-weight:700;font-size:13px;">Facebook</span></a>
-      <a href="#" onclick="sharePage('threads'); return false;" title="Threads"><span style="font-weight:700;font-size:13px;">Threads</span></a>
+      <a href="#" onclick="sharePage('whatsapp'); return false;" title="WhatsApp"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/960px-WhatsApp.svg.png" alt="WhatsApp"></a>
+      <a href="#" onclick="sharePage('twitter'); return false;" title="Twitter"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvBQj3eYlJYOfo13gijtX4XWNDpiM0O7a7IfpxGMhiQ9CltsrZ8myP9uQ&s=10" alt="Twitter"></a>
+      <a href="#" onclick="sharePage('facebook'); return false;" title="Facebook"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Facebook_f_logo_%282021%29.svg/3840px-Facebook_f_logo_%282021%29.svg.png" alt="Facebook"></a>
+      <a href="#" onclick="sharePage('threads'); return false;" title="Threads"><img src="https://img.magnific.com/vetores-gratis/topicos-logotipo-em-fundo-preto-em-vetor_1017-45262.jpg?semt=ais_hybrid&w=740&q=80" alt="Threads"></a>
     </div>
   </div>
 
@@ -1867,7 +1865,7 @@
 
     function sharePage(platform) {
       const url = window.location.origin;
-      const text = '🎵 Venha ouvir música no VibeChat!';
+      const text = '🎵 Venha ouvir música no SonoraFan!';
       const shareUrls = {
         whatsapp: 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text + ' ' + url),
         twitter: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url),
@@ -2532,7 +2530,7 @@
     }, 1000);
 
     // ============================================================
-    // VIBECHAT 2.1 — i18n extra, onboarding, tour, abas mobile, admin
+    // SONORAFAN 2.1 — i18n extra, onboarding, tour, abas mobile, admin
     // ============================================================
     Object.assign(translations.pt, {
       'feature1.title': '1. Entre numa sala', 'feature1.desc': 'Crie sua conta, escolha uma sala que já está tocando ou abra a sua.',
@@ -2559,7 +2557,7 @@
     // ===== TUTORIAL (primeiro acesso) =====
     const TUTORIAL = {
       pt: [
-        ['🎧', 'Bem-vindo ao VibeChat!', 'Salas de música colaborativas: todo mundo adiciona músicas do YouTube, a fila toca ao mesmo tempo para todos e o chat é ao vivo.'],
+        ['🎧', 'Bem-vindo ao SonoraFan!', 'Salas de música colaborativas: todo mundo adiciona músicas do YouTube, a fila toca ao mesmo tempo para todos e o chat é ao vivo.'],
         ['🚪', 'Escolha uma sala', 'Na tela inicial, entre numa sala que já está tocando, use 🎲 Sala aleatória ou crie a sua em + Nova sala.'],
         ['🎵', 'Adicione músicas', 'Dentro da sala, busque pelo nome ou cole um link do YouTube, confira a prévia e clique em Adicionar. Há 30s de intervalo entre músicas e o limite é de 10 min por vídeo.'],
         ['🗳️', 'Vote e pule', 'Use 👍 e 👎 nas músicas da fila: com 10 votos negativos ela sai. Para pular a que está tocando, clique em Pular — é preciso o voto da galera.'],
@@ -2567,7 +2565,7 @@
         ['✨', 'Dicas finais', 'Se o som não começar, toque em "Ativar som". Salve favoritas com ⭐, convide amigos pelo 🔗 e troque o visual no botão de tema. Para rever este guia, use o ❓.']
       ],
       en: [
-        ['🎧', 'Welcome to VibeChat!', 'Collaborative music rooms: everyone adds YouTube songs, the queue plays at the same time for all and the chat is live.'],
+        ['🎧', 'Welcome to SonoraFan!', 'Collaborative music rooms: everyone adds YouTube songs, the queue plays at the same time for all and the chat is live.'],
         ['🚪', 'Pick a room', 'On the home screen, join a room that is already playing, use 🎲 Random room or create yours with + New room.'],
         ['🎵', 'Add songs', 'Inside the room, search by name or paste a YouTube link, check the preview and click Add. There is a 30s gap between songs and a 10 min limit per video.'],
         ['🗳️', 'Vote and skip', 'Use 👍 and 👎 on queued songs: with 10 dislikes it is removed. To skip the current song, click Skip — the crowd needs to vote.'],
@@ -2575,7 +2573,7 @@
         ['✨', 'Final tips', 'If the sound does not start, tap "Enable sound". Save favorites with ⭐, invite friends with 🔗 and change the look with the theme button. Reopen this guide with ❓.']
       ],
       es: [
-        ['🎧', '¡Bienvenido a VibeChat!', 'Salas de música colaborativas: todos añaden canciones de YouTube, la cola suena al mismo tiempo para todos y el chat es en vivo.'],
+        ['🎧', '¡Bienvenido a SonoraFan!', 'Salas de música colaborativas: todos añaden canciones de YouTube, la cola suena al mismo tiempo para todos y el chat es en vivo.'],
         ['🚪', 'Elige una sala', 'En la pantalla inicial, entra a una sala que ya está sonando, usa 🎲 Sala aleatoria o crea la tuya en + Nueva sala.'],
         ['🎵', 'Añade canciones', 'Dentro de la sala, busca por nombre o pega un enlace de YouTube, revisa la vista previa y haz clic en Añadir. Hay 30s entre canciones y un límite de 10 min por video.'],
         ['🗳️', 'Vota y salta', 'Usa 👍 y 👎 en las canciones de la cola: con 10 votos negativos se elimina. Para saltar la actual, haz clic en Saltar — hace falta el voto del grupo.'],
@@ -2684,7 +2682,7 @@
     // ===== Media Session (tela de bloqueio) + acessibilidade =====
     function updateMediaSession(track) {
       if (!('mediaSession' in navigator) || !track) return;
-      navigator.mediaSession.metadata = new MediaMetadata({ title: track.title || '', artist: track.artist || 'VibeChat', artwork: [{ src: `https://i.ytimg.com/vi/${track.id}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpeg' }] });
+      navigator.mediaSession.metadata = new MediaMetadata({ title: track.title || '', artist: track.artist || 'SonoraFan', artwork: [{ src: `https://i.ytimg.com/vi/${track.id}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpeg' }] });
     }
     function a11yPass() { document.querySelectorAll('button[title]:not([aria-label])').forEach(b => b.setAttribute('aria-label', b.title)); }
     let _a11yT; new MutationObserver(() => { clearTimeout(_a11yT); _a11yT = setTimeout(a11yPass, 300); }).observe(document.body, { childList: true, subtree: true });
@@ -2706,20 +2704,6 @@
         if (Math.abs(player.getCurrentTime() - expected) > 3) player.seekTo(expected, true);
       } catch (e) {}
     }, 20000);
-    async function forgotPassword() {
-      const email = $('loginEmail').value.trim();
-      if (!email) return toast('Digite seu e-mail primeiro', 'error');
-      try { await firebase.auth().sendPasswordResetEmail(email); toast('📧 Link de redefinição enviado (veja o spam).', 'success'); } catch (e) { toast('Não foi possível enviar. Confira o e-mail.', 'error'); }
-    }
-    async function googleLogin() {
-      try {
-        const cred = await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
-        const idToken = await cred.user.getIdToken();
-        const res = await fetch('/api/login', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
-        if (!res.ok) { const d = await res.json().catch(() => ({})); return toast(d.error || 'Erro ao entrar', 'error'); }
-        location.reload();
-      } catch (e) { toast('Login com Google cancelado ou indisponível', 'error'); }
-    }
     async function openLeaderboard() {
       $('lbModal').classList.add('active');
       $('lbList').textContent = '...';
