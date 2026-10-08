@@ -489,6 +489,113 @@
       .room-grid { grid-template-columns: 1fr; }
       .footer { flex-direction: column; gap: 8px; text-align: center; }
     }
+
+    /* ===== VIBECHAT 2.1 — refinamento visual ===== */
+    :root { --glass: rgba(0,0,0,0.5); }
+    .header, .footer { background: var(--glass); }
+    .chat-column { background: var(--glass); }
+    .landing-hero-text h1 { color: var(--text); }
+
+    /* Landing menos poluída */
+    .particles, .eq-bars, .fnote, .ticker, .hero-stats { display: none !important; }
+    .landing-nav-actions .btn-primary, .landing-hero-ctas .btn-hero-primary, .landing-cta-band .btn-cta { animation: none; }
+    .landing-features-title { font-size: 30px; }
+    .landing-features-sub { font-size: 16px; margin-bottom: 32px; }
+    .landing-feature-card { padding: 24px 22px; text-align: left; }
+    .landing-feature-card .icon { font-size: 30px; margin-bottom: 10px; }
+    .landing-feature-card h3 { font-size: 18px; }
+    .landing-feature-card p { font-size: 14px; line-height: 1.6; }
+    .landing-cta-band { padding: 32px 24px; }
+    .landing-cta-band h2 { font-size: 24px; }
+    .landing-cta-band p { font-size: 15px; margin-bottom: 20px; }
+    .landing-hero { padding: 16px 0 44px; }
+
+    /* Lobby */
+    .lobby { padding: 24px; }
+    .lobby-top h2 { font-size: 22px; }
+    .room-card { border-width: 1px; border-radius: 16px; }
+    .room-card:hover { transform: translateY(-3px); }
+    .room-card.live { animation: none; border-color: var(--accent); }
+    .room-card .np { font-size: 12px; color: var(--text-secondary); margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .room-avatars { display: none; }
+
+    /* Botões de tema e ajuda */
+    .theme-pop { position: fixed; top: 58px; right: 16px; z-index: 250; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 10px; display: none; grid-template-columns: repeat(2, 1fr); gap: 6px; box-shadow: 0 16px 50px rgba(0,0,0,0.5); width: 270px; }
+    .theme-pop.show { display: grid; }
+    .theme-opt { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 2px solid transparent; background: var(--bg); color: var(--text); cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 600; text-align: left; transition: all 0.15s; }
+    .theme-opt:hover { border-color: var(--border-hover); }
+    .theme-opt.active { border-color: var(--accent); }
+    .theme-swatch { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; border: 1px solid var(--border); }
+    .admin-toggle-btn, .theme-toggle-btn, .action-btn { width: 36px; height: 36px; }
+
+    /* Player */
+    .player-section { border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+    .player-frame { position: relative; background: #000; }
+    .player-frame iframe, .player-frame #youtube-player { display: block; width: 100%; height: auto !important; aspect-ratio: 16 / 9; }
+    .sound-gate { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.72); z-index: 11; padding: 16px; }
+    .sound-gate.show { display: flex; }
+    .sound-gate button { padding: 14px 24px; border-radius: 999px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; font-family: inherit; box-shadow: 0 8px 30px var(--accent2-glow); }
+    .cover { width: 64px; height: 64px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+    .track-title { font-size: 17px; }
+    .track-actions button { border-radius: 999px; padding: 6px 12px; }
+    .progress-bar { height: 6px; border-radius: 6px; overflow: visible; }
+    .progress-fill { position: relative; border-radius: 6px; }
+    .progress-fill::after { content: ''; position: absolute; right: -6px; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: #fff; transform: translateY(-50%); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .volume-control input[type="range"] { height: 6px; border-radius: 6px; }
+    .volume-control input[type="range"]::-webkit-slider-thumb { width: 14px; height: 14px; background: #fff; box-shadow: 0 0 0 3px var(--accent-glow); }
+    .queue-item { padding: 8px 10px; border-radius: 10px; }
+    .queue-item .thumb { width: 44px; height: 33px; border-radius: 6px; }
+    .queue-item .info .title { font-size: 13px; }
+    .queue-item .dj { display: none; }
+    .queue-item:hover .dj { display: inline; }
+    .queue-votes { background: transparent; }
+
+    /* Chat limpo */
+    .msg-avatar { display: none; }
+    .msg { padding: 3px 8px; }
+    .msg-system { opacity: 0.7; }
+    .msg-actions { margin-left: 0; opacity: 0; transition: opacity 0.15s; }
+    .msg:hover .msg-actions, .msg-actions:has(.liked) { opacity: 1; }
+    .users-panel { padding: 10px 16px; }
+
+    /* Painel admin */
+    .admin-panel { max-width: 760px !important; border-radius: 20px; }
+    .admin-panel .tab-bar { background: var(--bg); padding: 4px; border-radius: 12px; border-bottom: none; gap: 4px; }
+    .admin-panel .tab-bar button { flex: 1; border: none; border-radius: 9px; padding: 9px 10px; }
+    .admin-panel .tab-bar button.active { background: var(--bg-card); color: var(--text); box-shadow: 0 1px 6px rgba(0,0,0,0.25); }
+    .admin-user-item { padding: 10px 12px; border-radius: 12px; }
+    .admin-user-item .actions button { width: 32px; height: 32px; padding: 0; border-radius: 8px; font-size: 14px; transition: transform 0.15s; }
+    .admin-user-item .actions button:hover { transform: translateY(-1px); }
+    .admin-user-item .actions .kick { background: var(--warning); color: #000; }
+    .admin-user-item .actions .ban { background: var(--danger); color: #fff; }
+    .admin-user-item .actions .unban { background: var(--success); color: #fff; }
+    .admin-action-grid button { padding: 16px 10px; border-radius: 12px; font-size: 13px; }
+    .admin-search { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); margin-bottom: 10px; font-family: inherit; outline: none; }
+    .admin-search:focus { border-color: var(--accent2); }
+
+    /* Tutorial e tour */
+    .tut-icon { font-size: 56px; line-height: 1; }
+    .tut-dots { display: flex; gap: 6px; justify-content: center; margin: 14px 0 4px; }
+    .tut-dot { width: 8px; height: 8px; border-radius: 6px; background: var(--border); transition: all 0.2s; }
+    .tut-dot.on { background: var(--accent); width: 22px; }
+    .tour-spot { position: fixed; z-index: 400; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.74), 0 0 0 2px var(--accent); pointer-events: none; transition: all 0.25s; display: none; }
+    .tour-tip { position: fixed; z-index: 401; width: 300px; max-width: calc(100vw - 24px); background: var(--bg-card); color: var(--text); border: 1px solid var(--accent); border-radius: 14px; padding: 14px 16px; display: none; box-shadow: 0 16px 50px rgba(0,0,0,0.6); }
+    .tour-link { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; font-family: inherit; }
+    .btn-tour { padding: 8px 18px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+
+    /* Abas mobile na sala */
+    .mtabs { display: none; border-top: 1px solid var(--border); background: var(--glass); flex-shrink: 0; }
+    .mtabs button { flex: 1; padding: 12px 4px; background: none; border: none; color: var(--text-muted); font-weight: 700; font-size: 12px; font-family: inherit; cursor: pointer; }
+    .mtabs button.on { color: var(--accent); box-shadow: inset 0 2px 0 var(--accent); }
+    @media (max-width: 768px) {
+      .room-layout { display: block !important; }
+      .queue-column, .player-column, .chat-column { display: none !important; height: 100% !important; max-height: none !important; border: none !important; }
+      body[data-tab="queue"] .queue-column, body[data-tab="player"] .player-column, body[data-tab="chat"] .chat-column { display: flex !important; }
+      .mtabs { display: flex; }
+      .footer { display: none; }
+      .lobby { padding: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
 <base target="_blank">
 </head>
@@ -617,17 +724,17 @@
       <p class="landing-features-sub" data-i18n="features.sub">Tudo o que você precisa para criar a vibe perfeita</p>
       <div class="landing-features">
         <div class="landing-feature-card">
-          <span class="icon">🎵</span>
+          <span class="icon">🚪</span>
           <h3 data-i18n="feature1.title">Fila colaborativa ilimitada</h3>
           <p data-i18n="feature1.desc">Todo mundo adiciona música do YouTube, a fila toca em sincronia para todos. Sem limite de músicas!</p>
         </div>
         <div class="landing-feature-card">
-          <span class="icon">💬</span>
+          <span class="icon">🎵</span>
           <h3 data-i18n="feature2.title">Chat ao vivo</h3>
           <p data-i18n="feature2.desc">Comente as músicas, reaja com emojis e curta as escolhas da galera.</p>
         </div>
         <div class="landing-feature-card">
-          <span class="icon">🗳️</span>
+          <span class="icon">💬</span>
           <h3 data-i18n="feature3.title">Votação democrática</h3>
           <p data-i18n="feature3.desc">Curta ou dispense músicas da fila. Com 10 votos negativos, a música sai!</p>
         </div>
@@ -708,6 +815,7 @@
           <span style="font-weight:700;font-size:13px;">👥 Usuários</span>
           <span style="font-size:11px;color:var(--text-muted);" id="adminUserCount">0</span>
         </div>
+        <input class="admin-search" id="adminSearch" placeholder="🔎 Buscar usuário..." oninput="filterAdminUsers(this.value)">
         <div id="adminUserList" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
           <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px;" data-i18n="admin.loadingUsers">Carregando...</div>
         </div>
@@ -806,7 +914,8 @@
             <span id="userPointsBadge" style="font-size:11px;color:var(--accent);margin-left:4px;"></span>
           </div>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtn" style="display:none;">🎛️</button>
-          <button class="theme-toggle-btn" onclick="toggleTheme()" title="Trocar Tema" id="themeBtn">🌙</button>
+          <button class="action-btn" onclick="openTutorial(0)" title="Ajuda / Tutorial">❓</button>
+          <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtn">🌙</button>
           <div class="lang-selector">
             <button class="lang-btn active" data-lang="pt" onclick="setLanguage('pt')">PT</button>
             <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
@@ -841,7 +950,8 @@
         <div class="header-right">
           <button class="action-btn" onclick="copyInviteLink()" title="Convidar amigos">🔗</button>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
-          <button class="theme-toggle-btn" onclick="toggleTheme()" title="Trocar Tema" id="themeBtnRoom">🌙</button>
+          <button class="action-btn" onclick="openTutorial(0)" title="Ajuda / Tutorial">❓</button>
+          <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtnRoom">🌙</button>
           <button class="action-btn" onclick="toggleFavorites()" title="Favoritos" style="border-color:var(--accent2);">⭐</button>
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
         </div>
@@ -871,8 +981,10 @@
                 <span class="live-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--danger);animation:pulse 1.5s infinite;"></span><span data-i18n="player.live">Ao vivo</span>
               </span>
             </div>
-            <div id="youtube-player">
+            <div class="player-frame">
+              <div id="youtube-player"></div>
               <div class="buffering-overlay" id="bufferingOverlay"><div class="spinner"></div></div>
+              <div class="sound-gate" id="soundGate"><button onclick="enableSound()" data-i18n="gate.btn">🔊 Ativar som e entrar na música</button></div>
             </div>
             <div class="player-info">
               <div class="cover" id="trackCover">🎵</div>
@@ -967,6 +1079,11 @@
           </div>
         </div>
       </div>
+      <nav class="mtabs" id="mTabs">
+        <button data-t="queue" onclick="setTab('queue')">🎵 <span data-i18n="tab.queue">Fila</span></button>
+        <button data-t="player" class="on" onclick="setTab('player')">▶ <span data-i18n="tab.player">Player</span></button>
+        <button data-t="chat" onclick="setTab('chat')">💬 <span data-i18n="tab.chat">Chat</span></button>
+      </nav>
     </div>
   </div>
 
@@ -987,6 +1104,29 @@
         <button class="btn-secondary" onclick="closeCreateRoom()" data-i18n="createRoom.cancel">Cancelar</button>
         <button class="btn-primary" onclick="createRoom()" data-i18n="createRoom.create">Criar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== TEMAS / TUTORIAL / TOUR ===== -->
+  <div class="theme-pop" id="themePop"></div>
+  <div class="modal-overlay" id="tutorialModal">
+    <div class="modal" style="text-align:center;max-width:440px;">
+      <div class="tut-icon" id="tutIcon">🎧</div>
+      <h3 id="tutTitle" style="margin:8px 0 10px;"></h3>
+      <p id="tutDesc" style="color:var(--text-secondary);font-size:15px;line-height:1.65;min-height:96px;"></p>
+      <div class="tut-dots" id="tutDots"></div>
+      <div class="modal-actions" style="justify-content:space-between;">
+        <button class="btn-secondary" id="tutSkip" onclick="closeTutorial()"></button>
+        <div style="display:flex;gap:8px;"><button class="btn-secondary" id="tutBack" onclick="tutStep(-1)"></button><button class="btn-primary" id="tutNext" onclick="tutStep(1)"></button></div>
+      </div>
+    </div>
+  </div>
+  <div class="tour-spot" id="tourSpot"></div>
+  <div class="tour-tip" id="tourTip">
+    <div id="tourText" style="font-size:14px;line-height:1.55;margin-bottom:12px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <button class="tour-link" onclick="endTour()" id="tourSkip"></button>
+      <button class="btn-tour" onclick="tourNext()" id="tourBtn"></button>
     </div>
   </div>
 
@@ -1011,6 +1151,7 @@
     // ============================================================
     // JAVASCRIPT COMPLETO - SONORA FAN
     // ============================================================
+    const MAX_CHAT_MESSAGES = 40; // mensagens visíveis no chat (era 10)
     const MAX_SONG_DURATION = 600, DISLIKE_THRESHOLD = 10, COOLDOWN = 30000, MAX_SONGS_PER_USER = 3;
     const socket = io({ withCredentials: true });
     let currentUser = null, myName = '', myAvatar = '🎸', amIAdmin = false, currentRoom = null, currentRoomData = null;
@@ -1323,21 +1464,39 @@
         'retro': { btn:'📺', bg:'#0f0b06', card:'#1c150d', hover:'#2a1f14', border:'#3d2e1e', text:'#e8c98a', textSec:'#c4a064', textMuted:'#7a633a', accent:'#ffa500', accent2:'#cc8400', bgImage:'none', overlay:'rgba(0,0,0,0.4)' }
       };
       const t = themes[currentTheme] || themes['dark'];
-      Object.entries(t).forEach(([k, v]) => {
-        if (k === 'btn') return;
-        document.documentElement.style.setProperty('--' + k, v);
-      });
+      const map = { bg:'--bg', card:'--bg-card', hover:'--bg-hover', border:'--border', text:'--text', textSec:'--text-secondary', textMuted:'--text-muted', accent:'--accent', accent2:'--accent2', overlay:'--bg-overlay' };
+      const rs = document.documentElement.style;
+      Object.entries(map).forEach(([k, v]) => rs.setProperty(v, t[k]));
+      rs.setProperty('--bg-elevated', t.card); rs.setProperty('--border-hover', t.hover);
+      rs.setProperty('--accent-glow', t.accent + '4d'); rs.setProperty('--accent2-glow', t.accent2 + '4d');
+      const light = ['ocean', 'cherry'].includes(currentTheme);
+      rs.setProperty('--glass', light ? 'rgba(255,255,255,0.78)' : 'rgba(0,0,0,0.5)');
+      rs.setProperty('color-scheme', light ? 'light' : 'dark');
+      document.querySelectorAll('.theme-opt').forEach(b => b.classList.toggle('active', b.dataset.theme === currentTheme));
       document.querySelectorAll('#themeBtn, #themeBtnRoom').forEach(b => { if(b) b.textContent = t.btn; });
       localStorage.setItem('sonoraTheme', currentTheme);
     }
 
-    function toggleTheme() {
-      const keys = ['dark', 'ocean', 'sunset', 'forest', 'high-contrast', 'cherry', 'retro'];
-      const idx = keys.indexOf(currentTheme);
-      currentTheme = keys[(idx + 1) % keys.length];
-      applyTheme();
-      toast('Tema: ' + currentTheme, 'success');
+    const THEME_UI = {
+      dark: ['Escuro', 'Dark', 'Oscuro', '#050508', '#ff6b35', '#7c3aed'], ocean: ['Oceano', 'Ocean', 'Océano', '#e8f0fe', '#1a73e8', '#0d47a1'],
+      sunset: ['Pôr do sol', 'Sunset', 'Atardecer', '#1a0e12', '#ff7b54', '#ffb26b'], forest: ['Floresta', 'Forest', 'Bosque', '#0f130a', '#8bc34a', '#558b2f'],
+      'high-contrast': ['Alto contraste', 'High contrast', 'Alto contraste', '#000000', '#ffd700', '#ffaa00'], cherry: ['Cereja', 'Cherry', 'Cereza', '#fcf4f7', '#e91e63', '#ad1457'],
+      retro: ['Retrô', 'Retro', 'Retro', '#0f0b06', '#ffa500', '#cc8400']
+    };
+    function renderThemePop() {
+      const i = { pt: 0, en: 1, es: 2 }[currentLang] || 0;
+      $('themePop').innerHTML = Object.entries(THEME_UI).map(([k, v]) => `<button class="theme-opt ${k === currentTheme ? 'active' : ''}" data-theme="${k}" onclick="setTheme('${k}')"><span class="theme-swatch" style="background:linear-gradient(135deg,${v[4]} 50%,${v[5]} 50%);box-shadow:inset 0 0 0 4px ${v[3]}"></span>${v[i]}</button>`).join('');
     }
+    function toggleTheme(ev) {
+      if (ev) ev.stopPropagation();
+      const pop = $('themePop'); renderThemePop();
+      pop.classList.toggle('show');
+    }
+    function setTheme(k) {
+      currentTheme = k; applyTheme(); $('themePop').classList.remove('show');
+      fetch('/api/update-theme', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ theme: k }) }).catch(() => {});
+    }
+    document.addEventListener('click', (e) => { const p = $('themePop'); if (p && !p.contains(e.target)) p.classList.remove('show'); });
 
     // ===== LOGIN / SIGNUP =====
     function showLogin() { $('landingScreen').style.display = 'none'; $('loginScreen').classList.add('active'); }
@@ -1372,16 +1531,17 @@
           }
         }
 
+        const idToken = await firebase.auth().currentUser.getIdToken();
         let loginData;
         try {
-          const res = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, email, senha, estilos }) });
+          const res = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ nome, estilos, idToken }) });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error);
         } catch (signupError) {
           console.log('Cadastro já existia no backend, fazendo login...');
         }
 
-        const loginRes = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha }) });
+        const loginRes = await fetch('/api/login', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
         loginData = await loginRes.json();
         if (!loginRes.ok) throw new Error(loginData.error);
 
@@ -1417,8 +1577,9 @@
       btn.disabled = true;
       btn.textContent = 'Entrando...';
       try {
-        await firebase.auth().signInWithEmailAndPassword(email, senha);
-        const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, senha }) });
+        const cred = await firebase.auth().signInWithEmailAndPassword(email, senha);
+        const idToken = await cred.user.getIdToken();
+        const res = await fetch('/api/login', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
         currentUser = data.user;
@@ -1426,6 +1587,7 @@
         myAvatar = currentUser.avatar || '🎸';
         myPoints = currentUser.points || 0;
         myBadges = currentUser.badges || [];
+        if (currentUser.theme) { currentTheme = currentUser.theme; applyTheme(); }
         hideLogin();
         $('landingScreen').style.display = 'none';
         showScreen('lobby');
@@ -1460,6 +1622,7 @@
     }
 
     function updateUserInfo() {
+      setTimeout(maybeOnboard, 700);
       $('userDisplayName').textContent = myName;
       $('userAvatar').textContent = myAvatar;
       let badgeText = '';
@@ -1520,14 +1683,14 @@
           <div class="admin-user-item">
             <div>
               <span class="name">${escapeHtml(u.nome)}</span>
-              ${u.isAdmin ? '<span class="admin-badge-mini">Admin</span>' : ''}
+              ${u.isAdmin ? '<span class="admin-badge-mini">Admin</span>' : ''}${u.banned ? '<span class="admin-badge-mini" style="background:var(--danger)">Banido</span>' : ''}
               <div class="email">${escapeHtml(u.email)}</div>
             </div>
             <div class="actions">
-              ${!u.isAdmin ? `<button class="promote" onclick="adminPromote('${u.email}')">👑</button>` : ''}
-              <button class="delete" onclick="adminDeleteUser('${u.email}')">🗑️</button>
-              <button onclick="adminKickUser('${u.email}')" style="background:#f59e0b;color:#fff;border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">👢</button>
-              <button onclick="adminBanUser('${u.email}')" style="background:#ef4444;color:#fff;border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">⛔</button>
+              ${!u.isAdmin ? `<button class="promote" title="Promover a admin" data-email="${escapeHtml(u.email)}" onclick="adminPromote(this.dataset.email)">👑</button>` : ''}
+              <button class="kick" title="Expulsar da sala atual" data-email="${escapeHtml(u.email)}" onclick="adminKickUser(this.dataset.email)">👢</button>
+              ${u.banned ? `<button class="unban" title="Desbanir" data-email="${escapeHtml(u.email)}" onclick="adminUnban(this.dataset.email)">♻️</button>` : `<button class="ban" title="Banir" data-email="${escapeHtml(u.email)}" onclick="adminBanUser(this.dataset.email)">⛔</button>`}
+              <button class="delete" title="Excluir conta" data-email="${escapeHtml(u.email)}" onclick="adminDeleteUser(this.dataset.email)">🗑️</button>
             </div>
           </div>
         `).join('');
@@ -1574,7 +1737,7 @@
                   html += `<span style="min-width:18px;">${isCurrent ? '▶' : idx+1}</span>`;
                   html += `<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(track.title)}</span>`;
                   if (!isCurrent) {
-                    html += `<button onclick="adminRemoveSong('${room.slug}', ${idx})" style="background:rgba(239,68,68,0.15);border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:0 6px;font-size:10px;cursor:pointer;">Remover</button>`;
+                    html += `<button data-slug="${escapeHtml(room.slug)}" onclick="adminRemoveSong(this.dataset.slug, ${idx})" style="background:rgba(239,68,68,0.15);border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:0 6px;font-size:10px;cursor:pointer;">Remover</button>`;
                   } else {
                     html += `<span style="color:var(--accent);font-size:10px;">Tocando</span>`;
                   }
@@ -1793,7 +1956,7 @@
           const thumb = track ? `<img src="https://img.youtube.com/vi/${track.id}/mqdefault.jpg" alt="">` : '<div style="padding:30px;text-align:center;font-size:40px;">🎧</div>';
           const live = r.isPlaying ? '<div class="room-live-badge"><span class="live-dot"></span> AO VIVO</div>' : '';
           const playingIndicator = r.isPlaying ? `<div class="playing-indicator"><span></span><span></span><span></span><span></span></div>` : '';
-          const genreTag = (currentUser && currentUser.estilos && currentUser.estilos.length > 0) ? `<span class="genre-tag">🎵 ${currentUser.estilos[0]}</span>` : '';
+          const genreTag = '';
           card.innerHTML = `
             <div class="room-thumb">${thumb} ${live} <div class="room-listeners-badge"><span class="icon">🎧</span> ${r.listenerCount || 0}</div>${playingIndicator}</div>
             <div class="room-card-body">
@@ -1804,7 +1967,7 @@
                 ${genreTag}
                 ${r.allowLive ? '<span class="genre-tag" style="background:rgba(239,68,68,.15);color:#fca5a5;font-weight:700;">🔴 LIVE</span>' : ''}
               </div>
-              <div class="room-avatars"><span class="avatar-mini">👤</span><span class="avatar-mini">👤</span><span class="avatar-mini">👤</span></div>
+              ${track ? `<div class="np">▶ ${escapeHtml(track.title || '')}</div>` : ''}
             </div>
           `;
           grid.appendChild(card);
@@ -1843,6 +2006,7 @@
       currentRoom = slug;
       socket.emit('joinRoom', { slug, name: myName, avatar: myAvatar });
       showScreen('room');
+      setTab('player'); setTimeout(maybeRoomTour, 1200);
       document.getElementById('chatMessagesInner').innerHTML = '';
       amIAdmin = false;
       $('adminBadge').classList.add('hidden');
@@ -1883,7 +2047,7 @@
               }
               try { const d = player.getDuration(); if (d > 0) socket.emit('videoDuration', { duration: Math.floor(d) }); } catch(e) {}
               if (crossfadeInterval) { clearInterval(crossfadeInterval); crossfadeInterval = null; }
-              $('bufferingOverlay').classList.remove('show');
+              $('bufferingOverlay').classList.remove('show'); $('soundGate').classList.remove('show');
             }
             if (e.data === YT.PlayerState.BUFFERING) { $('bufferingOverlay').classList.add('show'); }
             if (e.data === YT.PlayerState.ENDED) socket.emit('videoEnded');
@@ -1919,6 +2083,7 @@
       if (currentTrackId !== track.id) {
         currentTrackId = track.id;
         player.loadVideoById({ videoId: track.id, startSeconds: Math.floor(state.position || 0) });
+        setTimeout(checkGate, 3000);
         const vol = parseInt($('volumeSlider').value) || 80;
         volumeLevel = vol;
         setTimeout(() => {
@@ -2001,9 +2166,9 @@
         if (score < 0) { scoreClass = 'negative'; scoreSymbol = '👎'; }
         const votesHtml = (i === currentIndex) ? '' : `
           <div class="queue-votes">
-            <button class="vote-btn up ${userVotedUp ? 'voted-up' : ''}" onclick="event.stopPropagation();voteSong('${track.id}', 'up')"><span style="font-size:14px;">👍</span></button>
+            <button class="vote-btn up ${userVotedUp ? 'voted-up' : ''}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'up')" data-id="${escapeHtml(track.id)}"><span style="font-size:14px;">👍</span></button>
             <span class="vote-count ${scoreClass}" title="Total: ${total} votos (${upCount} 👍, ${downCount} 👎)">${total > 0 ? scoreSymbol + score : '0'}</span>
-            <button class="vote-btn down ${userVotedDown ? 'voted-down' : ''}" onclick="event.stopPropagation();voteSong('${track.id}', 'down')"><span style="font-size:14px;">👎</span></button>
+            <button class="vote-btn down ${userVotedDown ? 'voted-down' : ''}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'down')" data-id="${escapeHtml(track.id)}"><span style="font-size:14px;">👎</span></button>
           </div>`;
         div.innerHTML = `
           <span class="pos">${i === currentIndex ? '▶' : i + 1}</span>
@@ -2080,7 +2245,7 @@
           const data = await r.json();
           if (!r.ok) { results.innerHTML = `<div style="color:var(--danger);padding:10px;text-align:center;font-size:13px;">⚠️ ${data.error || 'Erro na busca'}</div>`; results.classList.add('show'); return; }
           if (!data.items || data.items.length === 0) { results.innerHTML = '<div style="color:var(--text-muted);padding:10px;text-align:center;font-size:13px;">Nenhum resultado encontrado</div>'; results.classList.add('show'); return; }
-          results.innerHTML = data.items.map(item => `<div class="search-item" onclick="selectSearchResult('${item.id}','${escapeHtml(item.title)}','${escapeHtml(item.artist)}')"><img src="${item.thumb}" alt=""><div class="info"><div class="title">${escapeHtml(item.title)}</div><div class="artist">${escapeHtml(item.artist)}</div></div></div>`).join('');
+          results.innerHTML = data.items.map(item => `<div class="search-item" data-id="${escapeHtml(item.id)}" data-title="${escapeHtml(item.title)}" data-artist="${escapeHtml(item.artist)}" onclick="selectSearchResult(this.dataset.id,this.dataset.title,this.dataset.artist)"><img src="${item.thumb}" alt=""><div class="info"><div class="title">${escapeHtml(item.title)}</div><div class="artist">${escapeHtml(item.artist)}</div></div></div>`).join('');
           results.classList.add('show');
         } catch(e) {
           results.innerHTML = '<div style="color:var(--danger);padding:10px;text-align:center;font-size:13px;">⚠️ Erro de conexão. Tente novamente.</div>';
@@ -2238,8 +2403,8 @@
     function limitChatMessages(container) {
       const messages = container.querySelectorAll('.msg');
       const total = messages.length;
-      if (total > 10) {
-        const toRemove = total - 10;
+      if (total > MAX_CHAT_MESSAGES) {
+        const toRemove = total - MAX_CHAT_MESSAGES;
         for (let i = 0; i < toRemove; i++) {
           const msg = messages[i];
           if (msg) { msg.classList.add('removing'); setTimeout(() => { if (msg.parentNode) msg.remove(); }, 400); }
@@ -2282,6 +2447,7 @@
     socket.on('adminUsersUpdated', () => { if (amIAdmin) loadAdminUsers(); });
     socket.on('userPoints', (data) => { if (data) { myPoints = data.points || 0; myBadges = data.badges || []; updateUserInfo(); } });
     socket.on('roomState', (state) => {
+      state._at = Date.now();
       const prev = currentRoomData?.queue?.[currentRoomData.currentIndex]?.id;
       const next = state.queue?.[state.currentIndex]?.id;
       if (next !== prev) { currentTrackId = null; if (next) setTimeout(startCrossfade, 1000); }
@@ -2304,7 +2470,7 @@
     });
     socket.on('users', (users) => { $('userCount').textContent = users.length; });
     socket.on('chat', renderMessage);
-    socket.on('chatHistory', (messages) => { const container = document.getElementById('chatMessagesInner'); if (!container) return; container.innerHTML = ''; const start = Math.max(0, messages.length - 10); messages.slice(start).forEach(m => renderMessage(m)); scrollChatToBottom(); });
+    socket.on('chatHistory', (messages) => { const container = document.getElementById('chatMessagesInner'); if (!container) return; container.innerHTML = ''; const start = Math.max(0, messages.length - MAX_CHAT_MESSAGES); messages.slice(start).forEach(m => renderMessage(m)); scrollChatToBottom(); });
     socket.on('likeUpdate', (data) => { const { messageId, likes, users } = data; messageLikesSync[messageId] = { likes, users }; updateLikeDisplay(messageId); });
     socket.on('likesState', (likesData) => { messageLikesSync = likesData || {}; const container = document.getElementById('chatMessagesInner'); if (!container) return; const msgElements = container.querySelectorAll('.msg'); for (const el of msgElements) { const msgId = el.dataset.msgId; if (msgId && messageLikesSync[msgId]) updateLikeDisplay(msgId); } });
     socket.on('voteUpdate', (data) => {
@@ -2340,6 +2506,155 @@
         }
       } catch(e) {}
     }, 1000);
+
+    // ============================================================
+    // VIBECHAT 2.1 — i18n extra, onboarding, tour, abas mobile, admin
+    // ============================================================
+    Object.assign(translations.pt, {
+      'feature1.title': '1. Entre numa sala', 'feature1.desc': 'Crie sua conta, escolha uma sala que já está tocando ou abra a sua.',
+      'feature2.title': '2. Adicione suas músicas', 'feature2.desc': 'Busque no YouTube ou cole um link. A fila toca em sincronia para todos.',
+      'feature3.title': '3. Vote e converse', 'feature3.desc': 'Curta ou dispense músicas e comente no chat ao vivo. Com 10 votos negativos, a música sai.',
+      'tab.queue': 'Fila', 'tab.player': 'Player', 'tab.chat': 'Chat', 'gate.btn': '🔊 Ativar som e entrar na música',
+      'tut.next': 'Próximo', 'tut.back': 'Voltar', 'tut.skip': 'Pular guia', 'tut.done': 'Começar 🎉', 'tour.next': 'Próximo', 'tour.done': 'Entendi!', 'tour.skip': 'Pular'
+    });
+    Object.assign(translations.en, {
+      'feature1.title': '1. Join a room', 'feature1.desc': 'Create your account, pick a room that is already playing or open your own.',
+      'feature2.title': '2. Add your songs', 'feature2.desc': 'Search YouTube or paste a link. The queue plays in sync for everyone.',
+      'feature3.title': '3. Vote and chat', 'feature3.desc': 'Like or dislike songs and chat live. With 10 dislikes, the song is removed.',
+      'tab.queue': 'Queue', 'tab.player': 'Player', 'tab.chat': 'Chat', 'gate.btn': '🔊 Enable sound and join the music',
+      'tut.next': 'Next', 'tut.back': 'Back', 'tut.skip': 'Skip guide', 'tut.done': 'Start 🎉', 'tour.next': 'Next', 'tour.done': 'Got it!', 'tour.skip': 'Skip'
+    });
+    Object.assign(translations.es, {
+      'feature1.title': '1. Entra a una sala', 'feature1.desc': 'Crea tu cuenta, elige una sala que ya está sonando o abre la tuya.',
+      'feature2.title': '2. Añade tus canciones', 'feature2.desc': 'Busca en YouTube o pega un enlace. La cola suena en sincronía para todos.',
+      'feature3.title': '3. Vota y conversa', 'feature3.desc': 'Da like o dislike a las canciones y chatea en vivo. Con 10 dislikes, la canción se elimina.',
+      'tab.queue': 'Cola', 'tab.player': 'Player', 'tab.chat': 'Chat', 'gate.btn': '🔊 Activar sonido y entrar a la música',
+      'tut.next': 'Siguiente', 'tut.back': 'Atrás', 'tut.skip': 'Omitir guía', 'tut.done': 'Empezar 🎉', 'tour.next': 'Siguiente', 'tour.done': '¡Entendido!', 'tour.skip': 'Omitir'
+    });
+
+    // ===== TUTORIAL (primeiro acesso) =====
+    const TUTORIAL = {
+      pt: [
+        ['🎧', 'Bem-vindo ao VibeChat!', 'Salas de música colaborativas: todo mundo adiciona músicas do YouTube, a fila toca ao mesmo tempo para todos e o chat é ao vivo.'],
+        ['🚪', 'Escolha uma sala', 'Na tela inicial, entre numa sala que já está tocando, use 🎲 Sala aleatória ou crie a sua em + Nova sala.'],
+        ['🎵', 'Adicione músicas', 'Dentro da sala, busque pelo nome ou cole um link do YouTube, confira a prévia e clique em Adicionar. Há 30s de intervalo entre músicas e o limite é de 10 min por vídeo.'],
+        ['🗳️', 'Vote e pule', 'Use 👍 e 👎 nas músicas da fila: com 10 votos negativos ela sai. Para pular a que está tocando, clique em Pular — é preciso o voto da galera.'],
+        ['💬', 'Converse no chat', 'Mande mensagens, use emojis, curta mensagens com 🤍 e mencione alguém com @nome. Comandos: /me, /stats, /history e /vote.'],
+        ['✨', 'Dicas finais', 'Se o som não começar, toque em "Ativar som". Salve favoritas com ⭐, convide amigos pelo 🔗 e troque o visual no botão de tema. Para rever este guia, use o ❓.']
+      ],
+      en: [
+        ['🎧', 'Welcome to VibeChat!', 'Collaborative music rooms: everyone adds YouTube songs, the queue plays at the same time for all and the chat is live.'],
+        ['🚪', 'Pick a room', 'On the home screen, join a room that is already playing, use 🎲 Random room or create yours with + New room.'],
+        ['🎵', 'Add songs', 'Inside the room, search by name or paste a YouTube link, check the preview and click Add. There is a 30s gap between songs and a 10 min limit per video.'],
+        ['🗳️', 'Vote and skip', 'Use 👍 and 👎 on queued songs: with 10 dislikes it is removed. To skip the current song, click Skip — the crowd needs to vote.'],
+        ['💬', 'Chat along', 'Send messages, use emojis, like messages with 🤍 and mention someone with @name. Commands: /me, /stats, /history and /vote.'],
+        ['✨', 'Final tips', 'If the sound does not start, tap "Enable sound". Save favorites with ⭐, invite friends with 🔗 and change the look with the theme button. Reopen this guide with ❓.']
+      ],
+      es: [
+        ['🎧', '¡Bienvenido a VibeChat!', 'Salas de música colaborativas: todos añaden canciones de YouTube, la cola suena al mismo tiempo para todos y el chat es en vivo.'],
+        ['🚪', 'Elige una sala', 'En la pantalla inicial, entra a una sala que ya está sonando, usa 🎲 Sala aleatoria o crea la tuya en + Nueva sala.'],
+        ['🎵', 'Añade canciones', 'Dentro de la sala, busca por nombre o pega un enlace de YouTube, revisa la vista previa y haz clic en Añadir. Hay 30s entre canciones y un límite de 10 min por video.'],
+        ['🗳️', 'Vota y salta', 'Usa 👍 y 👎 en las canciones de la cola: con 10 votos negativos se elimina. Para saltar la actual, haz clic en Saltar — hace falta el voto del grupo.'],
+        ['💬', 'Conversa en el chat', 'Envía mensajes, usa emojis, da like con 🤍 y menciona a alguien con @nombre. Comandos: /me, /stats, /history y /vote.'],
+        ['✨', 'Consejos finales', 'Si el sonido no empieza, toca "Activar sonido". Guarda favoritas con ⭐, invita amigos con 🔗 y cambia el aspecto con el botón de tema. Vuelve a ver esta guía con ❓.']
+      ]
+    };
+    let tutIdx = 0, _onbShown = false;
+    function maybeOnboard() {
+      if (_onbShown || !currentUser) return;
+      const key = 'vc_onb_' + currentUser.email;
+      if (currentUser.onboarded || localStorage.getItem(key)) return;
+      _onbShown = true;
+      openTutorial(0);
+    }
+    function openTutorial(i) { tutIdx = i || 0; renderTutorial(); $('tutorialModal').classList.add('active'); }
+    function renderTutorial() {
+      const steps = TUTORIAL[currentLang] || TUTORIAL.pt, st = steps[tutIdx];
+      $('tutIcon').textContent = st[0]; $('tutTitle').textContent = st[1]; $('tutDesc').textContent = st[2];
+      $('tutDots').innerHTML = steps.map((_, i) => `<span class="tut-dot ${i === tutIdx ? 'on' : ''}"></span>`).join('');
+      $('tutBack').style.visibility = tutIdx === 0 ? 'hidden' : 'visible';
+      $('tutBack').textContent = t('tut.back'); $('tutSkip').textContent = t('tut.skip');
+      $('tutNext').textContent = tutIdx === steps.length - 1 ? t('tut.done') : t('tut.next');
+    }
+    function tutStep(d) {
+      const n = (TUTORIAL[currentLang] || TUTORIAL.pt).length;
+      if (tutIdx + d >= n) return closeTutorial();
+      tutIdx = Math.max(0, tutIdx + d); renderTutorial();
+    }
+    function closeTutorial() {
+      $('tutorialModal').classList.remove('active');
+      if (currentUser) {
+        localStorage.setItem('vc_onb_' + currentUser.email, '1'); currentUser.onboarded = true;
+        fetch('/api/onboarded', { method: 'POST', credentials: 'include' }).catch(() => {});
+      }
+    }
+
+    // ===== TOUR DENTRO DA SALA (primeira vez) =====
+    const TOUR_STEPS = [
+      { sel: '.add-song', tab: 'player', txt: { pt: 'Busque no YouTube ou cole um link aqui e clique em Adicionar. Uma prévia aparece antes de entrar na fila.', en: 'Search YouTube or paste a link here and click Add. A preview shows up before it joins the queue.', es: 'Busca en YouTube o pega un enlace aquí y haz clic en Añadir. Verás una vista previa antes de entrar a la cola.' } },
+      { sel: '.player-section', tab: 'player', txt: { pt: 'Aqui toca a música atual, sincronizada para todos. Ajuste o volume, favorite com ⭐ ou vote em Pular.', en: 'The current song plays here, in sync for everyone. Adjust the volume, favorite with ⭐ or vote to Skip.', es: 'Aquí suena la canción actual, sincronizada para todos. Ajusta el volumen, guarda con ⭐ o vota para Saltar.' } },
+      { sel: '.queue-column', tab: 'queue', txt: { pt: 'Esta é a fila. Use 👍 e 👎 nas próximas músicas — com 10 votos negativos ela sai.', en: 'This is the queue. Use 👍 and 👎 on upcoming songs — with 10 dislikes it is removed.', es: 'Esta es la cola. Usa 👍 y 👎 en las próximas canciones — con 10 votos negativos se elimina.' } },
+      { sel: '.chat-column', tab: 'chat', txt: { pt: 'Chat ao vivo: converse, use emojis e curta mensagens. Toque em 👥 para ver quem está na sala.', en: 'Live chat: talk, use emojis and like messages. The 👥 counter shows who is in the room.', es: 'Chat en vivo: conversa, usa emojis y da like a los mensajes. El contador 👥 muestra quién está en la sala.' } }
+    ];
+    let tourIdx = -1;
+    function maybeRoomTour() {
+      if (!currentUser || _onbShown && $('tutorialModal').classList.contains('active')) return;
+      const key = 'vc_tour_' + currentUser.email;
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1'); tourIdx = -1; tourNext();
+    }
+    function tourNext() {
+      tourIdx++;
+      if (tourIdx >= TOUR_STEPS.length) return endTour();
+      const st = TOUR_STEPS[tourIdx];
+      setTab(st.tab);
+      setTimeout(() => {
+        const el = document.querySelector(st.sel); if (!el) return endTour();
+        const r = el.getBoundingClientRect(), spot = $('tourSpot'), tip = $('tourTip');
+        Object.assign(spot.style, { display: 'block', left: (r.left - 6) + 'px', top: (r.top - 6) + 'px', width: (r.width + 12) + 'px', height: (r.height + 12) + 'px' });
+        $('tourText').textContent = st.txt[currentLang] || st.txt.pt;
+        $('tourBtn').textContent = tourIdx === TOUR_STEPS.length - 1 ? t('tour.done') : t('tour.next'); $('tourSkip').textContent = t('tour.skip');
+        tip.style.display = 'block';
+        const tw = Math.min(300, innerWidth - 24), th = tip.offsetHeight;
+        let top = r.height > innerHeight * 0.55 ? r.top + r.height / 2 - th / 2 : (r.bottom + th + 20 < innerHeight ? r.bottom + 14 : r.top - th - 14);
+        let left = r.height > innerHeight * 0.55 ? r.left + r.width / 2 - tw / 2 : r.left;
+        tip.style.top = Math.max(12, Math.min(top, innerHeight - th - 12)) + 'px';
+        tip.style.left = Math.max(12, Math.min(left, innerWidth - tw - 12)) + 'px';
+      }, 150);
+    }
+    function endTour() { $('tourSpot').style.display = 'none'; $('tourTip').style.display = 'none'; tourIdx = -1; setTab('player'); }
+
+    // ===== ABAS MOBILE =====
+    function setTab(tab) {
+      document.body.dataset.tab = tab;
+      document.querySelectorAll('#mTabs button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
+    }
+    setTab('player');
+
+    // ===== SOM (autoplay bloqueado) =====
+    function checkGate() {
+      try { if (!player || !currentTrackId || !player.getPlayerState) return; const s = player.getPlayerState(); if (s !== 1 && s !== 3) $('soundGate').classList.add('show'); } catch (e) {}
+    }
+    function enableSound() {
+      $('soundGate').classList.remove('show');
+      try {
+        const s = currentRoomData || {}, pos = (s.position || 0) + (Date.now() - (s._at || Date.now())) / 1000;
+        player.seekTo(pos, true); player.unMute(); player.setVolume(volumeLevel); player.playVideo();
+      } catch (e) {}
+    }
+
+    // ===== ADMIN extra =====
+    function filterAdminUsers(v) {
+      const q = (v || '').toLowerCase();
+      document.querySelectorAll('#adminUserList .admin-user-item').forEach(el => { el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+    }
+    async function adminUnban(email) {
+      if (!confirm(`Desbanir ${email}?`)) return;
+      try {
+        const r = await fetch('/api/admin/unban-user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email }) });
+        if (r.ok) { toast('✅ Desbanido!', 'success'); loadAdminUsers(); } else toast('Erro ao desbanir', 'error');
+      } catch (e) { toast('Erro', 'error'); }
+    }
 
     // ===== INIT =====
     function init() {
