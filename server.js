@@ -390,14 +390,7 @@ app.post('/api/login', rateLimit(10, 60000), async (req, res) => {
 
   try {
     let userDoc = await db.collection('users').doc(email).get();
-    if (!userDoc.exists) {
-      if (!(decoded.firebase && decoded.firebase.sign_in_provider === 'google.com')) return res.status(401).json({ error: 'Usuário não encontrado' });
-      const ud = { nome: String(decoded.name || email.split('@')[0]).slice(0, 60), email, estilos: [], avatar: '🎸', criadoEm: new Date(), theme: 'dark', fontSize: 16, colorblind: false, discordWebhook: null };
-      await setUserInFirestore(email, ud); users.set(email, ud);
-      await setPointsInFirestore(email, { points: 0, badges: [] }); userPoints.set(email, { points: 0, badges: [] });
-      await setFavoritesInFirestore(email, []); userFavorites.set(email, []);
-      userDoc = { exists: true, data: () => ud };
-    }
+    if (!userDoc.exists) return res.status(401).json({ error: 'Usuário não encontrado' });
 
     const userData = userDoc.data();
     if (userData.banned) return res.status(403).json({ error: 'Conta banida.' });
@@ -1099,6 +1092,7 @@ app.get('/invite/:slug', (req, res) => {
   res.redirect('/?room=' + req.params.slug);
 });
 app.get('*', (req, res) => {
+  if (path.extname(req.path)) return res.status(404).send('Arquivo não encontrado: ' + req.path);
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
