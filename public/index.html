@@ -768,7 +768,7 @@
       <input type="email" id="loginEmail" placeholder="E-mail" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
       <input type="password" id="loginPassword" placeholder="Senha" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
       <button id="loginBtn" onclick="doLogin()" data-i18n="login.btn">Entrar no palco</button>
-      <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="/legal.html" target="_blank" rel="noopener">Termos e a Política de Privacidade</a>.</p>
+      <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="legal.html" target="_blank" rel="noopener">Termos e a Política de Privacidade</a>.</p>
       <div class="login-switch"><span data-i18n="login.switch">Não tem conta?</span> <a onclick="openSignup()" data-i18n="login.signup">Cadastre-se</a></div>
     </div>
   </div>
@@ -2731,7 +2731,7 @@
       const l = document.getElementById('screen-lobby'); if (!l) return;
       const p = document.createElement('p');
       p.style.cssText = 'text-align:center;font-size:12px;margin:24px 0;color:var(--text-muted);';
-      p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="/legal.html" target="_blank" rel="noopener">Termos e Privacidade</a>';
+      p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="legal.html" target="_blank" rel="noopener">Termos e Privacidade</a>';
       l.appendChild(p);
     })();
 
