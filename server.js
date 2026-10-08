@@ -30,15 +30,38 @@ const db = admin.firestore();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
+const io = new Server(server, { cors: { origin: process.env.CORS_ORIGIN || false, credentials: true } });
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(cookieParser());
 
+// ========== SEGURANÇA ==========
+app.use((req, res, next) => {
+  res.set({ 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'strict-origin-when-cross-origin' });
+  next();
+});
+const hits = new Map();
+function rateLimit(max, ms) {
+  return (req, res, next) => {
+    const k = req.ip + req.path, n = Date.now();
+    const a = (hits.get(k) || []).filter(t => n - t < ms); a.push(n); hits.set(k, a);
+    if (a.length > max) return res.status(429).json({ error: 'Muitas tentativas. Aguarde um instante.' });
+    next();
+  };
+}
+setInterval(() => hits.clear(), 10 * 60 * 1000);
+function sessionEmail(req) { const t = req.cookies.sessionToken; return t ? sessions.get(t) : null; }
+function requireAdmin(req, res, next) {
+  const email = sessionEmail(req);
+  if (!email || !adminEmails.has(email)) return res.status(403).json({ error: 'Apenas administradores' });
+  req.adminEmail = email; next();
+}
+app.use('/api/admin', requireAdmin);
+
 // ========== CONFIG ==========
 const colors = ['#f59e0b', '#3b82f6', '#ef4444', '#22c55e', '#a855f7', '#ec4899', '#06b6d4', '#f97316', '#8b5cf6', '#14b8a6'];
-const adminEmails = new Set(['admin@sonora.com']);
+const adminEmails = new Set(['admin@sonora.com', ...(process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean)]);
 const settings = { maxQueue: 10000, cooldown: 30, maxDuration: 600, maxListeners: 20 };
 const DISLIKE_THRESHOLD = 10;
 const MAX_SONGS_PER_USER = 10000;
@@ -275,12 +298,13 @@ async function sendDiscordWebhook(webhookUrl, message) {
 }
 
 // ========== ROTAS ==========
-app.post('/api/signup', async (req, res) => {
-  const { nome, email, senha, estilos } = req.body;
-  if (!nome || nome.length < 2) return res.status(400).json({ error: 'Nome inválido' });
-  if (!email || !email.includes('@')) return res.status(400).json({ error: 'E-mail inválido' });
-  if (!senha || senha.length < 6) return res.status(400).json({ error: 'Senha deve ter 6+ caracteres' });
-  if (!estilos || estilos.length === 0) return res.status(400).json({ error: 'Escolha um estilo' });
+app.post('/api/signup', rateLimit(5, 60000), async (req, res) => {
+  const { nome, estilos, idToken } = req.body;
+  let email;
+  try { email = (await admin.auth().verifyIdToken(idToken)).email; } catch (e) { return res.status(401).json({ error: 'Sessão Firebase inválida' }); }
+  if (!nome || nome.length < 2 || nome.length > 60) return res.status(400).json({ error: 'Nome inválido' });
+  if (!email) return res.status(400).json({ error: 'E-mail inválido' });
+  if (!Array.isArray(estilos) || estilos.length === 0) return res.status(400).json({ error: 'Escolha um estilo' });
 
   try {
     const existing = await db.collection('users').doc(email).get();
@@ -297,20 +321,22 @@ app.post('/api/signup', async (req, res) => {
   } catch (e) { console.error('Erro no signup:', e.message); res.status(500).json({ error: 'Erro ao salvar dados no Firestore: ' + e.message }); }
 });
 
-app.post('/api/login', async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Preencha e-mail' });
+app.post('/api/login', rateLimit(10, 60000), async (req, res) => {
+  let email;
+  try { email = (await admin.auth().verifyIdToken(req.body.idToken)).email; } catch (e) { return res.status(401).json({ error: 'Credenciais inválidas' }); }
+  if (!email) return res.status(401).json({ error: 'Credenciais inválidas' });
 
   try {
     const userDoc = await db.collection('users').doc(email).get();
     if (!userDoc.exists) return res.status(401).json({ error: 'Usuário não encontrado' });
 
     const userData = userDoc.data();
+    if (userData.banned) return res.status(403).json({ error: 'Conta banida.' });
     if (!users.has(email)) users.set(email, userData);
 
     const token = crypto.randomBytes(64).toString('hex');
     sessions.set(token, email);
-    res.cookie('sessionToken', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'lax', path: '/' });
+    res.cookie('sessionToken', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'lax', path: '/', secure: process.env.NODE_ENV === 'production' });
 
     const points = await getPointsFromFirestore(email);
     res.json({ success: true, user: { ...userData, points: points.points, badges: points.badges } });
@@ -392,14 +418,14 @@ app.post('/api/room/:slug/invite', (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/room/:slug/webhook', (req, res) => {
+app.post('/api/room/:slug/webhook', requireAdmin, (req, res) => {
   const room = rooms.get(req.params.slug);
   if (!room) return res.status(404).json({ error: 'Sala não encontrada' });
   room.discordWebhook = req.body.webhookUrl || null;
   res.json({ success: true });
 });
 
-app.post('/api/room/:slug/event', (req, res) => {
+app.post('/api/room/:slug/event', requireAdmin, (req, res) => {
   const room = rooms.get(req.params.slug);
   if (!room) return res.status(404).json({ error: 'Sala não encontrada' });
   room.eventStartTime = req.body.startTime || null;
@@ -462,7 +488,27 @@ app.post('/api/update-avatar', async (req, res) => {
   res.json({ success: true });
 });
 
-// ========== ADMIN ROTAS ==========
+app.post('/api/onboarded', async (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Não autenticado' });
+  const u = users.get(email) || await getUserFromFirestore(email);
+  if (!u) return res.status(404).json({ error: 'Usuário não encontrado' });
+  u.onboarded = true; users.set(email, u); await setUserInFirestore(email, u);
+  res.json({ success: true });
+});
+const THEMES = ['dark', 'ocean', 'sunset', 'forest', 'high-contrast', 'cherry', 'retro'];
+app.post('/api/update-theme', async (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Não autenticado' });
+  const { theme } = req.body;
+  if (!THEMES.includes(theme)) return res.status(400).json({ error: 'Tema inválido' });
+  const u = users.get(email) || await getUserFromFirestore(email);
+  if (!u) return res.status(404).json({ error: 'Usuário não encontrado' });
+  u.theme = theme; users.set(email, u); await setUserInFirestore(email, u);
+  res.json({ success: true });
+});
+
+// ========== ADMIN ROTAS (protegidas por requireAdmin) ==========
 app.get('/api/admin/stats', async (req, res) => {
   try {
     const snapshot = await db.collection('users').get();
@@ -479,7 +525,7 @@ app.get('/api/admin/users', async (req, res) => {
     const usersList = [];
     snapshot.forEach(doc => {
       const data = doc.data();
-      usersList.push({ email: doc.id, nome: data.nome, isAdmin: adminEmails.has(doc.id) });
+      usersList.push({ email: doc.id, nome: data.nome, avatar: data.avatar, banned: !!data.banned, isAdmin: adminEmails.has(doc.id) });
     });
     res.json(usersList);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -534,6 +580,7 @@ app.post('/api/admin/ban-user', async (req, res) => {
   if (!userData) return res.status(404).json({ error: 'Usuário não encontrado' });
   userData.banned = true;
   await setUserInFirestore(email, userData);
+  for (const [t, e] of sessions) if (e === email) sessions.delete(t);
   io.fetchSockets().then(sockets => {
     for (const socket of sockets) {
       if (socket.userEmail === email) {
@@ -542,6 +589,15 @@ app.post('/api/admin/ban-user', async (req, res) => {
       }
     }
   });
+  res.json({ success: true });
+});
+
+app.post('/api/admin/unban-user', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email necessário' });
+  const userData = await getUserFromFirestore(email);
+  if (!userData) return res.status(404).json({ error: 'Usuário não encontrado' });
+  userData.banned = false; await setUserInFirestore(email, userData); users.set(email, userData);
   res.json({ success: true });
 });
 
@@ -607,7 +663,7 @@ app.get('/api/admin/export-data', (req, res) => {
 });
 
 // ========== API DO YOUTUBE ==========
-app.get('/api/search-youtube', async (req, res) => {
+app.get('/api/search-youtube', rateLimit(30, 60000), async (req, res) => {
   const query = req.query.q;
   if (!query || query.length < 2) return res.json({ items: [] });
   try {
@@ -633,25 +689,18 @@ function fetchUrl(url) {
   });
 }
 
-app.get('/api/video-info', async (req, res) => {
+app.get('/api/video-info', rateLimit(40, 60000), async (req, res) => {
   const id = String(req.query.id || '').trim();
   if (!/^[a-zA-Z0-9_-]{11}$/.test(id)) return res.status(400).json({ error: 'ID inválido' });
   const info = { id, title: null, artist: null, duration: null };
   try {
-    const raw = await fetchUrl(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`);
-    const data = JSON.parse(raw); info.title = data.title || null; info.artist = data.author_name || null;
-  } catch (e) {}
-  try {
-    const html = await fetchUrl(`https://www.youtube.com/watch?v=${id}`);
-    const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
-    if (jsonLdMatch) {
-      try { const jsonLd = JSON.parse(jsonLdMatch[1]); if (jsonLd.duration) { const match = jsonLd.duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/); if (match) { info.duration = (parseInt(match[1] || 0) * 3600) + (parseInt(match[2] || 0) * 60) + parseInt(match[3] || 0); } } } catch (e) {}
+    const r = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${id}&key=${YOUTUBE_API_KEY}`);
+    const d = await r.json(); const v = d.items && d.items[0];
+    if (v) {
+      info.title = v.snippet.title; info.artist = v.snippet.channelTitle;
+      const m = (v.contentDetails.duration || '').match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+      if (m && v.snippet.liveBroadcastContent !== 'live') info.duration = (+m[1] || 0) * 3600 + (+m[2] || 0) * 60 + (+m[3] || 0);
     }
-    if (!info.duration) {
-      const playerResponseMatch = html.match(/var ytInitialPlayerResponse\s*=\s*({[\s\S]*?});/);
-      if (playerResponseMatch) { try { const data = JSON.parse(playerResponseMatch[1]); if (data.videoDetails && data.videoDetails.lengthSeconds) info.duration = parseInt(data.videoDetails.lengthSeconds, 10); } catch (e) {} }
-    }
-    if (!info.title) { const titleMatch = html.match(/<title>([^<]+)<\/title>/); if (titleMatch) info.title = titleMatch[1].replace(/ - YouTube\s*$/, '').trim(); }
   } catch (e) {}
   if (!info.title) info.title = 'Vídeo do YouTube (ID: ' + id + ')';
   res.json(info);
@@ -729,7 +778,8 @@ io.on('connection', (socket) => {
 
   socket.on('chat', ({ text }) => {
     try {
-      if (!currentRoom || !text.trim()) return;
+      if (!currentRoom || typeof text !== 'string' || !text.trim()) return;
+      text = text.slice(0, 400);
       const room = rooms.get(currentRoom);
       const parts = text.trim().split(' ');
       const command = parts[0].toLowerCase();
@@ -779,8 +829,13 @@ io.on('connection', (socket) => {
         room.history.slice(-5).forEach((t, i) => { hist += `  ${i+1}. ${t.title} — ${t.artist}\n`; });
         socket.emit('chat', { _id: Date.now().toString() + Math.random(), user: 'Sistema', text: hist, color: '#888', isSystem: true, createdAt: new Date() });
         return;
+      case '/pin':
+        if (!socket.isAdmin) { reply = 'Apenas admin pode fixar mensagens.'; break; }
+        if (!args.length) { reply = 'Use: /pin texto da mensagem'; break; }
+        room.pinnedMessage = { author: socket.userName, text: args.join(' ').slice(0, 300) }; broadcastState(room.slug); reply = '📌 Mensagem fixada.';
+        break;
       default:
-        reply = `Comando desconhecido: ${cmd}. Use /stats, /vote, /clear (admin), /me, /history`;
+        reply = `Comando desconhecido: ${cmd}. Use /stats, /vote, /me, /history, /clear e /pin (admin)`;
     }
     if (reply) socket.emit('chat', { _id: Date.now().toString() + Math.random(), user: 'Sistema', text: reply, color: '#888', isSystem: true, createdAt: new Date() });
   }
@@ -887,6 +942,14 @@ io.on('connection', (socket) => {
       }
       broadcastState(currentRoom);
     } catch (e) { console.error('Erro no videoDuration:', e.message); }
+  });
+
+  socket.on('adminBroadcast', ({ message }) => {
+    try { if (adminEmails.has(socket.userEmail) && typeof message === 'string' && message.trim()) io.emit('adminBroadcast', { message: message.trim().slice(0, 300) }); } catch (e) {}
+  });
+
+  socket.on('removePinnedMessage', () => {
+    try { const room = currentRoom && rooms.get(currentRoom); if (room && socket.isAdmin) { room.pinnedMessage = null; broadcastState(currentRoom); } } catch (e) {}
   });
 
   socket.on('videoEnded', () => {
