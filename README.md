@@ -1,9 +1,9 @@
-# 🎧 VibeChat
+# 🎧 SonoraFan
 
 Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube e conversa em tempo real — como um show, mas com você no controle da playlist.
 
-![VibeChat](https://img.shields.io/badge/version-2.0.0-blue)
-![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)
+![SonoraFan](https://img.shields.io/badge/version-2.0.0-blue)
+![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
 ## ✨ Funcionalidades
@@ -29,12 +29,13 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ## 📁 Estrutura
 
 ```
-vibechat/
+sonorafan/
 ├── public/
 │   └── index.html      ← frontend completo
 ├── server.js           ← backend + Socket.io
 ├── package.json
 ├── Dockerfile
+├── .node-version
 └── .env.example
 ```
 
@@ -43,13 +44,16 @@ vibechat/
 | Variável | Descrição |
 |---|---|
 | `FIREBASE_SERVICE_ACCOUNT_KEY` | Chave de serviço do Firebase Admin (JSON em uma linha) |
-| `FIREBASE_CLIENT_CONFIG` | Config do Firebase **cliente** (o JSON que antes ficava no HTML). Aceita JSON em uma linha ou base64 — alternativa: variáveis individuais `FIREBASE_API_KEY`, `FIREBASE_AUTH_DOMAIN`, etc. |
+| `ADMIN_EMAILS` | E-mails de admins globais, separados por vírgula (se vazio, usa `admin@sonora.com`) |
+| `NODE_ENV` | Use `production` no Render (cookie `secure`) |
+| `CORS_ORIGIN` | Opcional: só se o front ficar em outro domínio |
 | `YOUTUBE_API_KEY` | Chave da API do YouTube (busca de vídeos) |
 | `PORT` | Porta (o Render define automaticamente) |
 
 ## 🔒 Segurança
 
-- Config do Firebase cliente é servida pelo backend (`GET /api/firebase-config`, via env var) — nenhuma chave no HTML
+- Login e cadastro validam o `idToken` do Firebase no servidor (a senha nunca chega ao backend)
+- Sessões persistem no Firestore (guardadas como hash) e salas criadas sobrevivem a reinícios
 - Headers de segurança: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
 - Rotas `/api/admin/*` exigem sessão de administrador (antes estavam abertas para qualquer um)
 - Rate limiting em login (10/min) e cadastro (5/min)
@@ -83,7 +87,12 @@ Se preferir, o `Dockerfile` já está pronto — o Render detecta automaticament
 
 ## 👑 Admin
 
-O e-mail `admin@sonora.com` é admin global por padrão (definido em `server.js`, variável `adminEmails`).
+Admins globais vêm de `ADMIN_EMAILS`. Sem essa variável, `admin@sonora.com` é usado — crie essa conta com senha forte.
+
+## 🩺 Operação
+
+- `GET /healthz` para o health check do Render
+- Node 22 (veja `.node-version`); Dependabot e CI em `.github/`
 
 ---
 
