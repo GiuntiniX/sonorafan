@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>VibeChat — Sua vibe, sua música</title>
+  <meta name="description" content="Salas colaborativas de música: todo mundo adiciona músicas do YouTube e conversa em tempo real.">
+  <meta property="og:type" content="website"><meta property="og:title" content="VibeChat — Sua vibe, sua música">
+  <meta property="og:description" content="Entre numa sala, adicione suas músicas e converse ao vivo com a galera.">
+  <meta property="og:image" content="/icon.svg"><meta name="theme-color" content="#7c3aed">
+  <link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon.svg" type="image/svg+xml">
   <script src="/socket.io/socket.io.js"></script>
   
   <!-- ===== CONFIGURAÇÃO FIREBASE ===== -->
@@ -595,9 +600,14 @@
       .footer { display: none; }
       .lobby { padding: 16px; }
     }
+    .conn-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 500; text-align: center; padding: 8px; background: var(--warning); color: #000; font-weight: 700; font-size: 13px; display: none; }
+    .conn-banner.show { display: block; }
+    .lb-row { display: flex; gap: 10px; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--border); }
+    .lb-row span { flex: 1; } .lb-row em { color: var(--accent); font-style: normal; font-weight: 700; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
-<base target="_blank">
+
 </head>
 <body>
   <!-- PARTICLES -->
@@ -758,6 +768,9 @@
       <input type="email" id="loginEmail" placeholder="E-mail" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
       <input type="password" id="loginPassword" placeholder="Senha" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
       <button id="loginBtn" onclick="doLogin()" data-i18n="login.btn">Entrar no palco</button>
+      <button type="button" class="btn-secondary" id="googleBtn" onclick="googleLogin()" style="width:100%;margin-top:10px;">Entrar com Google</button>
+      <p style="text-align:center;margin-top:12px;font-size:13px;"><a href="#" onclick="forgotPassword();return false;">Esqueci minha senha</a></p>
+      <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="/legal.html" target="_blank" rel="noopener">Termos e a Política de Privacidade</a>.</p>
       <div class="login-switch"><span data-i18n="login.switch">Não tem conta?</span> <a onclick="openSignup()" data-i18n="login.signup">Cadastre-se</a></div>
     </div>
   </div>
@@ -915,6 +928,7 @@
           </div>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtn" style="display:none;">🎛️</button>
           <button class="action-btn" onclick="openTutorial(0)" title="Ajuda / Tutorial">❓</button>
+          <button class="action-btn" onclick="openLeaderboard()" title="Ranking">🏆</button>
           <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtn">🌙</button>
           <div class="lang-selector">
             <button class="lang-btn active" data-lang="pt" onclick="setLanguage('pt')">PT</button>
@@ -951,6 +965,7 @@
           <button class="action-btn" onclick="copyInviteLink()" title="Convidar amigos">🔗</button>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
           <button class="action-btn" onclick="openTutorial(0)" title="Ajuda / Tutorial">❓</button>
+          <button class="action-btn" onclick="openLeaderboard()" title="Ranking">🏆</button>
           <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtnRoom">🌙</button>
           <button class="action-btn" onclick="toggleFavorites()" title="Favoritos" style="border-color:var(--accent2);">⭐</button>
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
@@ -1108,6 +1123,8 @@
   </div>
 
   <!-- ===== TEMAS / TUTORIAL / TOUR ===== -->
+  <div class="conn-banner" id="connBanner">🔄 Reconectando…</div>
+  <div class="modal-overlay" id="lbModal" onclick="if(event.target===this)this.classList.remove('active')"><div class="modal" style="max-width:380px;"><h3>🏆 Ranking</h3><div id="lbList" style="margin:12px 0;"></div><div class="modal-actions"><button class="btn-secondary" onclick="$('lbModal').classList.remove('active')">OK</button></div></div></div>
   <div class="theme-pop" id="themePop"></div>
   <div class="modal-overlay" id="tutorialModal">
     <div class="modal" style="text-align:center;max-width:440px;">
@@ -1137,10 +1154,10 @@
   <div class="footer">
     <span>Desenvolvido por <a href="https://www.linkedin.com/in/ggiuntini/" target="_blank">Guilherme Giuntini</a></span>
     <div class="social-icons">
-      <a href="#" onclick="sharePage('whatsapp'); return false;" title="WhatsApp"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/960px-WhatsApp.svg.png" alt="WhatsApp"></a>
-      <a href="#" onclick="sharePage('twitter'); return false;" title="Twitter"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvBQj3eYlJYOfo13gijtX4XWNDpiM0O7a7IfpxGMhiQ9CltsrZ8myP9uQ&s=10" alt="Twitter"></a>
-      <a href="#" onclick="sharePage('facebook'); return false;" title="Facebook"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/04/Facebook_f_logo_%282021%29.svg/3840px-Facebook_f_logo_%282021%29.svg.png" alt="Facebook"></a>
-      <a href="#" onclick="sharePage('threads'); return false;" title="Threads"><img src="https://img.magnific.com/vetores-gratis/topicos-logotipo-em-fundo-preto-em-vetor_1017-45262.jpg?semt=ais_hybrid&w=740&q=80" alt="Threads"></a>
+      <a href="#" onclick="sharePage('whatsapp'); return false;" title="WhatsApp"><span style="font-weight:700;font-size:13px;">WhatsApp</span></a>
+      <a href="#" onclick="sharePage('twitter'); return false;" title="Twitter"><span style="font-weight:700;font-size:13px;">X</span></a>
+      <a href="#" onclick="sharePage('facebook'); return false;" title="Facebook"><span style="font-weight:700;font-size:13px;">Facebook</span></a>
+      <a href="#" onclick="sharePage('threads'); return false;" title="Threads"><span style="font-weight:700;font-size:13px;">Threads</span></a>
     </div>
   </div>
 
@@ -1156,7 +1173,7 @@
     const socket = io({ withCredentials: true });
     let currentUser = null, myName = '', myAvatar = '🎸', amIAdmin = false, currentRoom = null, currentRoomData = null;
     let player = null, currentTrackId = null, lastAddTime = 0, songData = null;
-    let currentTheme = localStorage.getItem('sonoraTheme') || 'dark';
+    let currentTheme = localStorage.getItem('sonoraTheme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'ocean' : 'dark');
     let messageLikesSync = {}, queueVotes = {}, myFavorites = [], crossfadeInterval = null;
     let pendingRoomAfterLogin = null, myPoints = 0, myBadges = [];
     let searchTimeout = null;
@@ -1990,6 +2007,7 @@
         const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, color: '#7c3aed', allowLong: $('optAllowLong') ? $('optAllowLong').checked : false, allowLive: $('optAllowLive') ? $('optAllowLive').checked : false }) });
         const d = await r.json();
         if (d.slug) { closeCreateRoom(); joinRoom(d.slug); }
+        else toast(d.error || 'Erro ao criar sala', 'error');
       } catch(e) { toast('Erro ao criar sala', 'error'); }
     }
     async function joinRandomRoom() {
@@ -2004,6 +2022,7 @@
     function joinRoom(slug) {
       if (!currentUser) { pendingRoomAfterLogin = slug; toast('Faça login primeiro', 'error'); showLogin(); return; }
       currentRoom = slug;
+      _joinedSlug = slug;
       socket.emit('joinRoom', { slug, name: myName, avatar: myAvatar });
       showScreen('room');
       setTab('player'); setTimeout(maybeRoomTour, 1200);
@@ -2013,6 +2032,7 @@
       loadYouTubeAPI();
     }
     function leaveRoom() {
+      _joinedSlug = null;
       if (currentRoom) socket.emit('leaveRoom');
       currentRoom = null;
       currentRoomData = null;
@@ -2084,6 +2104,7 @@
         currentTrackId = track.id;
         player.loadVideoById({ videoId: track.id, startSeconds: Math.floor(state.position || 0) });
         setTimeout(checkGate, 3000);
+        updateMediaSession(track);
         const vol = parseInt($('volumeSlider').value) || 80;
         volumeLevel = vol;
         setTimeout(() => {
@@ -2258,6 +2279,7 @@
       $('searchResults').classList.remove('show');
       $('songUrl').value = id;
       fetch(`/api/video-info?id=${id}`).then(r => r.json()).then(data => {
+        if (data.embeddable === false) { $('songUrl').value = ''; return toast('Este vídeo não permite reprodução incorporada', 'error'); }
         songData = { id, title, artist, duration: data.duration || null };
         showPreview(songData);
       }).catch(() => { songData = { id, title, artist, duration: null }; showPreview(songData); });
@@ -2297,6 +2319,7 @@
       try {
         const r = await fetch(`/api/video-info?id=${videoId}`);
         const data = await r.json();
+        if (r.ok && data.embeddable === false) { toast('Este vídeo não permite reprodução incorporada', 'error'); return; }
         if (r.ok) { songData = { id: videoId, title: data.title, artist: data.artist || 'Desconhecido', duration: data.duration || null }; showPreview(songData); return; }
       } catch(e) {
         try {
@@ -2446,6 +2469,7 @@
     // ===== SOCKET EVENTS =====
     socket.on('adminUsersUpdated', () => { if (amIAdmin) loadAdminUsers(); });
     socket.on('userPoints', (data) => { if (data) { myPoints = data.points || 0; myBadges = data.badges || []; updateUserInfo(); } });
+    socket.on('chatError', m => toast(m, 'error'));
     socket.on('roomState', (state) => {
       state._at = Date.now();
       const prev = currentRoomData?.queue?.[currentRoomData.currentIndex]?.id;
@@ -2655,6 +2679,77 @@
         if (r.ok) { toast('✅ Desbanido!', 'success'); loadAdminUsers(); } else toast('Erro ao desbanir', 'error');
       } catch (e) { toast('Erro', 'error'); }
     }
+
+
+    // ===== Media Session (tela de bloqueio) + acessibilidade =====
+    function updateMediaSession(track) {
+      if (!('mediaSession' in navigator) || !track) return;
+      navigator.mediaSession.metadata = new MediaMetadata({ title: track.title || '', artist: track.artist || 'VibeChat', artwork: [{ src: `https://i.ytimg.com/vi/${track.id}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpeg' }] });
+    }
+    function a11yPass() { document.querySelectorAll('button[title]:not([aria-label])').forEach(b => b.setAttribute('aria-label', b.title)); }
+    let _a11yT; new MutationObserver(() => { clearTimeout(_a11yT); _a11yT = setTimeout(a11yPass, 300); }).observe(document.body, { childList: true, subtree: true });
+    a11yPass();
+
+
+    // ===== Reconexão, ressincronização, conta, ranking, atalhos =====
+    let _joinedSlug = null;
+    socket.on('disconnect', () => { if (_joinedSlug) $('connBanner').classList.add('show'); });
+    socket.on('connect', () => {
+      $('connBanner').classList.remove('show');
+      if (_joinedSlug && myName) socket.emit('joinRoom', { slug: _joinedSlug, name: myName, avatar: myAvatar });
+    });
+    setInterval(() => {
+      try {
+        const s = currentRoomData;
+        if (!player || !s || !s.isPlaying || !currentTrackId || !player.getPlayerState || player.getPlayerState() !== 1) return;
+        const expected = (s.position || 0) + (Date.now() - (s._at || Date.now())) / 1000;
+        if (Math.abs(player.getCurrentTime() - expected) > 3) player.seekTo(expected, true);
+      } catch (e) {}
+    }, 20000);
+    async function forgotPassword() {
+      const email = $('loginEmail').value.trim();
+      if (!email) return toast('Digite seu e-mail primeiro', 'error');
+      try { await firebase.auth().sendPasswordResetEmail(email); toast('📧 Link de redefinição enviado (veja o spam).', 'success'); } catch (e) { toast('Não foi possível enviar. Confira o e-mail.', 'error'); }
+    }
+    async function googleLogin() {
+      try {
+        const cred = await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        const idToken = await cred.user.getIdToken();
+        const res = await fetch('/api/login', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
+        if (!res.ok) { const d = await res.json().catch(() => ({})); return toast(d.error || 'Erro ao entrar', 'error'); }
+        location.reload();
+      } catch (e) { toast('Login com Google cancelado ou indisponível', 'error'); }
+    }
+    async function openLeaderboard() {
+      $('lbModal').classList.add('active');
+      $('lbList').textContent = '...';
+      try {
+        const d = await (await fetch('/api/leaderboard', { credentials: 'include' })).json();
+        $('lbList').innerHTML = (d.items || []).map((u, i) => `<div class="lb-row"><b>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'}</b><span>${escapeHtml(u.avatar)} ${escapeHtml(u.nome)}</span><em>${u.points} pts</em></div>`).join('') || '—';
+      } catch (e) { $('lbList').textContent = '—'; }
+    }
+    async function deleteMyAccount() {
+      if (!confirm('Excluir sua conta e todos os seus dados? Isso não pode ser desfeito.')) return;
+      const r = await fetch('/api/delete-account', { method: 'POST', credentials: 'include' });
+      if (r.status === 401) return toast('Faça login para excluir sua conta', 'error');
+      if (r.ok) { try { await firebase.auth().signOut(); } catch (e) {} location.reload(); } else { const d = await r.json().catch(() => ({})); toast(d.error || 'Erro ao excluir', 'error'); }
+    }
+    document.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener'; });
+    document.addEventListener('keydown', e => {
+      const tag = e.target.tagName || '';
+      if (e.key === 'Escape') {
+        if ($('tutorialModal').classList.contains('active')) closeTutorial();
+        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+      } else if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(tag) && $('screen-room').classList.contains('active')) { e.preventDefault(); $('chatInput').focus(); }
+    });
+
+    (function () {
+      const l = document.getElementById('screen-lobby'); if (!l) return;
+      const p = document.createElement('p');
+      p.style.cssText = 'text-align:center;font-size:12px;margin:24px 0;color:var(--text-muted);';
+      p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="/legal.html" target="_blank" rel="noopener">Termos e Privacidade</a>';
+      l.appendChild(p);
+    })();
 
     // ===== INIT =====
     function init() {
