@@ -4,8 +4,11 @@ const https = require('https');
 const { Server } = require('socket.io');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const crypto = require('crypto');
-const admin = require('firebase-admin');
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
 
 // ===== PROTEÇÃO GLOBAL PARA O SERVIDOR NUNCA CAIR =====
 process.on('uncaughtException', (err) => {
@@ -18,29 +21,30 @@ process.on('unhandledRejection', (reason, promise) => {
 // ========== INICIALIZAÇÃO DO FIREBASE ==========
 try {
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+  initializeApp({
+    credential: cert(serviceAccount),
   });
   console.log('🔥 Firebase conectado!');
 } catch (e) {
   console.error('⚠️ Erro ao conectar Firebase:', e.message);
 }
 
-const db = admin.firestore();
+const db = getFirestore();
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: process.env.CORS_ORIGIN || false, credentials: true } });
 
+app.use(compression());
+app.use((req, res, next) => {
+  res.set({ 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'strict-origin-when-cross-origin' });
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(cookieParser());
 
 // ========== SEGURANÇA ==========
-app.use((req, res, next) => {
-  res.set({ 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'strict-origin-when-cross-origin' });
-  next();
-});
 const hits = new Map();
 function rateLimit(max, ms) {
   return (req, res, next) => {
@@ -61,7 +65,9 @@ app.use('/api/admin', requireAdmin);
 
 // ========== CONFIG ==========
 const colors = ['#f59e0b', '#3b82f6', '#ef4444', '#22c55e', '#a855f7', '#ec4899', '#06b6d4', '#f97316', '#8b5cf6', '#14b8a6'];
-const adminEmails = new Set(['admin@sonora.com', ...(process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean)]);
+const envAdmins = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
+if (!envAdmins.length) console.warn('⚠️ ADMIN_EMAILS não definido: usando admin@sonora.com (garanta que essa conta exista com senha forte).');
+const adminEmails = new Set(envAdmins.length ? envAdmins : ['admin@sonora.com']);
 const settings = { maxQueue: 10000, cooldown: 30, maxDuration: 600, maxListeners: 20 };
 const DISLIKE_THRESHOLD = 10;
 const MAX_SONGS_PER_USER = 10000;
@@ -71,7 +77,24 @@ const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || '';
 
 // ========== ESTADO EM MEMÓRIA ==========
 const users = new Map();
-const sessions = new Map();
+// Sessões persistentes (Firestore) — chave guardada como hash, nunca o token puro
+const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
+const sh = t => crypto.createHash('sha256').update(String(t)).digest('hex');
+const sessionMap = new Map();
+const sessions = {
+  get: t => sessionMap.get(sh(t)),
+  set: (t, email) => { const k = sh(t); sessionMap.set(k, email); db.collection('sessions').doc(k).set({ email, exp: Date.now() + SESSION_MS }).catch(() => {}); },
+  delete: t => { const k = sh(t); sessionMap.delete(k); db.collection('sessions').doc(k).delete().catch(() => {}); }
+};
+function dropSessions(email) { for (const [k, e] of sessionMap) if (e === email) { sessionMap.delete(k); db.collection('sessions').doc(k).delete().catch(() => {}); } }
+async function loadSessions() {
+  try {
+    const snap = await db.collection('sessions').get(), now = Date.now();
+    snap.forEach(d => { const v = d.data(); if (v.exp > now) sessionMap.set(d.id, v.email); else d.ref.delete().catch(() => {}); });
+    console.log(`✅ ${sessionMap.size} sessões restauradas.`);
+  } catch (e) {}
+}
+const searchCache = new Map();
 const userFavorites = new Map();
 const userPoints = new Map();
 const userThemes = new Map();
@@ -143,9 +166,26 @@ async function loadAllUsers() {
   } catch (e) {}
 }
 loadAllUsers();
+loadSessions();
 
 rooms.set('lounge', createRoom('lounge', 'Lounge VibeChat', 'Sistema'));
 console.log('✅ Sala inicial "lounge" criada com sucesso!');
+async function loadRooms() {
+  try {
+    const snap = await db.collection('rooms').get();
+    snap.forEach(d => {
+      const v = d.data(); if (rooms.has(v.slug)) return;
+      const r = createRoom(v.slug, v.name, v.admin || 'Anônimo');
+      if (v.color) r.color = v.color;
+      if (v.allowLong) r.allowLong = true;
+      if (v.allowLive) r.allowLive = true;
+      if (v.maxDuration) r.maxDuration = v.maxDuration;
+      rooms.set(v.slug, r);
+    });
+    console.log(`✅ ${rooms.size} salas carregadas.`);
+  } catch (e) {}
+}
+loadRooms();
 
 // ========== FUNÇÕES AUXILIARES ==========
 function getPosition(room) {
@@ -301,7 +341,7 @@ async function sendDiscordWebhook(webhookUrl, message) {
 app.post('/api/signup', rateLimit(5, 60000), async (req, res) => {
   const { nome, estilos, idToken } = req.body;
   let email;
-  try { email = (await admin.auth().verifyIdToken(idToken)).email; } catch (e) { return res.status(401).json({ error: 'Sessão Firebase inválida' }); }
+  try { email = (await getAuth().verifyIdToken(idToken)).email; } catch (e) { return res.status(401).json({ error: 'Sessão Firebase inválida' }); }
   if (!nome || nome.length < 2 || nome.length > 60) return res.status(400).json({ error: 'Nome inválido' });
   if (!email) return res.status(400).json({ error: 'E-mail inválido' });
   if (!Array.isArray(estilos) || estilos.length === 0) return res.status(400).json({ error: 'Escolha um estilo' });
@@ -321,14 +361,43 @@ app.post('/api/signup', rateLimit(5, 60000), async (req, res) => {
   } catch (e) { console.error('Erro no signup:', e.message); res.status(500).json({ error: 'Erro ao salvar dados no Firestore: ' + e.message }); }
 });
 
+app.get('/api/leaderboard', (req, res) => {
+  if (!sessionEmail(req)) return res.status(401).json({ error: 'Não autenticado' });
+  const items = [...userPoints.entries()].map(([em, p]) => { const u = users.get(em) || {}; return { nome: u.nome || 'Anônimo', avatar: u.avatar || '🎸', points: (p && p.points) || 0 }; })
+    .filter(u => u.points > 0).sort((a, b) => b.points - a.points).slice(0, 10);
+  res.json({ items });
+});
+
+app.post('/api/delete-account', rateLimit(3, 60000), async (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Não autenticado' });
+  if (adminEmails.has(email)) return res.status(403).json({ error: 'Contas admin não podem ser excluídas aqui' });
+  try {
+    for (const c of ['users', 'favorites', 'points']) await db.collection(c).doc(email).delete();
+    users.delete(email); userPoints.delete(email); userFavorites.delete(email); dropSessions(email);
+    try { await getAuth().deleteUser((await getAuth().getUserByEmail(email)).uid); } catch (e) {}
+    res.clearCookie('sessionToken', { path: '/' });
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: 'Erro ao excluir conta' }); }
+});
+
+app.get('/healthz', (req, res) => res.json({ ok: true, uptime: Math.round(process.uptime()), rooms: rooms.size }));
+
 app.post('/api/login', rateLimit(10, 60000), async (req, res) => {
-  let email;
-  try { email = (await admin.auth().verifyIdToken(req.body.idToken)).email; } catch (e) { return res.status(401).json({ error: 'Credenciais inválidas' }); }
+  let email, decoded;
+  try { decoded = await getAuth().verifyIdToken(req.body.idToken); email = decoded.email; } catch (e) { return res.status(401).json({ error: 'Credenciais inválidas' }); }
   if (!email) return res.status(401).json({ error: 'Credenciais inválidas' });
 
   try {
-    const userDoc = await db.collection('users').doc(email).get();
-    if (!userDoc.exists) return res.status(401).json({ error: 'Usuário não encontrado' });
+    let userDoc = await db.collection('users').doc(email).get();
+    if (!userDoc.exists) {
+      if (!(decoded.firebase && decoded.firebase.sign_in_provider === 'google.com')) return res.status(401).json({ error: 'Usuário não encontrado' });
+      const ud = { nome: String(decoded.name || email.split('@')[0]).slice(0, 60), email, estilos: [], avatar: '🎸', criadoEm: new Date(), theme: 'dark', fontSize: 16, colorblind: false, discordWebhook: null };
+      await setUserInFirestore(email, ud); users.set(email, ud);
+      await setPointsInFirestore(email, { points: 0, badges: [] }); userPoints.set(email, { points: 0, badges: [] });
+      await setFavoritesInFirestore(email, []); userFavorites.set(email, []);
+      userDoc = { exists: true, data: () => ud };
+    }
 
     const userData = userDoc.data();
     if (userData.banned) return res.status(403).json({ error: 'Conta banida.' });
@@ -376,11 +445,11 @@ app.get('/api/rooms', (req, res) => {
   } catch (e) { console.error('Erro na rota /api/rooms:', e.message); res.status(500).json({ error: 'Erro interno ao listar salas' }); }
 });
 
-app.post('/api/rooms', (req, res) => {
+app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   const { name, adminName, color, allowLong, allowLive } = req.body;
-  if (!name || name.trim().length < 2) return res.status(400).json({ error: 'Nome inválido' });
-  const token = req.cookies.sessionToken;
-  const email = token ? sessions.get(token) : null;
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Faça login para criar uma sala' });
+  if (!name || name.trim().length < 2 || name.trim().length > 40) return res.status(400).json({ error: 'Nome inválido' });
   const isGlobalAdmin = email && adminEmails.has(email);
   const slug = name.trim().toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
   if (rooms.has(slug)) return res.status(400).json({ error: 'Sala já existe' });
@@ -389,6 +458,7 @@ app.post('/api/rooms', (req, res) => {
   if (isGlobalAdmin && allowLong) { room.allowLong = true; room.maxDuration = 21600; }
   if (isGlobalAdmin && allowLive) { room.allowLive = true; room.maxDuration = 21600; }
   rooms.set(slug, room);
+  db.collection('rooms').doc(slug).set({ slug, name: room.name, admin: room.admin, color: room.color || null, allowLong: !!room.allowLong, allowLive: !!room.allowLive, maxDuration: room.maxDuration || null }).catch(() => {});
   res.json({ slug, name: room.name });
 });
 
@@ -580,7 +650,7 @@ app.post('/api/admin/ban-user', async (req, res) => {
   if (!userData) return res.status(404).json({ error: 'Usuário não encontrado' });
   userData.banned = true;
   await setUserInFirestore(email, userData);
-  for (const [t, e] of sessions) if (e === email) sessions.delete(t);
+  dropSessions(email);
   io.fetchSockets().then(sockets => {
     for (const socket of sockets) {
       if (socket.userEmail === email) {
@@ -644,6 +714,7 @@ app.post('/api/admin/clear-all-rooms', (req, res) => {
     if (slug === 'lounge') continue;
     io.to(slug).emit('roomClosed', 'Sala removida pelo admin.');
     rooms.delete(slug);
+    db.collection('rooms').doc(slug).delete().catch(() => {});
     roomLikes.delete(slug);
     roomVotes.delete(slug);
     waitingRooms.delete(slug);
@@ -666,12 +737,16 @@ app.get('/api/admin/export-data', (req, res) => {
 app.get('/api/search-youtube', rateLimit(30, 60000), async (req, res) => {
   const query = req.query.q;
   if (!query || query.length < 2) return res.json({ items: [] });
+  const ck = String(query).trim().toLowerCase().slice(0, 100), hit = searchCache.get(ck);
+  if (hit && Date.now() - hit.t < 10 * 60 * 1000) return res.json({ items: hit.items });
   try {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&videoEmbeddable=true&safeSearch=moderate&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`;
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     const items = data.items.map(item => ({ id: item.id.videoId, title: item.snippet.title, artist: item.snippet.channelTitle, thumb: item.snippet.thumbnails.default.url }));
+    if (searchCache.size > 500) searchCache.delete(searchCache.keys().next().value);
+    searchCache.set(ck, { t: Date.now(), items });
     res.json({ items });
   } catch (e) { console.error('Erro na busca do YouTube:', e.message); res.status(500).json({ error: 'Erro ao buscar vídeos: ' + e.message, items: [] }); }
 });
@@ -694,10 +769,10 @@ app.get('/api/video-info', rateLimit(40, 60000), async (req, res) => {
   if (!/^[a-zA-Z0-9_-]{11}$/.test(id)) return res.status(400).json({ error: 'ID inválido' });
   const info = { id, title: null, artist: null, duration: null };
   try {
-    const r = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${id}&key=${YOUTUBE_API_KEY}`);
+    const r = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,status&id=${id}&key=${YOUTUBE_API_KEY}`);
     const d = await r.json(); const v = d.items && d.items[0];
     if (v) {
-      info.title = v.snippet.title; info.artist = v.snippet.channelTitle;
+      info.title = v.snippet.title; info.embeddable = !(v.status && v.status.embeddable === false); info.artist = v.snippet.channelTitle;
       const m = (v.contentDetails.duration || '').match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
       if (m && v.snippet.liveBroadcastContent !== 'live') info.duration = (+m[1] || 0) * 3600 + (+m[2] || 0) * 60 + (+m[3] || 0);
     }
@@ -780,6 +855,9 @@ io.on('connection', (socket) => {
     try {
       if (!currentRoom || typeof text !== 'string' || !text.trim()) return;
       text = text.slice(0, 400);
+      const nowT = Date.now(); socket._chatT = (socket._chatT || []).filter(t => nowT - t < 5000);
+      if (socket._chatT.length >= 6) return socket.emit('chatError', 'Calma! Muitas mensagens seguidas.');
+      socket._chatT.push(nowT);
       const room = rooms.get(currentRoom);
       const parts = text.trim().split(' ');
       const command = parts[0].toLowerCase();
