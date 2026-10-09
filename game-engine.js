@@ -70,21 +70,25 @@ const GAMES = {
   }
 };
 
-module.exports = function (io, { sessions, users, userPoints, setPointsInFirestore }) {
+module.exports = function (io, { sessions, users, userPoints, setPointsInFirestore, getPointsFromFirestore, adminEmails }) {
   const tables = new Map();
   const me = socket => {
     const m = /(?:^|;\s*)sessionToken=([^;]+)/.exec(socket.request.headers.cookie || '');
-    const email = m && sessions.get(decodeURIComponent(m[1])), u = email && users.get(email);
-    return u ? { email, name: u.nome, avatar: u.avatar || '🎸' } : null;
+    const email = m && sessions.get(decodeURIComponent(m[1]));
+    if (!email) return null;
+    const u = users.get(email) || {};
+    return { email, name: u.nome || email.split('@')[0], avatar: u.avatar || '🎸' };
   };
-  const award = (email, pts) => {
-    const p = userPoints.get(email) || { points: 0, badges: [] };
-    p.points = (p.points || 0) + pts; userPoints.set(email, p);
-    Promise.resolve(setPointsInFirestore(email, p)).catch(() => {});
+  const award = async (email, pts) => {
+    try {
+      const p = userPoints.get(email) || (getPointsFromFirestore ? await getPointsFromFirestore(email) : null) || { points: 0, badges: [] };
+      p.points = (p.points || 0) + pts; userPoints.set(email, p);
+      await setPointsInFirestore(email, p);
+    } catch (e) {}
   };
-  const open = () => [...tables.values()].filter(t => t.status === 'lobby').map(t => ({ id: t.id, name: GAMES[t.type].name, host: t.players[0].name, n: t.players.length, max: GAMES[t.type].max }));
+  const open = () => [...tables.values()].filter(t => t.status === 'lobby').map(t => ({ id: t.id, title: t.name, name: GAMES[t.type].name, host: t.players[0].name, n: t.players.length, max: GAMES[t.type].max }));
   const sendTables = () => io.to('games').emit('g:tables', open());
-  const view = (t, p) => { const G = GAMES[t.type]; return { id: t.id, type: t.type, name: G.name, status: t.status, min: G.min, max: G.max, host: t.players[0] === p, you: t.players.indexOf(p), players: t.players.map(x => ({ name: x.name, avatar: x.avatar, left: !!x.left })), result: t.result || null, g: t.s ? G.view(t, p) : null }; };
+  const view = (t, p) => { const G = GAMES[t.type]; return { id: t.id, type: t.type, name: G.name, title: t.name, status: t.status, min: G.min, max: G.max, host: t.players[0] === p, you: t.players.indexOf(p), players: t.players.map(x => ({ name: x.name, avatar: x.avatar, left: !!x.left })), result: t.result || null, g: t.s ? G.view(t, p) : null }; };
   const push = t => t.players.forEach(p => p.sid && io.to(p.sid).emit('g:state', view(t, p)));
   const api = {
     push,
@@ -113,9 +117,11 @@ module.exports = function (io, { sessions, users, userPoints, setPointsInFiresto
       socket.join('games'); socket.emit('g:tables', open());
       const t = find(u.email); if (t) { t.players.find(x => x.email === u.email).sid = socket.id; push(t); }
     });
-    socket.on('g:create', ({ type } = {}) => {
-      const u = me(socket); if (!u || !GAMES[type] || find(u.email)) return;
-      const t = { id: crypto.randomBytes(3).toString('hex'), type, status: 'lobby', players: [{ ...u, sid: socket.id }], s: null, at: Date.now() };
+    socket.on('g:create', ({ type, name } = {}) => {
+      const u = me(socket); if (!u) return socket.emit('g:notice', 'Faça login para criar uma sala de jogo.');
+      if (!GAMES[type]) return;
+      if (find(u.email)) return socket.emit('g:notice', 'Você já está numa mesa. Saia dela antes de criar outra.');
+      const t = { id: crypto.randomBytes(3).toString('hex'), type, name: String(name || '').trim().slice(0, 40) || GAMES[type].name, status: 'lobby', players: [{ ...u, sid: socket.id }], s: null, at: Date.now() };
       tables.set(t.id, t); push(t); sendTables();
     });
     socket.on('g:join', ({ id } = {}) => {
@@ -129,6 +135,21 @@ module.exports = function (io, { sessions, users, userPoints, setPointsInFiresto
       k.t.status = 'playing'; GAMES[k.t.type].start(k.t, api); push(k.t); sendTables();
     });
     socket.on('g:act', ({ id, a } = {}) => { const k = mine(id); if (k && k.t.status === 'playing' && a) { GAMES[k.t.type].act(k.t, k.p, a, api); push(k.t); } });
+    // ----- controle do admin -----
+    const adm = () => { const u = me(socket); return u && adminEmails.has(u.email) ? u : null; };
+    const all = () => [...tables.values()].map(t => ({ id: t.id, type: GAMES[t.type].name, title: t.name, status: t.status, players: t.players.map(p => p.name + (p.left ? ' (saiu)' : '')), age: Math.round((Date.now() - t.at) / 60000) }));
+    socket.on('g:admin', () => { if (adm()) socket.emit('g:admin', all()); });
+    socket.on('g:close', ({ id } = {}) => {
+      const t = tables.get(id); if (!adm() || !t) return;
+      clearTimeout(t.timer); t.players.forEach(p => { if (p.sid) { io.to(p.sid).emit('g:state', null); io.to(p.sid).emit('g:notice', 'Mesa encerrada por um administrador.'); } });
+      tables.delete(id); sendTables(); socket.emit('g:admin', all());
+    });
+    socket.on('g:kick', ({ id, i } = {}) => {
+      const t = tables.get(id), p = t && t.players[i]; if (!adm() || !p) return;
+      const sid = p.sid; leave(t, p);
+      if (sid) { io.to(sid).emit('g:state', null); io.to(sid).emit('g:notice', 'Você foi removido da mesa por um administrador.'); }
+      socket.emit('g:admin', all());
+    });
     socket.on('disconnect', () => { for (const t of [...tables.values()]) for (const p of t.players) if (p.sid === socket.id) { p.sid = null; if (t.status === 'lobby') leave(t, p); } });
   });
 };
