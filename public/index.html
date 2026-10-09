@@ -537,7 +537,7 @@
     .player-section { border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
     .player-frame { position: relative; background: #000; }
     .player-frame iframe, .player-frame #youtube-player { display: block; width: 100%; height: auto !important; aspect-ratio: 16 / 9; }
-    .sound-gate { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.72); z-index: 11; padding: 16px; }
+    .sound-gate { display: none; justify-content: center; background: var(--bg-card); padding: 10px; }
     .sound-gate.show { display: flex; }
     .sound-gate button { padding: 14px 24px; border-radius: 999px; border: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; font-family: inherit; box-shadow: 0 8px 30px var(--accent2-glow); }
     .cover { width: 64px; height: 64px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
@@ -768,7 +768,7 @@
       <input type="email" id="loginEmail" placeholder="E-mail" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
       <input type="password" id="loginPassword" placeholder="Senha" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
       <button id="loginBtn" onclick="doLogin()" data-i18n="login.btn">Entrar no palco</button>
-      <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="legal.html" target="_blank" rel="noopener">Termos e a Política de Privacidade</a>.</p>
+      <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="/legal.html" target="_blank" rel="noopener">Termos e a Política de Privacidade</a>.</p>
       <div class="login-switch"><span data-i18n="login.switch">Não tem conta?</span> <a onclick="openSignup()" data-i18n="login.signup">Cadastre-se</a></div>
     </div>
   </div>
@@ -927,6 +927,7 @@
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtn" style="display:none;">🎛️</button>
           <button class="action-btn" onclick="openTutorial(0)" title="Ajuda / Tutorial">❓</button>
           <button class="action-btn" onclick="openLeaderboard()" title="Ranking">🏆</button>
+          <button class="action-btn" onclick="openGames()" title="Jogos">🎮</button>
           <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtn">🌙</button>
           <div class="lang-selector">
             <button class="lang-btn active" data-lang="pt" onclick="setLanguage('pt')">PT</button>
@@ -964,6 +965,7 @@
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
           <button class="action-btn" onclick="openTutorial(0)" title="Ajuda / Tutorial">❓</button>
           <button class="action-btn" onclick="openLeaderboard()" title="Ranking">🏆</button>
+          <button class="action-btn" onclick="openGames()" title="Jogos">🎮</button>
           <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtnRoom">🌙</button>
           <button class="action-btn" onclick="toggleFavorites()" title="Favoritos" style="border-color:var(--accent2);">⭐</button>
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
@@ -2102,7 +2104,6 @@
         currentTrackId = track.id;
         player.loadVideoById({ videoId: track.id, startSeconds: Math.floor(state.position || 0) });
         setTimeout(checkGate, 3000);
-        updateMediaSession(track);
         const vol = parseInt($('volumeSlider').value) || 80;
         volumeLevel = vol;
         setTimeout(() => {
@@ -2679,11 +2680,7 @@
     }
 
 
-    // ===== Media Session (tela de bloqueio) + acessibilidade =====
-    function updateMediaSession(track) {
-      if (!('mediaSession' in navigator) || !track) return;
-      navigator.mediaSession.metadata = new MediaMetadata({ title: track.title || '', artist: track.artist || 'SonoraFan', artwork: [{ src: `https://i.ytimg.com/vi/${track.id}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpeg' }] });
-    }
+    // ===== Acessibilidade =====
     function a11yPass() { document.querySelectorAll('button[title]:not([aria-label])').forEach(b => b.setAttribute('aria-label', b.title)); }
     let _a11yT; new MutationObserver(() => { clearTimeout(_a11yT); _a11yT = setTimeout(a11yPass, 300); }).observe(document.body, { childList: true, subtree: true });
     a11yPass();
@@ -2731,7 +2728,7 @@
       const l = document.getElementById('screen-lobby'); if (!l) return;
       const p = document.createElement('p');
       p.style.cssText = 'text-align:center;font-size:12px;margin:24px 0;color:var(--text-muted);';
-      p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="legal.html" target="_blank" rel="noopener">Termos e Privacidade</a>';
+      p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="/legal.html" target="_blank" rel="noopener">Termos e Privacidade</a>';
       l.appendChild(p);
     })();
 
@@ -2774,5 +2771,6 @@
       setInterval(() => { if (document.getElementById('screen-lobby').classList.contains('active')) { loadRooms(); } }, 15000);
     });
   </script>
+<script src="/games.js"></script>
 </body>
 </html>
