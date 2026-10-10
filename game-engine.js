@@ -1,6 +1,9 @@
 // game-engine.js — servidor: regras e estado dos jogos (Stop, Ligue 4). Fica na RAIZ do projeto, nunca em public/.
 const crypto = require('crypto');
 const LETTERS = 'ABCDEFGHIJLMNOPRSTUV';
+const WORDS = ['MUSICA', 'VIOLAO', 'GUITARRA', 'BATERIA', 'CANTOR', 'REFRAO', 'MELODIA', 'HARMONIA', 'SAMBA', 'FORRO', 'SERTANEJO', 'PAGODE', 'TECLADO', 'MICROFONE', 'PALCO', 'FESTIVAL', 'ALBUM', 'PLAYLIST', 'CONCERTO', 'ORQUESTRA', 'PANDEIRO', 'CAVAQUINHO', 'SANFONA', 'CARNAVAL', 'SERESTA', 'BAIXISTA', 'VOCALISTA', 'TROMBONE', 'SAXOFONE', 'ACORDEON'];
+const pips = h => h.reduce((n, x) => n + x[0] + x[1], 0);
+function nextTurn(t, s) { do { s.turn = (s.turn + 1) % t.players.length; } while (t.players[s.turn].left); }
 const CATS = ['Nome', 'Animal', 'Cidade/País', 'Cor', 'Comida'];
 const norm = s => String(s || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const valid = (l, v) => { const n = norm(v); return n.length >= 2 && n[0] === l.toLowerCase(); };
@@ -67,14 +70,61 @@ const GAMES = {
       s.turn = 1 - i;
     },
     view(t) { return { board: t.s.board, turn: t.s.turn, win: t.s.win }; }
+  },
+  dom: {
+    name: 'Dominó', min: 2, max: 4,
+    start(t) {
+      const tiles = []; for (let a = 0; a <= 6; a++) for (let b = a; b <= 6; b++) tiles.push([a, b]);
+      tiles.sort(() => Math.random() - 0.5);
+      const hands = t.players.map(() => tiles.splice(0, 7)), val = x => (x[0] === x[1] ? 100 : 0) + x[0] + x[1];
+      let st = 0, best = -1; hands.forEach((h, i) => h.forEach(x => { if (val(x) > best) { best = val(x); st = i; } }));
+      const first = hands[st].splice(hands[st].findIndex(x => val(x) === best), 1)[0];
+      const s = t.s = { hands, bone: tiles, chain: [first], ends: [first[0], first[1]], turn: st, passes: 0 };
+      nextTurn(t, s);
+    },
+    act(t, p, a, api) {
+      const s = t.s, i = t.players.indexOf(p), h = s.hands[i];
+      if (s.turn !== i) return;
+      const playable = h.some(x => x.includes(s.ends[0]) || x.includes(s.ends[1]));
+      if (a.k === 'draw' && !playable && s.bone.length) { h.push(s.bone.pop()); return; }
+      if (a.k === 'pass' && !playable && !s.bone.length) {
+        s.passes++;
+        if (s.passes >= t.players.filter(x => !x.left).length) { const m = Math.min(...s.hands.map(pips)); return api.finish(t, t.players.filter((x, j) => !x.left && pips(s.hands[j]) === m)); }
+        return nextTurn(t, s);
+      }
+      if (a.k === 'play' && h[a.i]) {
+        const x = h[a.i], L = a.side === 'l', e = s.ends[L ? 0 : 1];
+        if (!x.includes(e)) return;
+        const o = L ? (x[1] === e ? x : [x[1], x[0]]) : (x[0] === e ? x : [x[1], x[0]]);
+        h.splice(a.i, 1); if (L) s.chain.unshift(o); else s.chain.push(o);
+        s.ends = [s.chain[0][0], s.chain[s.chain.length - 1][1]]; s.passes = 0;
+        if (!h.length) return api.finish(t, [p]);
+        nextTurn(t, s);
+      }
+    },
+    view(t, p) { const s = t.s, h = s.hands[t.players.indexOf(p)] || []; return { chain: s.chain, ends: s.ends, turn: s.turn, mine: h, counts: s.hands.map(x => x.length), bone: s.bone.length, playable: h.some(x => x.includes(s.ends[0]) || x.includes(s.ends[1])) }; }
+  },
+  forca: {
+    name: 'Forca', min: 2, max: 6,
+    start(t) { t.s = { word: WORDS[Math.floor(Math.random() * WORDS.length)], got: [], bad: [], turn: 0 }; },
+    act(t, p, a, api) {
+      const s = t.s, i = t.players.indexOf(p), l = String(a.l || '').toUpperCase();
+      if (a.k !== 'guess' || s.turn !== i || !/^[A-Z]$/.test(l) || s.got.includes(l) || s.bad.includes(l)) return;
+      if (s.word.includes(l)) { s.got.push(l); if ([...s.word].every(c => s.got.includes(c))) api.finish(t, t.players.filter(x => !x.left)); return; }
+      s.bad.push(l);
+      if (s.bad.length >= 6) return api.finish(t, []);
+      nextTurn(t, s);
+    },
+    view(t) { const s = t.s, over = t.status === 'over'; return { mask: [...s.word].map(c => over || s.got.includes(c) ? c : '_'), bad: s.bad, got: s.got, turn: s.turn, word: over ? s.word : null }; }
   }
 };
 
-module.exports = function (io, { sessions, users, userPoints, setPointsInFirestore, getPointsFromFirestore, adminEmails }) {
+module.exports = function (io, { sessions, users, userPoints, setPointsInFirestore, getPointsFromFirestore, adminEmails, socketTokens }) {
   const tables = new Map();
   const me = socket => {
     const m = /(?:^|;\s*)sessionToken=([^;]+)/.exec(socket.request.headers.cookie || '');
-    const email = m && sessions.get(decodeURIComponent(m[1]));
+    let email = socket.data && socket.data.gEmail;
+    if (!email) email = m && sessions.get(decodeURIComponent(m[1]));
     if (!email) return null;
     const u = users.get(email) || {};
     return { email, name: u.nome || email.split('@')[0], avatar: u.avatar || '🎸' };
@@ -86,7 +136,7 @@ module.exports = function (io, { sessions, users, userPoints, setPointsInFiresto
       await setPointsInFirestore(email, p);
     } catch (e) {}
   };
-  const open = () => [...tables.values()].filter(t => t.status === 'lobby').map(t => ({ id: t.id, title: t.name, name: GAMES[t.type].name, host: t.players[0].name, n: t.players.length, max: GAMES[t.type].max }));
+  const open = () => [...tables.values()].filter(t => t.status === 'lobby').map(t => ({ id: t.id, type: t.type, title: t.name, name: GAMES[t.type].name, host: t.players[0].name, n: t.players.length, max: GAMES[t.type].max }));
   const sendTables = () => io.to('games').emit('g:tables', open());
   const view = (t, p) => { const G = GAMES[t.type]; return { id: t.id, type: t.type, name: G.name, title: t.name, status: t.status, min: G.min, max: G.max, host: t.players[0] === p, you: t.players.indexOf(p), players: t.players.map(x => ({ name: x.name, avatar: x.avatar, left: !!x.left })), result: t.result || null, g: t.s ? G.view(t, p) : null }; };
   const push = t => t.players.forEach(p => p.sid && io.to(p.sid).emit('g:state', view(t, p)));
@@ -112,6 +162,10 @@ module.exports = function (io, { sessions, users, userPoints, setPointsInFiresto
   io.on('connection', socket => {
     const find = email => [...tables.values()].find(t => t.status !== 'over' && t.players.some(p => p.email === email));
     const mine = id => { const u = me(socket), t = tables.get(id), p = t && u && t.players.find(x => x.email === u.email); return p ? { t, p } : null; };
+    socket.on('g:auth', ({ token } = {}) => {
+      const r = socketTokens.get(token); socketTokens.delete(token);
+      if (r && r.exp > Date.now()) { socket.data.gEmail = r.email; socket.emit('g:authed'); }
+    });
     socket.on('g:list', () => {
       const u = me(socket); if (!u) return;
       socket.join('games'); socket.emit('g:tables', open());
