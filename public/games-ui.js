@@ -55,6 +55,7 @@
     gLeave() { send('g:leave', { id: st.id }); st = null; render(); send('g:list'); },
     gStop: () => act({ k: 'stop' }), gDrop: c => act({ k: 'drop', c }),
     gAns: el => act({ k: 'ans', cat: +el.dataset.c, v: el.value }),
+    gContest: (c, i) => act({ k: 'contest', c, i }), gReady: () => act({ k: 'ready' }),
     gGuess: l => act({ k: 'guess', l }), gDomDraw: () => act({ k: 'draw' }), gDomPass: () => act({ k: 'pass' }),
     gDomPlay(i) {
       const g = st.g, x = g.mine[i], L = x.includes(g.ends[0]), R = x.includes(g.ends[1]);
@@ -102,16 +103,24 @@
 
   // ----- telas -----
   const fill = () => { const g = st.g; $g('gFill').textContent = g.by ? '🛑 ' + g.by + ' gritou STOP!' : st.players.map((p, i) => p.name + ': ' + g.filled[i] + '/' + g.cats.length).join(' · '); };
+  function reviewUI() {
+    const g = st.g, rv = g.rev, act = st.players.filter(p => !p.left).length;
+    return '<p style="font-size:13px;">🔍 <b>Revisão da mesa</b> · letra <b>' + g.letter + '</b> · <b id="gTimer"></b>s<br><span style="color:var(--text-muted);">Toque em 👎 nas respostas dos outros que não existem ou não são da categoria. Maioria contesta = vale zero.</span></p>' +
+      g.cats.map((c, ci) => '<div style="margin:10px 0;"><div style="font-size:12px;color:var(--text-secondary);">' + E(c) + '</div>' + st.players.map((p, i) => { const x = rv.cells[i][ci]; if (!x.v) return ''; const own = i === st.you;
+        return '<div class="g-row"><span>' + E(p.name) + ': <b>' + E(x.v) + '</b>' + (x.r ? ' <small style="color:var(--danger)">✖ ' + E(x.r) + '</small>' : '') + '</span>' + (!x.r && !own ? '<button class="g-btn sec" ' + (x.m ? 'style="background:var(--danger);color:#fff" ' : '') + 'onclick="gContest(' + ci + ',' + i + ')">👎 ' + x.n + '</button>' : (x.n ? '<small>👎 ' + x.n + '</small>' : '')) + '</div>'; }).join('') + '</div>').join('') +
+      '<button class="g-btn" onclick="gReady()">✅ Terminei a revisão (' + rv.ready + '/' + act + ')</button>';
+  }
   function stopUI() {
     const g = st.g;
+    if (g.phase === 'review') return reviewUI();
     if (g.phase === 'play' || g.phase === 'closing') {
       return '<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:42px;font-weight:800;">' + g.letter + '</div><div>Rodada ' + g.round + '/' + g.rounds + ' · <b id="gTimer"></b>s</div></div>' +
         g.cats.map((c, i) => '<label style="font-size:12px;color:var(--text-secondary);">' + E(c) + '</label><input class="g-in" maxlength="30" data-c="' + i + '" value="' + E(g.mine[i] || '') + '" placeholder="' + g.letter + '…" oninput="gAns(this)">').join('') +
-        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span id="gFill" style="font-size:12px;"></span><button class="g-btn" onclick="gStop()">🛑 STOP!</button></div><p style="font-size:11px;color:var(--text-muted);">STOP só vale com todas as categorias preenchidas com a letra certa. Resposta única = 10 pts, repetida = 5.</p>';
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span id="gFill" style="font-size:12px;"></span><button class="g-btn" onclick="gStop()">🛑 STOP!</button></div><p style="font-size:11px;color:var(--text-muted);">STOP só vale com todas as categorias preenchidas (respostas sem sentido são recusadas). Depois a mesa revisa e pode contestar. Única = 10 pts, igual à de outro = 5.</p>';
     }
     const L = g.last;
     return '<p>Rodada ' + g.round + '/' + g.rounds + ' · letra <b>' + L.letter + '</b></p><div style="overflow:auto"><table class="g-tbl"><tr><th></th>' + g.cats.map(c => '<th>' + E(c) + '</th>').join('') + '<th>+</th><th>Total</th></tr>' +
-      L.rows.map((r, i) => '<tr><td>' + E(r.name) + '</td>' + r.a.map(x => '<td>' + (x.ok ? '✅' : '❌') + ' ' + E(x.v) + '</td>').join('') + '<td>' + r.pts + '</td><td>' + g.totals[i] + '</td></tr>').join('') + '</table></div>' + (g.phase === 'result' ? '<p style="font-size:12px;">Próxima rodada em instantes…</p>' : '');
+      L.rows.map((r, i) => '<tr><td>' + E(r.name) + '</td>' + r.a.map(x => '<td>' + (x.ok ? '✅' : '❌') + ' ' + E(x.v) + (x.why ? '<br><small style="color:var(--text-muted)">' + E(x.why) + '</small>' : '') + '</td>').join('') + '<td>' + r.pts + '</td><td>' + g.totals[i] + '</td></tr>').join('') + '</table></div>' + (g.phase === 'result' ? '<p style="font-size:12px;">Próxima rodada em instantes…</p>' : '');
   }
   function c4UI() {
     const g = st.g, msg = st.status === 'over' ? '' : (g.turn === st.you ? '👉 Sua vez!' : 'Vez do adversário…');
