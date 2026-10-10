@@ -6,19 +6,36 @@ const pips = h => h.reduce((n, x) => n + x[0] + x[1], 0);
 function nextTurn(t, s) { do { s.turn = (s.turn + 1) % t.players.length; } while (t.players[s.turn].left); }
 const CATS = ['Nome', 'Animal', 'Cidade/País', 'Cor', 'Comida'];
 const norm = s => String(s || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-const valid = (l, v) => { const n = norm(v); return n.length >= 2 && n[0] === l.toLowerCase(); };
+const COLORS = new Set('azul vermelho verde amarelo laranja roxo rosa marrom preto branco cinza bege dourado prateado violeta lilas turquesa magenta ciano bordo vinho salmao coral ouro prata creme marfim caramelo mostarda oliva anil indigo carmim escarlate purpura ambar bronze cobre grena lavanda esmeralda rubi safira petroleo musgo terracota ocre areia chocolate cafe cereja framboesa uva limao abobora goiaba pessego menta jade fucsia'.split(' '));
+const junk = n => { const L = n.replace(/[^a-z]/g, ''); return L.length < 3 || !/[aeiouy]/.test(L) || /(.)\1{2,}/.test(L); };
+const valid = (l, v) => { const n = norm(v); return !!n && n[0] === l.toLowerCase() && !junk(n); };
+// motivo pelo qual uma resposta não vale ('' = vale). withVotes=false ignora as contestações da mesa.
+function reason(t, s, i, c, withVotes = true) {
+  const n = norm(s.ans[i][c]);
+  if (!n || n[0] !== s.letter.toLowerCase()) return 'letra errada';
+  if (junk(n)) return 'sem sentido';
+  if (s.ans[i].findIndex(x => norm(x) === n) !== c) return 'repetida em outra categoria';
+  if (c === 3 && COLORS.has(n)) return '';
+  if (withVotes) { const others = t.players.filter((x, j) => j !== i && !x.left).length; if ((s.votes[c + ':' + i] || []).length > others / 2) return 'contestada pela mesa'; }
+  return '';
+}
 
 function next(t, api) {
   const s = t.s; s.round++; s.letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
   s.ans = t.players.map(() => []); s.phase = 'play'; s.by = null; s.endsAt = Date.now() + 60000;
   clearTimeout(t.timer); t.timer = setTimeout(() => endRound(t, api), 60000); api.push(t);
 }
-function endRound(t, api) {
+function endRound(t, api) {                       // fim do tempo/STOP -> revisão pela mesa
+  const s = t.s; clearTimeout(t.timer);
+  s.phase = 'review'; s.votes = {}; s.ready = {}; s.endsAt = Date.now() + 30000;
+  t.timer = setTimeout(() => scoreRound(t, api), 30000); api.push(t);
+}
+function scoreRound(t, api) {
   const s = t.s; clearTimeout(t.timer);
   const rows = t.players.map(() => ({ a: [], pts: 0 }));
   CATS.forEach((_, c) => {
-    const words = t.players.map((_, i) => valid(s.letter, s.ans[i][c]) ? norm(s.ans[i][c]) : null);
-    t.players.forEach((_, i) => { const w = words[i]; rows[i].a[c] = { v: s.ans[i][c] || '', ok: !!w }; if (w) rows[i].pts += words.filter(x => x === w).length > 1 ? 5 : 10; });
+    const words = t.players.map((_, i) => reason(t, s, i, c) === '' ? norm(s.ans[i][c]) : null);
+    t.players.forEach((_, i) => { const w = words[i]; rows[i].a[c] = { v: s.ans[i][c] || '', ok: !!w, why: w ? '' : reason(t, s, i, c) }; if (w) rows[i].pts += words.filter(x => x === w).length > 1 ? 5 : 10; });
   });
   rows.forEach((r, i) => { s.totals[i] += r.pts; });
   s.last = { letter: s.letter, rows: rows.map((r, i) => ({ name: t.players[i].name, a: r.a, pts: r.pts })) };
@@ -43,6 +60,14 @@ const GAMES = {
     start(t, api) { t.s = { round: 0, rounds: 3, totals: t.players.map(() => 0), ans: [], last: null }; next(t, api); },
     act(t, p, a, api) {
       const s = t.s, i = t.players.indexOf(p);
+      if (s.phase === 'review') {
+        if (a.k === 'contest' && Number.isInteger(a.i) && a.i >= 0 && a.i < t.players.length && a.i !== i && CATS[a.c] !== undefined && !p.left) {
+          const k = a.c + ':' + a.i, v = s.votes[k] = s.votes[k] || [], at = v.indexOf(i);
+          if (at >= 0) v.splice(at, 1); else v.push(i);
+        }
+        if (a.k === 'ready') { s.ready[i] = 1; if (t.players.every((x, j) => x.left || s.ready[j])) return scoreRound(t, api); }
+        return;
+      }
       if (!['play', 'closing'].includes(s.phase)) return;
       if (a.k === 'ans' && a.cat >= 0 && a.cat < CATS.length) s.ans[i][a.cat] = String(a.v || '').slice(0, 30);
       if (a.k === 'stop' && s.phase === 'play' && CATS.every((_, c) => valid(s.letter, s.ans[i][c]))) {
@@ -53,7 +78,8 @@ const GAMES = {
     view(t, p) {
       const s = t.s, i = t.players.indexOf(p), live = ['play', 'closing'].includes(s.phase);
       return { phase: s.phase, round: s.round, rounds: s.rounds, letter: s.letter, cats: CATS, ms: Math.max(0, s.endsAt - Date.now()), by: s.by,
-        mine: live ? (s.ans[i] || []) : [], filled: s.ans.map(a => CATS.filter((_, c) => valid(s.letter, a[c])).length), totals: s.totals, last: live ? null : s.last };
+        mine: live ? (s.ans[i] || []) : [], filled: s.ans.map(a => CATS.filter((_, c) => valid(s.letter, a[c])).length), totals: s.totals, last: live ? null : s.last,
+        rev: s.phase === 'review' ? { ready: Object.keys(s.ready).length, cells: t.players.map((_, j) => CATS.map((_, c) => { const v = s.votes[c + ':' + j] || []; return { v: s.ans[j][c] || '', r: reason(t, s, j, c, false), n: v.length, m: v.includes(i) }; })) } : null };
     }
   },
   c4: {
