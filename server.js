@@ -381,6 +381,16 @@ app.post('/api/delete-account', rateLimit(3, 60000), async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Erro ao excluir conta' }); }
 });
 
+const socketTokens = new Map();
+setInterval(() => { const n = Date.now(); for (const [k, v] of socketTokens) if (v.exp < n) socketTokens.delete(k); }, 60000).unref();
+app.get('/api/socket-token', rateLimit(30, 60000), (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Não autenticado' });
+  const token = crypto.randomBytes(16).toString('hex');
+  socketTokens.set(token, { email, exp: Date.now() + 60000 });
+  res.json({ token });
+});
+
 app.get('/healthz', (req, res) => res.json({ ok: true, uptime: Math.round(process.uptime()), rooms: rooms.size }));
 
 app.post('/api/login', rateLimit(10, 60000), async (req, res) => {
@@ -1096,7 +1106,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-require('./game-engine')(io, { sessions, users, userPoints, setPointsInFirestore, getPointsFromFirestore, adminEmails });
+require('./game-engine')(io, { sessions, users, userPoints, setPointsInFirestore, getPointsFromFirestore, adminEmails, socketTokens });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🎧 SonoraFan → http://localhost:${PORT}`));
