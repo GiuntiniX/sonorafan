@@ -1138,6 +1138,7 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="pwModal"><div class="modal" style="max-width:360px;"><h3>🔒 Sala privada</h3><p id="pwMsg" style="font-size:13px;color:var(--text-secondary);margin:8px 0;"></p><input class="cfg-in" id="pwInput" type="password" maxlength="30" placeholder="Senha da sala" onkeydown="if(event.key==='Enter')submitRoomPw()"><div class="modal-actions"><button class="btn-secondary" onclick="$('pwModal').classList.remove('active')">Cancelar</button><button class="btn-primary" onclick="submitRoomPw()">Entrar</button></div></div></div>
   <div class="modal-overlay" id="roomCfgModal" onclick="if(event.target===this)this.classList.remove('active')">
     <div class="modal" style="max-width:480px;max-height:88vh;overflow:auto;">
       <h3>⚙️ Personalizar sala</h3>
@@ -1663,6 +1664,7 @@
     }
 
     function updateUserInfo() {
+      setTimeout(consumeInvite, 1200);
       setTimeout(maybeOnboard, 700);
       $('userDisplayName').textContent = myName;
       $('userAvatar').textContent = myAvatar;
@@ -2006,6 +2008,7 @@
                 <span class="listeners"><span class="icon">👥</span> <span class="count">${r.listenerCount || 0}</span> ouvintes</span>
                 <span>🎶 ${r.queueLength || 0} na fila</span>
                 ${r.addMode === 'owner' ? '<span class="genre-tag">🎧 Playlist do dono</span>' : ''}
+                ${r.isPrivate ? '<span class="genre-tag">🔒 Privada</span>' : ''}
                 ${genreTag}
                 ${r.allowLive ? '<span class="genre-tag" style="background:rgba(239,68,68,.15);color:#fca5a5;font-weight:700;">🔴 LIVE</span>' : ''}
               </div>
@@ -2029,8 +2032,9 @@
     const CFG_COLORS = ['#7c3aed', '#ff6b35', '#10b981', '#3b82f6', '#ec4899', '#f59e0b', '#ef4444', '#14b8a6'];
     const CFG_EMOJIS = ['🎧', '🎸', '🎹', '🥁', '🎤', '🔥', '🌙', '🌴', '🪩', '🎷', '🎻', '🚀'];
     const cfgState = {};
+    let _joinExtra = {}, _pwSlug = null;
     function renderCfg(boxId, k, v) {
-      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '' }, v || {});
+      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', isPrivate: false }, v || {});
       const pick = (key, val) => `cfgPick('${boxId}','${k}','${key}','${val}')`;
       $(boxId).innerHTML = `
         <div class="cfg-lbl">Ícone da sala</div><div class="cfg-row">${CFG_EMOJIS.map(e => `<button type="button" class="cfg-e ${s.emoji === e ? 'on' : ''}" onclick="${pick('emoji', e)}">${e}</button>`).join('')}</div>
@@ -2042,28 +2046,61 @@
           <button type="button" class="kind-tile ${s.addMode !== 'owner' ? 'on' : ''}" onclick="${pick('addMode', 'all')}"><span>🎶</span><b>Colaborativa</b><small>Todo mundo adiciona músicas na fila</small></button>
           <button type="button" class="kind-tile ${s.addMode === 'owner' ? 'on' : ''}" onclick="${pick('addMode', 'owner')}"><span>🎧</span><b>Playlist do dono</b><small>Só você (e os admins) escolhem; a galera vota e comenta</small></button>
         </div>
+        <div class="cfg-lbl">Quem pode entrar?</div>
+        <div class="kind-picker" style="margin-top:4px;">
+          <button type="button" class="kind-tile ${!s.isPrivate ? 'on' : ''}" onclick="${pick('isPrivate', '')}"><span>🌍</span><b>Pública</b><small>Aparece no lobby para todos</small></button>
+          <button type="button" class="kind-tile ${s.isPrivate ? 'on' : ''}" onclick="${pick('isPrivate', '1')}"><span>🔒</span><b>Privada</b><small>Escondida do lobby: só entra com link de convite ou senha</small></button>
+        </div>
+        ${s.isPrivate ? `<input class="cfg-in" id="${k}Pw" type="password" maxlength="30" autocomplete="new-password" placeholder="${k === 'e' && s.hasPassword ? 'Nova senha (vazio = manter a atual)' : 'Senha (opcional): sem senha, só entra pelo link'}" value="${escapeHtml(s.password || '')}">${k === 'e' && s.hasPassword ? `<button type="button" class="btn-secondary" style="margin-top:6px;" onclick="${pick('clearPw', '1')}">${s.clearPw ? '✔ A senha será removida ao salvar' : 'Remover a senha'}</button>` : ''}${k === 'e' ? '<div class="cfg-lbl">Link de convite</div><div id="invBox" class="cfg-in" style="font-size:12px;">carregando…</div>' : ''}` : ''}
         <select class="cfg-in" id="${k}Slow">${[0, 5, 10, 30, 60].map(v => `<option value="${v}" ${+s.slowMode === v ? 'selected' : ''}>${v ? 'Modo lento: ' + v + 's entre mensagens' : 'Chat sem limite de velocidade'}</option>`).join('')}</select>`;
     }
-    function readCfg(k) { const s = cfgState[k]; return { emoji: s.emoji, color: s.color, addMode: s.addMode, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value }; }
-    function cfgPick(boxId, k, key, val) { renderCfg(boxId, k, Object.assign(readCfg(k), { [key]: val })); }
+    function readCfg(k) {
+      const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: s.addMode, isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value };
+      const pw = $(k + 'Pw'); if (pw && pw.value) out.password = pw.value; else if (s.clearPw) out.password = '';
+      return out;
+    }
+    function cfgPick(boxId, k, key, val) { renderCfg(boxId, k, Object.assign({}, cfgState[k], readCfg(k), { [key]: key === 'isPrivate' || key === 'clearPw' ? !!val : val })); }
     function openRoomCfg() {
       const d = currentRoomData || {};
-      renderCfg('editCfg', 'e', { emoji: d.emoji, color: d.color, description: d.description, welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
+      renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, hasPassword: d.hasPassword, emoji: d.emoji, color: d.color, description: d.description, welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
       $('roomCfgModal').classList.add('active');
     }
     function saveRoomCfg() { socket.emit('updateRoomSettings', readCfg('e')); $('roomCfgModal').classList.remove('active'); toast('Sala atualizada!', 'success'); }
     async function emitJoin(slug) {
       let token; try { const r = await fetch('/api/socket-token', { credentials: 'include' }); if (r.ok) token = (await r.json()).token; } catch (e) {}
-      socket.emit('joinRoom', { slug, name: myName, avatar: myAvatar, token });
+      socket.emit('joinRoom', { slug, name: myName, avatar: myAvatar, token, ...(_joinExtra.slug === slug ? { invite: _joinExtra.invite, password: _joinExtra.password } : {}) });
     }
     renderCfg('createCfg', 'c');
+    // ----- salas privadas: convite, senha e acesso -----
+    socket.on('roomInvite', d => {
+      const box = $('invBox'); if (!box) return;
+      if (!d.code) { box.textContent = 'Salve as alterações para gerar o link de convite.'; return; }
+      const link = location.origin + '/?sala=' + encodeURIComponent(currentRoom) + '&convite=' + d.code;
+      box.innerHTML = '<input readonly id="invLink" value="' + escapeHtml(link) + '" style="width:100%;background:transparent;border:none;color:var(--text);font-size:12px;" onclick="this.select()"><div style="margin-top:6px;display:flex;gap:6px;"><button type="button" class="btn-secondary" onclick="copyInvite()">📋 Copiar</button><button type="button" class="btn-secondary" onclick="socket.emit(\'regenInvite\')">🔄 Gerar novo</button></div>' + (d.hasPassword ? '<div style="margin-top:6px;color:var(--text-muted);">Também entra quem souber a senha.</div>' : '');
+    });
+    const copyText = (t, ok) => (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast(ok, 'success')).catch(() => toast('Copie o link manualmente: ' + t, 'success'));
+    function copyInvite() { copyText($('invLink').value, 'Link copiado!'); }
+    function shareInvite(slug, code) { copyText(location.origin + '/?sala=' + encodeURIComponent(slug) + '&convite=' + code, '🔒 Sala privada criada! Link de convite copiado.'); }
+    socket.on('joinDenied', d => {
+      leaveRoom();
+      if (!d.needPassword) return toast('🔒 Sala privada: peça o link de convite ao dono.', 'error');
+      _pwSlug = d.slug; $('pwMsg').textContent = d.wrong ? '❌ Senha incorreta. Tente de novo.' : 'Esta sala é privada. Digite a senha para entrar.';
+      $('pwInput').value = ''; $('pwModal').classList.add('active'); setTimeout(() => $('pwInput').focus(), 50);
+    });
+    function submitRoomPw() { const pw = $('pwInput').value; if (!pw) return; $('pwModal').classList.remove('active'); joinRoom(_pwSlug, { password: pw }); }
+    (function () { const q = new URLSearchParams(location.search), s = q.get('sala'), c = q.get('convite'); if (s && c) { sessionStorage.setItem('vc_invite', JSON.stringify({ slug: s, code: c })); history.replaceState(null, '', location.pathname); } })();
+    function consumeInvite() {
+      const v = sessionStorage.getItem('vc_invite'); if (!v || !currentUser) return;
+      sessionStorage.removeItem('vc_invite');
+      try { const i = JSON.parse(v); joinRoom(i.slug, { invite: i.code }); } catch (e) {}
+    }
     async function createRoom() {
       const name = $('newRoomName').value.trim();
       if (!name) return toast('Digite um nome', 'error');
       try {
         const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, ...readCfg('c'), allowLong: $('optAllowLong') ? $('optAllowLong').checked : false, allowLive: $('optAllowLive') ? $('optAllowLive').checked : false }) });
         const d = await r.json();
-        if (d.slug) { closeCreateRoom(); joinRoom(d.slug); }
+        if (d.slug) { closeCreateRoom(); joinRoom(d.slug); if (d.invite) shareInvite(d.slug, d.invite); }
         else toast(d.error || 'Erro ao criar sala', 'error');
       } catch(e) { toast('Erro ao criar sala', 'error'); }
     }
@@ -2076,7 +2113,8 @@
       } catch(e) { toast('Erro ao buscar sala', 'error'); }
     }
 
-    function joinRoom(slug) {
+    function joinRoom(slug, extra) {
+      _joinExtra = Object.assign({ slug }, extra || {});
       if (!currentUser) { pendingRoomAfterLogin = slug; toast('Faça login primeiro', 'error'); showLogin(); return; }
       currentRoom = slug;
       _joinedSlug = slug;
@@ -2089,7 +2127,7 @@
       loadYouTubeAPI();
     }
     function leaveRoom() {
-      _joinedSlug = null;
+      _joinedSlug = null; _joinExtra = {};
       if (currentRoom) socket.emit('leaveRoom');
       currentRoom = null;
       currentRoomData = null;
@@ -2135,7 +2173,7 @@
     }
 
     function syncPlayer(state) {
-      $('roomTitle').textContent = (state.emoji ? state.emoji + ' ' : '') + state.name; $('roomTitle').title = state.description || '';
+      $('roomTitle').textContent = (state.isPrivate ? '🔒 ' : '') + (state.emoji ? state.emoji + ' ' : '') + state.name; $('roomTitle').title = state.description || '';
       document.documentElement.style.setProperty('--room-accent', state.color || '#7c3aed');
       if (!player || !player.loadVideoById) return;
       currentRoomData = state;
