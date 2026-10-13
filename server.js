@@ -116,8 +116,17 @@ function getRoomVotes(slug) {
   return roomVotes.get(slug);
 }
 
+// ----- salas privadas: senha (scrypt + sal) e convite aleatório -----
+const hashPw = (pw, salt) => crypto.scryptSync(String(pw), salt, 32).toString('hex');
+const safeEq = (a, b) => { a = Buffer.from(String(a)); b = Buffer.from(String(b)); return a.length === b.length && crypto.timingSafeEqual(a, b); };
+const newInvite = () => crypto.randomBytes(8).toString('hex');
+function setPassword(room, pw) {
+  if (!pw) { room.passHash = null; room.passSalt = null; return; }
+  room.passSalt = crypto.randomBytes(8).toString('hex'); room.passHash = hashPw(pw, room.passSalt);
+}
+const inviteInfo = r => ({ code: r.isPrivate ? r.invite : null, isPrivate: !!r.isPrivate, hasPassword: !!r.passHash });
 function persistRoom(r) {
-  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null }).catch(() => {});
+  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null }).catch(() => {});
 }
 function createRoom(slug, name, adminName = null) {
   roomLikes.set(slug, {});
@@ -137,6 +146,7 @@ function createRoom(slug, name, adminName = null) {
     totalSongsAdded: 0, totalVotesGiven: 0, mostVoted: [],
     allowLong: false, allowLive: false, maxDuration: settings.maxDuration,
     ownerEmail: null, emoji: '🎧', description: '', slowMode: 0, addMode: 'all',
+    isPrivate: false, invite: null, passHash: null, passSalt: null, allowed: new Set(),
   };
 }
 
@@ -184,6 +194,7 @@ async function loadRooms() {
       if (v.color) r.color = v.color;
       r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = v.addMode === 'owner' ? 'owner' : 'all';
       if (v.welcome) r.pinnedMessage = { author: r.admin, text: v.welcome };
+      r.isPrivate = !!v.isPrivate; r.invite = v.invite || null; r.passHash = v.passHash || null; r.passSalt = v.passSalt || null;
       if (v.allowLong) r.allowLong = true;
       if (v.allowLive) r.allowLive = true;
       if (v.maxDuration) r.maxDuration = v.maxDuration;
@@ -223,6 +234,7 @@ function broadcastState(slug) {
     maxDuration: room.maxDuration,
     allowLive: room.allowLive,
     emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
+    isPrivate: room.isPrivate, hasPassword: !!room.passHash,
   });
 }
 function broadcastUsers(slug) {
@@ -444,11 +456,12 @@ app.get('/api/me', async (req, res) => {
 // ========== SALAS ==========
 app.get('/api/rooms', (req, res) => {
   try {
-    const list = Array.from(rooms.values()).map(r => ({
+    const me = sessionEmail(req), adm = !!me && adminEmails.has(me);
+    const list = Array.from(rooms.values()).filter(r => !r.isPrivate || adm || (!!me && r.ownerEmail === me)).map(r => ({
       slug: r.slug, name: r.name, listenerCount: r.listenerCount,
       queueLength: r.queue.length, isPlaying: r.isPlaying,
       currentTrack: r.queue[r.currentIndex] || null,
-      radioMode: r.radioMode, color: r.color || '#7c3aed', emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode,
+      radioMode: r.radioMode, color: r.color || '#7c3aed', emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
       allowLive: !!r.allowLive, allowLong: !!r.allowLong,
       inviteCount: r.inviteCount, eventStartTime: r.eventStartTime,
     }));
@@ -469,15 +482,16 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   const cfg = sanitize(req.body);
   Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
   if (cfg.welcome) room.pinnedMessage = { author: room.admin, text: cfg.welcome };
+  if (req.body.isPrivate) { room.isPrivate = true; room.invite = newInvite(); setPassword(room, String(req.body.password || '').slice(0, 30)); room.allowed.add(email); }
   if (isGlobalAdmin && allowLong) { room.allowLong = true; room.maxDuration = 21600; }
   if (isGlobalAdmin && allowLive) { room.allowLive = true; room.maxDuration = 21600; }
   rooms.set(slug, room);
   persistRoom(room);
-  res.json({ slug, name: room.name });
+  res.json({ slug, name: room.name, invite: room.isPrivate ? room.invite : undefined });
 });
 
 app.get('/api/rooms/random', (req, res) => {
-  const roomList = Array.from(rooms.values());
+  const roomList = Array.from(rooms.values()).filter(r => !r.isPrivate);
   if (roomList.length === 0) return res.status(404).json({ error: 'Nenhuma sala disponível' });
   const randomRoom = roomList[Math.floor(Math.random() * roomList.length)];
   res.json({ slug: randomRoom.slug });
@@ -739,7 +753,7 @@ app.post('/api/admin/clear-all-rooms', (req, res) => {
 app.get('/api/admin/export-data', (req, res) => {
   const data = {
     users: Array.from(users.values()),
-    rooms: Array.from(rooms.values()).map(r => ({ ...r, lastAddTime: undefined, skipVotes: undefined })),
+    rooms: Array.from(rooms.values()).map(r => ({ ...r, lastAddTime: undefined, skipVotes: undefined, passHash: undefined, passSalt: undefined, invite: undefined, allowed: undefined })),
     favorites: Array.from(userFavorites.entries()),
     points: Array.from(userPoints.entries()),
     settings,
@@ -800,11 +814,29 @@ io.on('connection', (socket) => {
   let currentRoom = null;
   let userEmail = null;
 
-  socket.on('joinRoom', ({ slug, name, avatar, token }) => {
+  socket.on('joinRoom', ({ slug, name, avatar, token, invite, password }) => {
     try {
       const room = rooms.get(slug);
       if (!room) { socket.emit('error', 'Sala não encontrada'); return; }
       if (room.bannedUsers.includes(name)) { socket.emit('error', 'Você foi banido'); return; }
+      // ----- sala privada: só entra com convite ou senha (dono e admins sempre entram) -----
+      if (room.isPrivate) {
+        const gc = (socket.handshake.headers.cookie || '').match(/sessionToken=([^;]+)/);
+        let ge = gc ? sessions.get(gc[1]) : null;
+        if (!ge && token) { const rt = socketTokens.get(token); if (rt && rt.exp > Date.now()) ge = rt.email; }
+        if (!(ge && (room.ownerEmail === ge || adminEmails.has(ge) || room.allowed.has(ge)))) {
+          const okInv = !!invite && !!room.invite && safeEq(invite, room.invite);
+          let okPw = false;
+          if (!okInv && password && room.passHash) {
+            socket._pw = (socket._pw || []).filter(t => Date.now() - t < 60000);
+            if (socket._pw.length >= 6) { socket.emit('error', 'Muitas tentativas de senha. Aguarde 1 minuto.'); return; }
+            socket._pw.push(Date.now());
+            okPw = safeEq(hashPw(password, room.passSalt), room.passHash);
+          }
+          if (!okInv && !okPw) { socket.emit('joinDenied', { slug, needPassword: !!room.passHash, wrong: !!password }); return; }
+          if (ge) room.allowed.add(ge);
+        }
+      }
       if (room.listenerCount >= settings.maxListeners) {
         if (!waitingRooms.has(slug)) waitingRooms.set(slug, []);
         waitingRooms.get(slug).push(socket);
@@ -846,6 +878,7 @@ io.on('connection', (socket) => {
         color: room.color, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
         maxDuration: room.maxDuration, allowLive: room.allowLive,
         emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
+        isPrivate: room.isPrivate, hasPassword: !!room.passHash,
       });
       socket.emit('chatHistory', room.chatHistory.slice(-150));
       socket.emit('isAdmin', socket.isAdmin);
@@ -1053,9 +1086,23 @@ io.on('connection', (socket) => {
       const cfg = sanitize(input, room);
       Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
       if (input.welcome !== undefined) room.pinnedMessage = cfg.welcome ? { author: socket.userName, text: cfg.welcome } : null;
-      persistRoom(room); broadcastState(room.slug);
+      if (input.isPrivate !== undefined) {
+        const was = room.isPrivate; room.isPrivate = !!input.isPrivate;
+        if (room.isPrivate && !room.invite) room.invite = newInvite();
+        if (!room.isPrivate) setPassword(room, '');
+        if (room.isPrivate && !was) for (const id of io.sockets.adapter.rooms.get(room.slug) || []) { const so = io.sockets.sockets.get(id); if (so && so.userEmail) room.allowed.add(so.userEmail); }   // quem já está dentro continua entrando
+      }
+      if (room.isPrivate && input.password !== undefined) setPassword(room, String(input.password).slice(0, 30));
+      persistRoom(room); broadcastState(room.slug); socket.emit('roomInvite', inviteInfo(room));
       addSystemMsg(currentRoom, `⚙️ ${socket.userName} atualizou as configurações da sala`);
     } catch (e) {}
+  });
+
+  socket.on('getInvite', () => { const room = currentRoom && rooms.get(currentRoom); if (room && socket.isAdmin) socket.emit('roomInvite', inviteInfo(room)); });
+  socket.on('regenInvite', () => {
+    const room = currentRoom && rooms.get(currentRoom);
+    if (!room || !socket.isAdmin || !room.isPrivate) return;
+    room.invite = newInvite(); persistRoom(room); socket.emit('roomInvite', inviteInfo(room));
   });
 
   socket.on('adminBroadcast', ({ message }) => {
