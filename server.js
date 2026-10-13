@@ -5,6 +5,7 @@ const { Server } = require('socket.io');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const { sanitize } = require('./room-settings');
 const crypto = require('crypto');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
@@ -115,6 +116,9 @@ function getRoomVotes(slug) {
   return roomVotes.get(slug);
 }
 
+function persistRoom(r) {
+  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null }).catch(() => {});
+}
 function createRoom(slug, name, adminName = null) {
   roomLikes.set(slug, {});
   roomVotes.set(slug, {});
@@ -132,6 +136,7 @@ function createRoom(slug, name, adminName = null) {
     discordWebhook: null, inviteCount: 0, eventStartTime: null,
     totalSongsAdded: 0, totalVotesGiven: 0, mostVoted: [],
     allowLong: false, allowLive: false, maxDuration: settings.maxDuration,
+    ownerEmail: null, emoji: '🎧', description: '', slowMode: 0, addMode: 'all',
   };
 }
 
@@ -177,6 +182,8 @@ async function loadRooms() {
       const v = d.data(); if (rooms.has(v.slug)) return;
       const r = createRoom(v.slug, v.name, v.admin || 'Anônimo');
       if (v.color) r.color = v.color;
+      r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = v.addMode === 'owner' ? 'owner' : 'all';
+      if (v.welcome) r.pinnedMessage = { author: r.admin, text: v.welcome };
       if (v.allowLong) r.allowLong = true;
       if (v.allowLive) r.allowLive = true;
       if (v.maxDuration) r.maxDuration = v.maxDuration;
@@ -215,6 +222,7 @@ function broadcastState(slug) {
     eventStartTime: room.eventStartTime,
     maxDuration: room.maxDuration,
     allowLive: room.allowLive,
+    emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
   });
 }
 function broadcastUsers(slug) {
@@ -440,7 +448,7 @@ app.get('/api/rooms', (req, res) => {
       slug: r.slug, name: r.name, listenerCount: r.listenerCount,
       queueLength: r.queue.length, isPlaying: r.isPlaying,
       currentTrack: r.queue[r.currentIndex] || null,
-      radioMode: r.radioMode, color: r.color || '#7c3aed',
+      radioMode: r.radioMode, color: r.color || '#7c3aed', emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode,
       allowLive: !!r.allowLive, allowLong: !!r.allowLong,
       inviteCount: r.inviteCount, eventStartTime: r.eventStartTime,
     }));
@@ -456,12 +464,15 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   const isGlobalAdmin = email && adminEmails.has(email);
   const slug = name.trim().toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
   if (rooms.has(slug)) return res.status(400).json({ error: 'Sala já existe' });
-  const room = createRoom(slug, name.trim(), adminName || 'Anônimo');
-  if (color) room.color = color;
+  const room = createRoom(slug, name.trim(), String(adminName || 'Anônimo').slice(0, 40));
+  room.ownerEmail = email;
+  const cfg = sanitize(req.body);
+  Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
+  if (cfg.welcome) room.pinnedMessage = { author: room.admin, text: cfg.welcome };
   if (isGlobalAdmin && allowLong) { room.allowLong = true; room.maxDuration = 21600; }
   if (isGlobalAdmin && allowLive) { room.allowLive = true; room.maxDuration = 21600; }
   rooms.set(slug, room);
-  db.collection('rooms').doc(slug).set({ slug, name: room.name, admin: room.admin, color: room.color || null, allowLong: !!room.allowLong, allowLive: !!room.allowLive, maxDuration: room.maxDuration || null }).catch(() => {});
+  persistRoom(room);
   res.json({ slug, name: room.name });
 });
 
@@ -789,7 +800,7 @@ io.on('connection', (socket) => {
   let currentRoom = null;
   let userEmail = null;
 
-  socket.on('joinRoom', ({ slug, name, avatar }) => {
+  socket.on('joinRoom', ({ slug, name, avatar, token }) => {
     try {
       const room = rooms.get(slug);
       if (!room) { socket.emit('error', 'Sala não encontrada'); return; }
@@ -813,11 +824,13 @@ io.on('connection', (socket) => {
       room.listenerCount++;
       const cookie = socket.handshake.headers.cookie || '';
       const tokenMatch = cookie.match(/sessionToken=([^;]+)/);
-      const email = tokenMatch ? sessions.get(tokenMatch[1]) : null;
+      let email = tokenMatch ? sessions.get(tokenMatch[1]) : null;
+      if (!email && token) { const rt = socketTokens.get(token); socketTokens.delete(token); if (rt && rt.exp > Date.now()) email = rt.email; }   // login feito depois de abrir a página
       userEmail = email;
       socket.userEmail = email;
       const isGlobalAdmin = adminEmails.has(email);
-      const isRoomAdmin = room.admin === name;
+      // dono = quem criou (por e-mail). Só salas antigas, sem dono registrado, caem no nome de exibição.
+      const isRoomAdmin = !!email && (room.ownerEmail ? room.ownerEmail === email : room.admin === name);
       socket.isAdmin = isGlobalAdmin || isRoomAdmin;
       if (isGlobalAdmin && !room.admin) room.admin = name;
       notifyNextWaiting(slug);
@@ -832,6 +845,7 @@ io.on('connection', (socket) => {
         pinnedMessage: room.pinnedMessage, listenerCount: room.listenerCount, maxListeners: settings.maxListeners,
         color: room.color, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
         maxDuration: room.maxDuration, allowLive: room.allowLive,
+        emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
       });
       socket.emit('chatHistory', room.chatHistory.slice(-150));
       socket.emit('isAdmin', socket.isAdmin);
@@ -861,6 +875,12 @@ io.on('connection', (socket) => {
       const nowT = Date.now(); socket._chatT = (socket._chatT || []).filter(t => nowT - t < 5000);
       if (socket._chatT.length >= 6) return socket.emit('chatError', 'Calma! Muitas mensagens seguidas.');
       socket._chatT.push(nowT);
+      const rmc = rooms.get(currentRoom);
+      if (rmc && rmc.slowMode && !socket.isAdmin) {
+        const wait = rmc.slowMode * 1000 - (nowT - (socket._lastMsg || 0));
+        if (wait > 0) return socket.emit('chatError', `🐢 Modo lento: aguarde ${Math.ceil(wait / 1000)}s`);
+      }
+      socket._lastMsg = nowT;
       const room = rooms.get(currentRoom);
       const parts = text.trim().split(' ');
       const command = parts[0].toLowerCase();
@@ -937,7 +957,7 @@ io.on('connection', (socket) => {
       if (!currentRoom) return;
       const room = rooms.get(currentRoom);
       if (room.queue.length === 0) return;
-      if (socket.userName === room.admin || adminEmails.has(socket.userEmail)) { advanceQueue(currentRoom); addSystemMsg(currentRoom, `⏭️ ${socket.userName} pulou a música (admin)`); return; }
+      if (socket.isAdmin) { advanceQueue(currentRoom); addSystemMsg(currentRoom, `⏭️ ${socket.userName} pulou a música (admin)`); return; }
       if (room.skipVotes.has(socket.userName)) { socket.emit('error', 'Você já votou para pular.'); return; }
       room.skipVotes.add(socket.userName);
       const totalListeners = room.listenerCount || 1;
@@ -952,6 +972,7 @@ io.on('connection', (socket) => {
     try {
       if (!currentRoom) return;
       const room = rooms.get(currentRoom);
+      if (room.addMode === 'owner' && !socket.isAdmin) { socket.emit('error', '🎧 Nesta sala só o dono escolhe as músicas. Use o chat para sugerir!'); return; }
       const now = Date.now();
       const lastAdd = room.lastAddTime.get(socket.userName) || 0;
       if (now - lastAdd < 30000) { const wait = Math.ceil((30000 - (now - lastAdd)) / 1000); socket.emit('error', `Aguarde ${wait}s`); return; }
@@ -1023,6 +1044,18 @@ io.on('connection', (socket) => {
       }
       broadcastState(currentRoom);
     } catch (e) { console.error('Erro no videoDuration:', e.message); }
+  });
+
+  socket.on('updateRoomSettings', (input = {}) => {
+    try {
+      const room = currentRoom && rooms.get(currentRoom);
+      if (!room || !socket.isAdmin) return;
+      const cfg = sanitize(input, room);
+      Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
+      if (input.welcome !== undefined) room.pinnedMessage = cfg.welcome ? { author: socket.userName, text: cfg.welcome } : null;
+      persistRoom(room); broadcastState(room.slug);
+      addSystemMsg(currentRoom, `⚙️ ${socket.userName} atualizou as configurações da sala`);
+    } catch (e) {}
   });
 
   socket.on('adminBroadcast', ({ message }) => {
@@ -1105,8 +1138,6 @@ app.get('*', (req, res) => {
   if (path.extname(req.path)) return res.status(404).send('Arquivo não encontrado: ' + req.path);
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-require('./game-engine')(io, { sessions, users, userPoints, setPointsInFirestore, getPointsFromFirestore, adminEmails, socketTokens });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`🎧 SonoraFan → http://localhost:${PORT}`));
