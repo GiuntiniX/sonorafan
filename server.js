@@ -63,6 +63,23 @@ function requireAdmin(req, res, next) {
   req.adminEmail = email; next();
 }
 app.use('/api/admin', requireAdmin);
+// trilha de auditoria: toda ação (POST) feita no painel admin fica registrada (quem, o quê, quando)
+const adminLog = [];
+function audit(who, action, detail) {
+  const e = { t: Date.now(), who, action, detail: String(detail || '').slice(0, 200) };
+  adminLog.unshift(e); if (adminLog.length > 200) adminLog.pop();
+  db.collection('adminLog').doc(e.t + '-' + Math.random().toString(36).slice(2, 6)).set(e).catch(() => {});
+}
+app.use('/api/admin', (req, res, next) => {
+  if (req.method === 'POST') { const b = req.body || {}; audit(req.adminEmail, req.path.replace(/^\//, ''), [b.email, b.slug, Array.isArray(b.slugs) ? b.slugs.join(',') : '', b.action, b.roomSlug].filter(Boolean).join(' ')); }
+  next();
+});
+// salas privadas: fila/estatísticas só para o dono e admins (antes eram públicas para quem soubesse o endereço)
+app.use('/api/room/:slug', (req, res, next) => {
+  const r = rooms.get(req.params.slug);
+  if (r && r.isPrivate) { const me = sessionEmail(req); if (!(me && (adminEmails.has(me) || r.ownerEmail === me))) return res.status(404).json({ error: 'Sala não encontrada' }); }
+  next();
+});
 
 // ========== CONFIG ==========
 const colors = ['#f59e0b', '#3b82f6', '#ef4444', '#22c55e', '#a855f7', '#ec4899', '#06b6d4', '#f97316', '#8b5cf6', '#14b8a6'];
@@ -125,6 +142,14 @@ function setPassword(room, pw) {
   room.passSalt = crypto.randomBytes(8).toString('hex'); room.passHash = hashPw(pw, room.passSalt);
 }
 const inviteInfo = r => ({ code: r.isPrivate ? r.invite : null, isPrivate: !!r.isPrivate, hasPassword: !!r.passHash });
+function destroyRoom(slug, msg) {
+  if (slug === 'lounge' || !rooms.has(slug)) return false;          // a sala do sistema não é excluída
+  io.to(slug).emit('roomClosed', msg);
+  io.in(slug).socketsLeave(slug);
+  rooms.delete(slug); db.collection('rooms').doc(slug).delete().catch(() => {});
+  roomLikes.delete(slug); roomVotes.delete(slug); waitingRooms.delete(slug);
+  return true;
+}
 function persistRoom(r) {
   db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null }).catch(() => {});
 }
@@ -699,6 +724,30 @@ app.post('/api/admin/unban-user', async (req, res) => {
   res.json({ success: true });
 });
 
+app.get('/api/admin/rooms', (req, res) => {
+  res.json(Array.from(rooms.values()).map(r => {
+    const cur = r.isPlaying && r.queue[r.currentIndex || 0];
+    return { slug: r.slug, name: r.name, emoji: r.emoji, owner: r.admin, ownerEmail: r.ownerEmail || null, isPrivate: !!r.isPrivate, addMode: r.addMode, slowMode: r.slowMode, chatLocked: !!r.chatLocked, listeners: r.listenerCount || 0, queueLength: r.queue.length, now: cur ? cur.title : null, system: r.slug === 'lounge' };
+  }));
+});
+app.post('/api/admin/delete-room', (req, res) => {
+  const list = Array.isArray(req.body.slugs) ? req.body.slugs : [req.body.slug];
+  const skipped = []; let deleted = 0;
+  for (const slug of list.map(String)) { if (destroyRoom(slug, 'Esta sala foi encerrada por um administrador.')) deleted++; else skipped.push(slug); }
+  res.json({ success: true, deleted, skipped });
+});
+app.post('/api/admin/room-action', (req, res) => {
+  const { slug, action, text } = req.body, room = rooms.get(String(slug));
+  if (!room) return res.status(404).json({ error: 'Sala não encontrada' });
+  if (action === 'skip') { room.lastAdvanceAt = 0; advanceQueue(room.slug); }
+  else if (action === 'clear-queue') { room.queue = []; room.waitingQueue = []; room.isPlaying = false; room.currentIndex = 0; room.skipVotes = new Set(); broadcastState(room.slug); addSystemMsg(room.slug, '🧹 A fila foi limpa por um administrador.'); }
+  else if (action === 'lock' || action === 'unlock') { room.chatLocked = action === 'lock'; addSystemMsg(room.slug, room.chatLocked ? '🔒 O chat foi travado por um administrador.' : '🔓 O chat foi liberado.'); }
+  else if (action === 'message' && text) addSystemMsg(room.slug, '📣 Admin: ' + String(text).slice(0, 300));
+  else return res.status(400).json({ error: 'Ação inválida' });
+  res.json({ success: true });
+});
+app.get('/api/admin/log', (req, res) => res.json(adminLog.slice(0, 100)));
+
 app.post('/api/admin/remove-song', (req, res) => {
   const { roomSlug, index } = req.body;
   if (roomSlug === undefined || index === undefined) return res.status(400).json({ error: 'Dados incompletos' });
@@ -738,16 +787,8 @@ app.post('/api/admin/clear-all-chats', (req, res) => {
 });
 
 app.post('/api/admin/clear-all-rooms', (req, res) => {
-  for (const [slug, room] of rooms) {
-    if (slug === 'lounge') continue;
-    io.to(slug).emit('roomClosed', 'Sala removida pelo admin.');
-    rooms.delete(slug);
-    db.collection('rooms').doc(slug).delete().catch(() => {});
-    roomLikes.delete(slug);
-    roomVotes.delete(slug);
-    waitingRooms.delete(slug);
-  }
-  res.json({ success: true });
+  let n = 0; for (const slug of [...rooms.keys()]) if (destroyRoom(slug, 'Sala removida pelo admin.')) n++;
+  res.json({ success: true, deleted: n });
 });
 
 app.get('/api/admin/export-data', (req, res) => {
@@ -909,6 +950,7 @@ io.on('connection', (socket) => {
       if (socket._chatT.length >= 6) return socket.emit('chatError', 'Calma! Muitas mensagens seguidas.');
       socket._chatT.push(nowT);
       const rmc = rooms.get(currentRoom);
+      if (rmc && rmc.chatLocked && !socket.isAdmin) return socket.emit('chatError', '🔒 O chat está travado por um administrador.');
       if (rmc && rmc.slowMode && !socket.isAdmin) {
         const wait = rmc.slowMode * 1000 - (nowT - (socket._lastMsg || 0));
         if (wait > 0) return socket.emit('chatError', `🐢 Modo lento: aguarde ${Math.ceil(wait / 1000)}s`);
