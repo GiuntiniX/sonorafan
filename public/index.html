@@ -620,6 +620,12 @@
     .cfg-c { width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; box-shadow: 0 0 0 1px var(--border); transition: transform .15s; } .cfg-c.on { border-color: var(--text); transform: scale(1.14); }
     .cfg-in { width: 100%; padding: 10px 12px; margin-top: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; outline: none; }
     #screen-room .header { border-bottom: 3px solid var(--room-accent, var(--border)); }
+    .ar-card { display: flex; gap: 10px; align-items: flex-start; padding: 10px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; background: var(--bg); }
+    .ar-main { flex: 1; min-width: 0; } .ar-main small { color: var(--text-secondary); display: block; margin-top: 2px; }
+    .ar-act { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .ar-act button { padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); cursor: pointer; font-size: 12px; font-family: inherit; }
+    .ar-act button.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .ar-chip { font-size: 10px; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--border); margin-left: 4px; font-weight: 400; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
@@ -833,6 +839,7 @@
       </div>
       <div class="tab-bar">
         <button class="active" data-tab="tab-users" onclick="switchAdminTab('tab-users')">👥 Usuários</button>
+        <button data-tab="tab-rooms" onclick="switchAdminTab('tab-rooms')">🏠 Salas</button>
         <button data-tab="tab-queues" onclick="switchAdminTab('tab-queues')">🎵 Filas</button>
         <button data-tab="tab-stats" onclick="switchAdminTab('tab-stats')">📊 Estatísticas</button>
         <button data-tab="tab-settings" onclick="switchAdminTab('tab-settings')">⚙️ Configurações</button>
@@ -846,6 +853,14 @@
         <div id="adminUserList" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">
           <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px;" data-i18n="admin.loadingUsers">Carregando...</div>
         </div>
+      </div>
+      <div id="tab-rooms" class="admin-tab">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <span style="font-weight:700;font-size:13px;">🏠 Todas as salas</span>
+          <span style="display:flex;gap:6px;"><button class="btn-secondary" onclick="loadAdminRooms()">Atualizar</button><button class="btn-primary" style="background:var(--danger)" onclick="adminDeleteSelected()">🗑️ Excluir marcadas</button></span>
+        </div>
+        <div id="adminRoomList"></div>
+        <details style="margin-top:14px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">📜 Registro de ações do admin</summary><div id="adminLogList" style="font-size:12px;margin-top:8px;"></div></details>
       </div>
       <div id="tab-queues" class="admin-tab">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -1683,11 +1698,49 @@
       if (adminRemoveBtn) adminRemoveBtn.style.display = isAdmin ? 'flex' : 'none';
     }
 
+    async function loadAdminRooms() {
+      const box = $('adminRoomList'); if (!box) return;
+      const btn = (x, act, label, cls) => `<button ${cls ? 'class="' + cls + '"' : ''} data-slug="${escapeHtml(x.slug)}" onclick="adminRoomAct(this.dataset.slug,'${act}')">${label}</button>`;
+      try {
+        const r = await fetch('/api/admin/rooms', { credentials: 'include' }); if (!r.ok) throw 0;
+        const list = await r.json();
+        box.innerHTML = list.map(x => `<div class="ar-card"><input type="checkbox" class="ar-sel" data-slug="${escapeHtml(x.slug)}" ${x.system ? 'disabled title="Sala do sistema"' : ''}>
+          <div class="ar-main"><b>${escapeHtml(x.emoji || '')} ${escapeHtml(x.name)}</b>${x.isPrivate ? '<span class="ar-chip">🔒 privada</span>' : ''}${x.addMode === 'owner' ? '<span class="ar-chip">🎧 playlist do dono</span>' : ''}${x.chatLocked ? '<span class="ar-chip">🔇 chat travado</span>' : ''}${x.system ? '<span class="ar-chip">sistema</span>' : ''}
+            <small>dono: ${escapeHtml(x.owner || '—')}${x.ownerEmail ? ' (' + escapeHtml(x.ownerEmail) + ')' : ''} · 👥 ${x.listeners} · 🎶 ${x.queueLength}${x.now ? ' · ▶ ' + escapeHtml(x.now) : ''}</small>
+            <div class="ar-act">${btn(x, 'enter', '👁️ Entrar')}${btn(x, 'skip', '⏭️ Pular')}${btn(x, 'clear-queue', '🧹 Fila')}${btn(x, x.chatLocked ? 'unlock' : 'lock', x.chatLocked ? '🔊 Liberar chat' : '🔇 Travar chat')}${btn(x, 'message', '📣 Aviso')}${x.system ? '' : btn(x, 'delete', '🗑️ Excluir', 'danger')}</div>
+          </div></div>`).join('') || '<div style="color:var(--text-muted);font-size:12px;">Nenhuma sala.</div>';
+      } catch (e) { box.textContent = 'Erro ao carregar as salas.'; }
+      loadAdminLog();
+    }
+    async function loadAdminLog() {
+      const b = $('adminLogList'); if (!b) return;
+      try { const l = await (await fetch('/api/admin/log', { credentials: 'include' })).json(); b.innerHTML = l.map(e => `<div style="padding:3px 0;border-bottom:1px solid var(--border);">${new Date(e.t).toLocaleString()} · <b>${escapeHtml(e.who || '')}</b> · ${escapeHtml(e.action)} ${escapeHtml(e.detail || '')}</div>`).join('') || 'Sem registros.'; } catch (e) {}
+    }
+    async function adminDeleteRooms(slugs) {
+      const r = await fetch('/api/admin/delete-room', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slugs }) });
+      const d = await r.json().catch(() => ({}));
+      toast(r.ok ? `${d.deleted || 0} sala(s) excluída(s)` : 'Não foi possível excluir', r.ok ? 'success' : 'error'); loadAdminRooms();
+    }
+    async function adminDeleteSelected() {
+      const slugs = [...document.querySelectorAll('.ar-sel:checked')].map(x => x.dataset.slug);
+      if (!slugs.length) return toast('Marque as salas que deseja excluir', 'error');
+      if (!confirm(`Excluir ${slugs.length} sala(s)? Todos que estiverem nelas serão removidos.`)) return;
+      adminDeleteRooms(slugs);
+    }
+    async function adminRoomAct(slug, action) {
+      if (action === 'enter') { toggleAdmin(); return joinRoom(slug); }
+      if (action === 'delete') { if (!confirm('Excluir esta sala? Todos serão removidos dela.')) return; return adminDeleteRooms([slug]); }
+      let text; if (action === 'message') { text = prompt('Mensagem para esta sala:'); if (!text) return; }
+      if (action === 'clear-queue' && !confirm('Limpar a fila desta sala?')) return;
+      const r = await fetch('/api/admin/room-action', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug, action, text }) });
+      toast(r.ok ? 'Feito!' : 'Não foi possível executar', r.ok ? 'success' : 'error'); loadAdminRooms();
+    }
     function switchAdminTab(tabId) {
       document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-bar button').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       document.querySelector(`.tab-bar button[data-tab="${tabId}"]`).classList.add('active');
+      if (tabId === 'tab-rooms') loadAdminRooms();
     }
 
     function toggleAdmin() {
