@@ -1,0 +1,53 @@
+const { io } = require('socket.io-client'), B = 'http://localhost:3998', w = ms => new Promise(r => setTimeout(r, ms)), ck = t => 'sessionToken=' + t;
+let ok = 0, bad = 0; const chk = (c, m) => { console.log(c ? 'OK  ' : 'FAIL', m); c ? ok++ : bad++; };
+const mk = t => { const s = io(B, { extraHeaders: { cookie: t ? ck(t) : '' }, transports: ['polling'], forceNew: true }); s.L = { errs: [], chatErr: [], all: [], kicked: null }; s.on('error', m => s.L.errs.push(m)); s.on('chatError', m => s.L.chatErr.push(m)); s.on('kicked', m => s.L.kicked = m); s.on('users', u => s.L.users = u); s.on('roomState', st => s.L.last = st); s.on('sanctions', l => s.L.san = l); s.onAny((ev, ...a) => s.L.all.push(JSON.stringify(a))); return s; };
+const api = (p, t, body) => fetch(B + p, { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json', ...(t ? { cookie: ck(t) } : {}) }, body: body ? JSON.stringify(body) : undefined });
+const J = async (s, slug, extra = {}) => { s.L.errs.length = 0; s.L.last = null; s.emit('joinRoom', { slug, name: 'QUALQUER', avatar: '🎭', ...extra }); await w(600); };
+const say = async (s, t) => { s.L.chatErr.length = 0; s.emit('chat', { text: t }); await w(350); return s.L.chatErr.slice(); };
+(async () => {
+  const room = await (await api('/api/rooms', 'TOKB', { name: 'Sala Mod', adminName: 'Beto' })).json();
+  const owner = mk('TOKB'), vic = mk('TOKV'), mia = mk('TOKM'), adm = mk('TOKADM'), anon = mk(null), ze1 = mk('TOKZ1'), ze2 = mk('TOKZ2'); await w(600);
+  await J(anon, room.slug); chk(anon.L.errs.some(e => /login/i.test(e)) && !anon.L.last, 'sem login nao entra na sala');
+  await J(owner, room.slug); await J(adm, room.slug); await J(vic, room.slug, { name: 'Admin' }); await J(mia, room.slug); await J(ze1, room.slug); await J(ze2, room.slug); await w(300);
+  const names = (owner.L.users || []).map(u => u.name);
+  chk(names.includes('Vic') && names.filter(n => n === 'Admin').length === 1 && !names.includes('QUALQUER'), 'nome vem da conta: quem tenta entrar como "Admin" aparece com o proprio nome');
+  await say(vic, 'oi do vic'); chk(owner.L.all.some(x => x.includes('oi do vic') && x.includes('"user":"Vic"')), 'mensagem sai com o nome da conta');
+  const role = n => (owner.L.users.find(u => u.name === n) || {}).role;
+  chk(role('Beto') === 'owner' && role('Admin') === 'admin' && role('Vic') === '', 'papeis na lista da sala: dono, admin e usuario');
+  chk(names.includes('Zé') && names.includes('Zé (2)'), 'dois usuarios com o mesmo nome ficam distintos na sala (Zé / Zé (2))');
+  const song = { id: 'dQw4w9WgXcQ', title: 'T', artist: 'A', duration: 200 };
+  ze1.emit('addSong', song); await w(450); ze2.emit('addSong', { ...song, id: 'aaaaaaaaaaa' }); await w(450);
+  chk(!ze2.L.errs.some(e => /Aguarde/.test(e)) && ze1.L.last.queue.length === 2, 'intervalo entre musicas e por conta (outro usuario nao e barrado)');
+  ze1.L.errs.length = 0; ze1.emit('addSong', { ...song, id: 'bbbbbbbbbbb' }); await w(450); chk(ze1.L.errs.some(e => /Aguarde/.test(e)), 'a mesma conta e barrada pelo intervalo');
+  // permissoes
+  vic.emit('modAction', { name: 'Zé', action: 'mute', minutes: 10 }); await w(300); chk((await say(ze1, 'ainda falo')).length === 0, 'usuario comum nao silencia ninguem');
+  mia.emit('modAction', { name: 'Vic', action: 'mute', minutes: 10 }); await w(300); chk((await say(vic, 'oi')).length === 0, 'antes de ser moderador, Mia nao modera');
+  chk((await api('/api/admin/set-mod', 'TOKM', { email: 'mia@x', mod: true })).status === 403, 'moderador/usuario nao usa as rotas de admin');
+  chk((await api('/api/admin/set-mod', 'TOKADM', { email: 'mia@x', mod: true })).ok && (await api('/api/admin/users', 'TOKADM').then(r => r.json())).some(u => u.email === 'mia@x' && u.isMod), 'admin define moderador (aparece no painel de usuarios)');
+  const mia2 = mk('TOKM'); await w(500); await J(mia2, room.slug);
+  mia2.emit('modAction', { name: 'Vic', action: 'mute', minutes: 10, reason: 'spam' }); await w(400);
+  const ch = await say(vic, 'oi'); chk(ch.some(e => /silenciado/.test(e) && /spam/.test(e)), 'moderador silencia por tempo, com motivo');
+  chk((owner.L.users.find(u => u.name === 'Vic') || {}).muted === true && owner.L.users.some(u => u.name === 'Mia' && u.role === 'mod'), 'lista da sala mostra silenciado e o selo de moderador');
+  mia2.L.errs.length = 0; mia2.emit('modAction', { name: 'Beto', action: 'mute', minutes: 10 }); mia2.emit('modAction', { name: 'Admin', action: 'ban', minutes: 60 }); await w(400);
+  chk(mia2.L.errs.filter(e => /não pode moderar/.test(e)).length === 2, 'moderador nao alcanca o dono nem o admin');
+  owner.L.errs.length = 0; owner.emit('modAction', { name: 'Admin', action: 'mute', minutes: 10 }); await w(300); chk(owner.L.errs.some(e => /não pode moderar/.test(e)), 'dono nao modera o admin');
+  mia2.emit('getSanctions'); await w(300); chk(!mia2.L.san, 'moderador nao ve a lista de sancoes');
+  mia2.emit('modLift', { id: 'room:' + room.slug + '|vic@x|mute' }); await w(300); chk((await say(vic, 'oi')).length === 1, 'moderador nao remove sancoes');
+  owner.emit('getSanctions'); await w(300); const sid = (owner.L.san || []).find(s => s.email === 'vic@x');
+  chk(sid && sid.type === 'mute' && sid.by === 'Mia', 'dono ve as sancoes ativas da sala (quem aplicou)');
+  owner.emit('modLift', { id: sid.id }); await w(300); chk((await say(vic, 'voltei')).length === 0, 'dono remove a sancao e o usuario volta a falar');
+  owner.emit('modAction', { name: 'Vic', action: 'mute', minutes: 10 }); await w(300); owner.emit('modAction', { name: 'Vic', action: 'unmute' }); await w(300); chk((await say(vic, 'livre')).length === 0, 'liberar o chat (unmute) funciona');
+  // banimento por tempo
+  owner.emit('modAction', { name: 'Vic', action: 'ban', minutes: 60, reason: 'brigas' }); await w(500);
+  chk(vic.L.kicked && /banido/.test(vic.L.kicked), 'banimento por tempo expulsa na hora');
+  await J(vic, room.slug); chk(vic.L.errs.some(e => /banido desta sala/.test(e) && /brigas/.test(e)) && !vic.L.last, 'banido nao consegue voltar enquanto durar');
+  const sl = await (await api('/api/admin/sanctions', 'TOKADM')).json(); const ban = sl.find(s => s.type === 'ban' && s.email === 'vic@x');
+  chk(ban && (await api('/api/admin/sanctions', 'TOKC')).status === 403, 'painel admin lista as sancoes (so admin acessa)');
+  await api('/api/admin/sanction-remove', 'TOKADM', { id: ban.id }); await J(vic, room.slug); chk(!!vic.L.last, 'admin remove o banimento e o usuario volta');
+  const lg = await (await api('/api/admin/log', 'TOKADM')).json(); chk(lg.some(e => e.action === 'sanction-remove') && lg.some(e => e.action === 'set-mod'), 'acoes do painel ficam no registro de auditoria');
+  // cadastro: nome unico
+  const dup = await api('/api/signup', null, { nome: ' beto ', estilos: ['rock'], idToken: 'fake:novo@x' }); const dj = await dup.json();
+  chk(dup.status === 400 && /em uso/.test(dj.error), 'cadastro recusa nome ja usado (sem diferenciar maiusculas/espacos)');
+  chk((await api('/api/signup', null, { nome: 'Nome Novo', estilos: ['rock'], idToken: 'fake:novo@x' })).ok, 'cadastro com nome livre funciona');
+  console.log(ok + ' ok, ' + bad + ' falhas'); process.exit(0);
+})();
