@@ -4,7 +4,8 @@
   "description": "Salas colaborativas de música com chat ao vivo",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node tests/run.js"
   },
   "dependencies": {
     "compression": "^1.8.2",
@@ -15,5 +16,8 @@
   },
   "engines": {
     "node": ">=22.0.0 <23.0.0"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.0"
   }
 }
