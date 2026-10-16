@@ -7,7 +7,7 @@ const up = () => new Promise(res => http.get('http://localhost:3998/healthz', r 
 (async () => {
   let fails = 0;
   for (const f of files) {
-    const srv = spawn(process.execPath, ['-r', path.join(__dirname, 'preload.js'), path.join(__dirname, '..', 'server.js')], { env, stdio: 'ignore' });
+    const srv = spawn(process.execPath, ['-r', path.join(__dirname, 'preload.js'), path.join(__dirname, '..', 'server.js')], { env: /-prod\.js$/.test(f) ? { ...env, NODE_ENV: 'production' } : env, stdio: 'ignore' });
     for (let i = 0; i < 60 && !(await up()); i++) await wait(250);
     const out = await new Promise(res => { let b = ''; const t = spawn(process.execPath, [path.join(__dirname, f)], { env }); t.stdout.on('data', d => b += d); t.stderr.on('data', d => b += d); t.on('close', () => res(b)); });
     srv.kill(); await wait(400);
