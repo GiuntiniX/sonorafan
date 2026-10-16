@@ -150,6 +150,28 @@ function destroyRoom(slug, msg) {
   roomLikes.delete(slug); roomVotes.delete(slug); waitingRooms.delete(slug);
   return true;
 }
+// ----- identidade, moderadores e sanções (silenciar / banir por tempo) -----
+const isMod = e => !!(e && users.get(e) && users.get(e).isMod);
+const roleOf = s => s.isAdmin ? (adminEmails.has(s.userEmail) ? 'admin' : 'owner') : (s.isMod ? 'mod' : '');
+function uniqueName(slug, email, base) {
+  const taken = new Set();
+  for (const id of io.sockets.adapter.rooms.get(slug) || []) { const so = io.sockets.sockets.get(id); if (so && so.userName && so.userEmail !== email) taken.add(so.userName.toLowerCase()); }
+  let n = base, i = 2; while (taken.has(n.toLowerCase())) n = base + ' (' + i++ + ')';
+  return n;
+}
+const sanctions = new Map();   // id -> { id, email, name, type: 'mute'|'ban', scope: 'global'|'room:<slug>', until, reason, by }
+const sanId = (e, t, sc) => `${sc}|${e}|${t}`;
+const sanDoc = id => db.collection('sanctions').doc(encodeURIComponent(id));
+function sanActive(email, type, slug) {
+  for (const sc of ['global', 'room:' + slug]) {
+    const s = sanctions.get(sanId(email, type, sc));
+    if (s) { if (s.until && s.until < Date.now()) { sanctions.delete(s.id); sanDoc(s.id).delete().catch(() => {}); } else return s; }
+  }
+  return null;
+}
+function addSanction(s) { s.id = sanId(s.email, s.type, s.scope); sanctions.set(s.id, s); sanDoc(s.id).set(s).catch(() => {}); return s; }
+function removeSanction(id) { sanctions.delete(id); sanDoc(id).delete().catch(() => {}); }
+async function loadSanctions() { try { const snap = await db.collection('sanctions').get(); snap.forEach(d => { const s = d.data(); if (!s.until || s.until > Date.now()) sanctions.set(s.id, s); }); } catch (e) {} }
 function persistRoom(r) {
   db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null }).catch(() => {});
 }
@@ -207,6 +229,7 @@ async function loadAllUsers() {
 }
 loadAllUsers();
 loadSessions();
+loadSanctions();
 
 rooms.set('lounge', createRoom('lounge', 'Lounge SonoraFan', 'Sistema'));
 console.log('✅ Sala inicial "lounge" criada com sucesso!');
@@ -265,7 +288,7 @@ function broadcastState(slug) {
 function broadcastUsers(slug) {
   io.in(slug).fetchSockets().then(sockets => {
     const userList = sockets.map(s => ({
-      name: s.userName || 'Anônimo', color: s.userColor || '#888', isAdmin: s.isAdmin || false, avatar: s.userAvatar || '👤',
+      name: s.userName || 'Anônimo', color: s.userColor || '#888', isAdmin: s.isAdmin || false, role: roleOf(s), muted: !!sanActive(s.userEmail, 'mute', slug), avatar: s.userAvatar || '👤',
       points: userPoints.get(s.userEmail)?.points || 0, badges: userPoints.get(s.userEmail)?.badges || [],
     }));
     io.to(slug).emit('users', userList);
@@ -390,12 +413,13 @@ app.post('/api/signup', rateLimit(5, 60000), async (req, res) => {
   if (!nome || nome.length < 2 || nome.length > 60) return res.status(400).json({ error: 'Nome inválido' });
   if (!email) return res.status(400).json({ error: 'E-mail inválido' });
   if (!Array.isArray(estilos) || estilos.length === 0) return res.status(400).json({ error: 'Escolha um estilo' });
+  if ([...users.values()].some(u => String(u.nome || '').trim().toLowerCase() === String(nome).trim().toLowerCase())) return res.status(400).json({ error: 'Esse nome já está em uso. Escolha outro.' });
 
   try {
     const existing = await db.collection('users').doc(email).get();
     if (existing.exists) return res.status(400).json({ error: 'E-mail já cadastrado' });
 
-    const userData = { nome, email, estilos, avatar: '🎸', criadoEm: new Date(), theme: 'dark', fontSize: 16, colorblind: false, discordWebhook: null };
+    const userData = { nome: String(nome).trim(), email, estilos, avatar: '🎸', criadoEm: new Date(), theme: 'dark', fontSize: 16, colorblind: false, discordWebhook: null };
     await setUserInFirestore(email, userData);
     users.set(email, userData);
     await setPointsInFirestore(email, { points: 0, badges: [] });
@@ -648,7 +672,7 @@ app.get('/api/admin/users', async (req, res) => {
     const usersList = [];
     snapshot.forEach(doc => {
       const data = doc.data();
-      usersList.push({ email: doc.id, nome: data.nome, avatar: data.avatar, banned: !!data.banned, isAdmin: adminEmails.has(doc.id) });
+      usersList.push({ email: doc.id, nome: data.nome, avatar: data.avatar, banned: !!data.banned, isMod: !!data.isMod, isAdmin: adminEmails.has(doc.id) });
     });
     res.json(usersList);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -747,6 +771,22 @@ app.post('/api/admin/room-action', (req, res) => {
   res.json({ success: true });
 });
 app.get('/api/admin/log', (req, res) => res.json(adminLog.slice(0, 100)));
+
+app.post('/api/admin/set-mod', async (req, res) => {
+  const { email, mod } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email necessário' });
+  if (adminEmails.has(email)) return res.status(400).json({ error: 'Esse usuário já é admin' });
+  const u = users.get(email) || await getUserFromFirestore(email);
+  if (!u) return res.status(404).json({ error: 'Usuário não encontrado' });
+  u.isMod = !!mod; users.set(email, u); await setUserInFirestore(email, u);
+  res.json({ success: true });
+});
+app.get('/api/admin/sanctions', (req, res) => { const n = Date.now(); res.json([...sanctions.values()].filter(s => !s.until || s.until > n)); });
+app.post('/api/admin/sanction-remove', (req, res) => {
+  const id = String(req.body.id);
+  if (!sanctions.has(id)) return res.status(404).json({ error: 'Sanção não encontrada' });
+  removeSanction(id); res.json({ success: true });
+});
 
 app.post('/api/admin/remove-song', (req, res) => {
   const { roomSlug, index } = req.body;
@@ -859,6 +899,17 @@ io.on('connection', (socket) => {
     try {
       const room = rooms.get(slug);
       if (!room) { socket.emit('error', 'Sala não encontrada'); return; }
+      // identidade vem da conta logada, nunca do que o navegador envia
+      const ck = (socket.handshake.headers.cookie || '').match(/sessionToken=([^;]+)/);
+      let who = ck ? sessions.get(ck[1]) : null;
+      if (!who && token) { const rt = socketTokens.get(token); if (rt && rt.exp > Date.now()) who = rt.email; }
+      if (!who) { socket.emit('error', 'Faça login para entrar na sala.'); return; }
+      const prof = users.get(who) || {};
+      if (prof.banned) { socket.emit('error', 'Conta banida.'); return; }
+      name = uniqueName(slug, who, String(prof.nome || who.split('@')[0]).slice(0, 40));
+      avatar = prof.avatar || avatar;
+      const sb = sanActive(who, 'ban', slug);
+      if (sb) { socket.emit('error', '⛔ Você está banido desta sala' + (sb.until ? ' por mais ' + Math.ceil((sb.until - Date.now()) / 60000) + ' min' : '') + (sb.reason ? ' — ' + sb.reason : '')); return; }
       if (room.bannedUsers.includes(name)) { socket.emit('error', 'Você foi banido'); return; }
       // ----- sala privada: só entra com convite ou senha (dono e admins sempre entram) -----
       if (room.isPrivate) {
@@ -905,6 +956,7 @@ io.on('connection', (socket) => {
       // dono = quem criou (por e-mail). Só salas antigas, sem dono registrado, caem no nome de exibição.
       const isRoomAdmin = !!email && (room.ownerEmail ? room.ownerEmail === email : room.admin === name);
       socket.isAdmin = isGlobalAdmin || isRoomAdmin;
+      socket.isMod = isMod(email);
       if (isGlobalAdmin && !room.admin) room.admin = name;
       notifyNextWaiting(slug);
 
@@ -923,6 +975,7 @@ io.on('connection', (socket) => {
       });
       socket.emit('chatHistory', room.chatHistory.slice(-150));
       socket.emit('isAdmin', socket.isAdmin);
+      socket.emit('isMod', !!socket.isMod);
       socket.emit('userPoints', userPoints.get(email) || { points: 0, badges: [] });
       broadcastUsers(slug);
     } catch (e) {
@@ -946,6 +999,8 @@ io.on('connection', (socket) => {
     try {
       if (!currentRoom || typeof text !== 'string' || !text.trim()) return;
       text = text.slice(0, 400);
+      const mu = sanActive(socket.userEmail, 'mute', currentRoom);
+      if (mu) return socket.emit('chatError', '🔇 Você está silenciado' + (mu.until ? ' por mais ' + Math.ceil((mu.until - Date.now()) / 60000) + ' min' : '') + (mu.reason ? ' — ' + mu.reason : ''));
       const nowT = Date.now(); socket._chatT = (socket._chatT || []).filter(t => nowT - t < 5000);
       if (socket._chatT.length >= 6) return socket.emit('chatError', 'Calma! Muitas mensagens seguidas.');
       socket._chatT.push(nowT);
@@ -960,7 +1015,7 @@ io.on('connection', (socket) => {
       const parts = text.trim().split(' ');
       const command = parts[0].toLowerCase();
       if (command.startsWith('/')) { handleCommand(socket, command, parts.slice(1), room); return; }
-      const msg = { _id: Date.now().toString() + Math.random(), user: socket.userName, text: text.trim(), color: socket.userColor, isSystem: false, isAdmin: socket.isAdmin || false, avatar: socket.userAvatar || '👤', createdAt: new Date() };
+      const msg = { _id: Date.now().toString() + Math.random(), user: socket.userName, text: text.trim(), color: socket.userColor, isSystem: false, isAdmin: socket.isAdmin || false, role: roleOf(socket), avatar: socket.userAvatar || '👤', createdAt: new Date() };
       room.chatHistory.push(msg);
       if (room.chatHistory.length > 300) room.chatHistory.shift();
       io.to(currentRoom).emit('chat', msg);
@@ -1049,7 +1104,7 @@ io.on('connection', (socket) => {
       const room = rooms.get(currentRoom);
       if (room.addMode === 'owner' && !socket.isAdmin) { socket.emit('error', '🎧 Nesta sala só o dono escolhe as músicas. Use o chat para sugerir!'); return; }
       const now = Date.now();
-      const lastAdd = room.lastAddTime.get(socket.userName) || 0;
+      const lastAdd = room.lastAddTime.get(socket.userEmail || socket.userName) || 0;
       if (now - lastAdd < 30000) { const wait = Math.ceil((30000 - (now - lastAdd)) / 1000); socket.emit('error', `Aguarde ${wait}s`); return; }
       const userSongs = room.queue.filter(t => t.dj === socket.userName).length + room.waitingQueue.filter(t => t.dj === socket.userName).length;
       if (userSongs >= MAX_SONGS_PER_USER) { socket.emit('error', `Você já tem ${MAX_SONGS_PER_USER} músicas na fila/espera. Aguarde outras serem tocadas.`); return; }
@@ -1060,13 +1115,13 @@ io.on('connection', (socket) => {
       const isQueueFull = room.queue.length >= settings.maxQueue;
       if (isQueueFull) {
         if (room.waitingQueue.length >= settings.maxQueue) { socket.emit('error', `Fila de espera cheia (${settings.maxQueue})`); return; }
-        song.dj = socket.userName; room.waitingQueue.push(song); room.lastAddTime.set(socket.userName, now); addPoints(socket.userEmail, 1);
+        song.dj = socket.userName; room.waitingQueue.push(song); room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 1);
         io.to(currentRoom).emit('playSound', 'waiting');
         addSystemMsg(currentRoom, `⏳ "${song.title}" entrou na fila de espera (${room.waitingQueue.length} músicas aguardando)`);
         broadcastState(currentRoom);
         return;
       }
-      song.dj = socket.userName; room.queue.push(song); room.lastAddTime.set(socket.userName, now); addPoints(socket.userEmail, 2);
+      song.dj = socket.userName; room.queue.push(song); room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2);
       room.totalSongsAdded = (room.totalSongsAdded || 0) + 1;
       if (!room.isPlaying && room.queue.length === 1) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); addSystemMsg(currentRoom, `▶ ${song.title} — ${song.artist}`); }
       broadcastState(currentRoom);
@@ -1138,6 +1193,42 @@ io.on('connection', (socket) => {
       persistRoom(room); broadcastState(room.slug); socket.emit('roomInvite', inviteInfo(room));
       addSystemMsg(currentRoom, `⚙️ ${socket.userName} atualizou as configurações da sala`);
     } catch (e) {}
+  });
+
+  socket.on('modAction', ({ name: target, action, minutes, reason } = {}) => {
+    try {
+      const room = currentRoom && rooms.get(currentRoom); if (!room || !socket.userEmail) return;
+      const owner = room.ownerEmail === socket.userEmail, adm = adminEmails.has(socket.userEmail);
+      if (!(adm || owner || socket.isMod)) return;
+      const tid = [...(io.sockets.adapter.rooms.get(currentRoom) || [])].find(id => { const so = io.sockets.sockets.get(id); return so && so.userName === target; });
+      const ts = tid && io.sockets.sockets.get(tid);
+      if (!ts || !ts.userEmail || ts === socket) return;
+      const rank = (e, own) => adminEmails.has(e) ? 3 : own ? 2 : isMod(e) ? 1 : 0;   // admin > dono da sala > moderador > usuário
+      if (rank(ts.userEmail, room.ownerEmail === ts.userEmail) >= rank(socket.userEmail, owner)) return socket.emit('error', 'Você não pode moderar esse usuário.');
+      const mins = [10, 60, 1440, 0].includes(+minutes) ? +minutes : 10, why = String(reason || '').replace(/[\u0000-\u001f<>]/g, ' ').trim().slice(0, 100);
+      const dur = mins ? (mins >= 60 ? mins / 60 + ' h' : mins + ' min') : 'tempo indeterminado';
+      const san = { email: ts.userEmail, name: ts.userName, scope: 'room:' + currentRoom, until: mins ? Date.now() + mins * 60000 : null, reason: why, by: socket.userName };
+      if (action === 'mute') { addSanction({ ...san, type: 'mute' }); ts.emit('chatError', `🔇 Você foi silenciado por ${dur}${why ? ' — ' + why : ''}`); addSystemMsg(currentRoom, `🔇 ${ts.userName} foi silenciado por ${dur} (${socket.userName})`); }
+      else if (action === 'unmute') { removeSanction(sanId(ts.userEmail, 'mute', 'room:' + currentRoom)); addSystemMsg(currentRoom, `🔊 ${ts.userName} pode falar de novo`); }
+      else if (action === 'ban' || action === 'kick') {
+        if (action === 'ban') addSanction({ ...san, type: 'ban' });
+        ts.emit('kicked', action === 'ban' ? `⛔ Você foi banido desta sala por ${dur}${why ? ' — ' + why : ''}` : 'Você foi expulso da sala.');
+        ts.leave(currentRoom); room.listenerCount = Math.max(0, room.listenerCount - 1);
+        addSystemMsg(currentRoom, `${action === 'ban' ? '⛔' : '👢'} ${ts.userName} foi ${action === 'ban' ? 'banido por ' + dur : 'expulso'} (${socket.userName})`);
+        broadcastState(currentRoom);
+      } else return;
+      broadcastUsers(currentRoom);
+      audit(socket.userEmail, 'room-' + action, `${currentRoom} ${ts.userEmail} ${dur} ${why}`);
+    } catch (e) {}
+  });
+  socket.on('getSanctions', () => {
+    const room = currentRoom && rooms.get(currentRoom); if (!room || !socket.isAdmin) return;
+    socket.emit('sanctions', [...sanctions.values()].filter(s => s.scope === 'room:' + currentRoom && (!s.until || s.until > Date.now())));
+  });
+  socket.on('modLift', ({ id } = {}) => {
+    const room = currentRoom && rooms.get(currentRoom), s = sanctions.get(String(id));
+    if (!room || !socket.isAdmin || !s || s.scope !== 'room:' + currentRoom) return;
+    removeSanction(s.id); audit(socket.userEmail, 'room-lift', `${currentRoom} ${s.email} ${s.type}`);
   });
 
   socket.on('getInvite', () => { const room = currentRoom && rooms.get(currentRoom); if (room && socket.isAdmin) socket.emit('roomInvite', inviteInfo(room)); });
