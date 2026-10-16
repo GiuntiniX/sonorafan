@@ -644,6 +644,15 @@
     .up-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
     .up-act { display: flex; gap: 3px; flex-shrink: 0; } .up-row button { padding: 3px 6px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; font-size: 11px; font-family: inherit; }
     @media (max-width: 768px) { .users-pop { left: 12px; right: 12px; width: auto; top: 70px; } }
+    .ar-card input.ar-sel { width: 18px !important; min-width: 18px; height: 18px; flex: 0 0 18px; padding: 0 !important; margin: 3px 0 0; accent-color: var(--accent); }
+    #legalModal { z-index: 1200; }
+    .legal-modal { max-width: 660px; max-height: 88vh; display: flex; flex-direction: column; }
+    .legal-tabs { display: flex; gap: 6px; margin: 10px 0; }
+    .legal-tabs button { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); font-weight: 700; cursor: pointer; font-family: inherit; }
+    .legal-tabs button.on { background: var(--bg-card); color: var(--text); border-color: var(--accent); }
+    .legal-body { overflow: auto; flex: 1; min-height: 0; font-size: 13px; line-height: 1.65; color: var(--text-secondary); padding-right: 6px; }
+    .legal-body h4 { color: var(--text); margin: 14px 0 4px; font-size: 14px; } .legal-body h4:first-child { margin-top: 0; }
+    .legal-body p { margin: 0 0 6px; } .legal-note { font-size: 11px; color: var(--text-muted); margin-top: 14px !important; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
@@ -750,7 +759,7 @@
       <input type="email" id="loginEmail" placeholder="E-mail" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
       <input type="password" id="loginPassword" placeholder="Senha" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
       <button id="loginBtn" onclick="doLogin()" data-i18n="login.btn">Entrar no palco</button>
-      <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="/legal.html" target="_blank" rel="noopener">Termos e a Política de Privacidade</a>.</p>
+      <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="#" onclick="openLegal('terms');return false;">Termos de Uso</a> e a <a href="#" onclick="openLegal('priv');return false;">Política de Privacidade</a>.</p>
       <div class="login-switch"><span data-i18n="login.switch">Não tem conta?</span> <a onclick="openSignup()" data-i18n="login.signup">Cadastre-se</a></div>
     </div>
   </div>
@@ -1111,6 +1120,16 @@
         <button class="btn-secondary" onclick="closeCreateRoom()" data-i18n="createRoom.cancel">Cancelar</button>
         <button class="btn-primary" onclick="createRoom()" data-i18n="createRoom.create">Criar</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="legalModal" onclick="if(event.target===this)closeLegal()">
+    <div class="modal legal-modal">
+      <h3>📜 Termos e Privacidade</h3>
+      <div class="legal-tabs"><button type="button" id="ltTerms" class="on" onclick="openLegal('terms')">Termos de Uso</button><button type="button" id="ltPriv" onclick="openLegal('priv')">Privacidade</button></div>
+      <div class="legal-body" id="legalTerms"><h4>1. O serviço</h4><p>O SonoraFan é uma plataforma de salas colaborativas de música com chat ao vivo. As músicas tocam pelo player oficial do YouTube; não hospedamos nem armazenamos áudio ou vídeo.</p><h4>2. Sua conta</h4><p>Para entrar nas salas é preciso criar uma conta com e-mail e senha. Você é responsável pela segurança da senha e pelo que acontece na sua conta. O nome de exibição deve ser único e não pode imitar outra pessoa, administradores ou moderadores.</p><h4>3. Regras de convivência</h4><p>Não é permitido: assédio, discurso de ódio, ameaças, conteúdo sexual explícito, spam ou flood, divulgar dados pessoais de terceiros, burlar votações e limites, tentar invadir ou sobrecarregar o serviço, ou usá-lo para fins ilegais.</p><h4>4. Músicas e conteúdo</h4><p>Você é responsável pelas músicas que adiciona e pelas mensagens que envia, e não deve adicionar conteúdo que viole direitos de terceiros. Os vídeos seguem os Termos de Serviço do YouTube.</p><h4>5. Salas</h4><p>Qualquer usuário logado pode criar salas públicas ou privadas (com senha e/ou link de convite). O dono personaliza a sala, escolhe quem adiciona músicas, ativa o modo lento e pode silenciar, banir e expulsar participantes dela.</p><h4>6. Moderação</h4><p>Administradores e moderadores podem silenciar, expulsar, banir (por tempo ou definitivamente), travar chats e excluir salas ou contas que violem estas regras. As ações de administração ficam registradas.</p><h4>7. Disponibilidade</h4><p>O serviço é oferecido “como está”, sem garantia de funcionamento ininterrupto. Funcionalidades podem ser alteradas, suspensas ou encerradas.</p><h4>8. Encerramento</h4><p>Você pode excluir sua conta a qualquer momento pelo link “Excluir minha conta”, na tela de salas. Contas que violem estes termos podem ser suspensas ou removidas.</p><h4>9. Alterações</h4><p>Estes termos podem mudar. O uso continuado depois da mudança indica que você concorda com a nova versão.</p><p class="legal-note">Modelo informativo: peça a revisão de um profissional jurídico antes de depender dele. Última atualização: 16/10/2026.</p></div>
+      <div class="legal-body" id="legalPriv" style="display:none"><h4>1. Que dados coletamos</h4><p>Da conta: nome de exibição, e-mail, avatar, estilos musicais, tema e idioma. Do uso: favoritos, pontos e medalhas, salas que você cria e suas configurações, músicas adicionadas, votos, mensagens enviadas no chat e sanções de moderação. Técnicos: um cookie de sessão (essencial para manter você logado) e dados de conexão necessários ao funcionamento e à segurança, como o endereço IP, usado para limitar abusos.</p><h4>2. Senhas</h4><p>Sua senha é tratada pelo Firebase Authentication (Google) e não chega ao nosso servidor. Senhas de salas privadas são guardadas apenas como hash.</p><h4>3. Para que usamos</h4><p>Para autenticar você, operar salas e chat, mostrar ranking e preferências, moderar e proteger o serviço contra abuso e cumprir obrigações legais. Não vendemos seus dados nem os usamos para publicidade de terceiros.</p><h4>4. Com quem compartilhamos</h4><p>Apenas com serviços necessários para operar: Google (Firebase Authentication e banco de dados Firestore), YouTube (player e busca; veja a Política de Privacidade do Google) e a empresa de hospedagem (Render). Podemos divulgar dados quando a lei exigir.</p><h4>5. O que outros usuários veem</h4><p>Seu nome, avatar, mensagens e músicas adicionadas aparecem para quem está na sala. Seu e-mail é visível apenas para administradores.</p><h4>6. Por quanto tempo guardamos</h4><p>Os dados da conta ficam enquanto ela existir. As mensagens recentes do chat ficam guardadas na sala enquanto ela existir. Registros de moderação e auditoria são mantidos pelo tempo necessário à segurança.</p><h4>7. Seus direitos (LGPD)</h4><p>Você pode confirmar se tratamos seus dados, acessá-los, corrigi-los, pedir portabilidade ou eliminação e revogar consentimentos. A exclusão da conta é imediata pelo link “Excluir minha conta”. Para os demais pedidos, fale com o contato abaixo.</p><h4>8. Menores de idade</h4><p>O serviço é voltado a maiores de 18 anos. Menores devem usá-lo com acompanhamento e autorização dos responsáveis.</p><h4>9. Segurança</h4><p>Usamos conexão segura (HTTPS), senhas gerenciadas pelo Google, acesso restrito ao banco de dados e limites contra abuso. Nenhum sistema é totalmente imune a falhas.</p><h4>10. Contato</h4><p>Dúvidas ou pedidos sobre seus dados: <span id="legalContact"></span>.</p><p class="legal-note">Modelo informativo: peça a revisão de um profissional jurídico antes de depender dele. Última atualização: 16/10/2026.</p></div>
+      <div class="modal-actions"><button class="btn-primary" onclick="closeLegal()">Entendi</button></div>
     </div>
   </div>
 
@@ -2878,10 +2897,21 @@
       const l = document.getElementById('screen-lobby'); if (!l) return;
       const p = document.createElement('p');
       p.style.cssText = 'text-align:center;font-size:12px;margin:24px 0;color:var(--text-muted);';
-      p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="/legal.html" target="_blank" rel="noopener">Termos e Privacidade</a>';
+      p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="#" onclick="openLegal(\'terms\');return false;">Termos</a> · <a href="#" onclick="openLegal(\'priv\');return false;">Privacidade</a>';
       l.appendChild(p);
     })();
 
+
+    // ===== Termos e Privacidade (janela dentro do app) =====
+    let LEGAL_CONTACT = '';   // coloque aqui o e-mail de contato, ex.: 'contato@seudominio.com'
+    function openLegal(tab) {
+      const priv = tab === 'priv';
+      $('legalTerms').style.display = priv ? 'none' : ''; $('legalPriv').style.display = priv ? '' : 'none';
+      $('ltTerms').classList.toggle('on', !priv); $('ltPriv').classList.toggle('on', priv);
+      $('legalContact').textContent = LEGAL_CONTACT ? 'pelo e-mail ' + LEGAL_CONTACT : 'fale com o administrador da plataforma';
+      $('legalModal').classList.add('active');
+    }
+    function closeLegal() { $('legalModal').classList.remove('active'); }
 
     // ===== INIT =====
     function init() {
