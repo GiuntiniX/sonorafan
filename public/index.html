@@ -111,16 +111,6 @@
     .hero-stats span { transition: color .2s; }
     .hero-stats span:hover { color: var(--text); }
 
-    .vinyl-wrap { position: relative; display: flex; justify-content: center; align-items: center; }
-    .vinyl-glow { position: absolute; inset: -40px; border-radius: 50%; background: radial-gradient(circle, var(--accent2-glow), transparent 65%); animation: glowPulse 4s ease-in-out infinite alternate; z-index: -1; }
-    .vinyl { width: 300px; height: 300px; border-radius: 50%; position: relative; background: repeating-radial-gradient(circle at 50% 50%, #17171f 0px, #17171f 2px, #101017 2px, #101017 5px); box-shadow: 0 0 70px rgba(124,58,237,.45), 0 0 0 10px rgba(10,10,16,.9), inset 0 0 30px rgba(0,0,0,.8); animation: spinDisc 5s linear infinite; }
-    @keyframes spinDisc { to { transform: rotate(360deg); } }
-    .vinyl .label { position: absolute; inset: 33%; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: inset 0 0 0 6px rgba(0,0,0,.25); }
-    .vinyl .label::after { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); }
-    .tonearm { position: absolute; top: 6px; right: 12px; width: 90px; height: 6px; background: linear-gradient(90deg, #3a3a4a, #23232e); border-radius: 3px; transform-origin: right center; transform: rotate(18deg); animation: armSwing 3.5s ease-in-out infinite alternate; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
-    .tonearm::after { content: ''; position: absolute; left: -8px; top: -4px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent2); }
-    @keyframes armSwing { from { transform: rotate(14deg); } to { transform: rotate(24deg); } }
-
     .ticker { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(0,0,0,.35); backdrop-filter: blur(6px); margin-bottom: 56px; border-radius: 10px; }
     .ticker-track { display: inline-flex; white-space: nowrap; animation: marquee 26s linear infinite; will-change: transform; }
     .ticker-track span { display: inline-flex; align-items: center; padding: 13px 22px; font-weight: 800; letter-spacing: 2.5px; font-size: 13px; color: var(--text-secondary); }
@@ -150,15 +140,10 @@
       .landing-hero-text p { margin-left: auto; margin-right: auto; }
       .landing-hero-ctas, .hero-stats { justify-content: center; }
       .landing-hero-text h1 { font-size: 42px; }
-      .vinyl { width: 230px; height: 230px; }
-      .tonearm { right: 4px; }
       .landing-features { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 600px) {
       .landing-hero-text h1 { font-size: 32px; }
-      .vinyl { width: 180px; height: 180px; }
-      .vinyl .label { font-size: 28px; }
-      .tonearm { display: none; }
       .landing-features { grid-template-columns: 1fr; }
       .landing-nav { flex-direction: column; align-items: stretch; }
       .landing-nav-actions { justify-content: center; }
@@ -626,6 +611,39 @@
     .ar-act button { padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); cursor: pointer; font-size: 12px; font-family: inherit; }
     .ar-act button.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
     .ar-chip { font-size: 10px; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--border); margin-left: 4px; font-weight: 400; }
+    /* ===== Página inicial: brilho e vibe de show, sem animações ===== */
+    .landing-screen *, .landing-screen *::before, .landing-screen *::after { animation: none !important; }
+    .show-hero { display: block !important; position: relative; isolation: isolate; border-radius: 24px; overflow: hidden; text-align: center; padding: 72px 20px 190px !important; margin-bottom: 48px; color: #fff;
+      background: radial-gradient(60% 55% at 14% 18%, #ff6b3558, transparent 70%), radial-gradient(55% 55% at 88% 22%, #7c3aed70, transparent 70%), radial-gradient(80% 60% at 50% 115%, #22d3ee38, transparent 70%), #07040f; box-shadow: 0 0 80px #7c3aed26; }
+    .show-hero .landing-hero-text { position: relative; z-index: 3; max-width: 760px; margin: 0 auto; }
+    .show-hero h1 { color: #fff !important; text-shadow: 0 0 36px #ff6b3566, 0 0 70px #7c3aed66; }
+    .show-hero p { color: rgba(255,255,255,.84) !important; margin-left: auto; margin-right: auto; }
+    .show-hero .landing-hero-ctas { justify-content: center; }
+    .show-hero .hero-eyebrow { background: rgba(255,255,255,.08); }
+    .show-scene { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+    .show-photo { position: absolute; inset: 0; background: url(/img/show-hero.jpg) center / cover; opacity: .38; mix-blend-mode: screen; }
+    .beams { position: absolute; inset: 0; overflow: hidden; }
+    .beams i { position: absolute; top: -14%; left: 50%; width: 30%; height: 125%; transform-origin: 50% 0; clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); mix-blend-mode: screen; opacity: .42; filter: blur(1.5px); }
+    .beams i:nth-child(1) { margin-left: -15%; transform: rotate(-34deg); background: linear-gradient(#ff6b35, transparent 80%); }
+    .beams i:nth-child(2) { margin-left: -15%; transform: rotate(-12deg); background: linear-gradient(#7c3aed, transparent 80%); }
+    .beams i:nth-child(3) { margin-left: -15%; transform: rotate(12deg); background: linear-gradient(#22d3ee, transparent 80%); }
+    .beams i:nth-child(4) { margin-left: -15%; transform: rotate(34deg); background: linear-gradient(#f59e0b, transparent 80%); }
+    .eq-wave { position: absolute; left: 4%; right: 4%; bottom: 0; height: 150px; display: flex; align-items: flex-end; gap: 4px; }
+    .eq-wave b { flex: 1; border-radius: 4px 4px 0 0; background: linear-gradient(to top, var(--accent), var(--accent2)); box-shadow: 0 0 14px var(--accent-glow); opacity: .9; }
+    .landing-cta-band { box-shadow: 0 0 60px var(--accent2-glow); }
+    /* cards como ingressos de show */
+    .landing-features { gap: 22px; }
+    .landing-feature-card { position: relative; border-radius: 18px; overflow: visible; background: linear-gradient(180deg, color-mix(in srgb, var(--tc, var(--accent)) 16%, var(--bg-card)), var(--bg-card)); box-shadow: 0 0 34px color-mix(in srgb, var(--tc, var(--accent)) 14%, transparent); }
+    .landing-feature-card:nth-child(2) { --tc: var(--accent2); } .landing-feature-card:nth-child(3) { --tc: #22d3ee; }
+    .landing-feature-card .icon { display: block; line-height: 1; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 2px dashed var(--border); font-size: 34px; }
+    .landing-feature-card::before, .landing-feature-card::after { content: ''; position: absolute; top: 63px; width: 18px; height: 18px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); }
+    .landing-feature-card::before { left: -10px; } .landing-feature-card::after { right: -10px; }
+    @media (max-width: 600px) { .show-hero { padding: 48px 14px 130px !important; } .eq-wave { height: 96px; gap: 2px; } }
+    .users-pop { position: fixed; top: 120px; right: 16px; z-index: 260; width: 310px; max-height: 65vh; overflow: auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: none; box-shadow: 0 16px 50px rgba(0,0,0,.5); }
+    .users-pop.show { display: block; }
+    .up-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .up-act { display: flex; gap: 3px; flex-shrink: 0; } .up-row button { padding: 3px 6px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; font-size: 11px; font-family: inherit; }
+    @media (max-width: 768px) { .users-pop { left: 12px; right: 12px; width: auto; top: 70px; } }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
   </style>
@@ -652,64 +670,6 @@
       <div class="glow g1"></div>
       <div class="glow g2"></div>
       <div class="glow g3"></div>
-        <span class="fnote" style="left:63%;font-size:28px;animation-duration:9.5s;animation-delay:-0.9s;color:var(--accent2)">♬</span>
-        <span class="fnote" style="left:22%;font-size:19px;animation-duration:11.7s;animation-delay:-0.7s;color:var(--accent)">♫</span>
-        <span class="fnote" style="left:70%;font-size:19px;animation-duration:16.6s;animation-delay:-8.6s;color:var(--accent)">♫</span>
-        <span class="fnote" style="left:80%;font-size:28px;animation-duration:10.2s;animation-delay:-3.5s;color:var(--success)">♩</span>
-        <span class="fnote" style="left:62%;font-size:19px;animation-duration:9.9s;animation-delay:-6.8s;color:var(--warning)">♬</span>
-        <span class="fnote" style="left:63%;font-size:25px;animation-duration:9.7s;animation-delay:-1.4s;color:var(--success)">♩</span>
-        <span class="fnote" style="left:63%;font-size:21px;animation-duration:13.1s;animation-delay:-2.9s;color:var(--success)">♫</span>
-        <span class="fnote" style="left:90%;font-size:33px;animation-duration:16.3s;animation-delay:-10.6s;color:var(--success)">♪</span>
-        <span class="fnote" style="left:91%;font-size:24px;animation-duration:13.1s;animation-delay:-12.7s;color:var(--success)">♫</span>
-        <span class="fnote" style="left:70%;font-size:33px;animation-duration:15.2s;animation-delay:-4.6s;color:var(--accent2)">♫</span>
-        <span class="fnote" style="left:32%;font-size:28px;animation-duration:14.9s;animation-delay:-3.2s;color:var(--warning)">♩</span>
-        <span class="fnote" style="left:95%;font-size:16px;animation-duration:16.9s;animation-delay:-11.1s;color:var(--warning)">♩</span>
-        <span class="fnote" style="left:26%;font-size:27px;animation-duration:12.6s;animation-delay:-13.1s;color:var(--success)">♩</span>
-        <span class="fnote" style="left:12%;font-size:23px;animation-duration:9.8s;animation-delay:-6.6s;color:var(--success)">♫</span>
-      <div class="eq-bars">
-        <span class="eq-bar" style="height:76%;animation-duration:1.36s;animation-delay:-0.55s"></span>
-        <span class="eq-bar" style="height:41%;animation-duration:0.66s;animation-delay:-0.75s"></span>
-        <span class="eq-bar" style="height:81%;animation-duration:1.07s;animation-delay:-1.27s"></span>
-        <span class="eq-bar" style="height:62%;animation-duration:0.63s;animation-delay:-0.61s"></span>
-        <span class="eq-bar" style="height:43%;animation-duration:0.79s;animation-delay:-0.77s"></span>
-        <span class="eq-bar" style="height:42%;animation-duration:1.26s;animation-delay:-0.17s"></span>
-        <span class="eq-bar" style="height:63%;animation-duration:1.10s;animation-delay:-0.82s"></span>
-        <span class="eq-bar" style="height:42%;animation-duration:1.06s;animation-delay:-0.56s"></span>
-        <span class="eq-bar" style="height:63%;animation-duration:0.64s;animation-delay:-1.20s"></span>
-        <span class="eq-bar" style="height:72%;animation-duration:0.94s;animation-delay:-0.76s"></span>
-        <span class="eq-bar" style="height:74%;animation-duration:1.05s;animation-delay:-0.95s"></span>
-        <span class="eq-bar" style="height:48%;animation-duration:1.07s;animation-delay:-0.89s"></span>
-        <span class="eq-bar" style="height:82%;animation-duration:0.68s;animation-delay:-1.00s"></span>
-        <span class="eq-bar" style="height:42%;animation-duration:1.10s;animation-delay:-0.69s"></span>
-        <span class="eq-bar" style="height:89%;animation-duration:1.22s;animation-delay:-0.65s"></span>
-        <span class="eq-bar" style="height:93%;animation-duration:0.89s;animation-delay:-0.35s"></span>
-        <span class="eq-bar" style="height:58%;animation-duration:1.16s;animation-delay:-0.34s"></span>
-        <span class="eq-bar" style="height:73%;animation-duration:1.02s;animation-delay:-1.23s"></span>
-        <span class="eq-bar" style="height:92%;animation-duration:0.83s;animation-delay:-1.37s"></span>
-        <span class="eq-bar" style="height:50%;animation-duration:1.01s;animation-delay:-0.23s"></span>
-        <span class="eq-bar" style="height:78%;animation-duration:0.72s;animation-delay:-0.68s"></span>
-        <span class="eq-bar" style="height:40%;animation-duration:1.37s;animation-delay:-0.11s"></span>
-        <span class="eq-bar" style="height:75%;animation-duration:0.87s;animation-delay:-0.49s"></span>
-        <span class="eq-bar" style="height:98%;animation-duration:1.06s;animation-delay:-0.64s"></span>
-        <span class="eq-bar" style="height:46%;animation-duration:1.36s;animation-delay:-0.66s"></span>
-        <span class="eq-bar" style="height:43%;animation-duration:0.65s;animation-delay:-0.98s"></span>
-        <span class="eq-bar" style="height:92%;animation-duration:0.83s;animation-delay:-0.54s"></span>
-        <span class="eq-bar" style="height:79%;animation-duration:0.62s;animation-delay:-0.65s"></span>
-        <span class="eq-bar" style="height:56%;animation-duration:1.09s;animation-delay:-0.69s"></span>
-        <span class="eq-bar" style="height:62%;animation-duration:1.21s;animation-delay:-0.18s"></span>
-        <span class="eq-bar" style="height:66%;animation-duration:0.92s;animation-delay:-1.28s"></span>
-        <span class="eq-bar" style="height:98%;animation-duration:0.66s;animation-delay:-0.63s"></span>
-        <span class="eq-bar" style="height:70%;animation-duration:1.31s;animation-delay:-1.15s"></span>
-        <span class="eq-bar" style="height:70%;animation-duration:1.17s;animation-delay:-1.38s"></span>
-        <span class="eq-bar" style="height:83%;animation-duration:1.37s;animation-delay:-0.21s"></span>
-        <span class="eq-bar" style="height:57%;animation-duration:0.72s;animation-delay:-0.92s"></span>
-        <span class="eq-bar" style="height:36%;animation-duration:0.99s;animation-delay:-0.82s"></span>
-        <span class="eq-bar" style="height:68%;animation-duration:0.83s;animation-delay:-0.20s"></span>
-        <span class="eq-bar" style="height:82%;animation-duration:1.09s;animation-delay:-0.45s"></span>
-        <span class="eq-bar" style="height:51%;animation-duration:1.15s;animation-delay:-0.72s"></span>
-        <span class="eq-bar" style="height:41%;animation-duration:0.97s;animation-delay:-1.22s"></span>
-        <span class="eq-bar" style="height:85%;animation-duration:0.92s;animation-delay:-0.55s"></span>
-      </div>
     </div>
     <div class="landing-inner">
       <div class="landing-nav">
@@ -723,7 +683,12 @@
         </div>
       </div>
 
-      <div class="landing-hero">
+      <div class="landing-hero show-hero">
+        <div class="show-scene" id="showScene">
+          <div class="show-photo"></div>
+          <div class="beams"><i></i><i></i><i></i><i></i></div>
+          <div class="eq-wave" aria-hidden="true"><b style="height:13%"></b><b style="height:15%"></b><b style="height:17%"></b><b style="height:19%"></b><b style="height:18%"></b><b style="height:23%"></b><b style="height:26%"></b><b style="height:28%"></b><b style="height:29%"></b><b style="height:33%"></b><b style="height:36%"></b><b style="height:36%"></b><b style="height:38%"></b><b style="height:44%"></b><b style="height:51%"></b><b style="height:51%"></b><b style="height:57%"></b><b style="height:59%"></b><b style="height:63%"></b><b style="height:59%"></b><b style="height:66%"></b><b style="height:65%"></b><b style="height:77%"></b><b style="height:74%"></b><b style="height:83%"></b><b style="height:78%"></b><b style="height:82%"></b><b style="height:73%"></b><b style="height:89%"></b><b style="height:73%"></b><b style="height:82%"></b><b style="height:78%"></b><b style="height:83%"></b><b style="height:74%"></b><b style="height:77%"></b><b style="height:65%"></b><b style="height:66%"></b><b style="height:59%"></b><b style="height:63%"></b><b style="height:59%"></b><b style="height:57%"></b><b style="height:51%"></b><b style="height:51%"></b><b style="height:44%"></b><b style="height:38%"></b><b style="height:36%"></b><b style="height:36%"></b><b style="height:33%"></b><b style="height:29%"></b><b style="height:28%"></b><b style="height:26%"></b><b style="height:23%"></b><b style="height:18%"></b><b style="height:19%"></b><b style="height:17%"></b><b style="height:15%"></b><b style="height:13%"></b></div>
+        </div>
         <div class="landing-hero-text">
           <div class="hero-eyebrow"><span class="dot"></span> AO VIVO • SALAS COLABORATIVAS DE MÚSICA</div>
           <h1 data-i18n="hero.title">Sua vibe.<br>Sua música. <span>Ao vivo</span>.</h1>
@@ -738,11 +703,6 @@
             <span>💬 Chat em tempo real</span>
             <span>🗳️ Vote nas músicas</span>
           </div>
-        </div>
-        <div class="vinyl-wrap">
-          <div class="vinyl-glow"></div>
-          <div class="vinyl"><div class="label">🎧</div></div>
-          <div class="tonearm"></div>
         </div>
       </div>
 
@@ -861,6 +821,7 @@
         </div>
         <div id="adminRoomList"></div>
         <details style="margin-top:14px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">📜 Registro de ações do admin</summary><div id="adminLogList" style="font-size:12px;margin-top:8px;"></div></details>
+        <details style="margin-top:10px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">🔇 Sanções ativas (silenciados e banidos por tempo)</summary><div id="adminSanctions" style="font-size:12px;margin-top:8px;"></div></details>
       </div>
       <div id="tab-queues" class="admin-tab">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -1086,7 +1047,7 @@
 
         <div class="chat-column">
           <div class="users-panel">
-            <div class="user-count"><span class="icon">👥</span> <span id="userCount">0</span> <span data-i18n="chat.listeners">ouvintes</span></div>
+            <div class="user-count" onclick="toggleUsersPop(event)" style="cursor:pointer" title="Ver quem está na sala"><span class="icon">👥</span> <span id="userCount">0</span> <span data-i18n="chat.listeners">ouvintes</span></div>
           </div>
           <div class="chat-panel">
             <div class="chat-messages" id="chatMessages">
@@ -1165,6 +1126,7 @@
   <!-- ===== TEMAS / TUTORIAL / TOUR ===== -->
   <div class="conn-banner" id="connBanner">🔄 Reconectando…</div>
   <div class="modal-overlay" id="lbModal" onclick="if(event.target===this)this.classList.remove('active')"><div class="modal" style="max-width:380px;"><h3>🏆 Ranking</h3><div id="lbList" style="margin:12px 0;"></div><div class="modal-actions"><button class="btn-secondary" onclick="$('lbModal').classList.remove('active')">OK</button></div></div></div>
+  <div class="users-pop" id="usersPop"></div>
   <div class="theme-pop" id="themePop"></div>
   <div class="modal-overlay" id="tutorialModal">
     <div class="modal" style="text-align:center;max-width:440px;">
@@ -1710,7 +1672,22 @@
             <div class="ar-act">${btn(x, 'enter', '👁️ Entrar')}${btn(x, 'skip', '⏭️ Pular')}${btn(x, 'clear-queue', '🧹 Fila')}${btn(x, x.chatLocked ? 'unlock' : 'lock', x.chatLocked ? '🔊 Liberar chat' : '🔇 Travar chat')}${btn(x, 'message', '📣 Aviso')}${x.system ? '' : btn(x, 'delete', '🗑️ Excluir', 'danger')}</div>
           </div></div>`).join('') || '<div style="color:var(--text-muted);font-size:12px;">Nenhuma sala.</div>';
       } catch (e) { box.textContent = 'Erro ao carregar as salas.'; }
-      loadAdminLog();
+      loadAdminLog(); loadAdminSanctions();
+    }
+    async function loadAdminSanctions() {
+      const b = $('adminSanctions'); if (!b) return;
+      try {
+        const l = await (await fetch('/api/admin/sanctions', { credentials: 'include' })).json();
+        b.innerHTML = l.map(s => `<div class="up-row"><span>${s.type === 'mute' ? '🔇' : '⛔'} <b>${escapeHtml(s.name)}</b> (${escapeHtml(s.email)}) · ${escapeHtml(s.scope)} · ${s.until ? Math.max(1, Math.ceil((s.until - Date.now()) / 60000)) + ' min' : 'até remover'}${s.reason ? ' · ' + escapeHtml(s.reason) : ''} · por ${escapeHtml(s.by || '')}</span><button type="button" data-id="${escapeHtml(s.id)}" onclick="adminSanctionRemove(this.dataset.id)">Remover</button></div>`).join('') || 'Nenhuma sanção ativa.';
+      } catch (e) {}
+    }
+    async function adminSanctionRemove(id) {
+      await fetch('/api/admin/sanction-remove', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      loadAdminSanctions();
+    }
+    async function adminSetMod(email, mod) {
+      const r = await fetch('/api/admin/set-mod', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, mod }) });
+      toast(r.ok ? (mod ? 'Moderador definido (vale na próxima entrada em sala)' : 'Moderador removido') : 'Não foi possível alterar', r.ok ? 'success' : 'error'); loadAdminUsers();
     }
     async function loadAdminLog() {
       const b = $('adminLogList'); if (!b) return;
@@ -1779,11 +1756,12 @@
           <div class="admin-user-item">
             <div>
               <span class="name">${escapeHtml(u.nome)}</span>
-              ${u.isAdmin ? '<span class="admin-badge-mini">Admin</span>' : ''}${u.banned ? '<span class="admin-badge-mini" style="background:var(--danger)">Banido</span>' : ''}
+              ${u.isAdmin ? '<span class="admin-badge-mini">Admin</span>' : ''}${u.banned ? '<span class="admin-badge-mini" style="background:var(--danger)">Banido</span>' : ''}${u.isMod ? '<span class="admin-badge-mini" style="background:var(--accent2)">Mod</span>' : ''}
               <div class="email">${escapeHtml(u.email)}</div>
             </div>
             <div class="actions">
               ${!u.isAdmin ? `<button class="promote" title="Promover a admin" data-email="${escapeHtml(u.email)}" onclick="adminPromote(this.dataset.email)">👑</button>` : ''}
+              ${!u.isAdmin ? `<button class="${u.isMod ? 'unban' : 'promote'}" title="${u.isMod ? 'Remover moderador' : 'Tornar moderador'}" data-email="${escapeHtml(u.email)}" onclick="adminSetMod(this.dataset.email, ${!u.isMod})">🔧</button>` : ''}
               <button class="kick" title="Expulsar da sala atual" data-email="${escapeHtml(u.email)}" onclick="adminKickUser(this.dataset.email)">👢</button>
               ${u.banned ? `<button class="unban" title="Desbanir" data-email="${escapeHtml(u.email)}" onclick="adminUnban(this.dataset.email)">♻️</button>` : `<button class="ban" title="Banir" data-email="${escapeHtml(u.email)}" onclick="adminBanUser(this.dataset.email)">⛔</button>`}
               <button class="delete" title="Excluir conta" data-email="${escapeHtml(u.email)}" onclick="adminDeleteUser(this.dataset.email)">🗑️</button>
@@ -2564,7 +2542,7 @@
         const likeData = messageLikesSync[msgId] || { likes: 0, users: [] };
         const liked = likeData.users.includes(myName);
         const count = likeData.likes || 0;
-        div.innerHTML = `<div style="display:flex;align-items:flex-start;gap:6px;width:100%;"><div class="msg-avatar" style="background:${color}22;color:${color};border-color:${color}40;">${avatar}</div><div class="msg-content"><div class="msg-header"><span class="msg-user" style="color:${color};">${escapeHtml(msg.user)}${msg.isAdmin ? ' 👑' : ''}</span><span class="msg-time">${formatTime(msg.createdAt)}</span></div><span class="msg-text">${text}</span><div class="msg-actions"><button class="msg-like-btn ${liked ? 'liked' : ''}" onclick="likeMessage('${msgId}', this)">${liked ? '❤️' : '🤍'} <span class="msg-like-count">${count}</span></button></div></div></div>`;
+        div.innerHTML = `<div style="display:flex;align-items:flex-start;gap:6px;width:100%;"><div class="msg-avatar" style="background:${color}22;color:${color};border-color:${color}40;">${avatar}</div><div class="msg-content"><div class="msg-header"><span class="msg-user" style="color:${color};">${escapeHtml(msg.user)}${({ admin: ' 🛡️', owner: ' 👑', mod: ' 🔧' })[msg.role] || (msg.isAdmin ? ' 👑' : '')}</span><span class="msg-time">${formatTime(msg.createdAt)}</span></div><span class="msg-text">${text}</span><div class="msg-actions"><button class="msg-like-btn ${liked ? 'liked' : ''}" onclick="likeMessage('${msgId}', this)">${liked ? '❤️' : '🤍'} <span class="msg-like-count">${count}</span></button></div></div></div>`;
       }
       container.appendChild(div);
       limitChatMessages(container);
@@ -2640,7 +2618,30 @@
       renderQueue([], 0);
       toast('Fila encerrada! Adicione músicas.', 'success');
     });
-    socket.on('users', (users) => { $('userCount').textContent = users.length; });
+    // ----- quem está na sala + moderação (dono, admin e moderadores) -----
+    let roomUsers = [], amIMod = false;
+    socket.on('isMod', v => { amIMod = !!v; });
+    socket.on('users', (users) => { roomUsers = users; $('userCount').textContent = users.length; if ($('usersPop').classList.contains('show')) renderUsersPop(); });
+    const ROLE_RANK = { admin: 3, owner: 2, mod: 1 }, ROLE_ICON = { admin: '🛡️', owner: '👑', mod: '🔧' };
+    function renderUsersPop() {
+      const me = roomUsers.find(u => u.name === myName), mine = me ? (ROLE_RANK[me.role] || 0) : (amIAdmin ? 2 : amIMod ? 1 : 0);
+      $('usersPop').innerHTML = `<div class="cfg-lbl" style="margin-top:0">👥 ${roomUsers.length} na sala</div>` + roomUsers.map(u => {
+        const can = mine >= 1 && u.name !== myName && (ROLE_RANK[u.role] || 0) < mine;
+        const b = (a, m, t, l) => `<button type="button" data-name="${escapeHtml(u.name)}" title="${t}" onclick="modAct(this.dataset.name,'${a}',${m})">${l}</button>`;
+        return `<div class="up-row"><span>${escapeHtml(u.avatar || '👤')} ${escapeHtml(u.name)} ${ROLE_ICON[u.role] || ''}${u.muted ? ' 🔇' : ''}</span>${can ? `<span class="up-act">${u.muted ? b('unmute', 0, 'Liberar o chat', '🔊') : b('mute', 10, 'Silenciar 10 min', '🔇10m') + b('mute', 60, 'Silenciar 1 h', '🔇1h')}${b('ban', 60, 'Banir da sala por 1 h', '⛔1h')}${b('kick', 0, 'Expulsar agora', '👢')}</span>` : ''}</div>`;
+      }).join('') + (mine >= 2 ? `<div style="margin-top:8px;"><button type="button" class="btn-secondary" onclick="socket.emit('getSanctions')">📋 Sanções ativas</button><div id="sanBox" style="font-size:12px;margin-top:6px;"></div></div>` : '');
+    }
+    function toggleUsersPop(ev) { if (ev) ev.stopPropagation(); const p = $('usersPop'); p.classList.toggle('show'); if (p.classList.contains('show')) renderUsersPop(); }
+    document.addEventListener('click', (e) => { const p = $('usersPop'); if (p && p.classList.contains('show') && !p.contains(e.target)) p.classList.remove('show'); });
+    function modAct(name, action, minutes) {
+      let reason = '';
+      if (action === 'ban' || action === 'mute') { const r = prompt('Motivo (opcional):'); if (r === null) return; reason = r; }
+      socket.emit('modAction', { name, action, minutes, reason });
+    }
+    socket.on('sanctions', list => {
+      const b = $('sanBox'); if (!b) return;
+      b.innerHTML = list.map(s => `<div class="up-row"><span>${s.type === 'mute' ? '🔇' : '⛔'} ${escapeHtml(s.name)} · ${s.until ? Math.max(1, Math.ceil((s.until - Date.now()) / 60000)) + ' min' : 'até remover'}${s.reason ? ' · ' + escapeHtml(s.reason) : ''}</span><button type="button" data-id="${escapeHtml(s.id)}" onclick="socket.emit('modLift',{id:this.dataset.id});setTimeout(()=>socket.emit('getSanctions'),300)">✕</button></div>`).join('') || 'Nenhuma sanção ativa.';
+    });
     socket.on('chat', renderMessage);
     socket.on('chatHistory', (messages) => { const container = document.getElementById('chatMessagesInner'); if (!container) return; container.innerHTML = ''; const start = Math.max(0, messages.length - MAX_CHAT_MESSAGES); messages.slice(start).forEach(m => renderMessage(m)); scrollChatToBottom(); });
     socket.on('likeUpdate', (data) => { const { messageId, likes, users } = data; messageLikesSync[messageId] = { likes, users }; updateLikeDisplay(messageId); });
@@ -2880,6 +2881,7 @@
       p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="/legal.html" target="_blank" rel="noopener">Termos e Privacidade</a>';
       l.appendChild(p);
     })();
+
 
     // ===== INIT =====
     function init() {
