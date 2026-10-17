@@ -33,21 +33,12 @@ try {
 const db = getFirestore();
 
 const app = express();
-// Atrás do proxy do Render, req.ip seria sempre o IP interno do proxy. TRUST_PROXY_HOPS = quantos proxies confiar (confira em /api/admin/ip-debug).
-app.set('trust proxy', Number(process.env.TRUST_PROXY_HOPS) || 1);
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: process.env.CORS_ORIGIN || false, credentials: true } });
 
 app.use(compression());
 app.use((req, res, next) => {
-  const prod = process.env.NODE_ENV === 'production';
-  if (prod && req.headers['x-forwarded-proto'] === 'http') return res.redirect(301, 'https://' + req.get('host') + req.originalUrl);   // sempre HTTPS
-  res.set({
-    'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
-    'Content-Security-Policy': "upgrade-insecure-requests; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
-  });
-  if (prod && req.secure) res.set('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+  res.set({ 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'strict-origin-when-cross-origin' });
   next();
 });
 app.use(express.static(path.join(__dirname, 'public')));
@@ -58,7 +49,7 @@ app.use(cookieParser());
 const hits = new Map();
 function rateLimit(max, ms) {
   return (req, res, next) => {
-    const k = (sessionEmail(req) || req.ip) + req.path, n = Date.now();   // logado: limite por conta; anônimo: por IP
+    const k = req.ip + req.path, n = Date.now();
     const a = (hits.get(k) || []).filter(t => n - t < ms); a.push(n); hits.set(k, a);
     if (a.length > max) return res.status(429).json({ error: 'Muitas tentativas. Aguarde um instante.' });
     next();
@@ -415,7 +406,7 @@ async function sendDiscordWebhook(webhookUrl, message) {
 }
 
 // ========== ROTAS ==========
-app.post('/api/signup', rateLimit(15, 60000), async (req, res) => {
+app.post('/api/signup', rateLimit(5, 60000), async (req, res) => {
   const { nome, estilos, idToken } = req.body;
   let email;
   try { email = (await getAuth().verifyIdToken(idToken)).email; } catch (e) { return res.status(401).json({ error: 'Sessão Firebase inválida' }); }
@@ -471,7 +462,7 @@ app.get('/api/socket-token', rateLimit(30, 60000), (req, res) => {
 
 app.get('/healthz', (req, res) => res.json({ ok: true, uptime: Math.round(process.uptime()), rooms: rooms.size }));
 
-app.post('/api/login', rateLimit(40, 60000), async (req, res) => {
+app.post('/api/login', rateLimit(10, 60000), async (req, res) => {
   let email, decoded;
   try { decoded = await getAuth().verifyIdToken(req.body.idToken); email = decoded.email; } catch (e) { return res.status(401).json({ error: 'Credenciais inválidas' }); }
   if (!email) return res.status(401).json({ error: 'Credenciais inválidas' });
@@ -781,7 +772,6 @@ app.post('/api/admin/room-action', (req, res) => {
 });
 app.get('/api/admin/log', (req, res) => res.json(adminLog.slice(0, 100)));
 
-app.get('/api/admin/ip-debug', (req, res) => res.json({ ip: req.ip, ips: req.ips, xForwardedFor: req.headers['x-forwarded-for'] || null, trustProxyHops: app.get('trust proxy') }));
 app.post('/api/admin/set-mod', async (req, res) => {
   const { email, mod } = req.body;
   if (!email) return res.status(400).json({ error: 'Email necessário' });
@@ -844,7 +834,7 @@ app.post('/api/admin/clear-all-rooms', (req, res) => {
 app.get('/api/admin/export-data', (req, res) => {
   const data = {
     users: Array.from(users.values()),
-    rooms: Array.from(rooms.values()).map(r => ({ ...r, lastAddTime: undefined, skipVotes: undefined, passHash: undefined, passSalt: undefined, invite: undefined, allowed: undefined, pwTries: undefined })),
+    rooms: Array.from(rooms.values()).map(r => ({ ...r, lastAddTime: undefined, skipVotes: undefined, passHash: undefined, passSalt: undefined, invite: undefined, allowed: undefined })),
     favorites: Array.from(userFavorites.entries()),
     points: Array.from(userPoints.entries()),
     settings,
@@ -930,10 +920,9 @@ io.on('connection', (socket) => {
           const okInv = !!invite && !!room.invite && safeEq(invite, room.invite);
           let okPw = false;
           if (!okInv && password && room.passHash) {
-            const pk = ge || socket.id; room.pwTries = room.pwTries || new Map();      // por conta: reconectar não zera as tentativas
-            const tries = (room.pwTries.get(pk) || []).filter(t => Date.now() - t < 60000);
-            if (tries.length >= 6) { socket.emit('error', 'Muitas tentativas de senha. Aguarde 1 minuto.'); return; }
-            tries.push(Date.now()); room.pwTries.set(pk, tries);
+            socket._pw = (socket._pw || []).filter(t => Date.now() - t < 60000);
+            if (socket._pw.length >= 6) { socket.emit('error', 'Muitas tentativas de senha. Aguarde 1 minuto.'); return; }
+            socket._pw.push(Date.now());
             okPw = safeEq(hashPw(password, room.passSalt), room.passHash);
           }
           if (!okInv && !okPw) { socket.emit('joinDenied', { slug, needPassword: !!room.passHash, wrong: !!password }); return; }
