@@ -935,10 +935,17 @@ io.on('connection', (socket) => {
         socket.emit('waitingRoom', { position: waitingRooms.get(slug).length, maxListeners: settings.maxListeners });
         return;
       }
+      // ✅ FIX: ao trocar de sala direto, propaga a saída da sala antiga
       if (currentRoom) {
-        socket.leave(currentRoom);
-        const old = rooms.get(currentRoom);
-        if (old) old.listenerCount = Math.max(0, old.listenerCount - 1);
+        const oldSlug = currentRoom;
+        socket.leave(oldSlug);
+        const old = rooms.get(oldSlug);
+        if (old) {
+          old.listenerCount = Math.max(0, old.listenerCount - 1);
+          broadcastState(oldSlug);
+          broadcastUsers(oldSlug);
+          notifyNextWaiting(oldSlug);
+        }
       }
       currentRoom = slug;
       socket.join(slug);
@@ -1297,6 +1304,61 @@ io.on('connection', (socket) => {
       }
       io.to(room).emit('voteUpdate', { id, up: data.up, down: data.down });
     } catch (e) { console.error('Erro no voteSong:', e.message); }
+  });
+
+  // ===== TYPING INDICATOR =====
+  // Cliente emite { room: <slug> } mas o servidor IGNORA por segurança
+  // e usa o currentRoom do socket (evita spoofing de sala).
+  socket.on('typing', () => {
+    try {
+      if (!currentRoom) return;
+      // Não mostra "digitando" se o usuário está silenciado (evita ruído).
+      const mu = sanActive(socket.userEmail, 'mute', currentRoom);
+      if (mu) return;
+      socket.to(currentRoom).emit('typing', { name: socket.userName });
+    } catch (e) {}
+  });
+
+  socket.on('typingStop', () => {
+    try {
+      if (!currentRoom) return;
+      socket.to(currentRoom).emit('typingStop', { name: socket.userName });
+    } catch (e) {}
+  });
+
+  // ===== LEAVE ROOM (bug fix) =====
+  // O cliente chama socket.emit('leaveRoom') ao clicar "Voltar" — mas o
+  // servidor nunca escutava isso. Resultado: o listenerCount subia ao entrar
+  // e NUNCA descia ao sair, só no disconnect (fechar aba). Isso quebrava:
+  //   1. contagem de "ouvintes" no card da sala
+  //   2. limite de maxListeners (usuários ficavam "presos" na contagem)
+  //   3. notifyNextWaiting (fila de espera não era liberada)
+  // Este handler corrige os três.
+  socket.on('leaveRoom', () => {
+    try {
+      if (!currentRoom) return;
+      const room = rooms.get(currentRoom);
+      const oldSlug = currentRoom;
+
+      // 1) Sai do "canal" do Socket.IO
+      socket.leave(oldSlug);
+
+      // 2) Decrementa e propaga
+      if (room) {
+        room.listenerCount = Math.max(0, room.listenerCount - 1);
+        broadcastState(oldSlug);
+        broadcastUsers(oldSlug);
+        notifyNextWaiting(oldSlug);
+      }
+
+      // 3) Limpa estado do socket (mantém socket.userEmail para o admin seguir logado)
+      currentRoom = null;
+      socket.userName = null;
+      socket.isAdmin = false;
+      socket.isMod = false;
+    } catch (e) {
+      console.error('Erro no leaveRoom:', e.message);
+    }
   });
 
   socket.on('disconnect', () => {
