@@ -368,10 +368,7 @@
       border-radius: 3px;
       animation: npProgress 15s linear infinite;
     }
-    @keyframes npProgress {
-      from { width: 0%; }
-      to { width: 100%; }
-    }
+    @keyframes npProgress { from { width: 0%; } to { width: 100%; } }
     .np-controls {
       display: flex; align-items: center; justify-content: center; gap: 16px;
       color: var(--text-secondary); font-size: 14px;
@@ -518,6 +515,54 @@
     .feature-card h3 { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .feature-card p { color: var(--text-secondary); font-size: 13.5px; line-height: 1.6; }
 
+    /* ===== TESTIMONIALS CAROUSEL ===== */
+    .testimonials-section { position: relative; }
+    .testimonials-carousel {
+      position: relative;
+      overflow: hidden;
+      padding: 10px 0;
+      mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+    }
+    .testimonials-track {
+      display: flex;
+      gap: 20px;
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: transform;
+    }
+    .testimonial-card {
+      flex: 0 0 calc(33.333% - 13.33px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+    .testimonial-card:hover {
+      border-color: var(--accent2);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(124,58,237,0.15);
+    }
+    .testimonial-stars { color: var(--warning); font-size: 18px; letter-spacing: 3px; }
+    .testimonial-text { color: var(--text-secondary); font-size: 14px; line-height: 1.65; flex: 1; font-style: italic; }
+    .testimonial-author {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: auto; border-top: 1px solid var(--border); padding-top: 16px;
+    }
+    .testimonial-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .testimonial-name { font-weight: 700; font-size: 14px; color: var(--text); }
+    .testimonial-role { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    @media (max-width: 900px) { .testimonial-card { flex: 0 0 calc(50% - 10px); } }
+    @media (max-width: 600px) { .testimonial-card { flex: 0 0 100%; padding: 24px 20px; } .testimonial-stars { font-size: 16px; } }
+
     /* Final CTA */
     .final-cta {
       position: relative;
@@ -553,10 +598,7 @@
     .final-cta-note { font-size: 12px; color: var(--text-muted); margin-top: 18px !important; }
 
     /* Landing footer */
-    .landing-footer {
-      text-align: center; padding: 20px 24px 40px;
-      color: var(--text-muted); font-size: 12px;
-    }
+    .landing-footer { text-align: center; padding: 20px 24px 40px; color: var(--text-muted); font-size: 12px; }
     .landing-footer a { color: var(--accent); text-decoration: none; }
     .landing-footer a:hover { text-decoration: underline; }
 
@@ -591,7 +633,7 @@
     }
 
     /* ============================================================
-       LOGIN / MODAIS / ADMIN (mantidos)
+       LOGIN / MODAIS / ADMIN
        ============================================================ */
     .login-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(8px); }
     .login-screen.active { display: flex; animation: screenIn .35s cubic-bezier(.22,1,.36,1); }
@@ -715,7 +757,7 @@
     .room-card-body .meta .listeners .count { font-weight: 700; color: #fff; }
     .room-card .np { font-size: 12px; color: rgba(255,255,255,.7); margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Toast (com fila) */
+    /* Toast */
     .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(120px); background: var(--bg-card); border: 1px solid var(--border); color: var(--text); padding: 14px 28px; border-radius: var(--r-sm); font-size: 14px; z-index: 300; opacity: 0; transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; font-weight: 500; box-shadow: 0 10px 40px rgba(0,0,0,0.4); max-width: 90%; }
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     .toast.error { border-color: var(--danger); color: #fca5a5; }
@@ -1182,6 +1224,90 @@
         </div>
       </section>
 
+      <!-- NOVA SEÇÃO DE DEPOIMENTOS -->
+      <section class="landing-section testimonials-section">
+        <div class="section-head">
+          <h2 data-i18n="testimonials.title">O que a galera diz</h2>
+          <p data-i18n="testimonials.sub">Histórias de quem já entrou na vibe</p>
+        </div>
+        <div class="testimonials-carousel">
+          <div class="testimonials-track" id="testimonialsTrack">
+            <!-- 1 -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-text" data-i18n="testimonial.1.text">"Conheci gente incrível que tem o mesmo gosto musical que eu. A vibe da sala é surreal!"</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#ff6b35,#7c3aed)">👩</div>
+                <div><div class="testimonial-name" data-i18n="testimonial.1.name">Mariana S.</div><div class="testimonial-role" data-i18n="testimonial.1.role">Fã de Pop</div></div>
+              </div>
+            </div>
+            <!-- 2 -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-text" data-i18n="testimonial.2.text">"É a melhor forma de descobrir músicas novas enquanto converso com os amigos. Não saio mais do SonoraFan."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#22d3ee,#0ea5e9)">👨</div>
+                <div><div class="testimonial-name" data-i18n="testimonial.2.name">Lucas P.</div><div class="testimonial-role" data-i18n="testimonial.2.role">Apaixonado por Indie</div></div>
+              </div>
+            </div>
+            <!-- 3 -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-text" data-i18n="testimonial.3.text">"Adoro poder votar nas músicas e pular as que não curto. A galera se ajuda demais!"</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#ec4899,#f43f5e)">👩</div>
+                <div><div class="testimonial-name" data-i18n="testimonial.3.name">Fernanda L.</div><div class="testimonial-role" data-i18n="testimonial.3.role">Fã de Rock</div></div>
+              </div>
+            </div>
+            <!-- 4 -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-text" data-i18n="testimonial.4.text">"As salas privadas são perfeitas para festas virtuais. Todo mundo adiciona música e a vibe fica demais."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#f59e0b,#f97316)">🧑‍🎤</div>
+                <div><div class="testimonial-name" data-i18n="testimonial.4.name">Rafael M.</div><div class="testimonial-role" data-i18n="testimonial.4.role">DJ nas horas vagas</div></div>
+              </div>
+            </div>
+            <!-- 5 -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-text" data-i18n="testimonial.5.text">"Finalmente um app onde posso ouvir minha playlist favorita e conversar ao mesmo tempo. Sincronia perfeita!"</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">👩</div>
+                <div><div class="testimonial-name" data-i18n="testimonial.5.name">Camila R.</div><div class="testimonial-role" data-i18n="testimonial.5.role">Amante de MPB</div></div>
+              </div>
+            </div>
+            <!-- 6 -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-text" data-i18n="testimonial.6.text">"Fiz amizades que levo pra vida toda! É muito bom encontrar gente que curte o mesmo estilo."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">👨</div>
+                <div><div class="testimonial-name" data-i18n="testimonial.6.name">Bruno T.</div><div class="testimonial-role" data-i18n="testimonial.6.role">Fã de Hip Hop</div></div>
+              </div>
+            </div>
+            <!-- 7 -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-text" data-i18n="testimonial.7.text">"O chat é super dinâmico e as pessoas são muito receptivas. Já virei fã do projeto!"</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#ef4444,#dc2626)">👩</div>
+                <div><div class="testimonial-name" data-i18n="testimonial.7.name">Aline C.</div><div class="testimonial-role" data-i18n="testimonial.7.role">Exploradora Musical</div></div>
+              </div>
+            </div>
+            <!-- 8 -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-text" data-i18n="testimonial.8.text">"Entrei por curiosidade e agora passo horas explorando as salas. A energia é contagiante."</p>
+              <div class="testimonial-author">
+                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">👨</div>
+                <div><div class="testimonial-name" data-i18n="testimonial.8.name">Diego F.</div><div class="testimonial-role" data-i18n="testimonial.8.role">Fã de Eletrônica</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="final-cta">
         <h2 data-i18n="final.title">Pronto pra sentir a vibe?</h2>
         <p data-i18n="final.sub">Crie sua conta grátis em 30 segundos e entre numa sala agora.</p>
@@ -1557,12 +1683,39 @@
     </div>
   </div>
 
+  <!-- TERMOS E PRIVACIDADE (TEXTO COMPLETO RESTAURADO) -->
   <div class="modal-overlay" id="legalModal" onclick="if(event.target===this)closeLegal()">
     <div class="modal legal-modal">
       <h3>📜 Termos e Privacidade</h3>
       <div class="legal-tabs"><button type="button" id="ltTerms" class="on" onclick="openLegal('terms')">Termos de Uso</button><button type="button" id="ltPriv" onclick="openLegal('priv')">Privacidade</button></div>
-      <div class="legal-body" id="legalTerms"><h4>1. O serviço</h4><p>O SonoraFan é uma plataforma de salas colaborativas de música com chat ao vivo. As músicas tocam pelo player oficial do YouTube; não hospedamos nem armazenamos áudio ou vídeo.</p><h4>2. Sua conta</h4><p>Para entrar nas salas é preciso criar uma conta com e-mail e senha. Você é responsável pela segurança da senha.</p><h4>3. Regras de convivência</h4><p>Não é permitido: assédio, discurso de ódio, ameaças, spam, divulgação de dados de terceiros ou uso para fins ilegais.</p><h4>4. Disponibilidade</h4><p>O serviço é oferecido "como está", sem garantia de funcionamento ininterrupto.</p><h4>5. Encerramento</h4><p>Você pode excluir sua conta a qualquer momento pelo link "Excluir minha conta", na tela de salas.</p><p class="legal-note">Modelo informativo. Última atualização: 16/10/2026.</p></div>
-      <div class="legal-body" id="legalPriv" style="display:none"><h4>1. Que dados coletamos</h4><p>Nome, e-mail, avatar, estilos musicais, favoritos, pontos, salas criadas e mensagens de chat.</p><h4>2. Senhas</h4><p>Tratadas pelo Firebase Authentication e não chegam ao nosso servidor.</p><h4>3. Para que usamos</h4><p>Autenticar você, operar salas e chat, mostrar ranking e moderar abusos. Não vendemos seus dados.</p><h4>4. Com quem compartilhamos</h4><p>Google (Firebase Auth, Firestore) e YouTube (player e busca).</p><h4>5. Seus direitos (LGPD)</h4><p>Exclusão imediata pelo link "Excluir minha conta".</p><p class="legal-note">Modelo informativo. Última atualização: 16/10/2026.</p></div>
+      
+      <div class="legal-body" id="legalTerms">
+        <h4>1. O serviço</h4><p>O SonoraFan é uma plataforma de salas colaborativas de música com chat ao vivo. As músicas tocam pelo player oficial do YouTube; não hospedamos nem armazenamos áudio ou vídeo.</p>
+        <h4>2. Sua conta</h4><p>Para entrar nas salas é preciso criar uma conta com e-mail e senha. Você é responsável pela segurança da senha e pelo que acontece na sua conta. O nome de exibição deve ser único e não pode imitar outra pessoa, administradores ou moderadores.</p>
+        <h4>3. Regras de convivência</h4><p>Não é permitido: assédio, discurso de ódio, ameaças, conteúdo sexual explícito, spam ou flood, divulgar dados pessoais de terceiros, burlar votações e limites, tentar invadir ou sobrecarregar o serviço, ou usá-lo para fins ilegais.</p>
+        <h4>4. Músicas e conteúdo</h4><p>Você é responsável pelas músicas que adiciona e pelas mensagens que envia, e não deve adicionar conteúdo que viole direitos de terceiros. Os vídeos seguem os Termos de Serviço do YouTube.</p>
+        <h4>5. Salas</h4><p>Qualquer usuário logado pode criar salas públicas ou privadas (com senha e/ou link de convite). O dono personaliza a sala, escolhe quem adiciona músicas, ativa o modo lento e pode silenciar, banir e expulsar participantes dela.</p>
+        <h4>6. Moderação</h4><p>Administradores e moderadores podem silenciar, expulsar, banir (por tempo ou definitivamente), travar chats e excluir salas ou contas que violem estas regras. As ações de administração ficam registradas.</p>
+        <h4>7. Disponibilidade</h4><p>O serviço é oferecido "como está", sem garantia de funcionamento ininterrupto. Funcionalidades podem ser alteradas, suspensas ou encerradas.</p>
+        <h4>8. Encerramento</h4><p>Você pode excluir sua conta a qualquer momento pelo link "Excluir minha conta", na tela de salas. Contas que violem estes termos podem ser suspensas ou removidas.</p>
+        <h4>9. Alterações</h4><p>Estes termos podem mudar. O uso continuado depois da mudança indica que você concorda com a nova versão.</p>
+        <p class="legal-note">Modelo informativo: peça a revisão de um profissional jurídico antes de depender dele. Última atualização: 16/10/2026.</p>
+      </div>
+
+      <div class="legal-body" id="legalPriv" style="display:none">
+        <h4>1. Que dados coletamos</h4><p>Da conta: nome de exibição, e-mail, avatar, estilos musicais, tema e idioma. Do uso: favoritos, pontos e medalhas, salas que você cria e suas configurações, músicas adicionadas, votos, mensagens enviadas no chat e sanções de moderação. Técnicos: um cookie de sessão (essencial para manter você logado) e dados de conexão necessários ao funcionamento e à segurança, como o endereço IP, usado para limitar abusos.</p>
+        <h4>2. Senhas</h4><p>Sua senha é tratada pelo Firebase Authentication (Google) e não chega ao nosso servidor. Senhas de salas privadas são guardadas apenas como hash.</p>
+        <h4>3. Para que usamos</h4><p>Para autenticar você, operar salas e chat, mostrar ranking e preferências, moderar e proteger o serviço contra abuso e cumprir obrigações legais. Não vendemos seus dados nem os usamos para publicidade de terceiros.</p>
+        <h4>4. Com quem compartilhamos</h4><p>Apenas com serviços necessários para operar: Google (Firebase Authentication e banco de dados Firestore), YouTube (player e busca; veja a Política de Privacidade do Google) e a empresa de hospedagem (Render). Podemos divulgar dados quando a lei exigir.</p>
+        <h4>5. O que outros usuários veem</h4><p>Seu nome, avatar, mensagens e músicas adicionadas aparecem para quem está na sala. Seu e-mail é visível apenas para administradores.</p>
+        <h4>6. Por quanto tempo guardamos</h4><p>Os dados da conta ficam enquanto ela existir. As mensagens recentes do chat ficam guardadas na sala enquanto ela existir. Registros de moderação e auditoria são mantidos pelo tempo necessário à segurança.</p>
+        <h4>7. Seus direitos (LGPD)</h4><p>Você pode confirmar se tratamos seus dados, acessá-los, corrigí-los, pedir portabilidade ou eliminação e revogar consentimentos. A exclusão da conta é imediata pelo link "Excluir minha conta". Para os demais pedidos, fale com o contato abaixo.</p>
+        <h4>8. Menores de idade</h4><p>O serviço é voltado a maiores de 18 anos. Menores devem usá-lo com acompanhamento e autorização dos responsáveis.</p>
+        <h4>9. Segurança</h4><p>Usamos conexão segura (HTTPS), senhas gerenciadas pelo Google, acesso restrito ao banco de dados e limites contra abuso. Nenhum sistema é totalmente imune a falhas.</p>
+        <h4>10. Contato</h4><p>Dúvidas ou pedidos sobre seus dados: <span id="legalContact"></span>.</p>
+        <p class="legal-note">Modelo informativo: peça a revisão de um profissional jurídico antes de depender dele. Última atualização: 16/10/2026.</p>
+      </div>
+      
       <div class="modal-actions"><button class="btn-primary" onclick="closeLegal()">Entendi</button></div>
     </div>
   </div>
@@ -1615,7 +1768,7 @@
 
   <script>
     // ============================================================
-    // JAVASCRIPT — SONORAFAN
+    // JAVASCRIPT
     // ============================================================
     const MAX_CHAT_MESSAGES = 40;
     const MAX_SONG_DURATION = 600, DISLIKE_THRESHOLD = 10, COOLDOWN = 30000, MAX_SONGS_PER_USER = 3;
@@ -1652,6 +1805,24 @@
         'feat4.title': 'Salas personalizadas', 'feat4.desc': 'Escolha cor, ícone e regras. Sua sala, seu estilo.',
         'feat5.title': 'Sincronização perfeita', 'feat5.desc': 'Todos ouvem a mesma música no mesmo segundo. Sem delay.',
         'feat6.title': '100% grátis', 'feat6.desc': 'Sem cartão, sem pegadinha. Crie quantas salas quiser.',
+        'testimonials.title': 'O que a galera diz',
+        'testimonials.sub': 'Histórias de quem já entrou na vibe',
+        'testimonial.1.text': '"Conheci gente incrível que tem o mesmo gosto musical que eu. A vibe da sala é surreal!"',
+        'testimonial.1.name': 'Mariana S.', 'testimonial.1.role': 'Fã de Pop',
+        'testimonial.2.text': '"É a melhor forma de descobrir músicas novas enquanto converso com os amigos. Não saio mais do SonoraFan."',
+        'testimonial.2.name': 'Lucas P.', 'testimonial.2.role': 'Apaixonado por Indie',
+        'testimonial.3.text': '"Adoro poder votar nas músicas e pular as que não curto. A galera se ajuda demais!"',
+        'testimonial.3.name': 'Fernanda L.', 'testimonial.3.role': 'Fã de Rock',
+        'testimonial.4.text': '"As salas privadas são perfeitas para festas virtuais. Todo mundo adiciona música e a vibe fica demais."',
+        'testimonial.4.name': 'Rafael M.', 'testimonial.4.role': 'DJ nas horas vagas',
+        'testimonial.5.text': '"Finalmente um app onde posso ouvir minha playlist favorita e conversar ao mesmo tempo. Sincronia perfeita!"',
+        'testimonial.5.name': 'Camila R.', 'testimonial.5.role': 'Amante de MPB',
+        'testimonial.6.text': '"Fiz amizades que levo pra vida toda! É muito bom encontrar gente que curte o mesmo estilo."',
+        'testimonial.6.name': 'Bruno T.', 'testimonial.6.role': 'Fã de Hip Hop',
+        'testimonial.7.text': '"O chat é super dinâmico e as pessoas são muito receptivas. Já virei fã do projeto!"',
+        'testimonial.7.name': 'Aline C.', 'testimonial.7.role': 'Exploradora Musical',
+        'testimonial.8.text': '"Entrei por curiosidade e agora passo horas explorando as salas. A energia é contagiante."',
+        'testimonial.8.name': 'Diego F.', 'testimonial.8.role': 'Fã de Eletrônica',
         'final.title': 'Pronto pra sentir a vibe?', 'final.sub': 'Crie sua conta grátis em 30 segundos e entre numa sala agora.',
         'final.cta': 'Criar minha conta grátis 🎵', 'final.note': '✨ Sem cartão. Sem pegadinha. Só música.',
         'login.sub': 'Entre com sua conta para acessar as salas.', 'login.error': 'Credenciais inválidas.',
@@ -1696,6 +1867,24 @@
         'feat4.title': 'Custom rooms', 'feat4.desc': 'Pick color, icon and rules. Your room, your style.',
         'feat5.title': 'Perfect sync', 'feat5.desc': 'Everyone hears the same song at the same second. No delay.',
         'feat6.title': '100% free', 'feat6.desc': 'No card, no catch. Create as many rooms as you want.',
+        'testimonials.title': 'What people are saying',
+        'testimonials.sub': 'Stories from those who joined the vibe',
+        'testimonial.1.text': '"I met amazing people who have the same musical taste as me. The room vibe is surreal!"',
+        'testimonial.1.name': 'Mariana S.', 'testimonial.1.role': 'Pop Fan',
+        'testimonial.2.text': '"It\'s the best way to discover new songs while chatting with friends. I never leave SonoraFan now."',
+        'testimonial.2.name': 'Lucas P.', 'testimonial.2.role': 'Indie Lover',
+        'testimonial.3.text': '"I love being able to vote on songs and skip the ones I don\'t like. Everyone helps each other out!"',
+        'testimonial.3.name': 'Fernanda L.', 'testimonial.3.role': 'Rock Fan',
+        'testimonial.4.text': '"Private rooms are perfect for virtual parties. Everyone adds music and the vibe is amazing."',
+        'testimonial.4.name': 'Rafael M.', 'testimonial.4.role': 'Bedroom DJ',
+        'testimonial.5.text': '"Finally an app where I can listen to my favorite playlist and chat at the same time. Perfect sync!"',
+        'testimonial.5.name': 'Camila R.', 'testimonial.5.role': 'MPB Lover',
+        'testimonial.6.text': '"I made lifelong friends! It\'s so good to find people who share the same style."',
+        'testimonial.6.name': 'Bruno T.', 'testimonial.6.role': 'Hip Hop Fan',
+        'testimonial.7.text': '"The chat is super dynamic and people are very welcoming. I became a fan of the project!"',
+        'testimonial.7.name': 'Aline C.', 'testimonial.7.role': 'Music Explorer',
+        'testimonial.8.text': '"I joined out of curiosity and now I spend hours exploring the rooms. The energy is contagious."',
+        'testimonial.8.name': 'Diego F.', 'testimonial.8.role': 'Electronic Fan',
         'final.title': 'Ready to feel the vibe?', 'final.sub': 'Create your free account in 30 seconds and join a room now.',
         'final.cta': 'Create my free account 🎵', 'final.note': '✨ No card. No catch. Just music.',
         'login.sub': 'Log in to access the rooms.', 'login.error': 'Invalid credentials.',
@@ -1740,6 +1929,24 @@
         'feat4.title': 'Salas personalizadas', 'feat4.desc': 'Elige color, icono y reglas. Tu sala, tu estilo.',
         'feat5.title': 'Sincronización perfecta', 'feat5.desc': 'Todos escuchan la misma canción en el mismo segundo. Sin delay.',
         'feat6.title': '100% gratis', 'feat6.desc': 'Sin tarjeta, sin trampa. Crea todas las salas que quieras.',
+        'testimonials.title': 'Lo que dice la gente',
+        'testimonials.sub': 'Historias de quienes ya entraron en la vibra',
+        'testimonial.1.text': '"Conocí a gente increíble que tiene el mismo gusto musical que yo. ¡La vibra de la sala es surrealista!"',
+        'testimonial.1.name': 'Mariana S.', 'testimonial.1.role': 'Fan de Pop',
+        'testimonial.2.text': '"Es la mejor forma de descubrir canciones nuevas mientras charlo con amigos. ¡Ya no salgo de SonoraFan!"',
+        'testimonial.2.name': 'Lucas P.', 'testimonial.2.role': 'Amante del Indie',
+        'testimonial.3.text': '"Me encanta poder votar por las canciones y saltarme las que no me gustan. ¡La gente se ayuda mucho!"',
+        'testimonial.3.name': 'Fernanda L.', 'testimonial.3.role': 'Fan de Rock',
+        'testimonial.4.text': '"Las salas privadas son perfectas para fiestas virtuales. Todos añaden música y la vibra es increíble."',
+        'testimonial.4.name': 'Rafael M.', 'testimonial.4.role': 'DJ aficionado',
+        'testimonial.5.text': '"Por fin una app donde puedo escuchar mi lista de favoritos y chatear al mismo tiempo. ¡Sincronía perfecta!"',
+        'testimonial.5.name': 'Camila R.', 'testimonial.5.role': 'Amante de MPB',
+        'testimonial.6.text': '"¡Hice amigos para toda la vida! Es muy bueno encontrar gente que comparte el mismo estilo."',
+        'testimonial.6.name': 'Bruno T.', 'testimonial.6.role': 'Fan de Hip Hop',
+        'testimonial.7.text': '"El chat es súper dinámico y la gente es muy receptiva. ¡Ya soy fan del proyecto!"',
+        'testimonial.7.name': 'Aline C.', 'testimonial.7.role': 'Exploradora Musical',
+        'testimonial.8.text': '"Entré por curiosidad y ahora paso horas explorando las salas. La energía es contagiosa."',
+        'testimonial.8.name': 'Diego F.', 'testimonial.8.role': 'Fan de Electrónica',
         'final.title': '¿Listo para sentir la vibra?', 'final.sub': 'Crea tu cuenta gratis en 30 segundos y entra a una sala ahora.',
         'final.cta': 'Crear mi cuenta gratis 🎵', 'final.note': '✨ Sin tarjeta. Sin trampa. Solo música.',
         'login.sub': 'Inicia sesión para acceder a las salas.', 'login.error': 'Credenciales inválidas.',
@@ -3066,6 +3273,49 @@
       p.innerHTML = '<a href="#" onclick="deleteMyAccount();return false;">Excluir minha conta</a> · <a href="#" onclick="openLegal(\'terms\');return false;">Termos</a> · <a href="#" onclick="openLegal(\'priv\');return false;">Privacidade</a>';
       l.appendChild(p);
     })();
+
+    // ===== LÓGICA DO SLIDE AUTOMÁTICO =====
+    let testimonialIndex = 0;
+    let testimonialInterval = null;
+
+    function slideTestimonials() {
+      const track = document.getElementById('testimonialsTrack');
+      if (!track) return;
+      const cards = track.querySelectorAll('.testimonial-card');
+      if (!cards.length) return;
+      
+      let cardsPerView = 3;
+      if (window.innerWidth <= 600) cardsPerView = 1;
+      else if (window.innerWidth <= 900) cardsPerView = 2;
+      
+      const maxIndex = Math.max(0, cards.length - cardsPerView);
+      testimonialIndex++;
+      if (testimonialIndex > maxIndex) {
+        testimonialIndex = 0; // Volta ao início
+      }
+      
+      const cardWidth = cards[0].offsetWidth;
+      const gap = 20; // Deve ser igual ao 'gap' do CSS .testimonials-track
+      const offset = testimonialIndex * (cardWidth + gap);
+      
+      track.style.transform = `translateX(-${offset}px)`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!testimonialInterval) {
+        testimonialInterval = setInterval(slideTestimonials, 4000); // Muda a cada 4 segundos
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      testimonialIndex = 0;
+      const track = document.getElementById('testimonialsTrack');
+      if (track) {
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0)';
+        setTimeout(() => track.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)', 50);
+      }
+    });
 
     // ===== INIT =====
     function init() {
