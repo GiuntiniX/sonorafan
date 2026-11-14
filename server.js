@@ -502,6 +502,92 @@ app.get('/api/me', async (req, res) => {
   res.json({ success: true, user: { ...userData, points: points.points, badges: points.badges } });
 });
 
+// ========== SONORAFAN SOCIAL 4 — AMIGOS E EVENTOS ==========
+// IDs públicos não revelam email; sessões e permissões permanecem no servidor.
+const publicUserId = email => crypto.createHash('sha256').update('sf-public-v1:' + String(email).toLowerCase()).digest('hex').slice(0, 24);
+const findSocialUser = id => [...users.entries()].find(([email]) => publicUserId(email) === id);
+const profileSafe = ([email, u]) => ({ id: publicUserId(email), name: String(u.nome || 'Ouvinte').slice(0, 40), avatar: String(u.avatar || '🎧').slice(0, 8) });
+const socialFollowing = new Map();
+const socialEvents = new Map();
+async function getFollowing(email) {
+  if (socialFollowing.has(email)) return socialFollowing.get(email);
+  try { const d = await db.collection('socialFollowing').doc(publicUserId(email)).get();
+    const result = Array.isArray(d.data()?.ids) ? d.data().ids.filter(x => typeof x === 'string').slice(0, 100) : [];
+    socialFollowing.set(email, result); return result;
+  } catch(e) { console.error('social following read',e.message); throw e; }
+}
+async function saveFollowing(email, ids) {
+  await db.collection('socialFollowing').doc(publicUserId(email)).set({ ids, updatedAt: Date.now() });
+  socialFollowing.set(email, ids);
+}
+function publicActivity(email) {
+  // Somente sessões em salas PÚBLICAS. Não expõe informações de salas privadas.
+  for (const client of io.sockets.sockets.values()) {
+    if (client.sfSocialEmail !== email || !client.sfSocialRoom) continue;
+    const room = rooms.get(client.sfSocialRoom);
+    if (room && !room.isPrivate) return { roomSlug: room.slug, roomName: room.name, playing: !!room.isPlaying };
+  }
+  return null;
+}
+app.get('/api/social/search', rateLimit(30,60000), (req,res) => {
+  const me = sessionEmail(req); if(!me) return res.status(401).json({error:'Faça login'});
+  const q=String(req.query.q||'').trim().toLocaleLowerCase('pt-BR');
+  if(q.length<2 || q.length>40) return res.json([]);
+  res.json([...users.entries()].filter(([e,u])=>e!==me && !u.banned && String(u.nome||'').toLocaleLowerCase('pt-BR').includes(q)).slice(0,15).map(profileSafe));
+});
+app.get('/api/social/following', async(req,res)=>{
+  const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+  try { const ids=await getFollowing(me); res.json(ids.map(id=>{const found=findSocialUser(id);return found?{...profileSafe(found),activity:publicActivity(found[0])}:null;}).filter(Boolean)); }
+  catch(e){res.status(503).json({error:'Serviço social indisponível'});}
+});
+app.post('/api/social/follow',rateLimit(24,60000),async(req,res)=>{
+  const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+  const id=String(req.body?.id||'');const found=findSocialUser(id);
+  if(!found||found[0]===me||found[1].banned)return res.status(400).json({error:'Usuário inválido'});
+  try {let ids=await getFollowing(me);const follow=req.body?.follow===true;
+    if(follow&&!ids.includes(id)){if(ids.length>=100)return res.status(400).json({error:'Limite de 100 pessoas'});ids=[...ids,id];}
+    if(!follow)ids=ids.filter(x=>x!==id);
+    await saveFollowing(me,ids);res.json({success:true,following:ids.includes(id)});
+  }catch(e){res.status(503).json({error:'Não foi possível salvar'});}
+});
+const eventClean=(v,n)=>String(v??'').replace(/[<>\u0000-\u001f]/g,' ').trim().slice(0,n);
+const publicEvent = e => ({ id:e.id,roomSlug:e.roomSlug,roomName:e.roomName,title:e.title,description:e.description,startAt:e.startAt,hostName:e.hostName,attendees:e.attendees.length });
+async function initSocialEvents(){try{const snap=await db.collection('socialEvents').get();snap.forEach(d=>{const e=d.data();if(e&&e.id&&Array.isArray(e.attendees))socialEvents.set(e.id,e);});}catch(e){console.error('social events load',e.message);}}
+initSocialEvents();
+app.get('/api/social/my-rooms', (req,res)=>{const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});res.json([...rooms.values()].filter(r=>!r.isPrivate&&(r.ownerEmail===me||adminEmails.has(me))).map(r=>({slug:r.slug,name:r.name})));});
+app.get('/api/social/events', (req,res)=>{
+  const now=Date.now();const list=[...socialEvents.values()].filter(e=>e.startAt>=now-3600000&&e.startAt<now+90*86400000&&rooms.has(e.roomSlug)&&!rooms.get(e.roomSlug).isPrivate).sort((a,b)=>a.startAt-b.startAt).slice(0,60);
+  res.json(list.map(e=>({...publicEvent(e),going:!!sessionEmail(req)&&e.attendees.includes(publicUserId(sessionEmail(req)))})));
+});
+app.post('/api/social/events',rateLimit(8,60000),async(req,res)=>{
+  const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+  const slug=String(req.body?.roomSlug||'');const room=rooms.get(slug);
+  if(!room||room.isPrivate)return res.status(404).json({error:'Sala pública não encontrada'});
+  if(room.ownerEmail!==me&&!adminEmails.has(me))return res.status(403).json({error:'Somente o dono da sala pode criar eventos'});
+  const title=eventClean(req.body?.title,70),description=eventClean(req.body?.description,240),startAt=Date.parse(req.body?.startAt);
+  if(title.length<3||!Number.isFinite(startAt)||startAt<Date.now()+5*60000||startAt>Date.now()+90*86400000)return res.status(400).json({error:'Informe título e data futura (5 min a 90 dias)'});
+  if([...socialEvents.values()].filter(e=>e.roomSlug===slug&&e.startAt>Date.now()).length>=10)return res.status(400).json({error:'Limite de 10 eventos futuros por sala'});
+  const e={id:crypto.randomUUID(),roomSlug:slug,roomName:room.name,title,description,startAt,hostId:publicUserId(me),hostName:users.get(me)?.nome||room.admin,attendees:[],createdAt:Date.now()};
+  try{await db.collection('socialEvents').doc(e.id).set(e);socialEvents.set(e.id,e);res.json(publicEvent(e));}
+  catch(err){res.status(503).json({error:'Falha ao agendar evento'});}
+});
+app.post('/api/social/events/:id/rsvp',rateLimit(20,60000),async(req,res)=>{
+  const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+  const e=socialEvents.get(req.params.id);const room=e&&rooms.get(e.roomSlug);
+  if(!e||!room||room.isPrivate||e.startAt<Date.now()-3600000)return res.status(404).json({error:'Evento indisponível'});
+  const id=publicUserId(me);const attendees=e.attendees.filter(x=>x!==id);
+  if(req.body?.going===true){if(attendees.length>=500)return res.status(400).json({error:'Lista de presença lotada'});attendees.push(id);}
+  try{await db.collection('socialEvents').doc(e.id).set({...e,attendees});e.attendees=attendees;res.json({going:attendees.includes(id),attendees:attendees.length});}
+  catch(err){res.status(503).json({error:'Não foi possível confirmar presença'});}
+});
+app.delete('/api/social/events/:id',rateLimit(10,60000),async(req,res)=>{
+  const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+  const e=socialEvents.get(req.params.id);if(!e)return res.status(404).json({error:'Evento inexistente'});
+  const r=rooms.get(e.roomSlug);if(e.hostId!==publicUserId(me)&&r?.ownerEmail!==me&&!adminEmails.has(me))return res.status(403).json({error:'Sem permissão'});
+  try{await db.collection('socialEvents').doc(e.id).delete();socialEvents.delete(e.id);res.json({success:true});}catch(err){res.status(503).json({error:'Não foi possível excluir'});}
+});
+// Fim das APIs sociais; nenhum dado pessoal é retornado ao cliente.
+
 // ========== SALAS ==========
 app.get('/api/rooms', (req, res) => {
   try {
@@ -948,6 +1034,8 @@ io.on('connection', (socket) => {
         }
       }
       currentRoom = slug;
+      socket.sfSocialEmail = who;
+      socket.sfSocialRoom = slug;
       socket.join(slug);
       socket.userName = name;
       socket.userColor = colors[Math.floor(Math.random() * colors.length)];
@@ -1001,6 +1089,17 @@ io.on('connection', (socket) => {
       if (nextSocket) nextSocket.emit('waitingRoom', { position: 0, maxListeners: settings.maxListeners, canJoin: true });
     }
   }
+
+  // Reações efêmeras autenticadas, restritas à sala atual e com limite por socket.
+  socket.on('roomReaction', (data) => {
+    if (!currentRoom || !socket.userEmail || !rooms.has(currentRoom)) return;
+    const allowed = ['🔥', '❤️', '🎶', '🙌', '⚡'];
+    if (!data || !allowed.includes(data.emoji)) return;
+    const now = Date.now();
+    if (now - (socket._lastReaction || 0) < 1000) return;
+    socket._lastReaction = now;
+    io.to(currentRoom).emit('roomReaction', { emoji: data.emoji, name: String(socket.userName || '').slice(0,40) });
+  });
 
   socket.on('chat', ({ text }) => {
     try {
@@ -1353,6 +1452,7 @@ io.on('connection', (socket) => {
 
       // 3) Limpa estado do socket (mantém socket.userEmail para o admin seguir logado)
       currentRoom = null;
+      socket.sfSocialRoom = null;
       socket.userName = null;
       socket.isAdmin = false;
       socket.isMod = false;
