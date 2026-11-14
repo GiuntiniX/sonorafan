@@ -1,0 +1,41 @@
+
+/* SonoraFan 17.0 — Layout de sala corrigido + criação de salas aprimorada */
+@media (min-width:1025px){
+  #screen-room .sf5-bottom-row{display:grid!important;grid-template-columns:minmax(360px,.95fr) minmax(0,1.25fr)!important;grid-template-rows:minmax(168px,auto) minmax(150px,1fr)!important;grid-template-areas:"request chat" "listeners chat"!important;gap:14px!important;align-items:stretch!important}
+  #screen-room .sf10-request-card{grid-area:request!important;grid-column:auto!important;grid-row:auto!important;align-self:stretch!important;height:auto!important;min-height:168px!important}
+  #screen-room .sf5-listening-card{grid-area:listeners!important;grid-column:auto!important;grid-row:auto!important;align-self:stretch!important;height:auto!important;min-height:150px!important}
+  #screen-room .chat-column{grid-area:chat!important;grid-column:auto!important;grid-row:auto!important;align-self:stretch!important;min-height:340px!important;height:100%!important}
+  #screen-room .chat-panel{min-height:0!important;display:flex!important;flex-direction:column!important;flex:1 1 auto!important}
+  #screen-room .chat-messages{flex:1 1 auto!important;min-height:180px!important}
+  #screen-room .player-column{gap:14px!important}
+}
+#screen-room .sf10-request-card,#screen-room .sf5-listening-card,#screen-room .chat-column{border-radius:20px!important}
+#screen-room .sf10-request-card{padding:18px!important}
+#screen-room .sf10-request-top{align-items:center!important;gap:12px!important}
+#screen-room .sf10-request-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 24px color-mix(in srgb,var(--accent2) 28%,transparent)}
+#screen-room .sf10-request-top strong{font-size:24px;line-height:1.05;display:block}
+#screen-room .sf10-request-top small{font-size:12px;color:var(--text-secondary)}
+#screen-room .sf10-request-card .add-song{min-height:52px!important;border-radius:14px!important;padding:6px!important}
+#screen-room .sf10-request-card .add-song input{font-size:14px!important;padding-inline:10px!important}
+#screen-room .sf10-request-card .add-song button{min-width:120px!important;border-radius:12px!important;font-size:13px!important;padding:0 16px!important}
+#screen-room .sf10-request-help{font-size:12px!important;color:var(--text-secondary)}
+#screen-room .sf5-listening-card{padding:14px 16px!important}
+#screen-room .premium-chat-heading{padding:16px 18px 10px!important}
+#screen-room .premium-reactions{padding-inline:14px!important}
+#screen-room .chat-input-bar{padding:12px!important}
+#screen-room .chat-input-bar input{min-height:44px!important;border-radius:14px!important}
+#screen-room .chat-input-bar button:not(.emoji-btn){min-height:44px!important;padding:0 18px!important;border-radius:14px!important;font-weight:800!important}
+#screen-room .sf17-create-hint{margin:12px 0 4px;padding:12px 14px;border:1px solid color-mix(in srgb,var(--accent2) 30%,var(--border));border-radius:14px;background:linear-gradient(145deg,color-mix(in srgb,var(--bg-card) 88%,var(--accent2)),var(--bg-card));display:grid;gap:4px;color:var(--text-secondary);font-size:12px}
+#screen-room .sf17-create-hint strong,.modal .sf17-create-hint strong{color:var(--text);font-size:13px}
+#screen-room .sf17-room-mode-grid,#screen-room .sf17-room-format-grid,.modal .sf17-room-mode-grid,.modal .sf17-room-format-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.modal .sf17-room-format-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.modal .kind-tile{min-height:96px;align-items:flex-start;justify-content:flex-start;text-align:left;padding:14px;border-radius:16px;gap:6px}
+.modal .kind-tile span{font-size:20px}
+.modal .kind-tile b{font-size:14px}
+.modal .kind-tile small{line-height:1.35}
+.modal .sf17-create-summary{margin-top:6px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--bg-hover) 80%,transparent);border:1px solid color-mix(in srgb,var(--accent) 22%,var(--border));display:grid;gap:4px;font-size:12px;color:var(--text-secondary)}
+.modal .sf17-create-summary strong{font-size:13px;color:var(--text)}
+@media (max-width:1024px){
+  #screen-room .sf5-bottom-row{display:grid!important;grid-template-columns:1fr!important;grid-template-rows:auto auto auto!important;gap:10px!important}
+  .modal .sf17-room-format-grid,.modal .sf17-room-mode-grid{grid-template-columns:1fr!important}
+}
