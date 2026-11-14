@@ -1371,6 +1371,7 @@
 
   </style>
   <link rel="stylesheet" href="/player-premium.css">
+  <link rel="stylesheet" href="/premium-3.css">
 
 </head>
 <body>
@@ -1794,6 +1795,11 @@
             <button onclick="joinRandomRoom()" data-i18n="lobby.random">🎲 Sala aleatória</button>
           </div>
         </div>
+        <section id="sfSocialHub" class="sf-social-hub" aria-label="Comunidade SonoraFan">
+          <div class="sf-hub-intro"><div><span class="sf-eyebrow">SONORAFAN COMMUNITY</span><h3>A música conecta a gente.</h3><p>Encontre sua galera e participe de sessões especiais.</p></div><div class="sf-hub-tabs"><button type="button" data-sf-tab="friends" class="active">👥 Amigos</button><button type="button" data-sf-tab="events">📅 Eventos</button></div></div>
+          <div id="sfFriendsPanel" class="sf-hub-panel"><div class="sf-search-row"><input id="sfFriendQuery" type="search" maxlength="40" placeholder="Buscar pessoas pelo nome" aria-label="Buscar pessoas pelo nome"><button id="sfFriendSearch" type="button">Buscar</button></div><div id="sfFriendsList" class="sf-social-results" aria-live="polite">Carregando comunidade...</div><div id="sfFriendSearchResults" class="sf-social-results" aria-live="polite"></div></div>
+          <div id="sfEventsPanel" class="sf-hub-panel" hidden><div class="sf-events-heading"><p>Encontros musicais agendados por quem cria as salas.</p><button id="sfNewEvent" type="button">+ Criar evento</button></div><div id="sfEventsList" class="sf-events-grid" aria-live="polite"></div></div>
+        </section>
         <div class="room-grid" id="roomGrid">
           <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
         </div>
@@ -1821,6 +1827,7 @@
         </div>
       </div>
 
+      <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
         <div class="queue-column">
           <div class="queue-header">
@@ -1830,12 +1837,14 @@
               <button onclick="copyQueueIds()" style="background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);padding:2px 6px;font-size:10px;cursor:pointer;">📋</button>
             </div>
           </div>
+          <div class="premium-queue-summary"><span id="premiumQueueDuration">Sua seleção coletiva</span><span id="premiumQueueNext">Próximas faixas</span></div>
           <div class="queue-list" id="queueList"></div>
           <div id="waitingQueueLabel" class="waiting-queue-label hidden">⏳ Fila de espera:</div>
           <div class="queue-list" id="waitingQueueList" style="max-height:120px;overflow-y:auto;padding:4px 12px 12px;border-top:1px solid var(--border);"></div>
         </div>
 
         <div class="player-column">
+          <div class="premium-room-meta"><span class="premium-live-dot"></span><span id="premiumRoomMood">Ambiente compartilhado</span><span id="premiumRoomListeners">0 ouvintes conectados</span></div>
           <div class="premium-eyebrow"><span class="premium-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><strong>Sua sessão musical</strong><small>Uma experiência compartilhada, em tempo real</small></div><span class="premium-session-pill">SONORAFAN LIVE</span></div>
           <div class="player-section" id="playerSection">
             <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);">
@@ -1845,6 +1854,7 @@
               </span>
             </div>
             <div class="player-frame">
+              <div class="premium-frame-corner" aria-hidden="true">SONORAFAN <b>LIVE</b></div>
               <div id="youtube-player"></div>
               <div class="youtube-interaction-shield" aria-hidden="true"></div>
               <div class="buffering-overlay" id="bufferingOverlay"><div class="spinner"></div></div>
@@ -1854,6 +1864,7 @@
             <div class="player-info">
               <div class="cover" id="trackCover">🎵</div>
               <div class="track-info">
+                <div class="premium-playing-label">AGORA TOCANDO NA SALA</div>
                 <div class="track-title" id="trackTitle">Nenhuma música</div>
                 <div class="track-artist" id="trackArtist">Adicione uma música</div>
                 <div class="track-dj" id="trackDj"></div>
@@ -1906,6 +1917,9 @@
 
         <div class="chat-column">
           <div class="premium-chat-heading"><span class="premium-online-dot"></span> Conversa ao vivo <small>COMPARTILHE A VIBE</small></div>
+          <div class="premium-presence" id="premiumPresence" aria-label="Pessoas ouvindo"><span class="premium-presence-empty">Entre na vibe com a galera</span></div>
+          <div class="premium-reactions" aria-label="Reações rápidas"><span>Reagir à música</span><button type="button" onclick="premiumReact('🔥')" aria-label="Reagir com fogo">🔥</button><button type="button" onclick="premiumReact('❤️')" aria-label="Reagir com coração">❤️</button><button type="button" onclick="premiumReact('🎶')" aria-label="Reagir com nota musical">🎶</button><button type="button" onclick="premiumReact('🙌')" aria-label="Reagir com celebração">🙌</button><button type="button" onclick="premiumReact('⚡')" aria-label="Reagir com energia">⚡</button></div>
+          <div id="premiumReactionStage" class="premium-reaction-stage" aria-hidden="true"></div>
           <div class="users-panel">
             <div class="user-count" onclick="toggleUsersPop(event)" style="cursor:pointer">
               <span class="icon">👥</span> <span id="userCount">0</span> <span>ouvintes</span>
@@ -1947,6 +1961,7 @@
           </div>
         </div>
       </div>
+      <div class="premium-mini-player" id="premiumMiniPlayer" aria-label="Faixa em reprodução"><div class="premium-mini-cover" id="premiumMiniCover">♫</div><div class="premium-mini-text"><strong id="premiumMiniTitle">Nenhuma música</strong><span id="premiumMiniArtist">Escolha uma música</span></div><span class="premium-mini-live">● LIVE</span><button type="button" onclick="setTab('player')" aria-label="Abrir player">↗</button><div class="premium-mini-progress"><span id="premiumMiniFill"></span></div></div>
       <nav class="mtabs" id="mTabs">
         <button data-t="queue" onclick="setTab('queue')">🎵 Fila</button>
         <button data-t="player" class="on" onclick="setTab('player')">▶ Player</button>
@@ -2817,6 +2832,7 @@
       currentRoom = null; currentRoomData = null;
       if (player && player.stopVideo) player.stopVideo();
       setSpectrum(false); applyAlbumGlow(null);
+      if (window.premiumReset) window.premiumReset();
       document.title = 'SonoraFan';
       if (crossfadeInterval) { clearInterval(crossfadeInterval); crossfadeInterval = null; }
       showScreen('lobby'); loadRooms();
@@ -2868,6 +2884,7 @@
       currentRoomData = state;
       const track = state.queue[state.currentIndex];
       renderQueue(state.queue, state.currentIndex);
+      if (window.premiumRoomState) window.premiumRoomState(state);
       renderWaitingQueue(state.waitingQueue);
       updateNextTrack(state.queue, state.currentIndex);
       renderPinnedMessage(state.pinnedMessage);
@@ -3289,6 +3306,7 @@
       const prev = currentRoomData?.queue?.[currentRoomData.currentIndex]?.id;
       const next = state.queue?.[state.currentIndex]?.id;
       if (next !== prev) { currentTrackId = null; if (next) setTimeout(startCrossfade, 1000); }
+      if (window.premiumRoomState) window.premiumRoomState(state);
       currentRoomData = state;
       syncPlayer(state);
     });
@@ -3303,6 +3321,7 @@
       $('totalTime').textContent = '0:00';
       $('nextTrack').style.display = 'none';
       applyAlbumGlow(null); setSpectrum(false);
+      if (window.premiumReset) window.premiumReset();
       document.title = 'SonoraFan';
       try { player.stopVideo(); } catch(e) {}
       renderQueue([], 0);
@@ -3313,7 +3332,7 @@
     setInterval(renderTypingIndicator, 1000);
     let roomUsers = [], amIMod = false;
     socket.on('isMod', v => { amIMod = !!v; });
-    socket.on('users', (users) => { roomUsers = users; $('userCount').textContent = users.length; if ($('usersPop').classList.contains('show')) renderUsersPop(); });
+    socket.on('users', (users) => { roomUsers = users; $('userCount').textContent = users.length; if (window.premiumUsers) window.premiumUsers(users); if ($('usersPop').classList.contains('show')) renderUsersPop(); });
     const ROLE_RANK = { admin: 3, owner: 2, mod: 1 }, ROLE_ICON = { admin: '🛡️', owner: '👑', mod: '🔧' };
     function renderUsersPop() {
       const me = roomUsers.find(u => u.name === myName), mine = me ? (ROLE_RANK[me.role] || 0) : (amIAdmin ? 2 : amIMod ? 1 : 0);
@@ -3364,6 +3383,7 @@
         const current = player.getCurrentTime(), duration = player.getDuration();
         if (duration > 0) {
           $('progressFill').style.width = (current / duration * 100) + '%';
+          if (window.premiumProgress) window.premiumProgress(current / duration * 100);
           $('currentTime').textContent = formatDuration(current);
           $('totalTime').textContent = formatDuration(duration);
         }
@@ -3659,5 +3679,8 @@
       setInterval(() => { if (document.getElementById('screen-lobby').classList.contains('active')) loadRooms(); }, 15000);
     });
   </script>
+  <script defer src="/premium-3.js"></script>
+  <link rel="stylesheet" href="/social-4.css">
+  <script defer src="/social-4.js"></script>
 </body>
 </html>

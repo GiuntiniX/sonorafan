@@ -1,0 +1,64 @@
+/* SonoraFan Premium 3.0 · experiência imersiva · sem alterações na landing */
+#screen-room { --sf-cover: none; --sf-ambient-color: rgba(124,58,237,.25); --sf-neon: var(--room-accent,#7c3aed); }
+#screen-room .app { position:relative; isolation:isolate; overflow:hidden; }
+#screen-room .premium-room-ambient {position:absolute;inset:42px 0 0;z-index:-1;pointer-events:none;opacity:.55; background-image:linear-gradient(90deg,var(--bg) 0%,transparent 45%,var(--bg) 100%),linear-gradient(180deg,transparent,var(--bg) 90%),var(--sf-cover);background-size:cover,cover,cover;background-position:center;filter:blur(58px) saturate(1.3);transform:scale(1.1);transition:opacity 1s ease,background-image 1s ease}
+#screen-room .app::after {content:'';position:absolute;z-index:-1;pointer-events:none;width:55vw;height:60vh;top:12%;left:24%;background:radial-gradient(ellipse,var(--sf-ambient-color),transparent 68%);filter:blur(35px);animation:sfAmbientDrift 13s ease-in-out infinite alternate}
+@keyframes sfAmbientDrift{to{transform:translate(9%,-7%) scale(1.12)}}
+#screen-room .room-layout {position:relative;z-index:1;grid-template-rows:minmax(0,1fr);gap:clamp(10px,1.2vw,20px);padding:clamp(10px,1.2vw,20px)}
+#screen-room .queue-column,#screen-room .chat-column {backdrop-filter:blur(28px) saturate(1.12);background:color-mix(in srgb,var(--bg-card) 86%,transparent);border:1px solid color-mix(in srgb,var(--text) 11%,transparent);transition:border-color .35s,box-shadow .35s}
+#screen-room .queue-column:hover,#screen-room .chat-column:hover {border-color:color-mix(in srgb,var(--sf-neon) 35%,var(--border))}
+#screen-room .player-section {position:relative;overflow:hidden;box-shadow:0 24px 75px rgba(0,0,0,.28),0 0 55px color-mix(in srgb,var(--sf-neon) 12%,transparent);transition:box-shadow .6s ease}
+#screen-room .player-frame { isolation:isolate }
+#screen-room .premium-frame-corner {position:absolute;top:13px;left:14px;z-index:5;font:800 10px 'Inter',sans-serif;letter-spacing:2px;color:#fff;pointer-events:none;text-shadow:0 2px 8px #000}
+#screen-room .premium-frame-corner b {font-size:9px;color:#fff;background:#ef4444;padding:4px 6px;border-radius:5px;margin-left:4px;letter-spacing:.8px}
+#screen-room .premium-room-meta {display:flex;align-items:center;gap:10px;min-height:26px;padding:0 7px;color:var(--text-secondary);font-size:11px;font-weight:600;letter-spacing:.2px}
+#screen-room .premium-room-meta #premiumRoomListeners {margin-left:auto;font-size:10px;color:var(--text-muted)}
+#screen-room .premium-live-dot {flex-shrink:0;width:7px;height:7px;border-radius:100%;background:#22c55e;box-shadow:0 0 0 5px rgba(34,197,94,.11),0 0 12px #22c55e}
+#screen-room .premium-playing-label {font-size:9px;letter-spacing:1.6px;font-weight:800;color:var(--sf-neon);margin-bottom:7px}
+#screen-room .cover {box-shadow:0 10px 30px rgba(0,0,0,.32);transition:transform .45s ease,box-shadow .45s ease}
+#screen-room .player-section:hover .cover {transform:rotate(-2deg) scale(1.045);box-shadow:0 14px 35px rgba(0,0,0,.4)}
+#screen-room .premium-queue-summary {display:flex;justify-content:space-between;gap:8px;padding:0 17px 9px;font-size:10px;color:var(--text-muted);letter-spacing:.3px}
+#screen-room .premium-queue-summary span:last-child {opacity:.7}
+#screen-room .queue-item {position:relative;transition:transform .24s cubic-bezier(.2,.75,.3,1),background .25s,border .25s;animation:sfQueueIn .32s ease both}
+#screen-room .queue-item .dj {font-size:10px;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted)}
+#screen-room .queue-item.current::before {content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 22px color-mix(in srgb,var(--sf-neon) 12%,transparent)}
+@keyframes sfQueueIn {from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+#screen-room .premium-presence {padding:4px 15px 8px;display:flex;align-items:center;gap:0;min-height:48px;overflow:hidden}
+#screen-room .premium-presence-avatar {position:relative;display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;margin-left:-5px;border:2px solid var(--bg-card);border-radius:50%;background:linear-gradient(145deg,var(--sf-neon),var(--accent2));font-size:17px;box-shadow:0 3px 10px rgba(0,0,0,.2);cursor:default;transition:transform .2s}
+#screen-room .premium-presence-avatar:first-child {margin-left:0}
+#screen-room .premium-presence-avatar:hover {transform:translateY(-4px);z-index:2}
+#screen-room .premium-presence-more {font-size:11px;color:var(--text-secondary);margin-left:10px}
+#screen-room .premium-presence-empty {font-size:11px;color:var(--text-muted)}
+#screen-room .premium-reactions {display:flex;align-items:center;gap:7px;padding:9px 14px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+#screen-room .premium-reactions>span {flex:1;font-size:10px;font-weight:700;color:var(--text-muted);min-width:93px}
+#screen-room .premium-reactions button {font:17px sans-serif;cursor:pointer;border:1px solid var(--border);width:32px;height:32px;border-radius:11px;background:var(--bg-hover);transition:transform .2s,background .2s}
+#screen-room .premium-reactions button:hover {transform:translateY(-3px) scale(1.11);background:color-mix(in srgb,var(--sf-neon) 19%,var(--bg-hover))}
+#screen-room .chat-column {position:relative}
+#screen-room .premium-reaction-stage {pointer-events:none;position:absolute;inset:0 0 15% auto;width:130px;overflow:hidden;z-index:9}
+#screen-room .premium-floating-react {position:absolute;bottom:4%;left:35%;font-size:28px;filter:drop-shadow(0 5px 8px rgba(0,0,0,.3));animation:sfReactionFloat 2.5s ease-out forwards}
+@keyframes sfReactionFloat {0%{opacity:0;transform:translateY(25px) scale(.65) rotate(-15deg)}16%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(28px,-230px) scale(1.3) rotate(20deg)}}
+#screen-room .premium-mini-player {display:none}
+@media (min-width:1025px){#screen-room .room-layout {grid-template-columns:minmax(215px,.87fr) minmax(360px,1.45fr) minmax(245px,.94fr)} }
+
+@media (max-width:768px){
+ #screen-room .premium-room-ambient {opacity:.35;filter:blur(38px)}
+ #screen-room .room-layout {padding:8px 8px 0;min-height:0}
+ #screen-room .player-column {padding:5px 5px 20px;overflow-y:auto;min-height:0}
+ #screen-room .premium-room-meta {font-size:10px;gap:7px}
+ #screen-room .premium-playing-label {font-size:8px}
+ #screen-room .premium-mini-player {position:relative;display:flex;align-items:center;gap:10px;flex:0 0 auto;height:60px;padding:8px 12px 11px;background:color-mix(in srgb,var(--bg-card) 93%,transparent);border-top:1px solid color-mix(in srgb,var(--sf-neon) 35%,var(--border));backdrop-filter:blur(18px);z-index:8}
+ #screen-room .premium-mini-cover {flex:0 0 39px;height:39px;display:grid;place-items:center;background:var(--bg-hover);border-radius:9px;overflow:hidden}
+ #screen-room .premium-mini-cover img {width:100%;height:100%;object-fit:cover}
+ #screen-room .premium-mini-text {min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+ #screen-room .premium-mini-text strong {font-size:12px;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+ #screen-room .premium-mini-text span {font-size:10px;color:var(--text-muted);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+ #screen-room .premium-mini-live {color:#ef4444;font-size:9px;font-weight:800;letter-spacing:1px}
+ #screen-room .premium-mini-player button {border:1px solid var(--border);border-radius:11px;background:var(--bg-hover);color:var(--text);width:36px;height:36px;font-size:19px;cursor:pointer}
+ #screen-room .premium-mini-progress {position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--bg-hover)}
+ #screen-room .premium-mini-progress span {display:block;width:0%;height:100%;background:var(--sf-neon);transition:width .5s linear}
+ body[data-tab="player"] #screen-room .premium-mini-player {display:none}
+ #screen-room .premium-presence {padding:0 15px 10px}
+ #screen-room .premium-reactions {padding:7px 12px 10px}
+ #screen-room .chat-column {overflow-y:hidden}
+}
+@media(prefers-reduced-motion:reduce){#screen-room .app::after,#screen-room .queue-item,#screen-room .premium-floating-react {animation:none!important} #screen-room .premium-room-ambient {transition:none}}
