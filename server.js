@@ -787,7 +787,16 @@ app.get('/api/admin/stats', async (req, res) => {
     const totalUsers = snapshot.size;
     const totalRooms = rooms.size;
     const onlineUsers = (await io.fetchSockets()).length;
-    res.json({ totalUsers, totalRooms, onlineUsers });
+    const roomList = [...rooms.values()];
+    const onlineListeners = roomList.reduce((n, r) => n + (r.listenerCount || 0), 0);
+    const queuedSongs = roomList.reduce((n, r) => n + (r.queue?.length || 0), 0);
+    res.set('Cache-Control', 'no-store');
+    res.json({ totalUsers, totalRooms, onlineUsers, onlineListeners, queuedSongs,
+      occupiedRooms: roomList.filter(r => (r.listenerCount || 0) > 0).length,
+      privateRooms: roomList.filter(r => r.isPrivate).length,
+      lockedChats: roomList.filter(r => r.chatLocked).length,
+      activeSanctions: [...sanctions.values()].filter(s => !s.until || s.until > Date.now()).length,
+      checkedAt: Date.now() });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -812,6 +821,7 @@ app.post('/api/admin/promote', async (req, res) => {
 app.post('/api/admin/delete-user', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email necessário' });
+  if (adminEmails.has(String(email).toLowerCase())) return res.status(403).json({ error: 'A conta administradora é protegida.' });
   try {
     await db.collection('users').doc(email).delete();
     await db.collection('favorites').doc(email).delete();
@@ -826,6 +836,7 @@ app.post('/api/admin/delete-user', async (req, res) => {
 app.post('/api/admin/kick-user', (req, res) => {
   const { email, roomSlug } = req.body;
   if (!email || !roomSlug) return res.status(400).json({ error: 'Dados incompletos' });
+  if (adminEmails.has(String(email).toLowerCase())) return res.status(403).json({ error: 'A conta administradora é protegida.' });
   const room = rooms.get(roomSlug);
   if (!room) return res.status(404).json({ error: 'Sala não encontrada' });
   io.in(roomSlug).fetchSockets().then(sockets => {
@@ -847,6 +858,7 @@ app.post('/api/admin/kick-user', (req, res) => {
 app.post('/api/admin/ban-user', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email necessário' });
+  if (adminEmails.has(String(email).toLowerCase())) return res.status(403).json({ error: 'A conta administradora é protegida.' });
   const userData = await getUserFromFirestore(email);
   if (!userData) return res.status(404).json({ error: 'Usuário não encontrado' });
   userData.banned = true;
@@ -866,6 +878,7 @@ app.post('/api/admin/ban-user', async (req, res) => {
 app.post('/api/admin/unban-user', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email necessário' });
+  if (adminEmails.has(String(email).toLowerCase())) return res.status(403).json({ error: 'A conta administradora é protegida.' });
   const userData = await getUserFromFirestore(email);
   if (!userData) return res.status(404).json({ error: 'Usuário não encontrado' });
   userData.banned = false; await setUserInFirestore(email, userData); users.set(email, userData);
@@ -894,7 +907,20 @@ app.post('/api/admin/room-action', (req, res) => {
   else return res.status(400).json({ error: 'Ação inválida' });
   res.json({ success: true });
 });
-app.get('/api/admin/log', (req, res) => res.json(adminLog.slice(0, 100)));
+app.get('/api/admin/log', async (req, res) => {
+  try {
+    // Merge current instance data with persisted records so audit survives restart.
+    const snap = await db.collection('adminLog').get();
+    const items = new Map();
+    const add = e => { if (e && Number.isFinite(Number(e.t))) items.set(`${e.t}|${e.who}|${e.action}|${e.detail}`, {t:Number(e.t),who:String(e.who||''),action:String(e.action||''),detail:String(e.detail||'')}); };
+    snap.forEach(d => add(d.data()));
+    adminLog.forEach(add);
+    res.set('Cache-Control', 'no-store');
+    res.json([...items.values()].sort((a,b)=>b.t-a.t).slice(0,100));
+  } catch (e) {
+    res.json(adminLog.slice(0,100));
+  }
+});
 
 app.post('/api/admin/set-mod', async (req, res) => {
   const { email, mod } = req.body;
@@ -910,6 +936,14 @@ app.post('/api/admin/sanction-remove', (req, res) => {
   const id = String(req.body.id);
   if (!sanctions.has(id)) return res.status(404).json({ error: 'Sanção não encontrada' });
   removeSanction(id); res.json({ success: true });
+});
+
+// Queue details are intentionally available to the authenticated global admin only.
+app.get('/api/admin/room/:slug/queue', (req, res) => {
+  const room = rooms.get(String(req.params.slug));
+  if (!room) return res.status(404).json({error:'Sala não encontrada'});
+  res.set('Cache-Control','no-store');
+  res.json({slug:room.slug,currentIndex:room.currentIndex || 0,queue:room.queue.map((song,index)=>({index,id:String(song.id||''),title:String(song.title||'Música sem título').slice(0,200),artist:String(song.artist||'').slice(0,100)}))});
 });
 
 app.post('/api/admin/remove-song', (req, res) => {
@@ -942,6 +976,7 @@ app.post('/api/admin/remove-song', (req, res) => {
 });
 
 app.post('/api/admin/clear-all-chats', (req, res) => {
+  if (req.body?.confirmation !== 'LIMPAR CHATS') return res.status(400).json({error:'Confirmação obrigatória: LIMPAR CHATS'});
   for (const [slug, room] of rooms) {
     room.chatHistory = [];
     roomLikes.set(slug, {});
@@ -951,6 +986,7 @@ app.post('/api/admin/clear-all-chats', (req, res) => {
 });
 
 app.post('/api/admin/clear-all-rooms', (req, res) => {
+  if (req.body?.confirmation !== 'ENCERRAR SALAS') return res.status(400).json({error:'Confirmação obrigatória: ENCERRAR SALAS'});
   let n = 0; for (const slug of [...rooms.keys()]) if (destroyRoom(slug, 'Sala removida pelo admin.')) n++;
   res.json({ success: true, deleted: n });
 });
