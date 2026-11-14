@@ -1904,7 +1904,7 @@
                 <div class="sf32-search-wrap sf33-search-wrap">
                   <label class="sf32-search" for="sf10RoomQuery">
                     <span aria-hidden="true">⌕</span>
-                    <input id="sf10RoomQuery" type="search" placeholder="Buscar salas ou estilos musicais..." autocomplete="off" aria-label="Buscar salas por nome ou estilo">
+                    <input id="sf10RoomQuery" type="text" placeholder="Buscar salas ou estilos musicais..." autocomplete="off" aria-label="Buscar salas por nome ou estilo">
                   </label>
                   <button type="button" id="sf32SearchClear" aria-label="Limpar busca" hidden>×</button>
                 </div>
@@ -2287,6 +2287,90 @@
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
       <button class="tour-link" onclick="endTour()" id="tourSkip"></button>
       <button class="btn-tour" onclick="tourNext()" id="tourBtn"></button>
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="sf43ProfileModal" role="dialog" aria-modal="true" aria-labelledby="sf43ProfileTitle">
+    <div class="modal sf43-profile-modal">
+      <div class="sf43-profile-shell">
+        <button type="button" class="sf43-profile-close" aria-label="Fechar perfil" onclick="window.sf43CloseProfile?.()">✕</button>
+        <div class="sf43-profile-body">
+          <section class="sf43-profile-hero">
+            <div class="sf43-profile-hero-copy">
+              <span class="sf43-kicker">SONORAFAN · CONVIVÊNCIA</span>
+              <h3 id="sf43ProfileTitle">Meu perfil</h3>
+              <p>Sua identidade musical em um visual mais limpo, bonito e pronto para a comunidade.</p>
+            </div>
+            <div class="sf43-profile-hero-art" aria-hidden="true">
+              <span class="sf43-profile-flower sf43-f1"></span>
+              <span class="sf43-profile-flower sf43-f2"></span>
+              <span class="sf43-profile-flower sf43-f3"></span>
+              <span class="sf43-profile-vinyl"></span>
+            </div>
+          </section>
+
+          <section class="sf43-profile-card sf43-profile-main">
+            <div class="sf43-profile-avatar-wrap">
+              <div class="sf43-profile-avatar" id="sf43ProfileAvatar">♫</div>
+            </div>
+            <div class="sf43-profile-meta">
+              <div class="sf43-profile-heading">
+                <div>
+                  <strong id="sf43ProfileName">Usuário</strong>
+                  <small id="sf43ProfileHandle">@usuario</small>
+                </div>
+                <button type="button" class="sf43-avatar-edit" onclick="openAvatarModal()">Trocar avatar</button>
+              </div>
+              <div class="sf43-profile-badges">
+                <span id="sf43ProfilePoints">0 pts</span>
+                <span id="sf43ProfileRole">Membro da comunidade</span>
+                <span id="sf43ProfileStatus">Todo mundo é DJ</span>
+              </div>
+              <label class="sf43-field">
+                <span>Apelido da comunidade</span>
+                <input id="sf43DisplayNameInput" type="text" maxlength="32" placeholder="Como você quer aparecer">
+              </label>
+              <label class="sf43-field">
+                <span>Sua bio musical</span>
+                <textarea id="sf43BioInput" rows="3" placeholder="Ex.: Curto indie, MPB e salas colaborativas para descobrir gente nova."></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="sf43-profile-grid">
+            <article class="sf43-profile-card">
+              <div class="sf43-section-head"><strong>Resumo</strong><small>Seu momento dentro da plataforma</small></div>
+              <div class="sf43-stats">
+                <div><b id="sf43StatFavorites">0</b><span>Favoritas</span></div>
+                <div><b id="sf43StatRooms">0</b><span>Salas vistas</span></div>
+                <div><b id="sf43StatBadges">0</b><span>Medalhas</span></div>
+              </div>
+              <div class="sf43-summary-note" id="sf43SummaryNote">Sua próxima música favorita está em alguma sala por aí.</div>
+            </article>
+
+            <article class="sf43-profile-card">
+              <div class="sf43-section-head"><strong>Meus estilos</strong><small>Escolha o que representa sua vibe</small></div>
+              <div class="sf43-style-chips" id="sf43StyleChips"></div>
+            </article>
+          </section>
+
+          <section class="sf43-profile-card">
+            <div class="sf43-section-head"><strong>Ações rápidas</strong><small>Atalhos úteis para o dia a dia</small></div>
+            <div class="sf43-quick-actions">
+              <button type="button" onclick="toggleFavorites(); window.sf43CloseProfile?.();">☆ Favoritos</button>
+              <button type="button" onclick="openLeaderboard(); window.sf43CloseProfile?.();">♛ Ranking</button>
+              <button type="button" onclick="window.sf5OpenCommunity?.(); window.sf43CloseProfile?.();">♧ Comunidade</button>
+              <button type="button" onclick="openTutorial(0); window.sf43CloseProfile?.();">❔ Refazer tour</button>
+            </div>
+          </section>
+
+          <div class="sf43-profile-actions">
+            <button type="button" class="btn-secondary" onclick="window.sf43CloseProfile?.()">Fechar</button>
+            <button type="button" class="btn-primary" onclick="window.sf43SaveProfile?.()">Salvar perfil</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -4090,5 +4174,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-lobby-41.js"></script>
   <link rel="stylesheet" href="/sonorafan-lobby-41.css">
   <link rel="stylesheet" href="/sonorafan-layout-42.css">
+  <link rel="stylesheet" href="/sonorafan-profile-tour-43.css">
+  <script defer src="/sonorafan-enhancements-43.js"></script>
 </body>
 </html>
