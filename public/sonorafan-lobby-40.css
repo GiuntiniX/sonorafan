@@ -1,0 +1,99 @@
+/* SonoraFan 40.0 — lobby mais compacto, salas preset e agenda visual */
+:root{--sf40-card:rgba(22,12,33,.88);--sf40-border:rgba(244,189,227,.14);--sf40-soft:rgba(255,255,255,.72);--sf40-gold:#ffd39f;--sf40-rose:#ff95c8}
+#themeBtn,#themeBtnRoom,.sf11-theme-trigger,.theme-pop,#sf11ThemePanel{display:none!important}
+
+/* compactação geral do lobby */
+#screen-lobby .sf28-sidebar{width:200px}
+#screen-lobby .sf28-sidebar-brand{padding:18px 14px 12px}
+#screen-lobby .sf28-sidebar-brand h1{font-size:20px}
+#screen-lobby .sf28-sidebar-brand small{font-size:12px;line-height:1.35}
+#screen-lobby .sf28-sidebar-nav{gap:6px;padding:0 10px}
+#screen-lobby .sf28-sidebar-nav button{min-height:42px;padding:10px 12px;font-size:14px;border-radius:13px}
+#screen-lobby .sf33-sidebar-art{margin-top:auto;padding:10px 10px 0}
+#screen-lobby .sf33-sidebar-art img{max-height:160px;object-fit:contain;filter:drop-shadow(0 16px 24px rgba(0,0,0,.25))}
+#screen-lobby .sf28-lobby-main{padding:16px 18px 92px}
+#screen-lobby .sf32-header{padding:0 0 10px}
+#screen-lobby .sf28-kicker{font-size:11px}
+#screen-lobby .sf28-lobby-headcopy h2{font-size:36px;line-height:1.02;margin:0 0 8px}
+#screen-lobby .sf28-lobby-headcopy p{font-size:15px;max-width:560px}
+#screen-lobby .sf33-banner{max-height:260px;overflow:hidden;border-radius:24px}
+#screen-lobby .sf33-banner img{display:block;width:100%;height:260px;object-fit:cover;object-position:center}
+#screen-lobby .sf33-banner-stamp{bottom:16px;right:16px;font-size:11px;padding:8px 12px}
+#screen-lobby .sf33-discovery-controls{margin-top:14px;gap:14px}
+#screen-lobby .sf32-search-wrap{max-width:none}
+#screen-lobby .sf32-search{min-height:52px;border-radius:16px;background:rgba(12,7,22,.76)}
+#screen-lobby .sf32-search input{font-size:15px}
+#screen-lobby .sf33-genres{display:flex;flex-wrap:wrap;gap:10px}
+#screen-lobby .sf33-genres button{padding:10px 14px;border-radius:14px;font-size:14px;min-height:44px}
+#screen-lobby .sf32-rooms-title{margin-top:18px;align-items:end}
+#screen-lobby .sf32-rooms-title h2{font-size:34px;margin:0}
+#screen-lobby .sf32-room-counter{margin:12px 0}
+#screen-lobby #roomGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+#screen-lobby #roomGrid .room-card,#screen-lobby #roomGrid .sf37-room-card{min-height:300px;border-radius:22px;overflow:hidden}
+#screen-lobby #roomGrid .sf37-room-media{width:100%;height:144px;position:relative!important;inset:auto!important;margin:0!important;border-radius:0 0 18px 18px!important;border:none!important;box-shadow:none!important}
+#screen-lobby #roomGrid .sf37-room-media img{width:100%;height:100%;object-fit:cover}
+#screen-lobby #roomGrid .room-card-body{padding:14px}
+#screen-lobby #roomGrid .room-card-body h3{padding-right:0!important;font-size:23px;line-height:1.08}
+#screen-lobby #roomGrid .meta{gap:8px;font-size:11px;flex-wrap:wrap}
+#screen-lobby .sf36-room-now,#screen-lobby .sf37-room-now{margin-top:10px;padding:10px 12px;border-radius:14px}
+#screen-lobby .sf36-room-now-copy strong{font-size:13px}
+#screen-lobby .sf36-room-now-copy span{font-size:11px}
+#screen-lobby .room-live-badge{top:12px;left:12px}
+#screen-lobby .room-listeners-badge{top:12px;right:12px}
+
+/* novas seções visuais */
+#screen-lobby .sf40-mosaic{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.9fr);gap:16px;margin-top:14px}
+#screen-lobby .sf40-panel{background:linear-gradient(180deg,rgba(31,17,46,.96),rgba(17,10,28,.96));border:1px solid var(--sf40-border);border-radius:22px;padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.18)}
+#screen-lobby .sf40-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+#screen-lobby .sf40-kicker{display:block;font-size:10px;font-weight:800;letter-spacing:.18em;color:#f3b1cf;margin-bottom:5px}
+#screen-lobby .sf40-panel-head h3{font-size:20px;line-height:1.1;margin:0;color:#fff8f2}
+#screen-lobby .sf40-mini-action{border:none;border-radius:999px;padding:9px 12px;background:rgba(255,255,255,.06);color:#f7d9ea;font:600 12px/1 inherit;cursor:pointer}
+#screen-lobby .sf40-preset-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#screen-lobby .sf40-preset{position:relative;overflow:hidden;border-radius:18px;min-height:158px;background:#130d22;border:1px solid rgba(255,255,255,.08);padding:12px;display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate;cursor:pointer;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+#screen-lobby .sf40-preset:hover,#screen-lobby .sf40-preset:focus-visible{transform:translateY(-2px);border-color:rgba(255,208,153,.36);box-shadow:0 10px 24px rgba(0,0,0,.24);outline:none}
+#screen-lobby .sf40-preset::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,5,14,.04),rgba(6,5,14,.82) 82%);z-index:1}
+#screen-lobby .sf40-preset img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+#screen-lobby .sf40-preset .sf40-preset-copy{position:relative;z-index:2}
+#screen-lobby .sf40-preset .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 8px;border-radius:999px;background:rgba(18,11,26,.55);border:1px solid rgba(255,255,255,.14);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#ffe0ef}
+#screen-lobby .sf40-preset strong{display:block;margin-top:9px;font-size:17px;line-height:1.1;color:#fff8ef}
+#screen-lobby .sf40-preset span{display:block;margin-top:5px;font-size:12px;line-height:1.35;color:var(--sf40-soft)}
+#screen-lobby .sf40-event-grid{display:grid;gap:10px}
+#screen-lobby .sf40-event{display:grid;grid-template-columns:88px minmax(0,1fr);gap:10px;align-items:center;padding:9px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+#screen-lobby .sf40-event img{width:88px;height:88px;border-radius:12px;object-fit:cover}
+#screen-lobby .sf40-event strong{display:block;font-size:15px;color:#fff6ed;line-height:1.1}
+#screen-lobby .sf40-event p{margin:5px 0 7px;font-size:12px;line-height:1.35;color:var(--sf40-soft)}
+#screen-lobby .sf40-event .meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+#screen-lobby .sf40-event .meta span{padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.06);font-size:10px;color:#ffd7ec}
+#screen-lobby .sf40-event button{border:none;border-radius:12px;padding:8px 10px;background:linear-gradient(135deg,#a855f7,#ff7d55);color:white;font:700 12px/1 inherit;cursor:pointer}
+#screen-lobby .sf32-community-drawer{margin-top:16px}
+#screen-lobby .sf32-community-drawer summary{padding:14px 16px;border-radius:16px;font-size:14px}
+#screen-lobby .sf-social-hub{padding:14px;border-radius:0 0 16px 16px}
+#screen-lobby .sf-events-grid{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+
+/* mobile and medium */
+@media (max-width:1200px){
+  #screen-lobby .sf40-preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #screen-lobby .sf40-mosaic{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  #screen-lobby .sf28-sidebar{width:170px}
+  #screen-lobby .sf33-banner,#screen-lobby .sf33-banner img{height:200px}
+  #screen-lobby .sf28-lobby-headcopy h2{font-size:31px}
+}
+@media (max-width:700px){
+  #screen-lobby .sf28-lobby-main{padding:14px 12px 92px}
+  #screen-lobby .sf32-header{display:block}
+  #screen-lobby .sf28-lobby-userbar{margin-top:10px}
+  #screen-lobby .sf33-banner,#screen-lobby .sf33-banner img{height:150px;border-radius:18px}
+  #screen-lobby .sf33-banner-stamp{font-size:10px;padding:7px 10px;bottom:10px;right:10px}
+  #screen-lobby .sf32-search{min-height:48px}
+  #screen-lobby .sf40-preset-grid{grid-template-columns:1fr 1fr;gap:10px}
+  #screen-lobby .sf40-preset{min-height:136px}
+  #screen-lobby .sf40-event{grid-template-columns:72px minmax(0,1fr)}
+  #screen-lobby .sf40-event img{width:72px;height:72px}
+  #screen-lobby #roomGrid{grid-template-columns:1fr}
+  #screen-lobby .sf32-rooms-title{display:block}
+  #screen-lobby .lobby-actions{margin-top:10px}
+  #screen-lobby .sf28-lobby-headcopy h2{font-size:28px}
+}
+@media(prefers-reduced-motion:reduce){#screen-lobby .sf40-preset{transition:none}}

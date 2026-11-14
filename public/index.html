@@ -1869,7 +1869,6 @@
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()">🔔 <span>Notificações</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
-          <button type="button" onclick="toggleTheme(event)" id="themeBtn"><span class="sf30-theme-icon" aria-hidden="true">🌙</span> <span class="sf30-theme-label">Tema</span></button>
           <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
           <button type="button" onclick="toggleAdmin()" id="adminBtn" style="display:none;">🎛️ <span>Painel Admin</span></button>
           <button type="button" onclick="doLogout()">⇥ <span>Sair</span></button>
@@ -1920,6 +1919,22 @@
                 <button type="button" data-sf32-genre="mpb"><span>♫</span>MPB</button>
                 <button type="button" data-sf32-genre="pagode"><span>◉</span>Pagode</button>
               </div>
+              <section class="sf40-mosaic" aria-label="Salas prontas e eventos">
+                <div class="sf40-panel">
+                  <div class="sf40-panel-head">
+                    <div><span class="sf40-kicker">SALAS PRONTAS</span><h3>Entre pela sua vibe</h3></div>
+                    <button type="button" class="sf40-mini-action" id="sf40OpenCreate">Criar do zero</button>
+                  </div>
+                  <div class="sf40-preset-grid" id="sf40PresetRooms"></div>
+                </div>
+                <div class="sf40-panel sf40-panel-events">
+                  <div class="sf40-panel-head">
+                    <div><span class="sf40-kicker">AGENDA</span><h3>Sessões em destaque</h3></div>
+                    <button type="button" class="sf40-mini-action" id="sf40OpenEvents">Ver eventos</button>
+                  </div>
+                  <div class="sf40-event-grid" id="sf40EventsCompact"></div>
+                </div>
+              </section>
             </div>
           </section>
           <div class="sf32-rooms-title lobby-top">
@@ -1979,7 +1994,6 @@
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
           <button type="button" class="sf29-side-invite" onclick="copyInviteLink()" title="Copiar link de convite">🔗 <span>Convidar amigos</span></button>
-          <button type="button" class="sf11-theme-trigger sf29-side-theme" id="sf11ThemeButton" aria-haspopup="dialog" aria-expanded="false" onclick="window.sf11ToggleThemes?.(event)"><span class="sf30-theme-icon" aria-hidden="true">🌙</span> <span class="sf30-theme-label">Tema</span></button>
           <button type="button" onclick="toggleFavorites()">☆ <span>Favoritos</span></button>
           <button type="button" onclick="openRoomCfg()" id="sf5SettingsBtn">⚙ <span>Configurações</span></button>
           <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
@@ -4058,5 +4072,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-tour-29.js"></script>
   <script defer src="/sonorafan-ui-38.js"></script>
   <script defer src="/sonorafan-music-39.js"></script>
+  <link rel="stylesheet" href="/sonorafan-lobby-40.css">
+  <script defer src="/sonorafan-lobby-40.js"></script>
 </body>
 </html>
