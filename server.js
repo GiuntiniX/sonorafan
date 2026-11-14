@@ -502,11 +502,50 @@ app.get('/api/me', async (req, res) => {
   res.json({ success: true, user: { ...userData, points: points.points, badges: points.badges } });
 });
 
+// ========== SONORAFAN 5 — PERFIL E PRIVACIDADE ==========
+const sf5Clean = (value, max) => String(value ?? '').replace(/[<>\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+const sf5ProfileView = u => ({
+  nome: String(u.nome || 'Ouvinte'), avatar: String(u.avatar || '🎧'),
+  bio: String(u.bio || ''), musicGenres: Array.isArray(u.musicGenres) ? u.musicGenres : [],
+  profileColor: /^#[0-9a-fA-F]{6}$/.test(u.profileColor || '') ? u.profileColor : '#7c3aed',
+  showListeningActivity: u.showListeningActivity !== false,
+  criadoEm: u.criadoEm || null
+});
+app.get('/api/community/profile', async (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({error:'Faça login'});
+  const u = users.get(email) || await getUserFromFirestore(email);
+  if (!u) return res.status(404).json({error:'Perfil indisponível'});
+  res.json(sf5ProfileView(u));
+});
+app.patch('/api/community/profile', rateLimit(15, 60000), async (req, res) => {
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({error:'Faça login'});
+  const user = users.get(email) || await getUserFromFirestore(email);
+  if (!user) return res.status(404).json({error:'Perfil indisponível'});
+  const body = req.body || {};
+  if (typeof body.nome !== 'string' || typeof body.bio !== 'string' || !Array.isArray(body.musicGenres)) return res.status(400).json({error:'Dados incompletos'});
+  const nome = sf5Clean(body.nome,40);
+  if (nome.length < 2) return res.status(400).json({error:'Seu nome precisa ter entre 2 e 40 caracteres'});
+  if (body.bio.length > 320 || body.musicGenres.length > 6) return res.status(400).json({error:'Bio ou estilos ultrapassaram o limite'});
+  const allowedGenres = new Set(['Pop','Rock','Hip-hop','Eletrônica','Indie','Sertanejo','Funk','MPB','Jazz','Reggae','K-pop','Clássica']);
+  const genres = [...new Set(body.musicGenres)].filter(x => typeof x==='string' && allowedGenres.has(x));
+  if (genres.length !== body.musicGenres.length) return res.status(400).json({error:'Estilo musical inválido ou repetido'});
+  const color = String(body.profileColor || '#7c3aed');
+  if (!['#7c3aed','#ec4899','#ff6b35','#0ea5e9','#10b981','#f59e0b'].includes(color) || typeof body.showListeningActivity !== 'boolean') return res.status(400).json({error:'Preferência inválida'});
+  const next = {...user,nome,bio:sf5Clean(body.bio,240),musicGenres:genres,profileColor:color,showListeningActivity:body.showListeningActivity};
+  try {
+    await db.collection('users').doc(email).set({nome:next.nome,bio:next.bio,musicGenres:next.musicGenres,profileColor:next.profileColor,showListeningActivity:next.showListeningActivity},{merge:true});
+    users.set(email,next);
+    res.json({success:true,profile:sf5ProfileView(next)});
+  } catch(e) {console.error('Profile update',e);res.status(503).json({error:'Não foi possível salvar seu perfil'});}
+});
+
 // ========== SONORAFAN SOCIAL 4 — AMIGOS E EVENTOS ==========
 // IDs públicos não revelam email; sessões e permissões permanecem no servidor.
 const publicUserId = email => crypto.createHash('sha256').update('sf-public-v1:' + String(email).toLowerCase()).digest('hex').slice(0, 24);
 const findSocialUser = id => [...users.entries()].find(([email]) => publicUserId(email) === id);
-const profileSafe = ([email, u]) => ({ id: publicUserId(email), name: String(u.nome || 'Ouvinte').slice(0, 40), avatar: String(u.avatar || '🎧').slice(0, 8) });
+const profileSafe = ([email, u]) => ({ id: publicUserId(email), name: String(u.nome || 'Ouvinte').slice(0, 40), avatar: String(u.avatar || '🎧').slice(0, 8), bio: String(u.bio || '').slice(0, 120), musicGenres: Array.isArray(u.musicGenres) ? u.musicGenres.slice(0, 6) : [] });
 const socialFollowing = new Map();
 const socialEvents = new Map();
 async function getFollowing(email) {
@@ -525,6 +564,7 @@ function publicActivity(email) {
   for (const client of io.sockets.sockets.values()) {
     if (client.sfSocialEmail !== email || !client.sfSocialRoom) continue;
     const room = rooms.get(client.sfSocialRoom);
+    if (users.get(email)?.showListeningActivity === false) return null;
     if (room && !room.isPrivate) return { roomSlug: room.slug, roomName: room.name, playing: !!room.isPlaying };
   }
   return null;
