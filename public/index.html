@@ -1782,6 +1782,8 @@
           </div>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtn" style="display:none;">🎛️</button>
           <button class="action-btn" onclick="openTutorial(0)" title="Ajuda">❓</button>
+          <button class="action-btn" type="button" onclick="window.sf5OpenCommunity?.()" title="Comunidade">👥</button>
+          <button class="action-btn" type="button" onclick="window.sf5OpenProfile?.()" title="Meu perfil">◉</button>
           <button class="action-btn" onclick="openLeaderboard()" title="Ranking">🏆</button>
           <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtn">🌙</button>
           <button class="logout-btn" onclick="doLogout()" data-i18n="logout">Sair</button>
@@ -1820,6 +1822,8 @@
           <button class="action-btn" onclick="copyInviteLink()" title="Convidar">🔗</button>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
           <button class="action-btn" onclick="openTutorial(0)" title="Ajuda">❓</button>
+          <button class="action-btn" type="button" onclick="window.sf5OpenCommunity?.()" title="Comunidade">👥</button>
+          <button class="action-btn" type="button" onclick="window.sf5OpenProfile?.()" title="Meu perfil">◉</button>
           <button class="action-btn" onclick="openLeaderboard()" title="Ranking">🏆</button>
           <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtnRoom">🌙</button>
           <button class="action-btn" onclick="toggleFavorites()" title="Favoritos" style="border-color:var(--accent2);">⭐</button>
@@ -1827,8 +1831,24 @@
         </div>
       </div>
 
+      <aside class="sf5-sidebar" aria-label="Menu da sala">
+        <div class="sf5-brand"><span>◖♫◗</span> Sonora<b>Fan</b></div>
+        <nav class="sf5-navigation">
+          <button class="sf5-active" type="button" onclick="setTab('player')">⌂ <span>Sala Atual</span></button>
+          <button type="button" onclick="leaveRoom()">◈ <span>Descobrir salas</span></button>
+          <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
+          <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
+          <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
+          <button type="button" onclick="toggleFavorites()">☆ <span>Favoritos</span></button>
+          <button type="button" onclick="openRoomCfg()" id="sf5SettingsBtn">⚙ <span>Configurações</span></button>
+          <button type="button" onclick="leaveRoom()">⇥ <span>Sair da Sala</span></button>
+        </nav>
+        <div class="sf5-sidebar-card"><span>✦</span><strong>Uma vibe só nossa.</strong><small>Monte a trilha sonora junto com a comunidade.</small><button onclick="copyInviteLink()" type="button">Convidar amigos ↗</button></div>
+        <div class="sf5-side-waves" aria-hidden="true"></div>
+      </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
+        <div class="sf5-section-title"><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
         <div class="queue-column">
           <div class="queue-header">
             <span>♫ &nbsp;Playlist da sala</span>
@@ -1844,6 +1864,7 @@
         </div>
 
         <div class="player-column">
+          <div class="sf5-hero-badge">♫ &nbsp; AGORA TOCANDO</div>
           <div class="premium-room-meta"><span class="premium-live-dot"></span><span id="premiumRoomMood">Ambiente compartilhado</span><span id="premiumRoomListeners">0 ouvintes conectados</span></div>
           <div class="premium-eyebrow"><span class="premium-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><strong>Sua sessão musical</strong><small>Uma experiência compartilhada, em tempo real</small></div><span class="premium-session-pill">SONORAFAN LIVE</span></div>
           <div class="player-section" id="playerSection">
@@ -1915,6 +1936,7 @@
           </div>
         </div>
 
+        <div class="sf5-bottom-row">
         <div class="chat-column">
           <div class="premium-chat-heading"><span class="premium-online-dot"></span> Conversa ao vivo <small>COMPARTILHE A VIBE</small></div>
           <div class="premium-presence" id="premiumPresence" aria-label="Pessoas ouvindo"><span class="premium-presence-empty">Entre na vibe com a galera</span></div>
@@ -1959,6 +1981,13 @@
               </div>
             </div>
           </div>
+        </div>
+        <section class="sf5-listening-card" aria-label="Ouvintes da sala">
+          <div class="sf5-card-heading">🟢 &nbsp; Quem está ouvindo? <span id="sf5ListenersCount">0</span></div>
+          <div class="sf5-listeners-body" id="sf5ListenersBody"></div>
+          <div class="sf5-listening-note"><strong>✦ &nbsp; A trilha sonora é melhor juntos!</strong><small>Compartilhe sua vibe com quem está na sala 💜</small></div>
+        </section>
+        <section class="sf5-about-card" aria-label="Sobre a sala"><div class="sf5-card-heading">ⓘ &nbsp; Sobre a Sala <button type="button" onclick="copyInviteLink()" title="Compartilhar sala">↗</button></div><div class="sf5-about-body"><div class="sf5-about-art">♫</div><div><strong id="sf5AboutName">Sala musical</strong><p id="sf5AboutDescription">Aqui a música nunca para. Venha curtir com a galera!</p><small id="sf5AboutTag">#SonoraFan &nbsp; #AoVivo</small></div></div><div class="sf5-about-stats"><span>♙ <b id="sf5StatsListeners">0</b><small>Ouvintes</small></span><span>♫ <b id="sf5StatsTracks">0</b><small>Na fila</small></span><span>◷ <b>LIVE</b><small>Agora</small></span></div></section>
         </div>
       </div>
       <div class="premium-mini-player" id="premiumMiniPlayer" aria-label="Faixa em reprodução"><div class="premium-mini-cover" id="premiumMiniCover">♫</div><div class="premium-mini-text"><strong id="premiumMiniTitle">Nenhuma música</strong><span id="premiumMiniArtist">Escolha uma música</span></div><span class="premium-mini-live">● LIVE</span><button type="button" onclick="setTab('player')" aria-label="Abrir player">↗</button><div class="premium-mini-progress"><span id="premiumMiniFill"></span></div></div>
@@ -3682,5 +3711,9 @@
   <script defer src="/premium-3.js"></script>
   <link rel="stylesheet" href="/social-4.css">
   <script defer src="/social-4.js"></script>
+  <link rel="stylesheet" href="/community-5.css">
+  <link rel="stylesheet" href="/room-reference.css">
+  <script defer src="/room-reference.js"></script>
+  <script defer src="/community-5.js"></script>
 </body>
 </html>
