@@ -1740,6 +1740,32 @@
     </div>
   </div>
 
+  <!-- SONORAFAN CLUB · GAMIFICAÇÃO 45.0 -->
+  <div class="modal-overlay" id="sf45ClubModal" role="dialog" aria-modal="true" aria-labelledby="sf45ClubTitle">
+    <div class="modal sf45-club-modal" role="document">
+      <header class="sf45-club-head">
+        <div>
+          <span class="sf45-kicker">✦ SONORAFAN CLUB</span>
+          <h3 id="sf45ClubTitle">Sua música. Sua jornada.</h3>
+          <p>Explore, colabore e conquiste novas vibrações com a comunidade.</p>
+        </div>
+        <div class="sf45-club-head-actions">
+          <button type="button" id="sf45ClubRefresh" class="sf45-refresh" aria-label="Atualizar meu progresso">↻</button>
+          <button type="button" class="sf45-close" onclick="window.sf45CloseClub?.()" aria-label="Fechar SonoraFan Club">✕</button>
+        </div>
+      </header>
+      <div class="sf45-club-scroll" id="sf45ClubScroll" tabindex="0">
+        <div id="sf45ClubContent" class="sf45-club-content" aria-live="polite">
+          <p class="sf45-loading">Carregando seu progresso musical…</p>
+        </div>
+      </div>
+      <footer class="sf45-club-foot">
+        <span>Todo mundo é DJ · XP por participação válida · Sem vantagens pagas</span>
+        <button type="button" onclick="window.sf45CloseClub?.()">Voltar à música</button>
+      </footer>
+    </div>
+  </div>
+
   <!-- FAVORITOS -->
   <div class="modal-overlay" id="favoritesModal" role="dialog" aria-modal="true" aria-labelledby="sf35FavoritesTitle">
     <div class="modal sf35-favorites-modal">
@@ -1798,6 +1824,7 @@
         <nav class="sf28-sidebar-nav">
           <button type="button" class="active" aria-current="page">◈ <span>Descobrir salas</span></button>
           <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
+          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry">🏅 <span>SonoraFan Club</span></button>
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()">🔔 <span>Notificações</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
@@ -1820,6 +1847,7 @@
               <div class="sf28-user-meta">
                 <strong id="userDisplayName">Usuário</strong>
                 <span id="userPointsBadge"></span>
+                <button type="button" class="sf45-header-club" onclick="window.sf45OpenClub?.()">🏅 Meu Club</button>
               </div>
             </div>
           </div>
@@ -1938,6 +1966,7 @@
           <button class="sf5-active" type="button" onclick="setTab('player')">⌂ <span>Sala Atual</span></button>
           <button type="button" onclick="leaveRoom()">◈ <span>Descobrir salas</span></button>
           <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
+          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry">🏅 <span>SonoraFan Club</span></button>
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
           <button type="button" class="sf29-side-invite" onclick="copyInviteLink()" title="Copiar link de convite">🔗 <span>Convidar amigos</span></button>
@@ -2112,6 +2141,7 @@
         <button data-t="player" class="on" onclick="setTab('player')">▶ Player</button>
         <button data-t="chat" onclick="setTab('chat')">💬 Chat</button>
         <button class="sf34-add-mobile" type="button" onclick="window.sf34FindSong?.()" aria-label="Adicionar música">＋ Música</button>
+        <button class="sf45-mobile-club" type="button" onclick="window.sf45OpenClub?.()" aria-label="Abrir SonoraFan Club">🏅 Club</button>
       </nav>
     </div>
   </div>
@@ -2296,6 +2326,7 @@
           <section class="sf43-profile-card">
             <div class="sf43-section-head"><strong>Ações rápidas</strong><small>Atalhos úteis para o dia a dia</small></div>
             <div class="sf43-quick-actions">
+              <button type="button" onclick="window.sf45OpenClub?.(); window.sf43CloseProfile?.();">🏅 SonoraFan Club</button>
               <button type="button" onclick="toggleFavorites(); window.sf43CloseProfile?.();">☆ Favoritos</button>
               <button type="button" onclick="openLeaderboard(); window.sf43CloseProfile?.();">♛ Ranking</button>
               <button type="button" onclick="window.sf5OpenCommunity?.(); window.sf43CloseProfile?.();">♧ Comunidade</button>
@@ -2779,10 +2810,11 @@
       setTimeout(maybeOnboard, 700);
       $('userDisplayName').textContent = myName;
       $('userAvatar').textContent = myAvatar;
-      let badgeText = '';
-      if (myBadges && myBadges.length) badgeText = '🏅 ' + myBadges.join(' ');
-      else if (myPoints > 0) badgeText = '⭐ ' + myPoints;
-      $('userPointsBadge').textContent = badgeText;
+      // Cabeçalho compacto: preserva a coleção de medalhas no Club sem exibir todos os títulos juntos.
+      const clubRanks = [[0,'Ouvinte'],[5,'Descobridor'],[10,'DJ Iniciante'],[25,'DJ Explorador'],[40,'DJ da Galera'],[50,'DJ Expert'],[100,'DJ Lendário'],[250,'Estrela do Festival'],[500,'Ícone SonoraFan'],[1000,'Lenda da Comunidade']];
+      const clubXP = Math.max(0, Math.floor(Number(myPoints) || 0));
+      const clubTitle = clubRanks.filter(([xp]) => clubXP >= xp).slice(-1)[0][1];
+      $('userPointsBadge').textContent = '🏅 ' + clubTitle + ' · ' + clubXP.toLocaleString('pt-BR') + ' XP';
     }
 
     function checkAdmin() {
@@ -3896,7 +3928,7 @@ function openRoomCfg() {
       $('lbModal').classList.add('active'); $('lbList').textContent = '...';
       try {
         const d = await (await fetch('/api/leaderboard', { credentials: 'include' })).json();
-        $('lbList').innerHTML = (d.items || []).map((u, i) => `<div class="lb-row"><b>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'}</b><span>${escapeHtml(u.avatar)} ${escapeHtml(u.nome)}</span><em>${u.points} pts</em></div>`).join('') || '—';
+        $('lbList').innerHTML = (d.items || []).map((u, i) => `<div class="lb-row"><b>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'}</b><span>${escapeHtml(u.avatar || '🎧')} ${escapeHtml(u.nome)}<small style='display:block;opacity:.7;font-size:11px;'>${escapeHtml(u.level?.name || '')}</small></span><em>${u.points} XP</em></div>`).join('') || '—';
       } catch (e) { $('lbList').textContent = '—'; }
     }
     async function deleteMyAccount() {
@@ -4116,5 +4148,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-enhancements-43.js"></script>
   <link rel="stylesheet" href="/sonorafan-experience-44.css">
   <script defer src="/sonorafan-experience-44.js"></script>
+  <link rel="stylesheet" href="/sonorafan-club-45.css">
+  <script defer src="/sonorafan-club-45.js"></script>
 </body>
 </html>
