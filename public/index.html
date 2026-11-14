@@ -1080,8 +1080,262 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
+  
+    /* ============================================================
+       DESIGN UPGRADE v2 — ANIMATIONS EM TODA A PLATAFORMA
+       ============================================================ */
+
+    /* ---------- FUNDO AMBIENTE ANIMADO (todas as telas) ---------- */
+    body::after {
+      content: ''; position: fixed; inset: -10%; z-index: -1; pointer-events: none; opacity: .55;
+      background:
+        radial-gradient(55% 45% at 12% 8%,  rgba(124,58,237,0.20), transparent 60%),
+        radial-gradient(45% 40% at 88% 18%, rgba(255,107,53,0.15), transparent 60%),
+        radial-gradient(50% 45% at 50% 95%, rgba(34,211,238,0.10), transparent 60%);
+      animation: ambientDrift 28s ease-in-out infinite alternate;
+      transition: opacity .6s;
+    }
+    @keyframes ambientDrift {
+      0%   { transform: translate3d(0,0,0) scale(1) rotate(0deg); }
+      50%  { transform: translate3d(2%,-1.5%,0) scale(1.05) rotate(1.5deg); }
+      100% { transform: translate3d(-1.5%,2%,0) scale(1.03) rotate(-1deg); }
+    }
+
+    /* ---------- TRANSICIONES SUAVES GLOBAIS ---------- */
+    .header, .queue-column, .player-column, .chat-column, .modal, .login-card,
+    .room-card, .queue-item, .favorite-item, .admin-user-item, .ar-card,
+    .feature-card, .how-card, .testimonial-card, .stats-band, .final-cta {
+      transition-property: transform, box-shadow, border-color, background-color, opacity;
+      transition-duration: .35s;
+      transition-timing-function: cubic-bezier(.22,1,.36,1);
+    }
+
+    /* ---------- HEADER: linha de gradiente animada ---------- */
+    .header { position: relative; }
+    .header::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), var(--accent), transparent);
+      background-size: 200% 100%;
+      animation: headerFlow 7s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes headerFlow { to { background-position: 200% 0; } }
+
+    /* ---------- BOTÕES: brilho varrendo + elevação ---------- */
+    .lobby-actions button, .add-song button, .chat-input-bar button,
+    .modal-actions .btn-primary, .song-preview-confirm, .btn-primary,
+    .sound-gate button, .login-card button, .btn-hero-primary, .btn-landing-primary, .final-cta-btn {
+      position: relative; overflow: hidden;
+    }
+    .lobby-actions button::after, .add-song button::after, .chat-input-bar button::after,
+    .modal-actions .btn-primary::after, .song-preview-confirm::after,
+    .login-card button::after, .btn-hero-primary::after, .btn-landing-primary::after, .final-cta-btn::after {
+      content: ''; position: absolute; top: 0; left: -90%; width: 55%; height: 100%;
+      background: linear-gradient(105deg, transparent, rgba(255,255,255,0.38), transparent);
+      transform: skewX(-22deg);
+      animation: btnShine 3.4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes btnShine { 0%, 55% { left: -90%; } 100% { left: 140%; } }
+    .lobby-actions button:hover, .add-song button:hover, .chat-input-bar button:hover,
+    .modal-actions .btn-primary:hover, .song-preview-confirm:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 10px 32px var(--accent2-glow), 0 0 24px var(--accent-glow);
+    }
+    .lobby-actions button:active, .add-song button:active, .chat-input-bar button:active { transform: translateY(0) scale(.98); }
+
+    /* ---------- BOTÕES SECUNDÁRIOS ---------- */
+    .btn-secondary, .logout-btn, .admin-toggle-btn, .theme-toggle-btn, .action-btn,
+    .msg-like-btn, .vote-btn, .emoji-btn {
+      transition: all .22s cubic-bezier(.34,1.56,.64,1) !important;
+    }
+    .action-btn:hover, .theme-toggle-btn:hover, .admin-toggle-btn:hover {
+      transform: translateY(-2px) scale(1.1) rotate(-4deg);
+      box-shadow: 0 6px 18px rgba(0,0,0,.35), 0 0 14px var(--accent-glow);
+    }
+
+    /* ---------- TÍTULOS COM GRADIENTE ANIMADO ---------- */
+    .lobby-top h2, .room-card-body h3, .section-head h2 {
+      background: linear-gradient(90deg, var(--text) 20%, var(--accent) 40%, var(--accent2) 60%, var(--text) 80%);
+      background-size: 220% auto;
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      animation: titleFlow 7s linear infinite;
+    }
+    @keyframes titleFlow { to { background-position: 220% center; } }
+
+    /* ---------- CARDS DE SALA: entrada escalonada + borda de energia + shine ---------- */
+    .room-card { animation: cardIn .55s cubic-bezier(.22,1,.36,1) backwards; }
+    .room-card:nth-child(1){animation-delay:.03s}.room-card:nth-child(2){animation-delay:.09s}
+    .room-card:nth-child(3){animation-delay:.15s}.room-card:nth-child(4){animation-delay:.21s}
+    .room-card:nth-child(5){animation-delay:.27s}.room-card:nth-child(6){animation-delay:.33s}
+    .room-card:nth-child(7){animation-delay:.39s}.room-card:nth-child(8){animation-delay:.45s}
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(26px) scale(.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .room-card::after {
+      content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; z-index: 3;
+      background: linear-gradient(135deg, transparent 25%, var(--accent) 45%, var(--accent2) 55%, transparent 75%);
+      background-size: 280% 280%; background-position: 0% 0%;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      opacity: 0; transition: opacity .45s; pointer-events: none;
+    }
+    .room-card:hover::after { opacity: 1; animation: borderFlow 2.6s linear infinite; }
+    @keyframes borderFlow { to { background-position: 100% 100%; } }
+    .room-card .room-card-body::before {
+      content: ''; position: absolute; top: 0; left: -80%; width: 45%; height: 100%;
+      background: linear-gradient(105deg, transparent, rgba(255,255,255,0.14), transparent);
+      transform: skewX(-18deg);
+      transition: left .7s cubic-bezier(.22,1,.36,1);
+      pointer-events: none; z-index: 1;
+    }
+    .room-card:hover .room-card-body::before { left: 130%; }
+    .room-card.live { box-shadow: 0 0 0 1px rgba(255,107,53,.35), 0 14px 44px rgba(255,107,53,.18); }
+    .room-card:hover { transform: translateY(-7px) scale(1.015); }
+
+    /* ---------- PLAYER: moldura viva + equalizador aprimorado ---------- */
+    .player-section { position: relative; }
+    .player-section::before {
+      content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; z-index: 2;
+      background: conic-gradient(from var(--ring-a, 0deg), transparent 0%, var(--accent) 12%, var(--accent2) 22%, transparent 34%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      opacity: 0; transition: opacity .6s; pointer-events: none;
+      animation: ringSpin 5s linear infinite;
+    }
+    .player-section.has-glow::before { opacity: .9; }
+    @property --ring-a { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+    @keyframes ringSpin { to { --ring-a: 360deg; } }
+    .progress-fill {
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+      background-size: 200% 100%;
+      animation: progressFlow 3.5s linear infinite;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+    @keyframes progressFlow { to { background-position: 200% 0; } }
+    .progress-fill::after { animation: knobPulse 1.6s ease-in-out infinite; }
+    @keyframes knobPulse {
+      0%, 100% { box-shadow: 0 0 0 3px var(--accent-glow); transform: translateY(-50%) scale(1); }
+      50% { box-shadow: 0 0 0 7px var(--accent2-glow); transform: translateY(-50%) scale(1.15); }
+    }
+    #spectrum span { animation-duration: 1.15s; }
+    .sound-gate button { animation: gatePulse 2s ease-in-out infinite; }
+    @keyframes gatePulse {
+      0%,100% { box-shadow: 0 8px 30px var(--accent2-glow); transform: scale(1); }
+      50% { box-shadow: 0 8px 44px var(--accent-glow), 0 0 30px var(--accent-glow); transform: scale(1.04); }
+    }
+
+    /* ---------- FILA: entrada lateral escalonada ---------- */
+    .queue-item { animation: qIn .32s cubic-bezier(.22,1,.36,1) backwards; }
+    .queue-item:nth-child(1){animation-delay:.02s}.queue-item:nth-child(2){animation-delay:.05s}
+    .queue-item:nth-child(3){animation-delay:.08s}.queue-item:nth-child(4){animation-delay:.11s}
+    .queue-item:nth-child(5){animation-delay:.14s}.queue-item:nth-child(6){animation-delay:.17s}
+    .queue-item:nth-child(7){animation-delay:.20s}.queue-item:nth-child(8){animation-delay:.23s}
+    .queue-item:nth-child(9){animation-delay:.26s}.queue-item:nth-child(10){animation-delay:.29s}
+    .queue-item:nth-child(n+11){animation-delay:.31s}
+    @keyframes qIn { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
+    .queue-item.current {
+      background: linear-gradient(90deg, rgba(255,107,53,.14), rgba(124,58,237,.12));
+      box-shadow: inset 0 0 0 1px rgba(255,107,53,.25);
+    }
+    .queue-item:hover { transform: translateX(4px); }
+
+    /* ---------- CHAT: mensagens com glow próprio ---------- */
+    .msg { animation: msgIn .28s cubic-bezier(.22,1,.36,1); }
+    .msg:not(.msg-system):hover { box-shadow: 0 4px 18px rgba(0,0,0,.25); transform: translateX(2px); }
+    @keyframes msgIn { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .pinned-message { animation: pinGlow 3s ease-in-out infinite; }
+    @keyframes pinGlow {
+      0%,100% { box-shadow: 0 0 0 rgba(124,58,237,0); }
+      50% { box-shadow: 0 0 22px rgba(124,58,237,.25); }
+    }
+    .chat-input-bar input:focus { transform: scale(1.01); }
+
+    /* ---------- MODAIS: entrada mais expressiva ---------- */
+    .modal { animation: modalPop .42s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes modalPop {
+      from { opacity: 0; transform: translateY(34px) scale(.92); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-overlay.active { animation: overlayIn .25s ease; }
+    @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* ---------- CHIPS / SELEÇÕES: pop ---------- */
+    .chip, .avatar-option, .kind-tile, .cfg-e, .cfg-c, .theme-opt {
+      transition: all .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    .chip.selected, .avatar-option.selected, .kind-tile.on, .cfg-e.on {
+      animation: chipPop .32s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 4px 16px var(--accent-glow), inset 0 0 0 1px var(--accent);
+    }
+    @keyframes chipPop { 0% { transform: scale(.88); } 60% { transform: scale(1.09); } 100% { transform: scale(1.03); } }
+    .avatar-option:hover, .kind-tile:hover, .theme-opt:hover { transform: translateY(-3px) scale(1.05); }
+    .cfg-c.on { transform: scale(1.18); box-shadow: 0 0 0 2px var(--text), 0 4px 14px rgba(0,0,0,.4); }
+
+    /* ---------- LISTAS ADMIN / FAVORITOS: hover lift ---------- */
+    .favorite-item:hover, .admin-user-item:hover, .ar-card:hover, .lb-row:hover {
+      transform: translateX(4px);
+      border-color: var(--accent2);
+      box-shadow: 0 6px 22px rgba(0,0,0,.28);
+    }
+    .favorite-item, .admin-user-item, .ar-card, .lb-row { animation: rowIn .3s ease backwards; }
+    @keyframes rowIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ---------- USERS POP / THEME POP: spring ---------- */
+    .users-pop.show, .theme-pop.show { animation: popSpring .38s cubic-bezier(.34,1.56,.64,1); transform-origin: top right; }
+    @keyframes popSpring { from { opacity: 0; transform: scale(.86) translateY(-8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    /* ---------- LANDING: reveal ao rolar ---------- */
+    .feature-card, .how-card, .testimonial-card, .stats-band, .final-cta {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1),
+                  border-color .3s, box-shadow .3s;
+    }
+    .feature-card.inview, .how-card.inview, .testimonial-card.inview,
+    .stats-band.inview, .final-cta.inview { opacity: 1; transform: translateY(0); }
+    .how-card:nth-child(2), .feature-card:nth-child(2) { transition-delay: .08s; }
+    .how-card:nth-child(3), .feature-card:nth-child(3) { transition-delay: .16s; }
+    .feature-card:nth-child(4) { transition-delay: .1s; }
+    .feature-card:nth-child(5) { transition-delay: .18s; }
+    .feature-card:nth-child(6) { transition-delay: .26s; }
+    .feature-card:hover .icon { animation: iconWiggle .5s ease; }
+    @keyframes iconWiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-10deg) scale(1.1); } 75% { transform: rotate(8deg) scale(1.1); } }
+    .how-card .how-num { transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+    .how-card:hover .how-num { transform: scale(1.15) rotate(-6deg); }
+
+    /* ---------- TOAST / PILLS ---------- */
+    .toast.show { animation: toastIn .4s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(120px) scale(.9); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+    .new-msg-pill.show { animation: pillIn .35s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes pillIn { from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(.85); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+
+    /* ---------- VINIL / HERO (landing) ---------- */
+    .vinyl { animation: vinylSpin 12s linear infinite; }
+    .now-playing-card { animation: cardFloat 5.5s ease-in-out infinite; }
+    .float-card { animation-duration: 7s; }
+
+    /* ---------- SCROLLBAR COM BRILHO ---------- */
+    ::-webkit-scrollbar-thumb { box-shadow: 0 0 8px var(--accent-glow); }
+
+    /* ---------- VOLUME SLIDER ---------- */
+    .volume-control input[type="range"]::-webkit-slider-thumb {
+      transition: transform .15s; box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .volume-control input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.3); }
+
+    /* ---------- RESPEITO A REDUCED MOTION ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      .room-card::after, .header::after, .player-section::before,
+      .lobby-actions button::after, body::after { animation: none !important; opacity: 0 !important; }
+    }
+
   </style>
 
+<base target="_blank">
 </head>
 <body>
   <!-- ===== LANDING PAGE ===== -->
@@ -3055,6 +3309,43 @@
     socket.on('skipVoteUpdate', ({ votes, needed }) => { skipVotes = { votes, needed }; updateSkipBtn(); toast(`🗳️ Votos para pular: ${votes}/${needed}`, 'success'); });
     socket.on('waitingRoom', ({ position, canJoin }) => { if (canJoin) { toast('🟢 Vaga liberada!', 'success'); joinRoom(currentRoom); } else { toast(`⏳ Fila de espera (posição ${position})`, 'error'); } });
     socket.on('playSound', (type) => playSound(type));
+
+
+    // ===== WATCHDOG DE ÁUDIO: recupera o som automaticamente =====
+    // Bug: o YouTube iframe tem o áudio suspenso pelo navegador após um tempo
+    // (aba em background / economia de energia). O antigo re-sync só agia quando o
+    // player estava em estado "tocando" (1), então nada recuperava o som travado —
+    // só um toque manual no volume. Este watchdog verifica a cada 4s e:
+    //   - se pausou/travou: dá play de novo e resincroniza a posição;
+    //   - se está tocando mas sem som: reaplica volume + unMute (isso "acorda" o áudio);
+    //   - se dessincronizou > 3s: faz seek para a posição correta.
+    setInterval(() => {
+      try {
+        if (!player || !player.getPlayerState) return;
+        const s = currentRoomData;
+        if (!s || !s.isPlaying || !currentTrackId) return;
+        const st = player.getPlayerState();
+        if (st === 1) {
+          if (player.isMuted && player.isMuted()) player.unMute();
+          player.setVolume(volumeLevel);
+          const expected = (s.position || 0) + (Date.now() - (s._at || Date.now())) / 1000;
+          if (Math.abs(player.getCurrentTime() - expected) > 3) player.seekTo(expected, true);
+        } else if (st === 2 || st === -1) {
+          player.playVideo();
+          setTimeout(() => { try { player.unMute(); player.setVolume(volumeLevel); } catch (e) {} }, 350);
+        }
+      } catch (e) {}
+    }, 4000);
+
+    // ===== REVEAL AO ROLAR (landing) =====
+    (function () {
+      const els = document.querySelectorAll('.feature-card, .how-card, .testimonial-card, .stats-band, .final-cta');
+      if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('inview')); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('inview'); io.unobserve(en.target); } });
+      }, { threshold: 0.12, root: document.getElementById('landingScreen') || null });
+      els.forEach(el => io.observe(el));
+    })();
 
     // ===== PROGRESS BAR =====
     setInterval(() => {
