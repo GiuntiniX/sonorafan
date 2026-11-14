@@ -1378,11 +1378,14 @@
   <link rel="stylesheet" href="/room-characters-22.css">
   <link rel="stylesheet" href="/room-characters-23.css">
   <link rel="stylesheet" href="/character-art-24.css">
+  <link rel="stylesheet" href="/sonorafan-wow-26.css">
 </head>
 <body>
   <!-- ===== LANDING PAGE ===== -->
   <div class="landing-screen" id="landingScreen">
     <div class="landing-bg"></div>
+    <div class="sf26-noise" aria-hidden="true"></div>
+    <div class="sf26-ambient" aria-hidden="true"><span class="orb orb-a"></span><span class="orb orb-b"></span><span class="orb orb-c"></span><span class="beam beam-a"></span><span class="beam beam-b"></span></div>
     <div class="float-notes" aria-hidden="true">
       <span>♪</span><span>♫</span><span>♬</span><span>♪</span><span>♫</span>
     </div>
@@ -1447,6 +1450,17 @@
             <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/default.jpg" alt="">
             <div class="fc-info"><div class="fc-title">Despacito</div><div class="fc-artist">Luis Fonsi</div></div>
           </div>
+        </div>
+      </section>
+
+      <section class="sf26-live-marquee" aria-label="Salas em destaque">
+        <div class="sf26-marquee-track">
+          <span>🔴 Sala Pop Night • 128 ouvintes • playlist colaborativa</span>
+          <span>🎧 Lounge SonoraFan • sem pausa • chat ao vivo</span>
+          <span>⚡ Rock Arena • todo mundo adiciona música</span>
+          <span>🌙 Chill Sessions • descubra novos sons</span>
+          <span>🔥 Trap Nation BR • energia alta a noite toda</span>
+          <span>💜 Indie Lovers • comunidade e conexão</span>
         </div>
       </section>
 
@@ -1619,46 +1633,78 @@
 
   <!-- ===== LOGIN ===== -->
   <div class="login-screen" id="loginScreen">
-    <div class="login-card">
-      <div class="logo">🎸</div>
-      <h1>🎧 SonoraFan</h1>
-      <p data-i18n="login.sub">Entre com sua conta para acessar as salas.</p>
-      <div class="login-error" id="loginError" data-i18n="login.error">Credenciais inválidas.</div>
-      <input type="email" id="loginEmail" placeholder="E-mail" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
-      <input type="password" id="loginPassword" placeholder="Senha" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
-      <button id="loginBtn" onclick="doLogin()" data-i18n="login.btn">Entrar no palco</button>
-      <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="#" onclick="openLegal('terms');return false;">Termos de Uso</a> e a <a href="#" onclick="openLegal('priv');return false;">Política de Privacidade</a>.</p>
-      <div class="login-switch"><span data-i18n="login.switch">Não tem conta?</span> <a onclick="openSignup()" data-i18n="login.signup">Cadastre-se</a></div>
+    <div class="sf26-auth-shell">
+      <div class="sf26-auth-showcase">
+        <span class="sf26-auth-kicker">SONORAFAN EXPERIENCE</span>
+        <h2>A música vira encontro.<br>O encontro vira comunidade.</h2>
+        <p>Entre em salas ao vivo, descubra pessoas com a sua vibe e transforme qualquer play em uma experiência social.</p>
+        <div class="sf26-auth-pills"><span>Ao vivo</span><span>Colaborativo</span><span>Sem delay</span></div>
+        <div class="sf26-auth-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="sf26-auth-mini-room">
+          <div class="sf26-auth-mini-top"><strong>Sala em destaque</strong><span>🔴 Agora</span></div>
+          <div class="sf26-auth-track"><b>Midnight Pulse</b><small>The Weeknd • curadoria da comunidade</small></div>
+          <div class="sf26-auth-avatars"><span>🎧</span><span>🎤</span><span>🎸</span><span>🎹</span><em>+124 ouvintes</em></div>
+        </div>
+      </div>
+      <div class="login-card sf26-login-card">
+        <div class="logo">🎧</div>
+        <h1>Entre no SonoraFan</h1>
+        <p data-i18n="login.sub">Entre com sua conta para acessar as salas.</p>
+        <div class="login-error" id="loginError" data-i18n="login.error">Credenciais inválidas.</div>
+        <input type="email" id="loginEmail" placeholder="E-mail" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
+        <input type="password" id="loginPassword" placeholder="Senha" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
+        <button id="loginBtn" onclick="doLogin()" data-i18n="login.btn">Entrar no palco</button>
+        <div class="sf26-auth-divider"><span>Seu palco começa agora</span></div>
+        <ul class="sf26-auth-benefits">
+          <li>🎵 Fila colaborativa em tempo real</li>
+          <li>💬 Chat ao vivo com a comunidade</li>
+          <li>⚡ Salas com identidade própria</li>
+        </ul>
+        <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="#" onclick="openLegal('terms');return false;">Termos de Uso</a> e a <a href="#" onclick="openLegal('priv');return false;">Política de Privacidade</a>.</p>
+        <div class="login-switch"><span data-i18n="login.switch">Não tem conta?</span> <a onclick="openSignup()" data-i18n="login.signup">Cadastre-se</a></div>
+      </div>
     </div>
   </div>
 
   <!-- ===== SIGNUP ===== -->
-  <div class="modal-overlay" id="signupModal">
-    <div class="modal">
-      <h3 data-i18n="signup.title">🎵 Criar conta</h3>
-      <label class="form-label" data-i18n="signup.name">Nome <span class="required">*</span></label>
-      <input type="text" id="signupNome" placeholder="Seu nome" maxlength="60" data-i18n-placeholder="signup.namePlaceholder">
-      <label class="form-label" data-i18n="signup.email">E-mail <span class="required">*</span></label>
-      <input type="email" id="signupEmail" placeholder="voce@email.com" maxlength="120" data-i18n-placeholder="signup.emailPlaceholder">
-      <label class="form-label" data-i18n="signup.password">Senha <span class="required">*</span> <span class="hint">(mínimo 6 caracteres)</span></label>
-      <input type="password" id="signupPassword" placeholder="Crie uma senha" maxlength="30" data-i18n-placeholder="signup.passwordPlaceholder">
-      <label class="form-label" data-i18n="signup.style">Estilo musical <span class="required">*</span></label>
-      <div class="chip-group" id="signupStyles">
-        <div class="chip" data-style="sertanejo" onclick="toggleChip(this)">Sertanejo</div>
-        <div class="chip" data-style="funk" onclick="toggleChip(this)">Funk</div>
-        <div class="chip" data-style="pagode" onclick="toggleChip(this)">Pagode/Samba</div>
-        <div class="chip" data-style="mpb" onclick="toggleChip(this)">MPB</div>
-        <div class="chip" data-style="rock" onclick="toggleChip(this)">Rock</div>
-        <div class="chip" data-style="pop" onclick="toggleChip(this)">Pop</div>
-        <div class="chip" data-style="eletronica" onclick="toggleChip(this)">Eletrônica</div>
-        <div class="chip" data-style="hiphop" onclick="toggleChip(this)">Hip Hop/Rap</div>
-        <div class="chip" data-style="forro" onclick="toggleChip(this)">Forró</div>
-        <div class="chip" data-style="gospel" onclick="toggleChip(this)">Gospel</div>
-        <div class="chip" data-style="indie" onclick="toggleChip(this)">Indie</div>
+  <div class="modal-overlay sf26-signup-overlay" id="signupModal">
+    <div class="modal sf26-signup-shell">
+      <div class="sf26-signup-side">
+        <span class="sf26-auth-kicker">CRIAR CONTA</span>
+        <h3>Seu convite para a melhor versão do SonoraFan</h3>
+        <p>Crie sua conta e entre em uma experiência social de música com presença ao vivo, salas colaborativas e muita personalidade.</p>
+        <div class="sf26-signup-cards">
+          <article><strong>🎵 Salas colaborativas</strong><span>Todo mundo ajuda a construir a trilha sonora.</span></article>
+          <article><strong>💬 Comunidade real</strong><span>Converse, descubra gente nova e compartilhe a sua vibe.</span></article>
+          <article><strong>✨ Visual premium</strong><span>Uma plataforma feita para impressionar desde o primeiro acesso.</span></article>
+        </div>
       </div>
-      <div class="modal-actions">
-        <button class="btn-secondary" onclick="closeSignup()" data-i18n="signup.cancel">Cancelar</button>
-        <button class="btn-primary" onclick="submitSignup()" data-i18n="signup.submit">Criar conta 🎶</button>
+      <div class="sf26-signup-form">
+        <h3 data-i18n="signup.title">🎵 Criar conta</h3>
+        <label class="form-label" data-i18n="signup.name">Nome <span class="required">*</span></label>
+        <input type="text" id="signupNome" placeholder="Seu nome" maxlength="60" data-i18n-placeholder="signup.namePlaceholder">
+        <label class="form-label" data-i18n="signup.email">E-mail <span class="required">*</span></label>
+        <input type="email" id="signupEmail" placeholder="voce@email.com" maxlength="120" data-i18n-placeholder="signup.emailPlaceholder">
+        <label class="form-label" data-i18n="signup.password">Senha <span class="required">*</span> <span class="hint">(mínimo 6 caracteres)</span></label>
+        <input type="password" id="signupPassword" placeholder="Crie uma senha" maxlength="30" data-i18n-placeholder="signup.passwordPlaceholder">
+        <label class="form-label" data-i18n="signup.style">Estilo musical <span class="required">*</span></label>
+        <div class="chip-group" id="signupStyles">
+          <div class="chip" data-style="sertanejo" onclick="toggleChip(this)">Sertanejo</div>
+          <div class="chip" data-style="funk" onclick="toggleChip(this)">Funk</div>
+          <div class="chip" data-style="pagode" onclick="toggleChip(this)">Pagode/Samba</div>
+          <div class="chip" data-style="mpb" onclick="toggleChip(this)">MPB</div>
+          <div class="chip" data-style="rock" onclick="toggleChip(this)">Rock</div>
+          <div class="chip" data-style="pop" onclick="toggleChip(this)">Pop</div>
+          <div class="chip" data-style="eletronica" onclick="toggleChip(this)">Eletrônica</div>
+          <div class="chip" data-style="hiphop" onclick="toggleChip(this)">Hip Hop/Rap</div>
+          <div class="chip" data-style="forro" onclick="toggleChip(this)">Forró</div>
+          <div class="chip" data-style="gospel" onclick="toggleChip(this)">Gospel</div>
+          <div class="chip" data-style="indie" onclick="toggleChip(this)">Indie</div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeSignup()" data-i18n="signup.cancel">Cancelar</button>
+          <button class="btn-primary" onclick="submitSignup()" data-i18n="signup.submit">Criar conta 🎶</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1949,18 +1995,17 @@
             </div>
           </div>
 
-          <section class="sf18-world" id="sf18World" aria-label="Pista social da sala">
-            <div class="sf18-light-rays" aria-hidden="true"><i></i><i></i><i></i></div>
-            <div class="sf18-world-header">
-              <div><span class="sf18-overline">Pista SonoraFan</span><h2>Estamos ouvindo juntos <span aria-hidden="true">✨</span></h2></div>
-              <div class="sf19-scene-actions"><span class="sf18-live"><i></i> AO VIVO</span><button id="sf19CustomizeButton" class="sf19-customize-trigger" type="button">✦ Meu avatar</button></div>
+          <section class="sf26-presence-card" id="sf18World" aria-label="Pessoas conectadas na sala">
+            <div class="sf26-presence-head">
+              <div><span class="sf26-overline">Presença ao vivo</span><h2>Quem está ouvindo agora</h2></div>
+              <div class="sf26-presence-actions"><span class="sf18-live"><i></i> AO VIVO</span><button id="sf19CustomizeButton" class="sf19-customize-trigger" type="button">✦ Meu avatar</button></div>
             </div>
-            <div class="sf18-social-scene">
-              <div class="sf18-dj-booth"><span class="sf18-decks" aria-hidden="true">◉ ▰ ◉</span><span class="sf18-host-avatar" id="sf18HostAvatar">🎧</span><div><small>ANFITRIÃO DA SALA</small><strong id="sf18HostName">Aguardando participantes</strong></div></div>
-              <div class="sf18-crowd sf19-crowd" id="sf18Crowd" aria-label="Plateia interativa, escolha um lugar"><span class="sf18-empty-crowd">A pista ganha vida quando os ouvintes entram.</span></div>
-              <div class="sf18-reactions" id="sf18ReactionStage" aria-hidden="true"></div>
+            <div class="sf26-host-row">
+              <div class="sf26-host-main"><span class="sf18-host-avatar" id="sf18HostAvatar">🎧</span><div><small>ANFITRIÃO DA SALA</small><strong id="sf18HostName">Aguardando participantes</strong></div></div>
+              <div class="sf26-crowd-meta"><strong><b id="sf18CrowdCount">0</b> ouvindo</strong><small class="sf19-seat-label" id="sf19MySeat">Pessoas conectadas em tempo real</small></div>
             </div>
-            <div class="sf18-world-bottom"><span><b id="sf18CrowdCount">0</b> na pista <small class="sf19-seat-label" id="sf19MySeat">Escolha seu lugar</small></span><div class="sf18-react-controls" aria-label="Reagir com a sala"><button type="button" data-sf18-react="🔥" aria-label="Reagir com fogo">🔥</button><button type="button" data-sf18-react="❤️" aria-label="Reagir com coração">❤️</button><button type="button" data-sf18-react="🙌" aria-label="Reagir com aplausos">🙌</button><button type="button" data-sf18-react="⚡" aria-label="Reagir com energia">⚡</button></div></div>
+            <div class="sf26-listeners-strip sf18-crowd sf19-crowd" id="sf18Crowd" aria-label="Pessoas na sala agora"><span class="sf18-empty-crowd">Os participantes conectados aparecem aqui em tempo real.</span></div>
+            <div class="sf26-reactions-row"><div class="sf18-reactions" id="sf18ReactionStage" aria-hidden="true"></div><div class="sf18-react-controls" aria-label="Reagir com a sala"><button type="button" data-sf18-react="🔥" aria-label="Reagir com fogo">🔥</button><button type="button" data-sf18-react="❤️" aria-label="Reagir com coração">❤️</button><button type="button" data-sf18-react="🙌" aria-label="Reagir com aplausos">🙌</button><button type="button" data-sf18-react="⚡" aria-label="Reagir com energia">⚡</button></div></div>
           </section>
 
           <div class="next-track" id="nextTrack" style="display:none;">
@@ -3919,10 +3964,9 @@ function openRoomCfg() {
   <script defer src="/room-immersive-18.js"></script>
   <link rel="stylesheet" href="/room-interactive-19.css">
   <script defer src="/character-art-24.js"></script>
-  <script defer src="/character-sprites-25.js"></script>
   <script defer src="/room-interactive-19.js"></script>
   <link rel="stylesheet" href="/room-social-20.css">
-  <link rel="stylesheet" href="/character-sprites-25.css">
   <script defer src="/room-social-20.js"></script>
+  <script defer src="/sonorafan-wow-26.js"></script>
 </body>
 </html>
