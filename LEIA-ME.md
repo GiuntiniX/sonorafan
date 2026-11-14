@@ -1,27 +1,28 @@
-# SonoraFan 23.0 — Personagens Chibi e Perfil Firebase
+# SonoraFan 26.0 — Landing premium + sala simplificada
 
-Atualização incremental sobre a versão **22.0**.
+Arquivos alterados:
 
-## Arquivos alterados
-- `server.js` — substituir
-- `public/index.html` — substituir
-- `public/room-interactive-19.js` — substituir
-- `public/room-characters-23.css` — adicionar
+- `public/index.html` → substituir
+- `public/sonorafan-wow-26.css` → adicionar
+- `public/sonorafan-wow-26.js` → adicionar
 
-Mantenha todos os outros arquivos CSS/JS das versões anteriores. Reinicie o backend.
+## O que entra nesta etapa
 
-## Mudanças
-- Personagens com proporções *chibi*: cabeça grande, corpo pequeno, olhos, expressões, roupa e acessórios.
-- O usuário mantém as opções de cabelo, cor de roupa e acessórios já existentes.
-- Novas rotas autenticadas `GET /api/avatar/me` e `PATCH /api/avatar/me` (perfil próprio).
-- Ao personalizar pela sala, o servidor valida e salva `stageAvatar` e `stageLook` no documento do usuário no Firestore.
-- Ao entrar em qualquer sala, o servidor recupera a aparência persistida. Posição na pista e movimento permanecem temporários.
-- A busca de músicas, fila colaborativa, player e permissões de sala são preservados.
+### 1. Sala mais leve
+- a antiga “pista social” foi simplificada;
+- agora a área mostra apenas **quem está ouvindo agora**;
+- o bloco superior do player deixa de exibir visualmente o **tempo duplicado**.
 
-## Segurança e privacidade
-- Nunca usa e-mail enviado pelo navegador para selecionar o perfil; usa a sessão autenticada.
-- Avatar e aparência aceitam apenas valores de listas definidas no servidor.
-- Não inclui credenciais Firebase no ZIP.
+### 2. Reversão dos sprites pesados
+- o carregamento da camada `character-sprites-25` foi removido do `index.html`;
+- isso evita o efeito de quadrado / sprite estranho na presença visual.
 
-## Validação
-Sintaxe Node.js e arquivo ZIP verificados localmente. Não foram executados testes de integração com Firestore real e múltiplos clientes Socket.IO.
+### 3. Nova experiência de landing, login e cadastro
+- home inicial com visual mais premium, glow, vidro, marquee e animações;
+- tela de login redesenhada em formato showcase + formulário;
+- modal de cadastro mais forte, com argumentos de valor e visual mais elegante.
+
+## Importante
+- esta atualização não exige mudanças no `server.js`;
+- mantenha os outros arquivos já existentes no projeto;
+- limpe o cache do navegador se a interface antiga continuar aparecendo.
