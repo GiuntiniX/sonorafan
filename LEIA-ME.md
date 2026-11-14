@@ -1,51 +1,32 @@
-# SonoraFan 12.0 — Admin Control Center
+# SonoraFan 16.0 — Pacote consolidado de arquivos atualizados
 
-Este pacote contém **somente os arquivos alterados ou adicionados** em relação ao SonoraFan **11.1**. Não é um projeto independente.
+Este ZIP reúne os arquivos de código mais recentes das atualizações anteriores, para instalação sem ter que aplicar os pacotes incrementalmente. Não inclui dados pessoais, credenciais nem o arquivo `.env`.
 
 ## Instalação
 
-Substitua na raiz do projeto:
+1. Faça um backup do projeto em execução e do seu `.env`.
+2. Extraia este ZIP **na pasta raiz do projeto**, preservando a estrutura `public/`.
+3. Substitua o `server.js` existente pelo deste pacote.
+4. Substitua `public/index.html` e copie os arquivos `.css` e `.js` incluídos em `public/`.
+5. Mantenha os arquivos anteriores não incluídos (por exemplo `package.json`, `package-lock.json`, `room-settings.js`, `.env` e outros do seu deploy).
+6. Reinicie o servidor para carregar o backend atualizado.
+7. Faça um recarregamento completo do navegador (Ctrl+F5) e confira o painel, o chat, a busca de músicas e o fluxo da reprodução.
 
-- `server.js` — substituição obrigatória para os novos indicadores, histórico de auditoria e proteção adicional.
-- `public/index.html` — substituição para abrir o novo painel.
+## Versões e dependências
 
-Adicione:
+- `public/index.html`: versão 16.0 (mais recente).
+- `server.js`: versão 15.0 (última etapa que alterou o backend; a versão 16 não o mudou).
+- `public/sonorafan-11.css`: revisão 11.1 (chat e Convidar).
+- Demais assets `.css` e `.js`: versões pertinentes a cada funcionalidade acumulada (player, sala, descoberta, comunidade, administração, música, notificações e visual).
 
-- `public/admin-control-12.css` — estilos do painel.
-- `public/admin-control-12.js` — interação e acesso às APIs administrativas.
+## Arquivos que não estão neste ZIP
 
-Não apague os CSS/JS existentes de versões anteriores. **Mantenha o `public/sonorafan-11.css` da versão 11.1** com os ajustes de chat e convite. Reinicie o Node após trocar `server.js`.
+O projeto original utiliza também `public/manifest.json`, `public/icon.svg`, `package.json`, `package-lock.json` e `room-settings.js`. Esses arquivos não são parte das atualizações consolidadas. **Mantenha os seus**. `icon.svg` não havia sido enviado nos anexos anteriores.
 
-## Implementado
+## Validação
 
-- Painel administrativo de tela ampla, sidebar e navegação responsiva.
-- Visão geral com indicadores reais retornados por `/api/admin/stats`: usuários cadastrados, salas totais, ouvintes nas salas, músicas enfileiradas, salas com ouvintes, salas privadas, chats travados e sanções ativas. Indicadores são uma fotografia do estado atual; não são métricas históricas.
-- Atualização manual e periódica (30 segundos enquanto a visão geral está aberta).
-- Gerenciamento de usuários com pesquisa/filtro e ações de banir, desbanir, moderar e excluir (com confirmação). A conta global é protegida.
-- Gerenciamento de salas com pesquisa/filtro, travar chat, pular faixa, enviar aviso, limpar fila e encerrar sala (com confirmação).
-- Filas musicais: visualização das faixas e remoção pontual por rota autenticada.
-- Central de sanções existentes e opção para revogar.
-- Auditoria: até 100 registros recentes, recuperados da coleção `adminLog` do Firestore com fallback em memória.
-- Operação: comunicado por Socket.IO, exportação, limpeza global de chats e encerramento de salas com confirmação textual.
+Sintaxe do servidor e dos arquivos JavaScript externos conferida com `node --check`; scripts inline do HTML também conferidos. As referências CSS/JS locais do HTML correspondem aos arquivos presentes neste pacote. O ZIP foi testado quanto à integridade. **Não foram realizados testes completos de integração com Firebase, YouTube e Socket.IO em produção**.
 
-## Segurança
+## Atenção
 
-- Rotas `/api/admin/*` dependem de sessão válida e autorizam exclusivamente `admin@sonora.com`, regra aplicada no servidor.
-- Não é possível promover outros administradores globais pela API existente.
-- Bloqueio de exclusão, banimento, desbanimento ou expulsão da conta administrativa nas rotas globais correspondentes.
-- Operações globais perigosas requerem confirmação textual validada pelo servidor (`LIMPAR CHATS` ou `ENCERRAR SALAS`).
-- Gestores de salas continuam com suas próprias permissões dentro da sala, sem acesso às rotas globais.
-
-## Limitações e verificação
-
-- Sintaxe dos dois arquivos JavaScript verificada com `node --check`.
-- Teste de navegador isolado com API simulada: dashboard, listagem e filtro de usuários renderizados sem erros.
-- Ainda não foi possível executar os testes e2e ou validar Firebase/Socket.IO em execução real neste ambiente, pois as dependências de Node do projeto não estão instaladas aqui.
-- As listas de sanções dependem dos registros existentes no servidor. Não foi criada infraestrutura de denúncias; a seção de moderação reúne sanções já existentes.
-- O contador de ouvintes usa a soma das presenças registradas nas salas; não representa pessoas únicas entre salas.
-- A auditoria recupera os últimos 100 registros existentes. Não foram adicionadas ferramentas de retenção/purga nem relatórios analíticos históricos.
-- **Importante:** os fluxos antigos de limpeza global sem corpo JSON deixam de funcionar; utilize o novo painel com confirmação textual.
-
-## Implantação
-
-Mantenha a pasta `public/` e as variáveis de ambiente originais no servidor, sem compartilhá-las no repositório. Faça backup antes de substituir os arquivos e valide com duas contas: a administradora e uma conta comum.
+Esta entrega substitui todos os ZIPs incrementais anteriores para fins de atualização de arquivos, mas **não é um projeto autônomo**: mantenha os arquivos originais do seu repositório. O admin global é destinado à conta `admin@sonora.com`.
