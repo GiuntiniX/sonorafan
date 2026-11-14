@@ -30,6 +30,7 @@
   // SonoraFan 23: personagens chibi inspirados em avatares de mundos sociais 2D.
   // Cabeça grande, expressão amigável, corpo curto, roupa com detalhes e contorno.
   function characterSvg(face,look=null){
+    if(window.SF24CharacterArt?.render) return window.SF24CharacterArt.render(face,cleanLook(look),faces.indexOf(face));
     const i=Math.max(0,faces.indexOf(face));
     const [,skin,baseHair,style]=styleSets[i];
     const custom=look?cleanLook(look):null;
@@ -181,7 +182,7 @@
     if(!data?.name||!['🔥','❤️','🙌','⚡','🎶'].includes(data.emoji))return;
     const p=people.find(x=>x.name===data.name);if(!p)return;
     const seats=[...crowd.querySelectorAll('.sf19-seat')];const target=seats.find(s=>s.classList.contains('sf19-filled')&&s.title.startsWith(p.name+' ·'));
-    if(!target)return;const bubble=document.createElement('span');bubble.className='sf19-reaction';bubble.textContent=data.emoji;target.appendChild(bubble);setTimeout(()=>bubble.remove(),1300);
+    if(!target)return;const bubble=document.createElement('span');bubble.className='sf19-reaction';bubble.textContent=data.emoji;target.appendChild(bubble);target.classList.remove('sf24-cheer');void target.offsetWidth;target.classList.add('sf24-cheer');setTimeout(()=>{bubble.remove();target.classList.remove('sf24-cheer')},1300);
   }
   if(socketReady()){
     socket.on('users',list=>{if(!Array.isArray(list))return;people=list.map(x=>({name:String(x.name||'Ouvinte').slice(0,40),avatar:String(x.avatar||'🎧'),seat:Number.isInteger(x.seat)?x.seat:null,role:x.role||'',look:x.look?cleanLook(x.look):null,dance:['bounce','sway','groove','still'].includes(x.dance)?x.dance:'sway'}));layout()});
