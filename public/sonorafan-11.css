@@ -53,3 +53,139 @@ html[data-sf-theme=winamp] #screen-room .sf10-request-icon{background:linear-gra
 html[data-sf-theme=winamp] #screen-room .sf10-request-card .add-song button{background:linear-gradient(120deg,#317e36,#85d94b)!important;color:#092015!important}
 html[data-sf-theme=neon] #screen-room .sf10-request-card .add-song button{background:linear-gradient(120deg,#ab20ed,#f94bac)!important}
 html[data-sf-theme=studio] #screen-room .sf10-request-card .add-song button{background:linear-gradient(120deg,#117a9c,#38cee7)!important}
+
+
+/* SonoraFan 11.1 — chat expandido e CTA de convite refinado */
+#screen-room .sf9-room-header-actions{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:10px!important;
+  flex-wrap:nowrap!important;
+}
+#screen-room .sf9-invite-button,
+#screen-room .sf11-theme-trigger{
+  width:auto!important;
+  height:42px!important;
+  min-width:max-content!important;
+  border-radius:14px!important;
+  padding:0 15px!important;
+  line-height:1!important;
+  justify-content:center!important;
+}
+#screen-room .sf9-invite-button{
+  position:relative;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--accent) 35%,var(--accent2))!important;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 88%,black 12%),color-mix(in srgb,var(--accent2) 84%,black 10%))!important;
+  box-shadow:0 12px 30px color-mix(in srgb,var(--accent2) 28%,transparent), inset 0 1px rgba(255,255,255,.12);
+  font-weight:800!important;
+  font-size:12px!important;
+  letter-spacing:.2px;
+  transition:transform .22s var(--ui-ease), box-shadow .22s var(--ui-ease), filter .22s ease;
+}
+#screen-room .sf9-invite-button span,
+#screen-room .sf11-theme-trigger span{position:relative;z-index:2}
+#screen-room .sf9-invite-button::before{
+  content:'';
+  position:absolute;
+  inset:1px;
+  border-radius:13px;
+  background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,0));
+  pointer-events:none;
+}
+#screen-room .sf9-invite-button::after{
+  content:'';
+  position:absolute;
+  top:-30%; bottom:-30%; width:42px;
+  left:-52px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.24),transparent);
+  transform:skewX(-22deg);
+  animation:sf11InviteSweep 3.8s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes sf11InviteSweep{
+  0%,60%,100%{left:-52px;opacity:0}
+  8%,18%{opacity:1}
+  28%{left:calc(100% + 56px);opacity:0}
+}
+#screen-room .sf9-invite-button:hover{
+  transform:translateY(-2px) scale(1.01)!important;
+  filter:brightness(1.08);
+  box-shadow:0 16px 34px color-mix(in srgb,var(--accent2) 34%,transparent), 0 0 0 1px color-mix(in srgb,var(--accent2) 18%,transparent);
+}
+#screen-room .sf11-theme-trigger{
+  border:1px solid color-mix(in srgb,var(--accent2) 38%,var(--border))!important;
+  background:color-mix(in srgb,var(--bg-card) 82%,var(--accent2))!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.16);
+  font-size:12px!important;
+}
+#screen-room .sf11-theme-trigger:hover{transform:translateY(-2px);filter:brightness(1.08)}
+
+/* Dá mais respiro à área inferior e faz o chat preencher melhor a coluna direita. */
+#screen-room .room-layout{
+  grid-template-rows:57px minmax(300px,1fr) minmax(270px,42%)!important;
+}
+#screen-room .sf5-bottom-row{
+  display:grid!important;
+  grid-template-columns:1.02fr 1.04fr 1.22fr!important;
+  gap:12px!important;
+  min-width:0;
+  min-height:0;
+  align-items:stretch!important;
+}
+#screen-room .sf5-bottom-row > *{min-width:0;min-height:0}
+#screen-room .sf10-request-card,
+#screen-room .sf5-listening-card,
+#screen-room .chat-column{height:100%!important}
+#screen-room .chat-column{
+  grid-column:3!important;
+  align-self:stretch!important;
+  min-height:340px!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.03)!important;
+}
+#screen-room .chat-panel{flex:1 1 auto!important;min-height:0!important}
+#screen-room .chat-messages{flex:1 1 auto!important;min-height:0!important;height:auto!important}
+#screen-room .chat-messages-inner{min-height:100%!important}
+#screen-room .premium-chat-heading{
+  min-height:54px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+}
+#screen-room .premium-chat-heading small{margin-left:auto;white-space:nowrap}
+#screen-room .chat-input-bar{margin-top:auto!important}
+
+/* Refinos dos blocos inferiores para equilíbrio visual. */
+#screen-room .sf10-request-card,
+#screen-room .sf5-listening-card{
+  box-shadow:0 16px 42px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.03)!important;
+}
+#screen-room .sf10-request-card{padding:20px!important}
+#screen-room .sf10-request-card .add-song{min-height:50px!important}
+#screen-room .sf10-request-card .add-song button{min-width:112px!important;font-weight:800!important}
+#screen-room .sf10-request-help{margin-top:auto}
+
+@media (min-width:1025px) and (max-width:1420px){
+  #screen-room .room-layout{grid-template-rows:54px minmax(280px,1fr) minmax(250px,40%)!important}
+  #screen-room .sf5-bottom-row{grid-template-columns:1fr 1fr 1.12fr!important}
+  #screen-room .sf9-invite-button,
+  #screen-room .sf11-theme-trigger{padding:0 12px!important}
+}
+@media (max-width:1024px){
+  #screen-room .sf9-room-header-actions{gap:8px!important}
+  #screen-room .sf9-invite-button,
+  #screen-room .sf11-theme-trigger{height:38px!important;padding:0 12px!important}
+  #screen-room .sf5-bottom-row{display:contents!important}
+  #screen-room .chat-column{min-height:unset!important}
+}
+@media (max-width:600px){
+  #screen-room .sf9-room-header-actions{max-width:100%;overflow-x:auto;padding-bottom:2px}
+  #screen-room .sf9-invite-button span,
+  #screen-room .sf11-theme-trigger span{display:inline!important}
+  #screen-room .sf9-invite-button,
+  #screen-room .sf11-theme-trigger{height:36px!important;border-radius:12px!important;padding:0 10px!important;font-size:11px!important}
+}
+@media (prefers-reduced-motion:reduce){
+  #screen-room .sf9-invite-button::after{animation:none!important}
+}

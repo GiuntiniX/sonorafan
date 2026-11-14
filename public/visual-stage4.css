@@ -1,0 +1,95 @@
+/* SonoraFan 16 | Camada visual unificada. Sem alterar a landing page. */
+#screen-room{--sf16-edge:color-mix(in srgb,var(--accent2) 17%,var(--border));--sf16-surface:color-mix(in srgb,var(--bg-card) 91%,transparent);--sf16-focus:color-mix(in srgb,var(--accent2) 30%,transparent);--sf16-ease:cubic-bezier(.2,.75,.3,1)}
+#screen-room .app{isolation:isolate}
+#screen-room .room-layout{min-width:0}
+#screen-room .queue-column,#screen-room .player-section,#screen-room .sf10-request-card,#screen-room .chat-column,#screen-room .sf5-listening-card{border-color:var(--sf16-edge)!important;box-shadow:0 14px 44px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.035)!important}
+#screen-room .queue-column,#screen-room .chat-column,#screen-room .sf5-listening-card{background:var(--sf16-surface)!important}
+#screen-room .queue-header,#screen-room .premium-chat-heading,#screen-room .sf5-card-heading{letter-spacing:.1px}
+#screen-room .queue-list,#screen-room .chat-messages-inner{overscroll-behavior:contain}
+#screen-room .queue-item{transition:background .18s ease,border-color .18s ease,transform .2s var(--sf16-ease)}
+#screen-room .queue-item.current{box-shadow:inset 0 0 0 1px var(--sf16-focus),0 8px 25px rgba(0,0,0,.12)}
+#screen-room .player-frame{box-shadow:0 18px 38px rgba(0,0,0,.32)!important}
+#screen-room .track-title{letter-spacing:-.035em;line-height:1.14;text-wrap:pretty}
+#screen-room .track-artist,#screen-room .track-dj{overflow-wrap:anywhere}
+#screen-room .sf10-request-card{background:linear-gradient(155deg,color-mix(in srgb,var(--bg-card) 91%,var(--accent2)),var(--bg-card))!important}
+#screen-room .sf10-request-card .add-song{transition:border-color .16s ease,box-shadow .16s ease}
+#screen-room .sf10-request-card .add-song:focus-within{border-color:var(--accent2)!important;box-shadow:0 0 0 3px var(--sf16-focus)!important}
+#screen-room .sf10-request-card input{font-size:14px!important}
+#screen-room .sf10-request-card button,#screen-room .sf10-track-actions button,#screen-room .sf11-theme-trigger,#screen-room .sf9-invite-button{transition:filter .18s ease,transform .18s var(--sf16-ease),box-shadow .18s ease}
+#screen-room .sf10-request-card button:hover,#screen-room .sf10-track-actions button:hover{transform:translateY(-1px)}
+#screen-room .sf10-track-actions{display:flex;gap:8px;flex-wrap:wrap}
+#screen-room .sf10-track-actions button{min-height:36px;border-radius:10px!important}
+#screen-room .sf9-room-header-actions{display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:10px!important;min-width:0}
+#screen-room .sf9-invite-button,#screen-room .sf11-theme-trigger{width:auto!important;min-width:max-content!important;height:42px!important;display:inline-flex!important;justify-content:center!important;align-items:center!important;gap:8px!important;padding:0 15px!important;border-radius:13px!important;white-space:nowrap!important;line-height:1!important;font-size:12px!important;font-weight:800!important}
+#screen-room .sf9-invite-button{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(110deg,var(--accent2),var(--accent))!important;box-shadow:0 9px 25px var(--accent2-glow)!important;color:#fff!important;border:1px solid color-mix(in srgb,#fff 17%,var(--accent2))!important}
+#screen-room .sf9-invite-button::after{content:"";position:absolute;inset:-55% auto -55% -60px;width:30px;background:linear-gradient(90deg,transparent,#ffffff65,transparent);transform:skewX(-22deg);animation:sf16Invite 4.8s ease-in-out infinite;pointer-events:none}
+@keyframes sf16Invite{0%,54%{left:-60px;opacity:0}60%{opacity:1}78%,100%{left:calc(100% + 60px);opacity:0}}
+#screen-room .sf11-theme-trigger{background:var(--bg-card)!important;border:1px solid var(--sf16-edge)!important;color:var(--text)!important}
+#screen-room .sf9-invite-button:hover,#screen-room .sf11-theme-trigger:hover{filter:brightness(1.12);transform:translateY(-2px)}
+#screen-room .sf5-bottom-row{min-width:0;min-height:0;align-items:stretch!important}
+#screen-room .sf5-bottom-row>*{min-width:0;min-height:0}
+#screen-room .chat-column{display:flex!important;flex-direction:column!important;min-height:0}
+#screen-room .chat-panel{min-height:0;flex:1 1 auto!important}
+#screen-room .chat-messages{min-height:0;flex:1 1 auto!important}
+#screen-room .chat-input-bar{flex-shrink:0;gap:8px}
+#screen-room .chat-input-bar input{min-width:0;font-size:13px}
+#screen-room .chat-input-bar input:focus{box-shadow:0 0 0 3px var(--sf16-focus)!important}
+/* Área de descoberta e formulários */
+#screen-lobby .room-card{border-radius:18px;overflow:hidden;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+#screen-lobby .room-card:hover{transform:translateY(-3px);box-shadow:0 16px 36px rgba(0,0,0,.22)}
+#screen-lobby input:focus-visible,#screen-lobby select:focus-visible,.modal-overlay :is(input,select,textarea,button):focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.modal-overlay .modal{max-width:min(96vw,720px);max-height:92dvh;overflow-y:auto;overscroll-behavior:contain}
+.modal-overlay .modal :is(button,input,select){min-height:36px}
+/* Comunidade, notificações e painel administrativo */
+.sf15-panel{background:linear-gradient(160deg,var(--bg-card),var(--bg-elevated))!important}
+.sf15-item{border-radius:15px;transition:border-color .15s ease,transform .15s ease}
+.sf15-item:hover{border-color:var(--border-hover);transform:translateY(-1px)}
+.sf15-overlay button:focus-visible,.sf11-theme-panel button:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+.sf11-theme-option{transition:transform .18s ease,border-color .18s ease}
+#adminPanel .sf12-admin-shell{border-radius:22px}
+#adminPanel .sf12-metric,#adminPanel .sf12-card,#adminPanel .sf12-record{transition:border-color .2s ease,box-shadow .2s ease}
+#adminPanel .sf12-metric:hover,#adminPanel .sf12-card:hover{border-color:#76529b;box-shadow:0 10px 26px rgba(0,0,0,.15)}
+#adminPanel .sf12-admin-content{overscroll-behavior:contain}
+/* Os temas herdam acentos sem sobrescrever componentes. */
+html[data-sf-theme="winamp"] #screen-room{--sf16-edge:#5c8b6a;--sf16-focus:#71e65835}
+html[data-sf-theme="winamp"] #screen-room .sf9-invite-button{background:linear-gradient(110deg,#25753d,#7fc34e)!important}
+html[data-sf-theme="winamp"] #screen-room .sf5-navigation .sf5-active{background:linear-gradient(110deg,#18512f,#4b773c)!important}
+html[data-sf-theme="neon"] #screen-room{--sf16-edge:#a84ab65c;--sf16-focus:#f553c738}
+html[data-sf-theme="neon"] #screen-room .sf9-invite-button{background:linear-gradient(110deg,#9927e7,#ef398f)!important}
+html[data-sf-theme="studio"] #screen-room{--sf16-edge:#3e9bb46b;--sf16-focus:#3ec9e637}
+html[data-sf-theme="studio"] #screen-room .sf9-invite-button{background:linear-gradient(110deg,#17618f,#3acbd6)!important}
+/* Layout desktop mantém as colunas e dá preferência ao chat. */
+@media(min-width:1025px){
+ #screen-room .room-layout{grid-template-rows:57px minmax(280px,1fr) minmax(255px,40%)!important}
+ #screen-room .sf5-bottom-row{grid-template-columns:minmax(0,1fr) minmax(0,.92fr) minmax(0,1.15fr)!important;gap:12px!important}
+ #screen-room .chat-column{height:100%!important}
+ #screen-room .sf10-request-card{height:100%!important}
+}
+@media(min-width:1025px) and (max-height:780px){#screen-room .room-layout{grid-template-rows:49px minmax(255px,1fr) minmax(225px,39%)!important}#screen-room .sf5-bottom-row{gap:8px!important}}
+@media(max-width:1024px){
+ #screen-room .sf5-bottom-row{display:contents!important}
+ #screen-room .room-layout{grid-template-rows:minmax(0,1fr)!important}
+ #screen-room .chat-column{height:auto!important;min-height:0!important}
+ #screen-room .sf10-request-card{height:auto!important}
+}
+@media(max-width:700px){
+ #screen-room .sf9-room-header-actions{gap:5px!important}
+ #screen-room .sf9-invite-button,#screen-room .sf11-theme-trigger{height:36px!important;padding:0 9px!important;font-size:11px!important}
+ #screen-room .sf9-invite-button span{display:inline!important}
+ #screen-room .sf10-request-card{padding:13px!important}
+ #screen-room .sf10-request-card .add-song{display:flex;flex-wrap:wrap}
+ #screen-room .sf10-request-card .add-song input{flex:1 1 160px;min-width:0}
+ #screen-room .sf10-request-card .add-song button{flex:0 0 auto}
+ .sf11-theme-panel{max-height:calc(100dvh - 90px)!important}
+ .sf15-panel{width:100%!important}
+}
+/* Não forçar animações contínuas ao navegar em segundo plano. */
+html.sf16-inactive #screen-room .premium-room-ambient,
+html.sf16-inactive #screen-room .player-section.has-glow .cover,
+html.sf16-inactive #screen-room .sf9-invite-button::after{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){
+ #screen-room .sf9-invite-button::after{animation:none!important}
+ #screen-room .player-section.has-glow .cover{animation:none!important}
+ #screen-room .queue-item,#screen-lobby .room-card,.sf11-theme-option,#adminPanel .sf12-admin-nav button{transition:none!important}
+ .sf15-overlay,.sf11-theme-panel{backdrop-filter:none!important}
+}

@@ -2872,7 +2872,10 @@
     }
     function saveRoomCfg() { socket.emit('updateRoomSettings', readCfg('e')); $('roomCfgModal').classList.remove('active'); toast('Sala atualizada!', 'success'); }
     async function emitJoin(slug) {
-      let token; try { const r = await fetch('/api/socket-token', { credentials: 'include' }); if (r.ok) token = (await r.json()).token; } catch (e) {}
+      let token;
+      try { const r = await fetch('/api/socket-token', { credentials: 'include' }); if (r.ok) token = (await r.json()).token; } catch (e) {}
+      // Não reentra em uma sala antiga se a pessoa saiu durante o fetch.
+      if (!socket.connected || currentRoom !== slug || _joinedSlug !== slug) return;
       socket.emit('joinRoom', { slug, name: myName, avatar: myAvatar, token, ...(_joinExtra.slug === slug ? { invite: _joinExtra.invite, password: _joinExtra.password } : {}) });
     }
     renderCfg('createCfg', 'c');
@@ -2924,17 +2927,40 @@
       if (window.premiumReset) window.premiumReset();
       document.title = 'SonoraFan';
       if (crossfadeInterval) { clearInterval(crossfadeInterval); crossfadeInterval = null; }
-      if (sf9AudioCheck) { clearTimeout(sf9AudioCheck); sf9AudioCheck = null; }
+      sf13CancelTrackTimers();
       showScreen('lobby'); loadRooms();
       try { history.replaceState(null, '', location.pathname); } catch(e) {}
     }
 
     // ===== PLAYER =====
-    function loadYouTubeAPI() { if (window.YT && window.YT.Player) { initPlayer(); return; } const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tag); }
+    let sf13YoutubeLoading = false;
+    function loadYouTubeAPI() {
+      if (window.YT && window.YT.Player) { initPlayer(); return; }
+      if (sf13YoutubeLoading || document.querySelector('script[data-sonorafan-youtube-api]')) return;
+      sf13YoutubeLoading = true;
+      const tag = document.createElement('script');
+      tag.dataset.sonorafanYoutubeApi = 'true';
+      tag.src = 'https://www.youtube.com/iframe_api';
+      tag.async = true;
+      tag.onerror = () => { sf13YoutubeLoading = false; tag.remove(); toast('Não foi possível carregar o YouTube. Tente novamente.', 'error'); };
+      document.head.appendChild(tag);
+    }
     function onYouTubeIframeAPIReady() { initPlayer(); }
     // Restabelece volume após cada troca de faixa. Evita que temporizadores antigos
     // alterem o volume da música nova, respeitando volume 0 escolhido pelo usuário.
     let sf9AudioCheck = null;
+    let sf13TrackTimer = null, sf13GateTimer = null, sf13ErrorTimer = null;
+    let sf13RecoveryTry = 0;
+    function sf13CancelTrackTimers() {
+      if (sf13TrackTimer) clearTimeout(sf13TrackTimer);
+      if (sf13GateTimer) clearTimeout(sf13GateTimer);
+      if (sf13ErrorTimer) clearTimeout(sf13ErrorTimer);
+      if (sf9AudioCheck) clearTimeout(sf9AudioCheck);
+      sf13TrackTimer = sf13GateTimer = sf13ErrorTimer = sf9AudioCheck = null;
+    }
+    function sf13ActiveTrack(id) {
+      return !!(id && currentRoom && document.getElementById('screen-room')?.classList.contains('active') && currentTrackId === id && currentRoomData?.queue?.[currentRoomData.currentIndex]?.id === id);
+    }
     function sf9RestoreAudio() {
       if (!player || !player.setVolume) return;
       try {
@@ -2977,16 +3003,30 @@
             if (e.data === YT.PlayerState.PAUSED) {
               setSpectrum(false);
               // Se a pausa vier de um controle externo ao player, retoma a faixa da sala.
+              const idAtPause = currentTrackId;
               setTimeout(() => {
-                if (currentRoom && currentRoomData && currentTrackId && player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PAUSED) {
+                if (sf13ActiveTrack(idAtPause) && currentRoomData.isPlaying && player?.getPlayerState?.() === YT.PlayerState.PAUSED) {
                   try { player.playVideo(); } catch(e) {}
                 }
               }, 350);
             }
             if (e.data === YT.PlayerState.BUFFERING) $('bufferingOverlay').classList.add('show');
-            if (e.data === YT.PlayerState.ENDED) { setSpectrum(false); socket.emit('videoEnded'); }
+            if (e.data === YT.PlayerState.ENDED) {
+              setSpectrum(false);
+              const id = currentTrackId;
+              if (sf13ActiveTrack(id)) socket.emit('videoEnded', { videoId: id });
+            }
           },
-          onError: () => { toast('Erro no vídeo, pulando...', 'error'); setSpectrum(false); setTimeout(() => socket.emit('videoEnded'), 2000); }
+          onError: () => {
+            const failedId = currentTrackId;
+            setSpectrum(false);
+            if (!sf13ActiveTrack(failedId)) return;
+            toast('O YouTube não conseguiu reproduzir esta faixa. Tentando avançar…', 'error');
+            if (sf13ErrorTimer) clearTimeout(sf13ErrorTimer);
+            sf13ErrorTimer = setTimeout(() => {
+              if (sf13ActiveTrack(failedId)) socket.emit('videoEnded', { videoId: failedId });
+            }, 2000);
+          }
         }
       });
     }
@@ -2994,9 +3034,9 @@
     function syncPlayer(state) {
       $('roomTitle').textContent = (state.isPrivate ? '🔒 ' : '') + (state.emoji ? state.emoji + ' ' : '') + state.name; $('roomTitle').title = state.description || '';
       document.documentElement.style.setProperty('--room-accent', state.color || '#7c3aed');
-      if (!player || !player.loadVideoById) return;
       currentRoomData = state;
-      const track = state.queue[state.currentIndex];
+      if (!player || !player.loadVideoById) return;
+      const track = state.queue?.[state.currentIndex];
       renderQueue(state.queue, state.currentIndex);
       if (window.premiumRoomState) window.premiumRoomState(state);
       renderWaitingQueue(state.waitingQueue);
@@ -3019,15 +3059,19 @@
       }
 
       if (currentTrackId !== track.id) {
+        sf13CancelTrackTimers();
         currentTrackId = track.id;
+        const expectedTrackId = track.id;
         skipVotes = { votes: 0, needed: 0 };
         updateSkipBtn();
         document.title = `▶ ${track.title || 'Música'} · SonoraFan`;
         sf9RestoreAudio();
         player.loadVideoById({ videoId: track.id, startSeconds: Math.floor(state.position || 0) });
-        setTimeout(checkGate, 3000);
-        setTimeout(() => {
-          if (player && currentTrackId === track.id) { try { sf9RestoreAudio(); player.playVideo(); sf9CheckAudio(track.id); } catch(e) {} }
+        sf13GateTimer = setTimeout(() => { if (sf13ActiveTrack(expectedTrackId)) checkGate(); }, 3000);
+        sf13TrackTimer = setTimeout(() => {
+          if (sf13ActiveTrack(expectedTrackId) && player?.playVideo) {
+            try { sf9RestoreAudio(); player.playVideo(); sf9CheckAudio(expectedTrackId); } catch(e) {}
+          }
         }, 500);
         $('trackTitle').textContent = track.title || 'Música';
         $('trackArtist').textContent = track.artist || 'Desconhecido';
@@ -3406,12 +3450,13 @@
       state._at = Date.now();
       const prev = currentRoomData?.queue?.[currentRoomData.currentIndex]?.id;
       const next = state.queue?.[state.currentIndex]?.id;
-      if (next !== prev) { currentTrackId = null; if (sf9AudioCheck) clearTimeout(sf9AudioCheck); }
+      if (next !== prev) { sf13CancelTrackTimers(); currentTrackId = null; }
       if (window.premiumRoomState) window.premiumRoomState(state);
       currentRoomData = state;
       syncPlayer(state);
     });
     socket.on('queueEmpty', () => {
+      sf13CancelTrackTimers();
       currentTrackId = null;
       $('trackTitle').textContent = 'Fila vazia';
       $('trackArtist').textContent = 'Adicione uma música';
@@ -3564,7 +3609,14 @@
     }
     setTab('player');
 
-    function checkGate() { try { if (!player || !currentTrackId || !player.getPlayerState || volumeLevel === 0) return; const s = player.getPlayerState(); if ((s !== 1 && s !== 3) || (player.isMuted && player.isMuted())) $('soundGate').classList.add('show'); } catch (e) {} }
+    function checkGate() {
+      try {
+        if (!sf13ActiveTrack(currentTrackId) || !player?.getPlayerState || volumeLevel === 0) return;
+        const state = player.getPlayerState();
+        const blocked = (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) || (player.isMuted?.() === true);
+        $('soundGate').classList.toggle('show', blocked);
+      } catch (e) {}
+    }
     function enableSound() {
       $('soundGate').classList.remove('show');
       try {
@@ -3585,12 +3637,27 @@
       $('connBanner').classList.remove('show');
       if (_joinedSlug && myName) emitJoin(_joinedSlug);
     });
+    socket.io.on('reconnect_attempt', () => {
+      if (_joinedSlug) $('connBanner').classList.add('show');
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && currentRoom && currentRoomData && currentTrackId) {
+        sf9RestoreAudio();
+        // Um retorno de aba não deve reiniciar a faixa; a correção é feita pelo resync periódico.
+      }
+    });
     setInterval(() => {
       try {
         const s = currentRoomData;
         if (!player || !s || !s.isPlaying || !currentTrackId || !player.getPlayerState || player.getPlayerState() !== 1) return;
-        const expected = (s.position || 0) + (Date.now() - (s._at || Date.now())) / 1000;
-        if (Math.abs(player.getCurrentTime() - expected) > 3) player.seekTo(expected, true);
+        if (!sf13ActiveTrack(currentTrackId)) return;
+        const duration = Number(s.queue?.[s.currentIndex]?.duration) || 0;
+        const elapsed = Math.max(0, (Date.now() - (s._at || Date.now())) / 1000);
+        const raw = (Number(s.position) || 0) + elapsed;
+        // Não tenta buscar além do fim (o servidor controla a transição).
+        const expected = duration > 0 ? Math.min(raw, Math.max(0, duration - .5)) : raw;
+        if (duration > 0 && raw >= duration - 1) return;
+        if (Number.isFinite(expected) && Math.abs(player.getCurrentTime() - expected) > 3) player.seekTo(expected, true);
       } catch (e) {}
     }, 20000);
 
@@ -3795,7 +3862,13 @@
   <script defer src="/room-discovery-10.js"></script>
   <link rel="stylesheet" href="/sonorafan-11.css">
   <script defer src="/sonorafan-11.js"></script>
+  <link rel="stylesheet" href="/social-stage3.css">
+  <script defer src="/social-stage3.js"></script>
+  <link rel="stylesheet" href="/music-stage2.css">
+  <script defer src="/music-stage2.js"></script>
   <link rel="stylesheet" href="/admin-control-12.css">
   <script defer src="/admin-control-12.js"></script>
+  <link rel="stylesheet" href="/visual-stage4.css">
+  <script defer src="/visual-stage4.js"></script>
 </body>
 </html>

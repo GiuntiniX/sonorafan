@@ -1,0 +1,45 @@
+/* SonoraFan 8 — reorganiza busca/acoes; sem alterar as funcionalidades. */
+#screen-room .player-column{overflow-x:hidden}
+#screen-room .player-section{min-height:0}
+#screen-room .player-frame{flex-shrink:0}
+#screen-room .player-info{flex-shrink:0;padding:14px 18px 9px}
+#screen-room .player-info .track-info{min-width:0}
+#screen-room .player-info .track-title{font-size:clamp(16px,1.35vw,22px);line-height:1.25}
+#screen-room .player-info .track-artist{font-size:12px}
+#screen-room .player-info .track-dj{margin-top:5px}
+#screen-room .progress-section{padding:9px 18px 14px}
+#screen-room .queue-column{display:flex;flex-direction:column;min-height:0}
+#screen-room .queue-column>.queue-list#queueList{flex:1 1 auto;min-height:72px;overflow-y:auto}
+#screen-room .sf8-queue-tools{flex:0 0 auto;min-width:0;border-top:1px solid rgba(202,162,243,.15);padding:12px 12px 13px;background:linear-gradient(180deg,#171020,#110d1c);position:relative;z-index:3}
+#screen-room .sf8-actions-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+#screen-room .sf8-actions-heading strong{color:#eee5f8;font-size:12px;font-weight:800}
+#screen-room .sf8-actions-heading span{color:#91849f;font-size:10px}
+#screen-room .sf8-track-actions{display:flex;gap:7px;margin:0 0 11px;align-items:center;flex-wrap:wrap}
+#screen-room .sf8-track-actions button{flex:1 1 auto;min-width:86px;white-space:nowrap;padding:9px 10px;border:1px solid #b78bdf36;border-radius:10px;background:#2b1c3a;color:#f5e9ff;font-size:11px;font-weight:750;cursor:pointer;transition:transform .17s,background .17s,border-color .17s}
+#screen-room .sf8-track-actions button:hover{transform:translateY(-1px);background:#49245d;border-color:#ab61e9}
+#screen-room .sf8-track-actions button:focus-visible,#screen-room .sf8-add-details summary:focus-visible{outline:2px solid #c05dff;outline-offset:2px}
+#screen-room .sf8-add-details{border:1px solid #9756c960;border-radius:13px;background:#1f142d;max-width:100%;overflow:visible}
+#screen-room .sf8-add-details summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;color:#f9ecff;font-size:12px;font-weight:800;list-style:none;user-select:none;background:linear-gradient(100deg,#6325ae,#8e309d 60%,#b54a57);border-radius:12px}
+#screen-room .sf8-add-details summary::-webkit-details-marker{display:none}
+#screen-room .sf8-add-details[open] summary{border-radius:12px 12px 0 0}
+#screen-room .sf8-chevron{font-size:17px;transition:transform .2s}
+#screen-room .sf8-add-details[open] .sf8-chevron{transform:rotate(180deg)}
+#screen-room .sf8-add-details .add-song-area{display:flex!important;position:relative;margin:0!important;padding:11px!important;gap:9px;background:#1b1429!important;border-radius:0 0 12px 12px;max-height:min(44vh,330px);overflow-y:auto}
+#screen-room .sf8-add-details .add-song{display:flex!important;flex-wrap:wrap!important;min-width:0;padding:6px!important;gap:6px!important;border:1px solid #ffffff20;background:#110e1b!important;border-radius:10px}
+#screen-room .sf8-add-details .add-song input{min-width:0!important;flex:1 1 130px!important;background:transparent!important;box-shadow:none!important;border:0!important;padding:9px 7px!important;font-size:12px}
+#screen-room .sf8-add-details .add-song button{flex:0 0 auto!important;width:auto!important;padding:10px 12px;border-radius:8px;font-size:11px}
+#screen-room .sf8-add-details .search-results{position:relative;max-height:180px;overflow-y:auto;z-index:5}
+#screen-room .sf8-add-details .song-preview{min-width:0;max-width:100%}
+@media (max-width:1024px){
+ #screen-room .sf8-queue-tools{padding:12px}
+ #screen-room .queue-column>.queue-list#queueList{min-height:80px}
+ #screen-room .sf8-add-details .add-song-area{max-height:38vh}
+}
+@media (max-width:600px){
+ #screen-room .sf8-add-details .add-song{flex-direction:column!important;align-items:stretch}
+ #screen-room .sf8-add-details .add-song input{flex:0 0 auto!important;width:100%}
+ #screen-room .sf8-add-details .add-song button{width:100%!important}
+ #screen-room .sf8-track-actions button{min-width:0}
+ #screen-room .player-info{padding:12px 12px 8px}
+}
+@media (prefers-reduced-motion:reduce){#screen-room .sf8-track-actions button,#screen-room .sf8-chevron{transition:none}}
