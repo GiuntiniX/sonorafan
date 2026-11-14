@@ -1943,6 +1943,13 @@
             </section>
           </details>
         </div>
+        <nav class="sf34-mobile-lobby-nav" aria-label="Acesso rápido no celular">
+          <button class="is-current" type="button" onclick="window.sf34LobbyJump?.('top')"><span aria-hidden="true">⌂</span>Início</button>
+          <button type="button" onclick="window.sf34LobbyJump?.('rooms')"><span aria-hidden="true">♫</span>Salas</button>
+          <button class="sf34-create-mobile" type="button" onclick="showCreateRoom()"><span aria-hidden="true">＋</span>Criar</button>
+          <button type="button" onclick="window.sf5OpenCommunity?.()"><span aria-hidden="true">♧</span>Comunidade</button>
+          <button type="button" onclick="window.sf5OpenProfile?.()"><span aria-hidden="true">◉</span>Perfil</button>
+        </nav>
       </main>
     </div>
   </div>
@@ -1985,10 +1992,10 @@
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
-        <div class="sf5-section-title"><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
-        <div class="queue-column sf33-queue-column">
+        <div class="sf5-section-title sf34-room-title"><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
+        <div class="queue-column sf33-queue-column sf34-queue">
           <div class="queue-header">
-            <span>♫ &nbsp;Playlist da sala</span>
+            <span>♫ &nbsp;Fila colaborativa</span>
             <div style="display:flex;gap:8px;align-items:center;">
               <span class="count" id="queueCount">0 músicas</span>
               <button onclick="copyQueueIds()" style="background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);padding:2px 6px;font-size:10px;cursor:pointer;">📋</button>
@@ -2002,7 +2009,7 @@
 
         </div>
 
-        <div class="player-column">
+        <div class="player-column sf34-player-column">
           <div class="sf5-hero-badge">♫ &nbsp; AGORA TOCANDO</div>
           <div class="premium-room-meta"><span class="premium-live-dot"></span><span id="premiumRoomMood">Ambiente compartilhado</span><span id="premiumRoomListeners">0 ouvintes conectados</span></div>
           <div class="premium-eyebrow"><span class="premium-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><strong>Sua sessão musical</strong><small>Uma experiência compartilhada, em tempo real</small></div><span class="premium-session-pill">SONORAFAN LIVE</span></div>
@@ -2058,8 +2065,8 @@
         </div>
 
         <div class="sf5-bottom-row">
-        <div class="chat-column">
-          <div class="premium-chat-heading"><span class="premium-online-dot"></span> Conversa ao vivo <small>COMPARTILHE A VIBE</small></div>
+        <div class="chat-column sf34-chat">
+          <div class="premium-chat-heading"><span class="premium-online-dot"></span> Chat da sala <small>✦ CONECTADOS</small></div>
           <div class="premium-presence" id="premiumPresence" aria-label="Pessoas ouvindo"><span class="premium-presence-empty">Entre na vibe com a galera</span></div>
           <div class="premium-reactions" aria-label="Reações rápidas"><span>Reagir à música</span><button type="button" onclick="premiumReact('🔥')" aria-label="Reagir com fogo">🔥</button><button type="button" onclick="premiumReact('❤️')" aria-label="Reagir com coração">❤️</button><button type="button" onclick="premiumReact('🎶')" aria-label="Reagir com nota musical">🎶</button><button type="button" onclick="premiumReact('🙌')" aria-label="Reagir com celebração">🙌</button><button type="button" onclick="premiumReact('⚡')" aria-label="Reagir com energia">⚡</button></div>
           <div id="premiumReactionStage" class="premium-reaction-stage" aria-hidden="true"></div>
@@ -2103,7 +2110,7 @@
             </div>
           </div>
         </div>
-        <section class="sf10-request-card" id="sf10RequestCard" aria-label="Buscar e adicionar músicas à sala">
+        <section class="sf10-request-card sf34-request" id="sf10RequestCard" aria-label="Buscar e adicionar músicas à sala">
           <div class="sf10-request-top"><div class="sf10-request-icon">♫</div><div><strong>Escolha a próxima música</strong><small>Procure no YouTube ou cole um link</small></div></div>
           <div class="sf10-request-fields">
           <div class="add-song-area">
@@ -2128,7 +2135,7 @@
             <div class="cooldown-text hidden" id="cooldownText"></div>
           </div>
           </div>
-          <div class="sf10-request-help">Sua escolha entra na playlist compartilhada.</div>
+          <div class="sf10-request-help">Todo mundo é DJ. Sua escolha entra na fila compartilhada.</div>
         </section>
 
         <section class="sf5-listening-card" aria-label="Ouvintes da sala">
@@ -2143,6 +2150,7 @@
         <button data-t="queue" onclick="setTab('queue')">🎵 Fila</button>
         <button data-t="player" class="on" onclick="setTab('player')">▶ Player</button>
         <button data-t="chat" onclick="setTab('chat')">💬 Chat</button>
+        <button class="sf34-add-mobile" type="button" onclick="window.sf34FindSong?.()" aria-label="Adicionar música">＋ Música</button>
       </nav>
     </div>
   </div>
@@ -3992,5 +4000,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-indie-32.js"></script>
   <link rel="stylesheet" href="/sonorafan-reference-33.css">
   <script defer src="/sonorafan-reference-33.js"></script>
+  <link rel="stylesheet" href="/sonorafan-stage-34.css">
+  <script defer src="/sonorafan-stage-34.js"></script>
 </body>
 </html>
