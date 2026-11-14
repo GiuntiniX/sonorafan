@@ -2072,7 +2072,7 @@
   <div class="modal-overlay" id="createRoomModal">
     <div class="modal">
       <h3>Crie seu espaço musical</h3>
-      <p class="sf10-create-desc">Uma sala pronta para ouvir junto. O padrão do SonoraFan é colaborativo: a galera participa e constrói a fila com você.</p>
+      <p class="sf10-create-desc">Uma sala colaborativa: cada participante é DJ e pode escolher a próxima música.</p>
       <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Tipo da sala</span></div>
       <div class="sf10-step-one"><label for="newRoomName">Como sua sala vai se chamar?</label><input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40"><p>O nome será mostrado para quem encontrar sua sala.</p></div>
       <div class="sf10-step-two"><div id="createCfg" class="cfg"></div></div>
@@ -2845,7 +2845,7 @@
               <div class="meta">
                 <span class="listeners"><span class="icon">👥</span> <span class="count">${r.listenerCount || 0}</span> ouvintes</span>
                 <span>🎶 ${r.queueLength || 0} na fila</span>
-                ${r.addMode === 'owner' ? '<span class="genre-tag">🎧 Playlist do dono</span>' : ''}
+                <span class="genre-tag">🎧 Todos são DJs</span>
                 ${r.isPrivate ? '<span class="genre-tag">🔒 Privada</span>' : ''}
                 ${r.allowLive ? '<span class="genre-tag" style="background:rgba(239,68,68,.25);color:#fca5a5;font-weight:700;">🔴 LIVE</span>' : ''}
               </div>
@@ -2876,11 +2876,7 @@
         <div class="cfg-lbl">Cor da sala</div><div class="cfg-row">${CFG_COLORS.map(c => `<button type="button" class="cfg-c ${s.color === c ? 'on' : ''}" style="background:${c}" onclick="${pick('color', c)}"></button>`).join('')}</div>
         <input class="cfg-in" id="${k}Desc" maxlength="80" placeholder="Descrição curta (opcional)" value="${escapeHtml(s.description || '')}">
         <input class="cfg-in" id="${k}Welcome" maxlength="200" placeholder="Boas-vindas ou regras" value="${escapeHtml(s.welcome || '')}">
-        <div class="cfg-lbl">Estilo da sala</div>
-        <div class="kind-picker sf17-room-mode-grid">
-          <button type="button" class="kind-tile ${s.addMode !== 'owner' ? 'on' : ''}" onclick="${pick('addMode', 'all')}"><span>🤝</span><b>Colaborativa</b><small>Todo mundo adiciona músicas</small></button>
-          <button type="button" class="kind-tile ${s.addMode === 'owner' ? 'on' : ''}" onclick="${pick('addMode', 'owner')}"><span>🎧</span><b>DJ / anfitrião</b><small>Só uma pessoa controla a fila</small></button>
-        </div>
+        <div class="sf20-all-djs"><span>🎧</span><div><strong>Todo mundo é DJ!</strong><small>Cada pessoa pode escolher e adicionar músicas à playlist compartilhada.</small></div></div>
         <div class="cfg-lbl">Formato de conteúdo</div>
         <div class="kind-picker sf17-room-format-grid">
           <button type="button" class="kind-tile ${!s.allowLong && !s.allowLive ? 'on' : ''}" onclick="${pick('allowLong', '')};${pick('allowLive', '')}"><span>🎵</span><b>Padrão</b><small>Faixas e vídeos comuns</small></button>
@@ -2895,12 +2891,12 @@
         ${s.isPrivate ? `<input class="cfg-in" id="${k}Pw" type="password" maxlength="30" placeholder="Senha (opcional)" value="${escapeHtml(s.password || '')}">` : ''}
         <select class="cfg-in" id="${k}Slow">${[0, 5, 10, 30, 60].map(v => `<option value="${v}" ${+s.slowMode === v ? 'selected' : ''}>${v ? 'Modo lento: ' + v + 's' : 'Chat sem limite'}</option>`).join('')}</select>
         <div class="sf17-create-summary">
-          <strong>${s.addMode === 'owner' ? 'Sala em modo DJ.' : 'Sala colaborativa por padrão.'}</strong>
+          <strong>Todos podem colaborar com músicas.</strong>
           <span>${s.allowLive ? 'Aceita lives e vídeos longos.' : (s.allowLong ? 'Aceita vídeos longos.' : 'Aceita músicas e vídeos comuns.')}</span>
         </div>`;
     }
 function readCfg(k) {
-      const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: s.addMode, isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value, allowLong: !!s.allowLong, allowLive: !!s.allowLive };
+      const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: 'all', isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value, allowLong: !!s.allowLong, allowLive: !!s.allowLive };
       const pw = $(k + 'Pw'); if (pw && pw.value) out.password = pw.value;
       return out;
     }
@@ -3904,8 +3900,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-11.js"></script>
   <link rel="stylesheet" href="/social-stage3.css">
   <script defer src="/social-stage3.js"></script>
-  <link rel="stylesheet" href="/music-stage2.css">
-  <script defer src="/music-stage2.js"></script>
   <link rel="stylesheet" href="/admin-control-12.css">
   <script defer src="/admin-control-12.js"></script>
   <link rel="stylesheet" href="/visual-stage4.css">
@@ -3915,5 +3909,7 @@ function openRoomCfg() {
   <script defer src="/room-immersive-18.js"></script>
   <link rel="stylesheet" href="/room-interactive-19.css">
   <script defer src="/room-interactive-19.js"></script>
+  <link rel="stylesheet" href="/room-social-20.css">
+  <script defer src="/room-social-20.js"></script>
 </body>
 </html>

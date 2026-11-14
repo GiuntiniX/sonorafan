@@ -1,0 +1,19 @@
+/* SonoraFan 20 — Toda pessoa é DJ · Pista com animações individuais */
+#screen-room .sf19-crowd .sf19-seat.sf19-filled .sf19-face{transform-origin:center bottom;will-change:transform;display:inline-block}
+#screen-room .sf19-crowd .sf19-seat[data-dance="sway"] .sf19-face{animation:sf20Sway 2.3s ease-in-out infinite}
+#screen-room .sf19-crowd .sf19-seat[data-dance="bounce"] .sf19-face{animation:sf20Bounce 1.15s ease-in-out infinite}
+#screen-room .sf19-crowd .sf19-seat[data-dance="groove"] .sf19-face{animation:sf20Groove 1.65s ease-in-out infinite}
+#screen-room .sf19-crowd .sf19-seat[data-dance="still"] .sf19-face{animation:none}
+@keyframes sf20Sway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+@keyframes sf20Bounce{0%,100%{transform:translateY(1px)}50%{transform:translateY(-7px)}}
+@keyframes sf20Groove{0%,100%{transform:translate(-2px,0) rotate(-12deg)}25%{transform:translate(3px,-5px) rotate(9deg)}50%{transform:translate(-2px,-2px) rotate(-7deg)}75%{transform:translate(3px,-7px) rotate(11deg)}}
+.sf20-dance-group h3{font-size:13px;margin:18px 0 10px}.sf20-dance-group p{font-size:11px;color:#bbaec9}
+.sf20-dance-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.sf20-dance-choices button{border-radius:11px;background:#241530;color:#f3e6ff;border:1px solid #76538f;padding:10px 12px;cursor:pointer}
+.sf20-dance-choices button[aria-pressed=true]{border-color:#e7a8ff;background:#63308b;box-shadow:0 0 0 1px #bc6cee}
+.sf20-all-djs{display:flex;align-items:center;gap:13px;padding:15px;border:1px solid color-mix(in srgb,var(--accent2) 40%,var(--border));border-radius:16px;background:linear-gradient(110deg,color-mix(in srgb,var(--accent2) 13%,var(--bg-card)),var(--bg-card));margin:10px 0 18px}
+.sf20-all-djs>span{font-size:26px}.sf20-all-djs strong{display:block;font-weight:800}.sf20-all-djs small{display:block;color:var(--text-secondary);margin-top:4px;line-height:1.4}
+/* Ensure old mode controls never linger when cached scripts are present */
+#sf14-music-tools{display:none!important}
+@media(prefers-reduced-motion:reduce){#screen-room .sf19-crowd .sf19-seat .sf19-face{animation:none!important;will-change:auto!important}}
+@media(max-width:570px){.sf20-dance-choices{gap:6px}.sf20-dance-choices button{padding:9px 7px;font-size:11px}}

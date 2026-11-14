@@ -21,7 +21,7 @@
       const b=document.createElement('button');b.type='button';b.className='sf19-seat';b.dataset.seat=String(i);
       b.setAttribute('aria-label',p?`Lugar ${i+1}: ${p.name}`:`Lugar ${i+1} livre`);
       if(p){
-        b.classList.add('sf19-filled');if(p.name===me())b.classList.add('sf19-self');
+        b.classList.add('sf19-filled');b.dataset.dance=p.dance||'sway';if(p.name===me())b.classList.add('sf19-self');
         if(p.role==='owner')b.classList.add('sf19-host');
         const face=document.createElement('span');face.className='sf19-face';face.textContent=String(p.avatar||'🎧').slice(0,4);b.appendChild(face);
         if(p.name===me()){const you=document.createElement('span');you.className='sf19-you';you.textContent='VOCÊ';b.appendChild(you)}
@@ -62,11 +62,26 @@
     if(!target)return;const bubble=document.createElement('span');bubble.className='sf19-reaction';bubble.textContent=data.emoji;target.appendChild(bubble);setTimeout(()=>bubble.remove(),1300);
   }
   if(socketReady()){
-    socket.on('users',list=>{if(!Array.isArray(list))return;people=list.map(x=>({name:String(x.name||'Ouvinte').slice(0,40),avatar:String(x.avatar||'🎧'),seat:Number.isInteger(x.seat)?x.seat:null,role:x.role||''}));layout()});
+    socket.on('users',list=>{if(!Array.isArray(list))return;people=list.map(x=>({name:String(x.name||'Ouvinte').slice(0,40),avatar:String(x.avatar||'🎧'),seat:Number.isInteger(x.seat)?x.seat:null,role:x.role||'',dance:['bounce','sway','groove','still'].includes(x.dance)?x.dance:'sway'}));layout()});
     socket.on('roomReaction',onReaction);
     socket.on('sf19Saved',saved=>{activeAvatar=saved.avatar;activeSeat=saved.seat;if(el('sf19Status'))el('sf19Status').textContent='Presença atualizada para todos na sala.'});
     socket.on('sf19Error',message=>{if(el('sf19Status'))el('sf19Status').textContent=String(message||'Não foi possível atualizar.').slice(0,130)});
   }
   document.addEventListener('click',e=>{if(e.target.closest('#screen-room .sf5-navigation button')&&e.target.closest('button[onclick*="leaveRoom"]')){people=[];layout()}});
+
+  // SonoraFan 20: escolhas de animação individuais, sincronizadas para a mesma sala.
+  const seatChoices=el('sf19Seats');
+  if(seatChoices && !el('sf20DanceChoices')){
+    const wrap=document.createElement('section');wrap.className='sf20-dance-group';
+    wrap.innerHTML='<h3>Seu movimento na pista</h3><div class="sf20-dance-choices" id="sf20DanceChoices"></div><p>O movimento é visível para todos na sala. Você pode mudar quando quiser.</p>';
+    seatChoices.after(wrap);
+    const choices=wrap.querySelector('#sf20DanceChoices');
+    [['sway','🌊 Balançar'],['bounce','🎵 Pular'],['groove','🕺 Dançar'],['still','🧍 Parado']].forEach(([value,label])=>{
+      const b=document.createElement('button');b.type='button';b.dataset.dance=value;b.textContent=label;choices.appendChild(b);
+    });
+    choices.addEventListener('click',e=>{const b=e.target.closest('[data-dance]');if(b)change({dance:b.dataset.dance})});
+  }
+  function paintDance(){const active=current()?.dance||'sway';el('sf20DanceChoices')?.querySelectorAll('[data-dance]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.dance===active)))}
+  socketReady()&&socket.on('users',paintDance);
   layout();
 })();
