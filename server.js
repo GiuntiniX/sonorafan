@@ -83,9 +83,8 @@ app.use('/api/room/:slug', (req, res, next) => {
 
 // ========== CONFIG ==========
 const colors = ['#f59e0b', '#3b82f6', '#ef4444', '#22c55e', '#a855f7', '#ec4899', '#06b6d4', '#f97316', '#8b5cf6', '#14b8a6'];
-const envAdmins = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim()).filter(Boolean);
-if (!envAdmins.length) console.warn('⚠️ ADMIN_EMAILS não definido: usando admin@sonora.com (garanta que essa conta exista com senha forte).');
-const adminEmails = new Set(envAdmins.length ? envAdmins : ['admin@sonora.com']);
+// Painel global exclusivo: permissões validadas no servidor, nunca por botão ou variável ambiente.
+const adminEmails = new Set(['admin@sonora.com']);
 const settings = { maxQueue: 10000, cooldown: 30, maxDuration: 600, maxListeners: 20 };
 const DISLIKE_THRESHOLD = 10;
 const MAX_SONGS_PER_USER = 10000;
@@ -807,8 +806,7 @@ app.get('/api/admin/users', async (req, res) => {
 app.post('/api/admin/promote', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email necessário' });
-  adminEmails.add(email);
-  res.json({ success: true });
+  return res.status(403).json({ error: 'Promoção a administrador global desativada. Acesso exclusivo de admin@sonora.com.' });
 });
 
 app.post('/api/admin/delete-user', async (req, res) => {

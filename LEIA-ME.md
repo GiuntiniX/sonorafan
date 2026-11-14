@@ -1,22 +1,16 @@
-# SonoraFan — Sala Profissional 6 | Apenas arquivos alterados
+# SonoraFan 11 — somente arquivos modificados
 
-Esta atualização reproduz a hierarquia da referência visual: playlist à esquerda, player com vídeo YouTube no centro, chat à direita e, abaixo, painéis de informações, ouvintes e energia visual da sala.
+Base: SonoraFan 10.0 (com todos os arquivos anteriores mantidos).
 
-## Substituir
-- `public/index.html`
+Substituir: `public/index.html`, `server.js`
+Adicionar: `public/sonorafan-11.css`, `public/sonorafan-11.js`
 
-## Adicionar
-- `public/room-polished-6.css`
-- `public/room-polished-6.js`
+**Busca musical:** movida para o cartão inferior esquerdo, no lugar do cartão Sobre a Sala. Informações da sala agora ficam em painel expansível dentro da playlist.
 
-## Base necessária
-Use com **SonoraFan 5.0 Comunidade & Perfil** e os demais arquivos da versão Sala Imersiva. **Não** substitua `server.js`, `room-reference.css`, `room-reference.js`, `premium-3.js`, `social-4.js` e demais arquivos anteriores: continuam necessários.
+**Cabeçalho:** removido Mais; botão Temas ao lado de Convidar. Temas adicionados: Winamp Classic, Neon Nights e Studio Pro.
 
-## O que foi preservado
-Landing page, lobby, autenticação, backend, fila, YouTube, chat, reações, comunidade e perfil. A animação de barras no painel de energia é **decorativa**, não mede volume real nem atividade dos microfones.
+**Admin:** o servidor autoriza painel global somente para `admin@sonora.com`, independente de `ADMIN_EMAILS`; promoção global via API desativada. Donos continuam administrando suas próprias salas.
 
-## Limites da referência visual
-O design segue a distribuição, cores e acabamento do mockup, mas utiliza thumbnails e dados reais das músicas/salas; não há fotos, números ou funcionalidades de demonstração.
+**Importante:** mantenha todos os CSS/JS anteriores. Esse pacote é incremental. Reinicie o Node para aplicar `server.js`. As variáveis do `.env` não são incluídas.
 
-## Teste recomendado
-Executar na aplicação real com uma sala vazia, música tocando, fila extensa, múltiplos ouvintes, chat e dispositivos móveis antes da publicação em produção.
+Valide em navegador com dois usuários, principalmente troca de tema, busca/preview e permissões do admin. O bloqueio global de admins pode alterar qualquer automação anterior que dependesse de `ADMIN_EMAILS` ou de promoção.
