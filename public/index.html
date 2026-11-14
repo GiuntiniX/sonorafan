@@ -2924,29 +2924,49 @@
         grid.innerHTML = '';
         roomsData.forEach(r => {
           const card = document.createElement('div');
-          card.className = 'room-card' + (r.isPlaying ? ' live' : '');
+          card.className = 'room-card sf37-room-card' + (r.isPlaying ? ' live' : '');
           const track = r.currentTrack;
-          const trackThumb = track && track.id ? `https://img.youtube.com/vi/${track.id}/hqdefault.jpg` : '';
-          if (trackThumb) card.style.backgroundImage = `url(${trackThumb})`;
+          // YouTube images are only ever built using a validated 11-character video ID.
+          const videoId = typeof track?.id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(track.id) ? track.id : null;
+          const trackThumb = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
           card.dataset.hasTrack = trackThumb ? '1' : '0';
+          card.setAttribute('role', 'button');
+          card.setAttribute('tabindex', '0');
+          card.setAttribute('aria-label', `Entrar na sala ${r.name || 'musical'}${track ? ', música selecionada: ' + String(track.title || 'Música') : ''}`);
           card.onclick = () => joinRoom(r.slug);
+          card.addEventListener('keydown', e => {
+            if (e.target !== card || (e.key !== 'Enter' && e.key !== ' ')) return;
+            e.preventDefault();
+            joinRoom(r.slug);
+          });
           const live = r.isPlaying ? '<div class="room-live-badge"><span class="live-dot"></span> AO VIVO</div>' : '';
-          const playingIndicator = r.isPlaying ? `<div class="playing-indicator"><span></span><span></span><span></span><span></span></div>` : '';
-          const roomVisual = trackThumb ? `<div class="sf36-room-visual"><img src="${trackThumb}" alt="Capa do que está tocando em ${escapeHtml(r.name)}" loading="lazy"></div>` : '';
-          const nowPlaying = track ? `<div class="sf36-room-now"><img src="https://img.youtube.com/vi/${track.id}/default.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div class="sf36-room-now-copy"><small>Tocando agora</small><strong>${escapeHtml(track.title || 'Música')}</strong><span>${escapeHtml(track.artist || 'Ao vivo na sala')}</span></div></div>` : `<div class="sf36-room-idle">Entre e comece a trilha da sala</div>`;
-          card.innerHTML = `${live}<div class="room-listeners-badge">🎧 ${r.listenerCount || 0}</div>${playingIndicator}${roomVisual}
+          const playingIndicator = r.isPlaying ? `<div class="playing-indicator" aria-hidden="true"><span></span><span></span><span></span><span></span></div>` : '';
+          const visual = trackThumb ? `<div class="sf36-room-visual sf37-room-media"><img src="${trackThumb}" alt="Capa da música atual na sala ${escapeHtml(r.name || '')}" loading="lazy" decoding="async"></div>` : '';
+          const nowPlaying = track ? `<div class="sf36-room-now sf37-room-now"><div class="sf36-room-now-copy"><small>${r.isPlaying ? '♫ Tocando agora' : '♫ Música selecionada'}</small><strong>${escapeHtml(track.title || 'Música')}</strong><span>${escapeHtml(track.artist || 'Escolha da comunidade')}</span></div></div>` : `<div class="sf36-room-idle sf37-room-idle">♫ Sala pronta para receber músicas</div>`;
+          card.innerHTML = `${live}<div class="room-listeners-badge">🎧 ${Math.max(0,Number(r.listenerCount)||0)}</div>${playingIndicator}${visual}
             <div class="room-card-body">
-              <h3>${escapeHtml(r.emoji || '')} ${escapeHtml(r.name)} ${r.radioMode ? '📻' : ''}</h3>
-              ${r.description ? `<div class="np" style="margin:2px 0 6px;">${escapeHtml(r.description)}</div>` : ''}
+              <h3>${escapeHtml(r.emoji || '')} ${escapeHtml(r.name || 'Sala musical')}</h3>
+              ${r.description ? `<div class="np">${escapeHtml(r.description)}</div>` : ''}
               <div class="meta">
-                <span class="listeners"><span class="icon">👥</span> <span class="count">${r.listenerCount || 0}</span> ouvintes</span>
-                <span>🎶 ${r.queueLength || 0} na fila</span>
-                <span class="genre-tag">🎧 Todos são DJs</span>
+                <span class="listeners">👥 ${Math.max(0,Number(r.listenerCount)||0)} ouvintes</span>
+                <span>♫ ${Math.max(0,Number(r.queueLength)||0)} na fila</span>
                 ${r.isPrivate ? '<span class="genre-tag">🔒 Privada</span>' : ''}
-                ${r.allowLive ? '<span class="genre-tag" style="background:rgba(239,68,68,.25);color:#fca5a5;font-weight:700;">🔴 LIVE</span>' : ''}
+                ${r.allowLive ? '<span class="genre-tag">🔴 Live</span>' : ''}
               </div>
               ${nowPlaying}
             </div>`;
+          const img = card.querySelector('.sf37-room-media img');
+          if (img && videoId) {
+            img.addEventListener('error', () => {
+              if (img.dataset.fallback !== '1') {
+                img.dataset.fallback = '1';
+                img.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+              } else {
+                card.dataset.hasTrack = '0';
+                img.closest('.sf37-room-media')?.remove();
+              }
+            });
+          }
           grid.appendChild(card);
         });
         window.sf10DecorateRooms?.(roomsData);
@@ -4014,5 +4034,6 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-refino-35.css">
   <script defer src="/sonorafan-refino-35.js"></script>
   <link rel="stylesheet" href="/sonorafan-next-36.css">
+  <link rel="stylesheet" href="/sonorafan-indie-37.css">
 </body>
 </html>
