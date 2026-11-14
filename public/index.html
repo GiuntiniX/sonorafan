@@ -1864,7 +1864,7 @@
           <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()">🔔 <span>Notificações</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
           <button type="button" onclick="toggleTheme(event)" id="themeBtn">◐ <span>Tema</span></button>
-          <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda</span></button>
+          <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
           <button type="button" onclick="toggleAdmin()" id="adminBtn" style="display:none;">🎛️ <span>Painel Admin</span></button>
           <button type="button" onclick="doLogout()">⇥ <span>Sair</span></button>
         </nav>
@@ -1931,9 +1931,9 @@
           <button class="action-btn hidden" id="cfgBtn" onclick="openRoomCfg()" title="Personalizar sala">⚙️</button>
         </div>
         <div class="header-right sf9-room-header-actions">
-          <button class="action-btn sf9-invite-button" type="button" onclick="copyInviteLink()" title="Copiar convite da sala" aria-label="Copiar convite da sala">🔗 <span>Convidar</span></button>
+
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
-          <button type="button" class="sf11-theme-trigger" id="sf11ThemeButton" aria-haspopup="dialog" aria-expanded="false" onclick="window.sf11ToggleThemes?.(event)">◐ <span>Temas</span></button>
+
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
         </div>
       </div>
@@ -1946,11 +1946,14 @@
           <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
+          <button type="button" class="sf29-side-invite" onclick="copyInviteLink()" title="Copiar link de convite">🔗 <span>Convidar amigos</span></button>
+          <button type="button" class="sf11-theme-trigger sf29-side-theme" id="sf11ThemeButton" aria-haspopup="dialog" aria-expanded="false" onclick="window.sf11ToggleThemes?.(event)">◐ <span>Temas</span></button>
           <button type="button" onclick="toggleFavorites()">☆ <span>Favoritos</span></button>
           <button type="button" onclick="openRoomCfg()" id="sf5SettingsBtn">⚙ <span>Configurações</span></button>
+          <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
           <button type="button" onclick="leaveRoom()">⇥ <span>Sair da Sala</span></button>
         </nav>
-        <div class="sf5-sidebar-card"><span>✦</span><strong>A música aproxima.</strong><small>Conecte pessoas, músicas e histórias.</small><button onclick="copyInviteLink()" type="button">Convidar amigos ↗</button></div>
+        <div class="sf5-sidebar-card"><span>✦</span><strong>A música aproxima.</strong><small>Conecte pessoas, músicas e histórias.</small></div>
         <div class="sf5-side-waves" aria-hidden="true"></div>
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
@@ -3632,8 +3635,8 @@ function openRoomCfg() {
       es: [['🎧', '¡Bienvenido!', 'Salas colaborativas con reproducción sincronizada y chat.'], ['🚪', 'Elige una sala', 'Entra a una sala o crea la tuya.'], ['🎵', 'Añade canciones', 'Busca o pega un enlace de YouTube.'], ['🗳️', 'Vota y salta', '10 dislikes eliminan una canción.'], ['💬', 'Chat', 'Envía mensajes, usa emojis, doble tap para dar like.'], ['✨', 'Consejos', 'Guarda favoritas con ⭐, invita con 🔗.']]
     };
     let tutIdx = 0, _onbShown = false;
-    function maybeOnboard() { if (_onbShown || !currentUser) return; const key = 'vc_onb_' + currentUser.email; if (currentUser.onboarded || localStorage.getItem(key)) return; _onbShown = true; openTutorial(0); }
-    function openTutorial(i) { tutIdx = i || 0; renderTutorial(); $('tutorialModal').classList.add('active'); }
+    function maybeOnboard() { if (currentUser) window.sf29MaybeWelcome?.(); }
+    function openTutorial(i) { if (window.sf29StartTour) window.sf29StartTour(document.getElementById('screen-room')?.classList.contains('active') ? 'room' : 'lobby', true); }
     function renderTutorial() {
       const steps = TUTORIAL[currentLang] || TUTORIAL.pt, st = steps[tutIdx];
       $('tutIcon').textContent = st[0]; $('tutTitle').textContent = st[1]; $('tutDesc').textContent = st[2];
@@ -3653,11 +3656,7 @@ function openRoomCfg() {
       { sel: '.chat-column', tab: 'chat', txt: { pt: 'Chat ao vivo — curta com duplo toque.', en: 'Live chat — double-tap to like.', es: 'Chat en vivo — doble tap para like.' } }
     ];
     let tourIdx = -1;
-    function maybeRoomTour() {
-      if (!currentUser || _onbShown && $('tutorialModal').classList.contains('active')) return;
-      const key = 'vc_tour_' + currentUser.email; if (localStorage.getItem(key)) return;
-      localStorage.setItem(key, '1'); tourIdx = -1; tourNext();
-    }
+    function maybeRoomTour() { if (currentUser) window.sf29MaybeRoom?.(); }
     function tourNext() {
       tourIdx++;
       if (tourIdx >= TOUR_STEPS.length) return endTour();
@@ -3956,5 +3955,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-wow-26.js"></script>
   <link rel="stylesheet" href="/sonorafan-clean-27.css">
   <link rel="stylesheet" href="/lobby-sidebar-28.css">
+  <link rel="stylesheet" href="/sonorafan-tour-29.css">
+  <script defer src="/sonorafan-tour-29.js"></script>
 </body>
 </html>
