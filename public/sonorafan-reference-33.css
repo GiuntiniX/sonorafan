@@ -1,0 +1,132 @@
+
+/* SONORAFAN 33 — artes da referência aprovada, sem trocar dados ou regras.
+   A hierarquia visual é compartilhada entre lobby, sala, landing e perfis. */
+:root{--sf33-bg:#100b1b;--sf33-paper:#1c1228;--sf33-cream:#f8e8cf;--sf33-orange:#ff8a3c;--sf33-purple:#bd76e8;--sf33-rose:#ed5892;--sf33-stroke:rgba(252,226,197,.24)}
+#screen-lobby,#screen-room{color:var(--sf33-cream)!important}
+#screen-lobby .sf28-lobby-app{background:linear-gradient(140deg,#120c20,#0c0915)!important}
+#screen-lobby .sf28-sidebar,#screen-room .sf5-sidebar{background:#120c1f!important;border-right:1px solid var(--sf33-stroke)!important}
+#screen-lobby .sf28-sidebar{overflow-x:hidden!important}
+#screen-lobby .sf28-sidebar-brand h1,#screen-room .sf5-brand{font-family:'Space Grotesk',Inter,sans-serif!important;color:#ffedde;font-weight:850;letter-spacing:-.055em}
+#screen-lobby .sf28-sidebar-nav button,#screen-room .sf5-navigation button{font-size:13px!important;color:#e9d9ed!important}
+#screen-lobby .sf28-sidebar-nav button.active,#screen-room .sf5-navigation button.sf5-active{background:linear-gradient(135deg,#a65bdb,#69349d)!important;color:#fff!important;border-color:#b47dde50!important}
+#screen-lobby .sf28-sidebar-nav button:hover,#screen-room .sf5-navigation button:hover{border-color:rgba(224,164,246,.28)!important;background:rgba(181,115,219,.12)!important}
+#screen-lobby .sf33-sidebar-art{position:relative;margin-top:auto;margin-inline:-14px;margin-bottom:-4px;height:160px;overflow:hidden;pointer-events:none}
+#screen-lobby .sf33-sidebar-art img{position:absolute;bottom:-28px;left:-29px;width:215px;height:auto;max-width:none;filter:drop-shadow(0 8px 20px #0008)}
+#screen-lobby .sf28-sidebar-card{margin-top:0!important;padding:12px!important;border-radius:15px!important;background:#271635!important}
+#screen-lobby .sf28-sidebar-card strong{font-size:17px!important}
+#screen-lobby .sf28-sidebar-card button{min-height:38px!important}
+/* Header: the illustrated banner is now the hero. Profile remains live. */
+#screen-lobby .sf32-header{min-height:54px!important;padding:8px clamp(14px,2vw,28px)!important;justify-content:flex-end!important}
+#screen-lobby .sf32-header .sf28-lobby-headcopy{display:none!important}
+#screen-lobby .sf32-header .sf28-lobby-userbar{margin-left:auto}
+#screen-lobby .sf32-header .user-info{padding:6px 10px!important;min-height:41px!important;border-color:var(--sf33-stroke)!important}
+#screen-lobby .sf28-lobby-content.sf32-content{max-width:none!important;padding:4px clamp(14px,2vw,28px) 36px!important}
+#screen-lobby .sf32-discovery.sf33-discovery{display:block!important;padding:0!important;margin:0 0 13px!important;min-height:0!important;overflow:visible!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+#screen-lobby .sf33-discovery::before{display:none!important}
+#screen-lobby .sf33-banner{position:relative;width:100%;aspect-ratio:3.06/1;max-height:315px;overflow:hidden;border-radius:19px;border:1px solid rgba(255,227,198,.18);background:#291436;isolation:isolate}
+#screen-lobby .sf33-banner img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%;filter:saturate(1.04)}
+#screen-lobby .sf33-banner::after{content:'';pointer-events:none;position:absolute;inset:0;box-shadow:inset 0 0 0 1px #ffffff18,inset 0 -25px 32px #1c0b2920;border-radius:inherit}
+#screen-lobby .sf33-banner-stamp{position:absolute;bottom:13px;right:17px;color:var(--sf33-cream);font-size:10px;letter-spacing:.14em;font-weight:850;background:#1b102bbd;border:1px solid var(--sf33-stroke);border-radius:999px;padding:8px 12px;backdrop-filter:blur(10px)}
+/* Search and genres like the illustrated reference; no tall editorial boxes. */
+#screen-lobby .sf33-discovery-controls{display:grid;gap:9px;padding:13px 3px 0}
+#screen-lobby .sf33-search-wrap{max-width:none!important}
+#screen-lobby .sf33-search-wrap .sf32-search{width:100%;height:43px!important;border-radius:100px!important;border-color:#f4d9e27a!important;background:#190f25!important;padding:0 18px!important}
+#screen-lobby .sf33-search-wrap .sf32-search input{font-size:13px!important;color:#fff!important}
+#screen-lobby .sf33-search-wrap .sf32-search span{color:#e3aaff!important}
+#screen-lobby .sf33-genres-label{font-weight:850;font-size:12px;color:var(--sf33-cream)}
+#screen-lobby .sf33-genres-label span{color:var(--sf33-orange)}
+#screen-lobby .sf33-genres{display:flex!important;gap:7px!important;flex-wrap:wrap!important;margin:0!important}
+#screen-lobby .sf33-genres button{display:inline-flex!important;align-items:center;gap:7px;border-radius:12px!important;border:1px solid rgba(255,225,207,.26)!important;background:#24142f!important;padding:8px 12px!important;font-size:12px!important;color:var(--sf33-cream)!important;box-shadow:0 2px 0 #0004;transition:background .18s,transform .18s}
+#screen-lobby .sf33-genres button span{font-size:16px;color:var(--sf33-orange)}
+#screen-lobby .sf33-genres button:nth-child(2) span{color:#f19ce6}#screen-lobby .sf33-genres button:nth-child(3) span{color:#ed799d}#screen-lobby .sf33-genres button:nth-child(4) span{color:#be7cf0}
+#screen-lobby .sf33-genres button:hover,#screen-lobby .sf33-genres button[aria-pressed=true]{background:#6f3497!important;transform:translateY(-1px)}
+#screen-lobby .sf32-rooms-title{margin:10px 0 8px!important;align-items:center!important}
+#screen-lobby .sf32-overline{display:none!important}
+#screen-lobby .sf32-rooms-title h2{font-size:clamp(19px,2vw,25px)!important;color:var(--sf33-cream)}
+#screen-lobby .sf32-rooms-title .lobby-actions button{padding:8px 12px!important;font-size:12px!important;min-height:36px!important}
+#screen-lobby .sf32-room-counter{padding-bottom:9px!important}
+/* Room cards get actual illustrated posters cropped from the original reference image. */
+#screen-lobby #roomGrid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(205px,1fr))!important;gap:12px!important;margin-top:0!important}
+#screen-lobby #roomGrid .room-card{min-height:190px!important;max-height:none;border-radius:14px!important;border:1px solid #a778c466!important;background:#20132a!important;background-image:none!important;overflow:hidden;isolation:isolate;transition:transform .2s,border-color .2s!important;cursor:pointer}
+#screen-lobby #roomGrid .room-card::after{background-image:var(--sf33-poster,var(--sf32-poster))!important;background-repeat:no-repeat;background-position:center 3%;background-size:100% 60%!important;opacity:1!important;transform:none!important;filter:saturate(1.13)}
+#screen-lobby #roomGrid .room-card::before{background:linear-gradient(180deg,transparent 0,transparent 42%,#160e21cd 58%,#130c1cf2 100%)!important;z-index:1!important}
+#screen-lobby #roomGrid .room-card:hover{transform:translateY(-3px)!important;border-color:#e9a4ef!important}
+#screen-lobby #roomGrid .room-card .room-card-body{min-height:inherit;position:relative;z-index:2;justify-content:flex-end!important;padding:11px 12px!important}
+#screen-lobby #roomGrid .room-card h3{font-size:17px!important;line-height:1.05!important;color:#fff2df}
+#screen-lobby #roomGrid .room-card .meta{max-height:42px;overflow:hidden}
+#screen-lobby #roomGrid .room-card .meta span{background:#271438a6!important;border-color:#b079bf50!important;color:#e3d4ec!important}
+#screen-lobby #roomGrid .room-card .np{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;color:#f4ddda}
+#screen-lobby #roomGrid .room-card .room-live-badge{background:#cc3d88!important;color:white!important}
+/* Illustrative language shared with room player, queue & social profile; keeps YouTube video untouched */
+#screen-room .player-column,#screen-room .queue-column,#screen-room .chat-column{border-color:var(--sf33-stroke)!important;background-color:#1a1028!important}
+#screen-room .sf5-section-title{border-bottom-color:var(--sf33-stroke)!important}
+#screen-room .sf33-room-nav-art{position:relative;height:102px;min-height:88px;pointer-events:none;overflow:hidden;margin-top:auto}
+#screen-room .sf33-room-nav-art img{position:absolute;bottom:-74px;left:-7px;width:198px;height:auto;filter:drop-shadow(0 4px 16px #0008)}
+#screen-room .sf5-sidebar-card{display:none!important}
+#screen-room .queue-header,#screen-room .premium-chat-heading{background:linear-gradient(100deg,#23142f,#170e25)!important;border-bottom:1px solid #ffb16425!important}
+#screen-room .player-section{border-radius:18px!important;overflow:hidden;border-color:var(--sf33-stroke)!important}
+#screen-room .player-frame{position:relative!important;background:#090712!important}
+#screen-room .sf33-empty-player-art[hidden]{display:none!important}
+#screen-room .sf33-empty-player-art{position:absolute;inset:0;z-index:15;display:block;pointer-events:none;background:#20132b}
+#screen-room .sf33-empty-player-art img{width:100%;height:100%;object-fit:cover;display:block}
+#screen-room .sf33-empty-player-art::after{content:'Adicione uma música para começar';position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:max-content;max-width:94%;padding:7px 12px;border-radius:12px;color:#fff0d4;background:#1d103acc;border:1px solid #fff3;font-size:12px;font-weight:650;backdrop-filter:blur(10px)}
+#screen-room .sf10-request-card{border-color:#c68cdc61!important;background:linear-gradient(120deg,#251730,#160d23)!important}
+#screen-room .sf10-request-icon{background:linear-gradient(135deg,#de538c,#f78f41)!important}
+#screen-room .sf10-request-card .add-song button{background:linear-gradient(125deg,#ac54d9,#fb8840)!important}
+#screen-room .premium-mini-player{border-top:1px solid #e8a2dd52!important;background:#130d20!important}
+/* Profile/community/settings: same stickers from the original visual concept */
+.sf5-community-shell{background:linear-gradient(150deg,#1c1027,#100c19)!important;border-color:var(--sf33-stroke)!important}
+.sf5-community-top{position:relative;background:linear-gradient(95deg,#281438,#1a1027)!important;overflow:hidden}
+.sf5-community-top::after{content:'';position:absolute;width:110px;height:68px;right:72px;top:-4px;opacity:.74;background:url('/art-33/flowers.webp') center/cover no-repeat;pointer-events:none}
+.sf5-profile-hero{position:relative;background:#25142f url('/art-33/flowers.webp') right top/auto 120px no-repeat!important;border-color:var(--sf33-stroke)!important}
+.sf5-profile-avatar{border:2px solid #f6a6be!important;box-shadow:0 8px 25px #0008!important}
+#roomCfgModal .modal,#signupModal .modal{border-color:var(--sf33-stroke)!important}
+#roomCfgModal .modal h3,#signupModal .modal h3{color:var(--sf33-cream)}
+#loginScreen .sf26-auth-showcase{position:relative;isolation:isolate;overflow:hidden}
+#loginScreen .sf26-auth-showcase::before{content:'';position:absolute;right:-20%;bottom:-6%;width:78%;height:78%;background:url('/art-33/woman-headphones.webp') center/contain no-repeat;opacity:.37;z-index:-1;pointer-events:none}
+#signupModal .sf26-signup-side{position:relative;isolation:isolate;overflow:hidden}
+#signupModal .sf26-signup-side::before{content:'';position:absolute;right:-19%;bottom:-3%;width:80%;height:70%;background:url('/art-33/flowers.webp') center/contain no-repeat;opacity:.35;z-index:-1;pointer-events:none}
+/* public landing: huge hand-drawn illustrated character from the actual reference */
+.landing-screen .hero-visual.sf33-landing-visual{position:relative;overflow:hidden!important;min-height:480px;background:#24122f!important;border:1px solid #ffddc344!important;box-shadow:0 20px 50px #0008!important}
+.landing-screen .sf33-landing-visual .sf33-woman-art{display:block;position:absolute;inset:0 auto auto 0;width:100%;height:76%;object-fit:cover;object-position:center 30%;pointer-events:none;filter:saturate(1.11)}
+.landing-screen .sf33-landing-visual .vinyl,.landing-screen .sf33-landing-visual .float-card,.landing-screen .sf33-landing-visual .visual-glow{display:none!important}
+.landing-screen .sf33-landing-visual .now-playing-card{position:relative!important;margin:265px 12px 0!important;transform:none!important;max-width:none!important;width:auto!important;z-index:2;border-radius:18px!important;background:#20122ce8!important;border:1px solid #f0b1d25c!important;box-shadow:0 12px 30px #0008!important}
+.landing-screen .hero-text h1{color:#fff0d4!important}
+.landing-screen .hero-text h1 em{color:#ffa45b!important;-webkit-text-fill-color:#ffa45b!important}
+/* UX on narrow screens, no second sidebar, no massive artwork. */
+@media(max-width:1100px){
+ #screen-lobby .sf33-sidebar-art{display:none}
+ #screen-room .sf33-room-nav-art{display:none}
+ #screen-lobby .sf32-header{min-height:50px!important}
+ #screen-lobby .sf33-banner{max-height:270px}
+}
+@media(max-width:780px){
+ #screen-lobby .sf33-banner{aspect-ratio:2.45/1;min-height:155px;border-radius:16px}
+ #screen-lobby .sf33-banner img{object-fit:cover;object-position:60% center}
+ #screen-lobby .sf33-banner-stamp{font-size:8px;padding:6px 8px;bottom:7px;right:8px}
+ #screen-lobby .sf33-discovery-controls{padding-top:10px}
+ #screen-lobby .sf33-genres{gap:6px!important}
+ #screen-lobby .sf33-genres button{font-size:11px!important;padding:7px 9px!important}
+ #screen-lobby #roomGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ #screen-lobby #roomGrid .room-card{min-height:172px!important}
+ .landing-screen .hero-visual.sf33-landing-visual{min-height:410px}
+ .landing-screen .sf33-landing-visual .now-playing-card{margin-top:228px!important}
+}
+@media(max-width:440px){
+ #screen-lobby .sf28-lobby-content.sf32-content{padding:0 10px 30px!important}
+ #screen-lobby .sf33-banner{min-height:120px;aspect-ratio:2.7/1}
+ #screen-lobby .sf33-banner img{object-position:50% center}
+ #screen-lobby .sf32-rooms-title{align-items:start!important}
+ #screen-lobby #roomGrid .room-card{min-height:166px!important}
+ #screen-lobby #roomGrid .room-card h3{font-size:15px!important}
+ #screen-lobby #roomGrid .room-card .meta{max-height:35px}
+ #screen-lobby .sf33-genres button:nth-child(n+7){display:none!important}
+}
+@media(prefers-reduced-motion:no-preference){
+ #screen-lobby .sf33-banner img{animation:sf33Banner 13s ease-in-out infinite}
+ #screen-lobby .sf33-banner-stamp{animation:sf33Pulse 4s ease-in-out infinite}
+ #screen-lobby .sf33-genres button{transition:transform .18s ease,background .18s ease}
+}
+@keyframes sf33Banner{0%,100%{transform:scale(1)}50%{transform:scale(1.018)}}
+@keyframes sf33Pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.16)}}
+@media(prefers-reduced-motion:reduce){#screen-lobby .sf33-banner img,#screen-lobby .sf33-banner-stamp{animation:none!important}}

@@ -1414,7 +1414,8 @@
           </div>
         </div>
 
-        <div class="hero-visual">
+        <div class="hero-visual sf33-landing-visual">
+          <img class="sf33-woman-art" src="/art-33/woman-headphones.webp" alt="Ilustração indie de uma pessoa ouvindo música com fones e flores" width="813" height="600" decoding="async">
           <div class="visual-glow"></div>
           <div class="vinyl"></div>
           <div class="now-playing-card">
@@ -1868,6 +1869,7 @@
           <button type="button" onclick="toggleAdmin()" id="adminBtn" style="display:none;">🎛️ <span>Painel Admin</span></button>
           <button type="button" onclick="doLogout()">⇥ <span>Sair</span></button>
         </nav>
+        <div class="sf33-sidebar-art" aria-hidden="true"><img src="/art-33/speakers.webp" loading="lazy" alt="" width="480" height="392"></div>
         <div class="sf28-sidebar-card">
           <span>✦</span>
           <strong>A música aproxima.</strong>
@@ -1893,31 +1895,33 @@
           </div>
         </div>
         <div class="lobby sf28-lobby-content sf32-content">
-          <section class="sf32-discovery" aria-label="Encontre sua sala de música">
-            <div class="sf32-discovery-copy">
-              <span class="sf32-eyebrow">✳  SALAS AO VIVO · TODO MUNDO É DJ</span>
-              <h3>Seu próximo som começa aqui<span aria-hidden="true">✦</span></h3>
-              <p>Explore suas cenas favoritas, encontre uma sala e entre na conversa.</p>
+          <section class="sf32-discovery sf33-discovery" aria-label="Descobrir salas e estilos musicais">
+            <div class="sf33-banner">
+              <img src="/art-33/hero-banner.webp" alt="SonoraFan. Música, gente e boas vibrações na mesma sala. Ilustração de uma mulher com fones de ouvido, guitarras e flores de festival." width="1220" height="398" decoding="async" fetchpriority="high">
+              <span class="sf33-banner-stamp" aria-hidden="true">✶  TODO MUNDO É DJ</span>
+            </div>
+            <div class="sf33-discovery-controls">
               <div class="sf10-discovery-controls sf32-search-controls">
-                <div class="sf32-search-wrap">
+                <div class="sf32-search-wrap sf33-search-wrap">
                   <label class="sf32-search" for="sf10RoomQuery">
                     <span aria-hidden="true">⌕</span>
-                    <input id="sf10RoomQuery" type="search" placeholder="Buscar sala ou estilo musical" autocomplete="off" aria-label="Buscar salas ou estilos musicais">
+                    <input id="sf10RoomQuery" type="search" placeholder="Buscar salas ou estilos musicais..." autocomplete="off" aria-label="Buscar salas por nome ou estilo">
                   </label>
                   <button type="button" id="sf32SearchClear" aria-label="Limpar busca" hidden>×</button>
                 </div>
               </div>
-              <div class="sf32-genres" aria-label="Buscar por gênero musical">
-                <button type="button" data-sf32-genre="indie">Indie</button>
-                <button type="button" data-sf32-genre="rock">Rock</button>
-                <button type="button" data-sf32-genre="pop">Pop</button>
-                <button type="button" data-sf32-genre="mpb">MPB</button>
-                <button type="button" data-sf32-genre="eletrônica">Eletrônica</button>
-                <button type="button" data-sf32-genre="rap">Rap</button>
-                <button type="button" data-sf32-genre="pagode">Pagode</button>
+              <div class="sf33-genres-label">Explore por estilo <span aria-hidden="true">✳</span></div>
+              <div class="sf32-genres sf33-genres" aria-label="Buscar salas por gênero musical">
+                <button type="button" data-sf32-genre="rock"><span>⚡</span>Rock</button>
+                <button type="button" data-sf32-genre="pop"><span>★</span>Pop</button>
+                <button type="button" data-sf32-genre="indie"><span>✿</span>Indie</button>
+                <button type="button" data-sf32-genre="eletrônica"><span>〰</span>Eletrônica</button>
+                <button type="button" data-sf32-genre="funk"><span>♛</span>Funk</button>
+                <button type="button" data-sf32-genre="rap"><span>🎤</span>Rap</button>
+                <button type="button" data-sf32-genre="mpb"><span>♫</span>MPB</button>
+                <button type="button" data-sf32-genre="pagode"><span>◉</span>Pagode</button>
               </div>
             </div>
-            <img class="sf32-festival-illustration" src="/art-32/festival-hero.svg" alt="Ilustração de um festival musical indie, com guitarras, vinil, estrelas e público" loading="eager" width="560" height="310">
           </section>
           <div class="sf32-rooms-title lobby-top">
             <div><span class="sf32-overline">ENCONTROS MUSICAIS</span><h2 data-i18n="lobby.title">Salas disponíveis <span aria-hidden="true">✳</span></h2></div>
@@ -1975,13 +1979,14 @@
           <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
           <button type="button" onclick="leaveRoom()">⇥ <span>Sair da Sala</span></button>
         </nav>
+        <div class="sf33-room-nav-art" aria-hidden="true"><img src="/art-33/speakers.webp" loading="lazy" alt="" width="480" height="392"></div>
         <div class="sf5-sidebar-card"><span>✦</span><strong>A música aproxima.</strong><small>Conecte pessoas, músicas e histórias.</small></div>
         <div class="sf5-side-waves" aria-hidden="true"></div>
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
         <div class="sf5-section-title"><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
-        <div class="queue-column">
+        <div class="queue-column sf33-queue-column">
           <div class="queue-header">
             <span>♫ &nbsp;Playlist da sala</span>
             <div style="display:flex;gap:8px;align-items:center;">
@@ -2011,6 +2016,7 @@
             <div class="player-frame">
               <div class="premium-frame-corner" aria-hidden="true">SONORAFAN <b>LIVE</b></div>
               <div id="youtube-player"></div>
+              <div class="sf33-empty-player-art" id="sf33EmptyPlayerArt" hidden aria-hidden="true"><img src="/art-33/room-vinyl.webp" alt="" width="896" height="500" decoding="async" loading="lazy"></div>
               <div class="youtube-interaction-shield" aria-hidden="true"></div>
               <div class="buffering-overlay" id="bufferingOverlay"><div class="spinner"></div></div>
               <div id="spectrum" aria-hidden="true"></div>
@@ -3984,5 +3990,7 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-controls-30.css">
   <link rel="stylesheet" href="/sonorafan-indie-32.css">
   <script defer src="/sonorafan-indie-32.js"></script>
+  <link rel="stylesheet" href="/sonorafan-reference-33.css">
+  <script defer src="/sonorafan-reference-33.js"></script>
 </body>
 </html>
