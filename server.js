@@ -239,7 +239,7 @@ async function loadRooms() {
       const v = d.data(); if (rooms.has(v.slug)) return;
       const r = createRoom(v.slug, v.name, v.admin || 'Anônimo');
       if (v.color) r.color = v.color;
-      r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = v.addMode === 'owner' ? 'owner' : 'all'; r.musicMode = ['all', 'owner', 'fair'].includes(v.musicMode) ? v.musicMode : (r.addMode === 'owner' ? 'owner' : 'all'); r.radioMode = !!v.radioMode; r.radioGenre = typeof v.radioGenre === 'string' ? v.radioGenre.slice(0, 40) : 'pop';
+      r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = 'all'; r.musicMode = 'all'; r.radioMode = false; r.radioGenre = typeof v.radioGenre === 'string' ? v.radioGenre.slice(0, 40) : 'pop';
       if (v.welcome) r.pinnedMessage = { author: r.admin, text: v.welcome };
       r.isPrivate = !!v.isPrivate; r.invite = v.invite || null; r.passHash = v.passHash || null; r.passSalt = v.passSalt || null;
       if (v.allowLong) r.allowLong = true;
@@ -293,7 +293,7 @@ function broadcastState(slug) {
     admin: room.admin,
     isPlaying: room.isPlaying,
     history: room.history.slice(-10),
-    radioMode: room.radioMode, musicMode: room.musicMode || 'all', radioGenre: room.radioGenre || 'pop',
+    radioMode: room.radioMode, musicMode: 'all', radioGenre: room.radioGenre || 'pop',
     pinnedMessage: room.pinnedMessage,
     listenerCount: room.listenerCount,
     maxListeners: settings.maxListeners,
@@ -302,14 +302,14 @@ function broadcastState(slug) {
     eventStartTime: room.eventStartTime,
     maxDuration: room.maxDuration,
     allowLive: room.allowLive,
-    emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
+    emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: 'all',
     isPrivate: room.isPrivate, hasPassword: !!room.passHash,
   });
 }
 function broadcastUsers(slug) {
   io.in(slug).fetchSockets().then(sockets => {
     const userList = sockets.map(s => ({
-      name: s.userName || 'Anônimo', color: s.userColor || '#888', isAdmin: s.isAdmin || false, role: roleOf(s), muted: !!sanActive(s.userEmail, 'mute', slug), avatar: s.data?.sf19Avatar || s.userAvatar || '👤', seat: Number.isInteger(s.data?.sf19Seat) ? s.data.sf19Seat : null,
+      name: s.userName || 'Anônimo', color: s.userColor || '#888', isAdmin: s.isAdmin || false, role: roleOf(s), muted: !!sanActive(s.userEmail, 'mute', slug), avatar: s.data?.sf19Avatar || s.userAvatar || '👤', seat: Number.isInteger(s.data?.sf19Seat) ? s.data.sf19Seat : null, dance: ['bounce','sway','groove','still'].includes(s.data?.sf20Dance) ? s.data.sf20Dance : 'sway',
       points: userPoints.get(s.userEmail)?.points || 0, badges: userPoints.get(s.userEmail)?.badges || [],
     }));
     io.to(slug).emit('users', userList);
@@ -735,7 +735,7 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   const room = createRoom(slug, name.trim(), String(adminName || 'Anônimo').slice(0, 40));
   room.ownerEmail = email;
   const cfg = sanitize(req.body);
-  Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
+  Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: 'all', musicMode: 'all' });
   if (cfg.welcome) room.pinnedMessage = { author: room.admin, text: cfg.welcome };
   if (req.body.isPrivate) { room.isPrivate = true; room.invite = newInvite(); setPassword(room, String(req.body.password || '').slice(0, 30)); room.allowed.add(email); }
   if (isGlobalAdmin && allowLong) { room.allowLong = true; room.maxDuration = 21600; }
@@ -1218,11 +1218,11 @@ io.on('connection', (socket) => {
       socket.emit('roomState', {
         slug: room.slug, name: room.name, currentIndex: room.currentIndex,
         position: getPosition(room), votes: room.votes, queue: room.queue, waitingQueue: room.waitingQueue,
-        admin: room.admin, isPlaying: room.isPlaying, history: room.history.slice(-10), radioMode: room.radioMode, musicMode: room.musicMode || 'all', radioGenre: room.radioGenre || 'pop',
+        admin: room.admin, isPlaying: room.isPlaying, history: room.history.slice(-10), radioMode: room.radioMode, musicMode: 'all', radioGenre: room.radioGenre || 'pop',
         pinnedMessage: room.pinnedMessage, listenerCount: room.listenerCount, maxListeners: settings.maxListeners,
         color: room.color, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
         maxDuration: room.maxDuration, allowLive: room.allowLive,
-        emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
+        emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: 'all',
         isPrivate: room.isPrivate, hasPassword: !!room.passHash,
       });
       socket.emit('chatHistory', room.chatHistory.slice(-150));
@@ -1259,6 +1259,10 @@ io.on('connection', (socket) => {
       if (!allowedAvatars.includes(payload.avatar)) return socket.emit('sf19Error', 'Avatar não permitido.');
       socket.data.sf19Avatar = payload.avatar;
     }
+    if (Object.prototype.hasOwnProperty.call(payload, 'dance')) {
+      if (!['bounce', 'sway', 'groove', 'still'].includes(payload.dance)) return socket.emit('sf19Error', 'Animação inválida.');
+      socket.data.sf20Dance = payload.dance;
+    }
     if (Object.prototype.hasOwnProperty.call(payload, 'seat')) {
       if (!Number.isInteger(payload.seat) || payload.seat < 0 || payload.seat > 23) return socket.emit('sf19Error', 'Lugar inválido.');
       const peers = await io.in(currentRoom).fetchSockets();
@@ -1268,7 +1272,7 @@ io.on('connection', (socket) => {
       socket.data.sf19Seat = payload.seat;
     }
     broadcastUsers(currentRoom);
-    socket.emit('sf19Saved', { avatar: socket.data.sf19Avatar || socket.userAvatar || '🎧', seat: Number.isInteger(socket.data.sf19Seat) ? socket.data.sf19Seat : null });
+    socket.emit('sf19Saved', { avatar: socket.data.sf19Avatar || socket.userAvatar || '🎧', seat: Number.isInteger(socket.data.sf19Seat) ? socket.data.sf19Seat : null, dance: socket.data.sf20Dance || 'sway' });
   });
 
   // Reações efêmeras autenticadas, restritas à sala atual e com limite por socket.
@@ -1391,34 +1395,22 @@ io.on('connection', (socket) => {
       const room = currentRoom && rooms.get(currentRoom);
       if (!room || !socket.isAdmin) return socket.emit('error', 'Somente o responsável pela sala pode alterar o modo musical.');
       const mode = typeof data.mode === 'string' ? data.mode : '';
-      if (!['all', 'owner', 'fair'].includes(mode)) return socket.emit('error', 'Modo musical inválido.');
-      room.musicMode = mode;
-      room.addMode = mode === 'owner' ? 'owner' : 'all';
-      if (mode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; }
+      if (mode !== 'all') return socket.emit('error', 'Todas as salas do SonoraFan são colaborativas.');
+      room.musicMode = 'all';
+      room.addMode = 'all';
       persistRoom(room); broadcastState(room.slug);
-      addSystemMsg(room.slug, `🎛️ Modo musical: ${{all:'Colaborativo', owner:'DJ anfitrião', fair:'Fila justa'}[mode]}`);
     } catch (e) { console.error('Erro ao alterar modo musical:', e.message); }
   });
 
-  socket.on('setAutoRadio', (data = {}) => {
-    try {
-      const room = currentRoom && rooms.get(currentRoom);
-      if (!room || !socket.isAdmin) return socket.emit('error', 'Apenas o responsável pode configurar o rádio.');
-      if (typeof data.enabled !== 'boolean') return;
-      if (data.enabled && !YOUTUBE_API_KEY) return socket.emit('error', 'Rádio indisponível: chave da API do YouTube não configurada.');
-      const genre = String(data.genre || room.radioGenre || 'pop').replace(/[<>\x00-\x1f]/g,'').trim().slice(0,40);
-      room.radioMode = data.enabled;
-      room.radioGenre = genre || 'pop';
-      persistRoom(room); broadcastState(room.slug);
-      if (room.radioMode && !room.isPlaying && room.queue.length === 0) startRadio(room.slug);
-    } catch (e) { console.error('Erro ao configurar rádio:', e.message); }
+  // A partir da v20, a programação musical é feita pelos participantes.
+  socket.on('setAutoRadio', () => {
+    socket.emit('error', 'A rádio automática está desativada. Todos colaboram com a playlist.');
   });
 
   socket.on('addSong', (song) => {
     try {
       if (!currentRoom) return;
       const room = rooms.get(currentRoom);
-      if (room.addMode === 'owner' && !socket.isAdmin) { socket.emit('error', '🎧 Nesta sala só o dono escolhe as músicas. Use o chat para sugerir!'); return; }
       if (!song || typeof song !== 'object' || typeof song.id !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(song.id)) {
         socket.emit('error', 'Link ou vídeo do YouTube inválido.'); return;
       }
@@ -1443,7 +1435,7 @@ io.on('connection', (socket) => {
         broadcastState(currentRoom);
         return;
       }
-      song.dj = socket.userName; room.queue.push(song); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2);
+      song.dj = socket.userName; room.queue.push(song); room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2);
       room.totalSongsAdded = (room.totalSongsAdded || 0) + 1;
       if (!room.isPlaying && room.queue.length === 1) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); addSystemMsg(currentRoom, `▶ ${song.title} — ${song.artist}`); }
       broadcastState(currentRoom);
@@ -1503,8 +1495,8 @@ io.on('connection', (socket) => {
       const room = currentRoom && rooms.get(currentRoom);
       if (!room || !socket.isAdmin) return;
       const cfg = sanitize(input, room);
-      Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
-      if (input.addMode !== undefined) room.musicMode = cfg.addMode === 'owner' ? 'owner' : 'all';
+      Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: 'all', musicMode: 'all' });
+      // Política SonoraFan 20: todas as salas são colaborativas.
       if (input.welcome !== undefined) room.pinnedMessage = cfg.welcome ? { author: socket.userName, text: cfg.welcome } : null;
       if (input.isPrivate !== undefined) {
         const was = room.isPrivate; room.isPrivate = !!input.isPrivate;

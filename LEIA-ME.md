@@ -1,29 +1,25 @@
-# SonoraFan 19.0 — Plateia Interativa (continuação da versão 18.0)
+# SonoraFan 20.0 — Todo mundo é DJ + animações na pista
 
-Aplicar sobre a versão 18.0 com os arquivos auxiliares anteriores mantidos.
+Atualização incremental a partir da versão 19.0. O ZIP contém somente arquivos alterados ou novos.
 
-## Arquivos a substituir ou adicionar
+## Arquivos
+- `server.js` — substituir
 - `public/index.html` — substituir
-- `server.js` — substituir (base: servidor da versão 16/17/18)
-- `public/room-interactive-19.css` — adicionar
-- `public/room-interactive-19.js` — adicionar
+- `public/room-interactive-19.js` — substituir
+- `public/room-social-20.css` — adicionar
 
-## O que há de novo
-- 24 lugares clicáveis na pista, cada um com estado livre/ocupado.
-- 12 avatares de emoji à escolha na própria sala.
-- Botão “Meu avatar” no palco e janela de personalização.
-- Avatar, lugar e reações sincronizados com os outros ouvintes pelo Socket.IO.
-- Sem avatares fictícios. O servidor associa mudanças ao socket autenticado que já entrou na sala.
-- Validação de lugares ocupados e limites de tamanho no servidor.
-- Preferências visuais da sala são temporárias, não alteram o perfil global.
+## Mudanças
+- Remoção do bloco Modo musical (Todos / Fila justa / DJ) e de seus controles de rádio da playlist.
+- Todas as salas, inclusive as antigas carregadas do banco, operam com **adição colaborativa**. Todo participante autenticado na sala pode adicionar faixas (respeitando cooldown, limites e permissões gerais).
+- Na criação e edição, a escolha 'colaborativa ou DJ único' foi removida; todos são DJs. Opções de privacidade e formato permanecem.
+- O servidor rejeita tentativas de ativar modos exclusivos por clientes antigos.
+- Novos movimentos de avatar: balançar, pular, dançar e ficar parado, transmitidos pelo Socket.IO aos participantes da sala.
+- Preferência de movimento temporária; a saída da sala reinicia a escolha.
 
-## Limitações e cuidados
-- Apenas 24 assentos visuais; participantes excedentes continuam na contagem da sala, mas não têm assento representado.
-- Posições e avatar temporário reiniciam ao sair/reentrar na sala.
-- Sem movimentação contínua, voz ou áudio espacial nesta etapa.
-- Não modifica a landing page, login Firebase, fila, reprodução do YouTube nem o sistema de administração.
-- Instale o `server.js` desta versão antes de usar a seleção de lugares no navegador.
-- **Atenção:** o problema de login admin relatado anteriormente não foi diagnosticado nem corrigido aqui.
-
-## Validação
-Sintaxe de JavaScript e integridade do ZIP verificadas localmente. A sincronização com usuários reais requer validação com Firebase e Socket.IO em ambiente publicado.
+## Importante
+- O botão Rádio Automática saiu junto com a seleção de modo musical. O servidor desativa automaticamente a rádio de salas existentes ao carregá-las e recusa reativação por clientes antigos.
+- Isto **não** torna todos administradores nem concede poderes de moderação: 'DJ' significa poder sugerir/adicionar músicas.
+- O backend ainda restringe vídeos longos e lives ao administrador global conforme a implementação existente.
+- Nenhuma mudança no Firebase Authentication; o problema anterior com login admin não é corrigido nesta atualização.
+- Reinicie o servidor após substituir `server.js`. Faça backup antes de aplicar.
+- Sintaxe validada localmente; testes reais de múltiplos usuários, Firebase/YouTube ainda necessários.
