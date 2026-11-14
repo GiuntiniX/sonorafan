@@ -27,46 +27,58 @@
     hair:hairCodes.includes(look?.hair)?look.hair:defaultLook.hair,
     accessory:accessoryCodes.includes(look?.accessory)?look.accessory:defaultLook.accessory
   });
+  // SonoraFan 23: personagens chibi inspirados em avatares de mundos sociais 2D.
+  // Cabeça grande, expressão amigável, corpo curto, roupa com detalhes e contorno.
   function characterSvg(face,look=null){
     const i=Math.max(0,faces.indexOf(face));
-    const [originalShirt,skin,hair,style]=styleSets[i];
+    const [,skin,baseHair,style]=styleSets[i];
     const custom=look?cleanLook(look):null;
-    const shirt=custom?shirtColors[custom.shirt]:originalShirt;
-    const hairPath=[
-      'M19 26 Q17 7 40 11 Q61 5 63 27 L55 19 Q37 10 19 26',
-      'M18 29 Q14 11 34 10 Q54 3 63 24 L56 21 L50 14 L41 22 L29 17Z',
-      'M18 26 Q21 7 40 13 Q59 9 62 28 L58 17 L47 22 L34 14 L20 27Z',
-      'M17 31 Q13 11 35 10 Q61 4 65 29 L60 34 L56 18 L27 18 L21 34Z',
-      'M17 24 Q20 4 45 11 Q62 10 62 26 L53 17 L38 19 L21 24Z',
-      'M17 29 Q16 8 43 11 Q63 11 62 31 L56 21 L30 17 L20 32Z'
-    ][style%6];
-    const mark=style===7?'✦':style===8?'•':style===11?'♫':'';
-    const hairIndex=custom?hairCodes.indexOf(custom.hair):style%6;
-    const selectedHairPath=[
-      'M19 26 Q17 7 40 11 Q61 5 63 27 L55 19 Q37 10 19 26',
-      'M18 29 Q14 11 34 10 Q54 3 63 24 L56 21 L50 14 L41 22 L29 17Z',
-      'M18 26 Q21 7 40 13 Q59 9 62 28 L58 17 L47 22 L34 14 L20 27Z',
-      'M17 31 Q13 11 35 10 Q61 4 65 29 L60 34 L56 18 L27 18 L21 34Z',
-      'M17 24 Q20 4 45 11 Q62 10 62 26 L53 17 L38 19 L21 24Z',
-      'M17 29 Q16 8 43 11 Q63 11 62 31 L56 21 L30 17 L20 32Z'
-    ][hairIndex];
+    const outfit=custom?shirtColors[custom.shirt]:styleSets[i][0];
+    const hair=baseHair;
+    const hairIdx=custom?hairCodes.indexOf(custom.hair):style%6;
     const accessory=custom?.accessory||'headphones';
-    const headphones=accessory==='headphones'?`<path d="M19 29 Q15 2 40 3 Q65 2 61 29" fill="none" stroke="${shirt}" stroke-width="5" stroke-linecap="round"/><rect x="14" y="27" width="8" height="17" rx="4" fill="${shirt}"/><rect x="58" y="27" width="8" height="17" rx="4" fill="${shirt}"/>`:'';
-    const glasses=accessory==='glasses'?`<g fill="none" stroke="#1b1c32" stroke-width="2.8"><rect x="25" y="28" width="13" height="9" rx="4"/><rect x="43" y="28" width="13" height="9" rx="4"/><path d="M38 31 L43 31"/></g>`:'';
-    const cap=accessory==='cap'?`<path d="M15 22 Q22 3 42 10 Q61 7 65 22 L60 27 L22 27Z" fill="${shirt}" stroke="#fff" stroke-opacity=".2"/><path d="M23 24 Q43 22 65 26 L75 30 Q52 35 26 29" fill="${shirt}"/>`:'';
-    return `<svg class="sf21-figure" viewBox="0 0 80 102" xmlns="${nsvg}" aria-hidden="true" focusable="false">
-      <ellipse cx="40" cy="97" rx="23" ry="4" fill="#000" opacity=".23"/>
-      <g class="sf21-limbs"><path d="M30 77 L27 93" stroke="${hair}" stroke-width="10" stroke-linecap="round"/><path d="M49 77 L53 93" stroke="${hair}" stroke-width="10" stroke-linecap="round"/><path d="M26 94 L18 94 M54 94 L61 94" stroke="${shirt}" stroke-width="7" stroke-linecap="round"/></g>
-      <g class="sf21-arms"><path d="M22 53 L12 72" stroke="${skin}" stroke-width="10" stroke-linecap="round"/><path d="M58 53 L69 70" stroke="${skin}" stroke-width="10" stroke-linecap="round"/><circle cx="12" cy="73" r="5" fill="${skin}"/><circle cx="69" cy="71" r="5" fill="${skin}"/></g>
-      <path d="M24 49 Q40 44 56 49 L62 81 Q40 89 18 81Z" fill="${shirt}" stroke="#ffffff" stroke-opacity=".18" stroke-width="1.2"/>
-      <path d="M35 43 L35 52 L45 52 L45 43" fill="${skin}"/><path d="M36 53 L40 61 L44 53" fill="#fff" opacity=".16"/>
-      <ellipse cx="40" cy="30" rx="20" ry="24" fill="${skin}"/><path d="${selectedHairPath}" fill="${hair}"/>
-      <path d="M23 23 Q17 38 25 46" stroke="${hair}" stroke-width="6" stroke-linecap="round" fill="none" opacity=".9"/>
-      <path d="M57 23 Q63 38 55 46" stroke="${hair}" stroke-width="6" stroke-linecap="round" fill="none" opacity=".9"/>
-      <g fill="${hair}"><ellipse cx="32" cy="32" rx="2.2" ry="2.8"/><ellipse cx="49" cy="32" rx="2.2" ry="2.8"/></g>
-      <path d="M35 42 Q40 45 46 41" stroke="#744a4f" stroke-width="1.7" stroke-linecap="round" fill="none"/>
-      ${headphones}${glasses}${cap}
-      <text x="40" y="72" text-anchor="middle" fill="white" font-size="13" font-weight="900" font-family="sans-serif">${mark}</text>
+    const outline='#241c3b', highlight='#fff9',shadow='#0003';
+    const hairShifts=[
+      `<path d="M17 40 Q12 13 46 12 Q76 11 78 39 L69 31 Q55 24 43 28 L25 37Z"/>`,
+      `<path d="M17 43 Q10 22 32 14 Q58 2 76 27 L78 44 L67 31 L57 23 L45 34 L31 27Z"/>`,
+      `<path d="M15 41 Q18 12 45 13 Q72 12 77 38 L69 21 L44 29 L24 42Z"/>`,
+      `<path d="M14 39 Q12 26 21 20 Q16 8 34 13 Q45 3 56 14 Q75 9 77 30 L77 45 L65 28 L26 33Z"/>`,
+      `<path d="M17 40 Q15 9 43 11 Q76 8 78 40 L80 68 L69 60 L67 31 L28 32 L23 63 L13 69Z"/>`,
+      `<path d="M15 40 L21 23 L17 9 L35 19 L45 4 L56 20 L70 12 L68 25 L80 39 L67 31 L30 32Z"/>`
+    ];
+    const hairShape=hairShifts[hairIdx];
+    const smile=i%3===0?`<path d="M42 63 Q48 68 55 63" fill="none" stroke="#954d5b" stroke-width="2.4" stroke-linecap="round"/>`:
+      `<path d="M42 63 Q49 72 56 63" fill="#924655" stroke="#924655" stroke-width="1.4"/><path d="M44 65 Q49 68 54 65" stroke="#fff6" stroke-width="1.3"/>`;
+    const topDecor=i%4===0?'✦':i%4===1?'♫':i%4===2?'★':'♡';
+    const headwear=accessory==='headphones'?`<path d="M18 45 Q13 7 46 6 Q81 6 77 45" fill="none" stroke="${outfit}" stroke-width="6" stroke-linecap="round"/><rect x="12" y="42" width="11" height="20" rx="5" fill="${outfit}" stroke="${outline}" stroke-width="2.5"/><rect x="72" y="42" width="11" height="20" rx="5" fill="${outfit}" stroke="${outline}" stroke-width="2.5"/>`:'';
+    const glasses=accessory==='glasses'?`<path d="M29 49 H41 Q47 57 53 49 H65" fill="none" stroke="${outline}" stroke-width="3"/><rect x="29" y="45" width="15" height="14" rx="5" fill="#25264144" stroke="${outline}" stroke-width="3"/><rect x="51" y="45" width="15" height="14" rx="5" fill="#25264144" stroke="${outline}" stroke-width="3"/>`:'';
+    const cap=accessory==='cap'?`<path d="M16 37 Q18 6 49 12 Q76 14 78 40 L20 42Z" fill="${outfit}" stroke="${outline}" stroke-width="3"/><path d="M25 40 Q51 34 87 42 Q68 50 31 45" fill="${outfit}" stroke="${outline}" stroke-width="2.5"/>`:'';
+    return `<svg class="sf21-figure sf23-chibi" viewBox="0 0 96 124" xmlns="${nsvg}" aria-hidden="true" focusable="false">
+      <ellipse cx="48" cy="118" rx="33" ry="5" fill="#090512" opacity=".34"/>
+      <g class="sf21-limbs" stroke="${outline}" stroke-linejoin="round" stroke-width="2.5">
+        <path d="M31 99 L29 110 Q20 114 22 118 L43 118 L44 101Z" fill="#42405c"/>
+        <path d="M53 100 L53 115 L75 118 Q77 112 66 110 L64 97Z" fill="#42405c"/>
+      </g>
+      <g class="sf21-arms" stroke="${outline}" stroke-width="2.5" stroke-linecap="round">
+        <path d="M27 88 Q14 93 15 106" fill="none" stroke="${skin}" stroke-width="10"/>
+        <path d="M68 87 Q81 94 80 106" fill="none" stroke="${skin}" stroke-width="10"/>
+        <circle cx="15" cy="106" r="6" fill="${skin}"/><circle cx="80" cy="106" r="6" fill="${skin}"/>
+      </g>
+      <path d="M29 79 Q46 72 65 79 L73 106 Q47 115 23 106Z" fill="${outfit}" stroke="${outline}" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M30 88 Q48 94 66 86" fill="none" stroke="${highlight}" stroke-width="2" opacity=".65"/>
+      <path d="M38 75 L38 83 Q48 90 58 82 L58 75Z" fill="${skin}" stroke="${outline}" stroke-width="2"/>
+      <text x="48" y="102" text-anchor="middle" font-size="14" fill="white" font-weight="900" font-family="sans-serif">${topDecor}</text>
+      <g>
+        <ellipse cx="48" cy="48" rx="32" ry="36" fill="${skin}" stroke="${outline}" stroke-width="3"/>
+        <ellipse cx="19" cy="54" rx="6" ry="9" fill="${skin}" stroke="${outline}" stroke-width="2"/>
+        <ellipse cx="77" cy="54" rx="6" ry="9" fill="${skin}" stroke="${outline}" stroke-width="2"/>
+        <g fill="${hair}" stroke="${outline}" stroke-width="2.4" stroke-linejoin="round">${hairShape}</g>
+        <ellipse cx="36" cy="52" rx="5" ry="7" fill="${outline}"/><ellipse cx="60" cy="52" rx="5" ry="7" fill="${outline}"/>
+        <ellipse cx="37.7" cy="49.5" rx="1.8" ry="2.4" fill="#fff"/><ellipse cx="61.7" cy="49.5" rx="1.8" ry="2.4" fill="#fff"/>
+        <ellipse cx="27" cy="62" rx="7" ry="4" fill="#e5779c" opacity=".5"/><ellipse cx="69" cy="62" rx="7" ry="4" fill="#e5779c" opacity=".5"/>
+        ${smile}
+      </g>
+      ${headwear}${glasses}${cap}
     </svg>`;
   }
   function makeCharacter(face,look=null){
@@ -79,6 +91,19 @@
     if(raw && Object.hasOwn(shirtColors,raw.shirt)&&hairCodes.includes(raw.hair)&&accessoryCodes.includes(raw.accessory)) storedLook=cleanLook(raw);
   } catch (_) {}
   let draftLook=storedLook||{...defaultLook};
+  async function loadCharacterProfile(){
+    try{
+      const r=await fetch('/api/avatar/me',{credentials:'include'});
+      if(!r.ok)return;
+      const data=await r.json();
+      if(data.look){storedLook=cleanLook(data.look);draftLook=storedLook;
+        try{localStorage.setItem(lookStorageKey,JSON.stringify(storedLook))}catch(_){}
+      }
+      if(faces.includes(data.avatar))activeAvatar=data.avatar;
+      if(isOpen)renderDialog();
+    }catch(_){/* offline: a aparência local continua disponível para prévia */}
+  }
+
   let syncedRoom=null;
   function renderLookChoices(previewLook=null){
     const mine=current();draftLook=cleanLook(previewLook||mine?.look||draftLook);
@@ -163,11 +188,12 @@
     socket.on('roomState',state=>{
       const slug=String(state?.slug||'');
       if(slug && slug!==syncedRoom){syncedRoom=slug;
-        if(storedLook) setTimeout(()=>{if(socketReady() && room.classList.contains('active'))change({look:storedLook})},700);
+        loadCharacterProfile();
       }
     });
     socket.on('roomReaction',onReaction);
     socket.on('sf19Saved',saved=>{activeAvatar=saved.avatar;activeSeat=saved.seat;if(saved.look){draftLook=cleanLook(saved.look);storedLook=draftLook;try{localStorage.setItem(lookStorageKey,JSON.stringify(draftLook))}catch(_){}}if(el('sf19Status'))el('sf19Status').textContent='Presença atualizada para todos na sala.'});
+    socket.on('sf23SaveError',message=>{if(el('sf19Status'))el('sf19Status').textContent=String(message||'Erro ao salvar aparência.').slice(0,130)});
     socket.on('sf19Error',message=>{if(el('sf19Status'))el('sf19Status').textContent=String(message||'Não foi possível atualizar.').slice(0,130)});
   }
   document.addEventListener('click',e=>{if(e.target.closest('#screen-room .sf5-navigation button')&&e.target.closest('button[onclick*="leaveRoom"]')){people=[];syncedRoom=null;layout()}});
