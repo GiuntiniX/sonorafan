@@ -1843,7 +1843,7 @@
           <button type="button" onclick="openRoomCfg()" id="sf5SettingsBtn">⚙ <span>Configurações</span></button>
           <button type="button" onclick="leaveRoom()">⇥ <span>Sair da Sala</span></button>
         </nav>
-        <div class="sf5-sidebar-card"><span>✦</span><strong>Uma vibe só nossa.</strong><small>Monte a trilha sonora junto com a comunidade.</small><button onclick="copyInviteLink()" type="button">Convidar amigos ↗</button></div>
+        <div class="sf5-sidebar-card"><span>✦</span><strong>A música aproxima.</strong><small>Conecte pessoas, músicas e histórias.</small><button onclick="copyInviteLink()" type="button">Convidar amigos ↗</button></div>
         <div class="sf5-side-waves" aria-hidden="true"></div>
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
@@ -1986,6 +1986,11 @@
           <div class="sf5-card-heading">🟢 &nbsp; Quem está ouvindo? <span id="sf5ListenersCount">0</span></div>
           <div class="sf5-listeners-body" id="sf5ListenersBody"></div>
           <div class="sf5-listening-note"><strong>✦ &nbsp; A trilha sonora é melhor juntos!</strong><small>Compartilhe sua vibe com quem está na sala 💜</small></div>
+        </section>
+        <section class="sf6-energy-card" aria-label="Clima da sala">
+          <div class="sf6-panel-title"><span>🔥 &nbsp; Energia da sala</span><span class="sf6-live-pill"><i></i> AO VIVO</span></div>
+          <div class="sf6-equalizer" id="sf6Equalizer" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="sf6-energy-footer"><div><b id="sf6EnergyHeadline">A vibe começa aqui</b><small id="sf6EnergyDetail">Aguardando a próxima música</small></div><span id="sf6EnergyPeople">0 ouvintes</span></div>
         </section>
         <section class="sf5-about-card" aria-label="Sobre a sala"><div class="sf5-card-heading">ⓘ &nbsp; Sobre a Sala <button type="button" onclick="copyInviteLink()" title="Compartilhar sala">↗</button></div><div class="sf5-about-body"><div class="sf5-about-art">♫</div><div><strong id="sf5AboutName">Sala musical</strong><p id="sf5AboutDescription">Aqui a música nunca para. Venha curtir com a galera!</p><small id="sf5AboutTag">#SonoraFan &nbsp; #AoVivo</small></div></div><div class="sf5-about-stats"><span>♙ <b id="sf5StatsListeners">0</b><small>Ouvintes</small></span><span>♫ <b id="sf5StatsTracks">0</b><small>Na fila</small></span><span>◷ <b>LIVE</b><small>Agora</small></span></div></section>
         </div>
@@ -3713,7 +3718,9 @@
   <script defer src="/social-4.js"></script>
   <link rel="stylesheet" href="/community-5.css">
   <link rel="stylesheet" href="/room-reference.css">
+  <link rel="stylesheet" href="/room-polished-6.css">
   <script defer src="/room-reference.js"></script>
   <script defer src="/community-5.js"></script>
+  <script defer src="/room-polished-6.js"></script>
 </body>
 </html>
