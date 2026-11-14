@@ -1,0 +1,47 @@
+/* SonoraFan 30 — controles de faixa no rodapé do vídeo e tema com rótulo */
+#screen-room .player-section .progress-section{
+  display:flex!important; flex-wrap:wrap!important; gap:12px!important;
+  align-items:center!important;justify-content:space-between!important;
+  min-height:74px!important;padding:12px 18px!important;
+}
+#screen-room .player-section .volume-control{
+  order:0!important;flex:1 1 200px!important;width:auto!important;
+  max-width:none!important;min-width:170px!important;margin:0!important;
+  justify-content:flex-start!important;
+}
+/* v27 deliberately hides all progress-section children except volume; override only the new actions. */
+#screen-room .player-section .progress-section > .sf30-player-actions{
+  order:1!important;display:flex!important;position:relative!important;
+  flex:0 0 auto!important;align-items:center!important;justify-content:flex-end!important;
+  gap:9px!important;margin:0!important;padding:0!important;
+  background:transparent!important;visibility:visible!important;opacity:1!important;
+}
+#screen-room .sf30-player-actions button{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-height:40px;padding:9px 15px;border-radius:13px;
+  border:1px solid color-mix(in srgb,var(--accent) 28%,var(--border));
+  background:color-mix(in srgb,var(--bg-card) 76%,var(--accent));
+  color:var(--text);font:inherit;font-size:12px;font-weight:800;
+  cursor:pointer;white-space:nowrap;transition:transform .18s,border-color .18s,background .18s;
+}
+#screen-room .sf30-player-actions button:hover{transform:translateY(-2px);border-color:var(--accent2);background:var(--bg-hover)}
+#screen-room .sf30-player-actions button:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+#screen-room .sf30-player-actions #adminRemoveBtn[style*="display:none"]{display:none!important}
+#screen-room .sf30-player-actions #skipBtn.voting{border-color:var(--warning)!important;color:var(--warning)!important}
+#screen-room .sf5-navigation .sf29-side-theme .sf30-theme-icon,
+#screen-lobby .sf28-sidebar-nav #themeBtn .sf30-theme-icon{
+ display:inline-flex;min-width:22px;justify-content:center;align-items:center;font-size:17px;
+}
+#screen-room .sf5-navigation .sf29-side-theme .sf30-theme-label,
+#screen-lobby .sf28-sidebar-nav #themeBtn .sf30-theme-label{display:inline!important;visibility:visible!important;font-weight:700}
+@media(max-width:1100px){
+ #screen-room .player-section .progress-section{padding:10px 14px!important;gap:10px!important}
+ #screen-room .player-section .volume-control{flex-basis:170px!important}
+}
+@media(max-width:640px){
+ #screen-room .player-section .progress-section{flex-direction:column!important;align-items:stretch!important;padding:11px 12px!important;min-height:92px!important}
+ #screen-room .player-section .volume-control{flex:0 0 auto!important;width:100%!important;min-width:0!important}
+ #screen-room .player-section .progress-section > .sf30-player-actions{justify-content:stretch!important;width:100%!important}
+ #screen-room .sf30-player-actions button{flex:1 1 0;padding:10px 8px}
+}
+@media(prefers-reduced-motion:reduce){#screen-room .sf30-player-actions button{transition:none!important}}

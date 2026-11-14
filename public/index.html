@@ -1863,7 +1863,7 @@
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()">🔔 <span>Notificações</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
-          <button type="button" onclick="toggleTheme(event)" id="themeBtn">◐ <span>Tema</span></button>
+          <button type="button" onclick="toggleTheme(event)" id="themeBtn"><span class="sf30-theme-icon" aria-hidden="true">🌙</span> <span class="sf30-theme-label">Tema</span></button>
           <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
           <button type="button" onclick="toggleAdmin()" id="adminBtn" style="display:none;">🎛️ <span>Painel Admin</span></button>
           <button type="button" onclick="doLogout()">⇥ <span>Sair</span></button>
@@ -1947,7 +1947,7 @@
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
           <button type="button" class="sf29-side-invite" onclick="copyInviteLink()" title="Copiar link de convite">🔗 <span>Convidar amigos</span></button>
-          <button type="button" class="sf11-theme-trigger sf29-side-theme" id="sf11ThemeButton" aria-haspopup="dialog" aria-expanded="false" onclick="window.sf11ToggleThemes?.(event)">◐ <span>Temas</span></button>
+          <button type="button" class="sf11-theme-trigger sf29-side-theme" id="sf11ThemeButton" aria-haspopup="dialog" aria-expanded="false" onclick="window.sf11ToggleThemes?.(event)"><span class="sf30-theme-icon" aria-hidden="true">🌙</span> <span class="sf30-theme-label">Tema</span></button>
           <button type="button" onclick="toggleFavorites()">☆ <span>Favoritos</span></button>
           <button type="button" onclick="openRoomCfg()" id="sf5SettingsBtn">⚙ <span>Configurações</span></button>
           <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
@@ -2001,11 +2001,7 @@
                 <div class="track-title" id="trackTitle">Nenhuma música</div>
                 <div class="track-artist" id="trackArtist">Adicione uma música</div>
                 <div class="track-dj" id="trackDj"></div>
-                <div class="sf10-track-actions" aria-label="Ações da faixa atual">
-                  <button onclick="favoriteCurrent()" id="favCurrentBtn" type="button" title="Adicionar a favoritos">♡ <span>Favoritar</span></button>
-                  <button onclick="voteSkip()" id="skipBtn" type="button" title="Votar para pular a faixa">⏭ <span>Pular faixa</span></button>
-                  <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;" type="button">🗑 <span>Remover</span></button>
-                </div>
+
               </div>
             </div>
             <div class="progress-section">
@@ -2016,6 +2012,12 @@
                 <input type="range" aria-label="Volume" id="volumeSlider" min="0" max="100" value="80" oninput="setVolume(this.value)">
                 <span id="volumeValue" style="font-size:11px;color:var(--text-muted);min-width:28px;text-align:right;">80%</span>
               </div>
+              <div class="sf30-player-actions" aria-label="Ações da música atual">
+                <button onclick="favoriteCurrent()" id="favCurrentBtn" type="button" title="Adicionar a favoritos">♡ <span>Favoritar</span></button>
+                <button onclick="voteSkip()" id="skipBtn" type="button" title="Votar para pular a faixa">⏭ <span>Pular faixa</span></button>
+                <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;" type="button">🗑 <span>Remover</span></button>
+              </div>
+
             </div>
           </div>
 
@@ -2563,7 +2565,7 @@
       rs.setProperty('--glass', light ? 'rgba(255,255,255,0.78)' : 'rgba(0,0,0,0.5)');
       rs.setProperty('color-scheme', light ? 'light' : 'dark');
       document.querySelectorAll('.theme-opt').forEach(b => b.classList.toggle('active', b.dataset.theme === currentTheme));
-      document.querySelectorAll('#themeBtn, #themeBtnRoom').forEach(b => { if(b) b.textContent = t.btn; });
+      document.querySelectorAll('#themeBtn, #themeBtnRoom').forEach(b => { if(!b) return; const icon=b.querySelector('.sf30-theme-icon'); if(icon) { icon.textContent = t.btn; } else { b.textContent = t.btn; } });
       localStorage.setItem('sonoraTheme', currentTheme);
     }
     const THEME_UI = {
@@ -3957,5 +3959,6 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/lobby-sidebar-28.css">
   <link rel="stylesheet" href="/sonorafan-tour-29.css">
   <script defer src="/sonorafan-tour-29.js"></script>
+  <link rel="stylesheet" href="/sonorafan-controls-30.css">
 </body>
 </html>
