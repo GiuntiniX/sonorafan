@@ -1398,6 +1398,7 @@
       </div>
     </nav>
 
+    <div class="sf44-scroll-cue" aria-hidden="true">EXPLORE A VIBE <span>↓</span></div>
     <div class="landing-content">
       <section class="hero">
         <div class="hero-text">
@@ -1408,9 +1409,8 @@
             <button class="btn-hero-secondary" onclick="showLogin()" data-i18n="hero.cta1b">🎤 Entrar na sala</button>
             <button class="btn-hero-primary btn-shake" onclick="openSignup()" data-i18n="hero.cta2b">✍️ Criar conta grátis</button>
           </div>
-          <div class="social-proof">
-            <div class="avatars"><span>🎸</span><span>🎤</span><span>🎧</span><span>🎹</span></div>
-            <span><strong data-i18n="hero.social">+2.400 fãs</strong> <span data-i18n="hero.social2">ouvindo agora</span></span>
+          <div class="social-proof sf44-hero-benefits" aria-label="Destaques da plataforma">
+            <span>♬ Playlist colaborativa</span><span>✦ Salas ao vivo</span><span>♥ Música e comunidade</span>
           </div>
         </div>
 
@@ -1451,22 +1451,29 @@
         </div>
       </section>
 
-      <section class="sf26-live-marquee" aria-label="Salas em destaque">
+      <section class="sf26-live-marquee" aria-label="Explore o universo musical">
         <div class="sf26-marquee-track">
-          <span>🔴 Sala Pop Night • 128 ouvintes • playlist colaborativa</span>
-          <span>🎧 Lounge SonoraFan • sem pausa • chat ao vivo</span>
-          <span>⚡ Rock Arena • todo mundo adiciona música</span>
-          <span>🌙 Chill Sessions • descubra novos sons</span>
-          <span>🔥 Trap Nation BR • energia alta a noite toda</span>
-          <span>💜 Indie Lovers • comunidade e conexão</span>
+          <span>✳ INDIE & ALTERNATIVO</span><span>⚡ ROCK SEM PAUSA</span><span>✿ MPB & BRASILIDADES</span>
+          <span>♫ POP & NOVOS SONS</span><span>✦ VIVENDO MÚSICA JUNTO</span><span>♬ TODO MUNDO É DJ</span>
         </div>
       </section>
 
-      <section class="stats-band">
-        <div class="stat"><strong>50k+</strong><span data-i18n="stats.fans">Fãs ativos</span></div>
-        <div class="stat"><strong>1.2M</strong><span data-i18n="stats.songs">Músicas tocadas</span></div>
-        <div class="stat"><strong>8.5k</strong><span data-i18n="stats.rooms">Salas criadas</span></div>
-        <div class="stat"><strong>4.9★</strong><span data-i18n="stats.rating">Avaliação</span></div>
+      <section class="sf44-festival-section sf44-reveal" aria-labelledby="sf44FestivalTitle">
+        <div class="sf44-festival-art"><img src="/art-44/festival-stage.webp" alt="Arte indie de um festival, com músicos no palco e público animado" loading="lazy" decoding="async" width="1480" height="474"></div>
+        <div class="sf44-festival-copy"><span class="sf44-eyebrow">A MÚSICA TEM O PODER DE APROXIMAR</span>
+          <h2 id="sf44FestivalTitle">A melhor parte do som é quem ouve com você.</h2>
+          <p>Escolha uma sala, encontre a sua galera, adicione músicas e transforme cada play em um encontro.</p>
+          <button type="button" onclick="openSignup()">✦ Viver a experiência</button>
+        </div>
+      </section>
+
+      <section class="sf44-story-grid" aria-label="O universo SonoraFan">
+        <article class="sf44-story-card sf44-reveal"><img src="/art-44/festival-card.webp" loading="lazy" decoding="async" alt="Ilustração de festival com guitarristas e público" width="907" height="509">
+          <div><span>✦ ENCONTRO</span><h3>Seu palco é com a galera.</h3><p>Entre em salas de diferentes estilos, converse e descubra pessoas que gostam do seu som.</p></div>
+        </article>
+        <article class="sf44-story-card sf44-reveal"><img src="/art-44/vinyl-card.webp" loading="lazy" decoding="async" alt="Ilustração indie de toca-discos e objetos musicais" width="960" height="467">
+          <div><span>♫ COLABORAÇÃO</span><h3>Todo mundo escolhe a próxima.</h3><p>Uma playlist construída por todos, com músicas favoritas, votos e descobertas.</p></div>
+        </article>
       </section>
 
       <section class="landing-section">
@@ -1532,87 +1539,12 @@
         </div>
       </section>
 
-      <!-- NOVA SEÇÃO DE DEPOIMENTOS -->
-      <section class="landing-section testimonials-section">
-        <div class="section-head">
-          <h2 data-i18n="testimonials.title">O que a galera diz</h2>
-          <p data-i18n="testimonials.sub">Histórias de quem já entrou na vibe</p>
-        </div>
-        <div class="testimonials-carousel">
-          <div class="testimonials-track" id="testimonialsTrack">
-            <!-- 1 -->
-            <div class="testimonial-card">
-              <div class="testimonial-stars">★★★★★</div>
-              <p class="testimonial-text" data-i18n="testimonial.1.text">"Conheci gente incrível que tem o mesmo gosto musical que eu. A vibe da sala é surreal!"</p>
-              <div class="testimonial-author">
-                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#ff6b35,#7c3aed)">👩</div>
-                <div><div class="testimonial-name" data-i18n="testimonial.1.name">Mariana S.</div><div class="testimonial-role" data-i18n="testimonial.1.role">Fã de Pop</div></div>
-              </div>
-            </div>
-            <!-- 2 -->
-            <div class="testimonial-card">
-              <div class="testimonial-stars">★★★★★</div>
-              <p class="testimonial-text" data-i18n="testimonial.2.text">"É a melhor forma de descobrir músicas novas enquanto converso com os amigos. Não saio mais do SonoraFan."</p>
-              <div class="testimonial-author">
-                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#22d3ee,#0ea5e9)">👨</div>
-                <div><div class="testimonial-name" data-i18n="testimonial.2.name">Lucas P.</div><div class="testimonial-role" data-i18n="testimonial.2.role">Apaixonado por Indie</div></div>
-              </div>
-            </div>
-            <!-- 3 -->
-            <div class="testimonial-card">
-              <div class="testimonial-stars">★★★★★</div>
-              <p class="testimonial-text" data-i18n="testimonial.3.text">"Adoro poder votar nas músicas e pular as que não curto. A galera se ajuda demais!"</p>
-              <div class="testimonial-author">
-                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#ec4899,#f43f5e)">👩</div>
-                <div><div class="testimonial-name" data-i18n="testimonial.3.name">Fernanda L.</div><div class="testimonial-role" data-i18n="testimonial.3.role">Fã de Rock</div></div>
-              </div>
-            </div>
-            <!-- 4 -->
-            <div class="testimonial-card">
-              <div class="testimonial-stars">★★★★★</div>
-              <p class="testimonial-text" data-i18n="testimonial.4.text">"As salas privadas são perfeitas para festas virtuais. Todo mundo adiciona música e a vibe fica demais."</p>
-              <div class="testimonial-author">
-                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#f59e0b,#f97316)">🧑‍🎤</div>
-                <div><div class="testimonial-name" data-i18n="testimonial.4.name">Rafael M.</div><div class="testimonial-role" data-i18n="testimonial.4.role">DJ nas horas vagas</div></div>
-              </div>
-            </div>
-            <!-- 5 -->
-            <div class="testimonial-card">
-              <div class="testimonial-stars">★★★★★</div>
-              <p class="testimonial-text" data-i18n="testimonial.5.text">"Finalmente um app onde posso ouvir minha playlist favorita e conversar ao mesmo tempo. Sincronia perfeita!"</p>
-              <div class="testimonial-author">
-                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">👩</div>
-                <div><div class="testimonial-name" data-i18n="testimonial.5.name">Camila R.</div><div class="testimonial-role" data-i18n="testimonial.5.role">Amante de MPB</div></div>
-              </div>
-            </div>
-            <!-- 6 -->
-            <div class="testimonial-card">
-              <div class="testimonial-stars">★★★★★</div>
-              <p class="testimonial-text" data-i18n="testimonial.6.text">"Fiz amizades que levo pra vida toda! É muito bom encontrar gente que curte o mesmo estilo."</p>
-              <div class="testimonial-author">
-                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">👨</div>
-                <div><div class="testimonial-name" data-i18n="testimonial.6.name">Bruno T.</div><div class="testimonial-role" data-i18n="testimonial.6.role">Fã de Hip Hop</div></div>
-              </div>
-            </div>
-            <!-- 7 -->
-            <div class="testimonial-card">
-              <div class="testimonial-stars">★★★★★</div>
-              <p class="testimonial-text" data-i18n="testimonial.7.text">"O chat é super dinâmico e as pessoas são muito receptivas. Já virei fã do projeto!"</p>
-              <div class="testimonial-author">
-                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#ef4444,#dc2626)">👩</div>
-                <div><div class="testimonial-name" data-i18n="testimonial.7.name">Aline C.</div><div class="testimonial-role" data-i18n="testimonial.7.role">Exploradora Musical</div></div>
-              </div>
-            </div>
-            <!-- 8 -->
-            <div class="testimonial-card">
-              <div class="testimonial-stars">★★★★★</div>
-              <p class="testimonial-text" data-i18n="testimonial.8.text">"Entrei por curiosidade e agora passo horas explorando as salas. A energia é contagiante."</p>
-              <div class="testimonial-author">
-                <div class="testimonial-avatar" style="background:linear-gradient(135deg,#14b8a6,#0d9488)">👨</div>
-                <div><div class="testimonial-name" data-i18n="testimonial.8.name">Diego F.</div><div class="testimonial-role" data-i18n="testimonial.8.role">Fã de Eletrônica</div></div>
-              </div>
-            </div>
-          </div>
+      <section class="sf44-last-call sf44-reveal" aria-label="Crie memórias com música">
+        <div class="sf44-last-call-art"><img src="/art-44/festival-crowd.webp" width="1480" height="407" loading="lazy" decoding="async" alt="Arte de festival ilustrado, com instrumentos, público e flores"></div>
+        <div class="sf44-last-call-content"><span>✳ O PALCO É DE TODO MUNDO</span>
+          <h2>De uma música nasce uma história.</h2>
+          <p>Uma sala com a sua cara, músicas escolhidas em conjunto e conversas que continuam depois da última faixa.</p>
+          <div class="sf44-last-call-tags"><b>♪ Descubra</b><b>✦ Compartilhe</b><b>♥ Conecte</b></div>
         </div>
       </section>
 
@@ -1935,6 +1867,10 @@
           <div class="room-grid" id="roomGrid">
             <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
           </div>
+          <section class="sf44-lobby-story" aria-label="Explore o SonoraFan por dentro">
+            <div class="sf44-lobby-story-art"><img src="/art-44/record-collage.webp" alt="Colagem ilustrada de vinil, fones, flores e instrumentos" loading="lazy" decoding="async" width="1480" height="417"></div>
+            <div class="sf44-lobby-story-copy"><span>✳ SUA VIBE, SUA COMUNIDADE</span><strong>Mais do que apertar o play.</strong><small>Conheça novos sons, participe das salas e construa a trilha junto com a galera.</small></div>
+          </section>
           <section class="sf42-explore-more" aria-label="Outras formas de descobrir música">
             <div class="sf42-more-heading"><span>✳ CONTINUE EXPLORANDO</span><strong>Salas por estilo e agenda</strong></div>
           <section class="sf41-playing" id="sf41Playing" aria-label="Músicas tocando agora" hidden>
@@ -1967,6 +1903,7 @@
             </section>
           </details>
         </div>
+        <button type="button" class="sf44-back-top" id="sf44LobbyTop" aria-label="Voltar para o topo do lobby">↑ Voltar ao topo</button>
         <nav class="sf34-mobile-lobby-nav" aria-label="Acesso rápido no celular">
           <button class="is-current" type="button" onclick="window.sf34LobbyJump?.('top')"><span aria-hidden="true">⌂</span>Início</button>
           <button type="button" onclick="window.sf34LobbyJump?.('rooms')"><span aria-hidden="true">♫</span>Salas</button>
@@ -2014,7 +1951,7 @@
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
-        <div class="sf5-section-title sf34-room-title"><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
+        <div class="sf5-section-title sf34-room-title"><span class="sf44-room-sparks" aria-hidden="true">✳ ♫ ✦</span><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
         <div class="queue-column sf33-queue-column sf34-queue">
           <div class="queue-header">
             <span>♫ &nbsp;Fila colaborativa</span>
@@ -2026,6 +1963,7 @@
           <div class="premium-queue-summary"><span id="premiumQueueDuration">Sua seleção coletiva</span><span id="premiumQueueNext">Próximas faixas</span></div>
           <div class="sf39-queue-insight" id="sf39QueueInsight" role="status" aria-live="polite"><span class="sf39-status-dot" aria-hidden="true"></span><span id="sf39QueueInsightText">Aguardando a primeira música</span></div>
           <div class="queue-list" id="queueList"></div>
+          <div class="sf44-queue-idle-card" id="sf44QueueIdle" aria-hidden="true"><img src="/art-44/vinyl-card.webp" alt="" loading="lazy" decoding="async" width="960" height="467"><span>✿ O próximo som pode ser seu.</span></div>
           <div id="waitingQueueLabel" class="waiting-queue-label hidden">⏳ Fila de espera:</div>
           <div class="queue-list" id="waitingQueueList" style="max-height:120px;overflow-y:auto;padding:4px 12px 12px;border-top:1px solid var(--border);"></div>
           <details class="sf11-about-drawer"><summary>ⓘ Sobre esta sala <span>Ver detalhes ▾</span></summary><section class="sf5-about-card" aria-label="Sobre a sala"><div class="sf5-card-heading">ⓘ &nbsp; Sobre a Sala <button type="button" onclick="copyInviteLink()" title="Compartilhar sala">↗</button></div><div class="sf5-about-body"><div class="sf5-about-art">♫</div><div><strong id="sf5AboutName">Sala musical</strong><p id="sf5AboutDescription">Aqui a música nunca para. Venha curtir com a galera!</p><small id="sf5AboutTag">#SonoraFan &nbsp; #AoVivo</small></div></div><div class="sf5-about-stats"><span>♙ <b id="sf5StatsListeners">0</b><small>Ouvintes</small></span><span>♫ <b id="sf5StatsTracks">0</b><small>Na fila</small></span><span>◷ <b>LIVE</b><small>Agora</small></span></div></section></details>
@@ -2046,7 +1984,7 @@
             <div class="player-frame">
               <div class="premium-frame-corner" aria-hidden="true">SONORAFAN <b>LIVE</b></div>
               <div id="youtube-player"></div>
-              <div class="sf33-empty-player-art" id="sf33EmptyPlayerArt" hidden aria-hidden="true"><img src="/art-33/room-vinyl.webp" alt="" width="896" height="500" decoding="async" loading="lazy"></div>
+              <div class="sf33-empty-player-art" id="sf33EmptyPlayerArt" hidden aria-hidden="true"><img src="/art-44/vinyl-room.webp" alt="" width="1480" height="351" decoding="async" loading="lazy"></div>
               <div class="youtube-interaction-shield" aria-hidden="true"></div>
               <div class="buffering-overlay" id="bufferingOverlay"><div class="spinner"></div></div>
               <div id="spectrum" aria-hidden="true"></div>
@@ -4084,8 +4022,8 @@ function openRoomCfg() {
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      if (!testimonialInterval) {
-        testimonialInterval = setInterval(slideTestimonials, 4000); // Muda a cada 4 segundos
+      if (document.getElementById('testimonialsTrack') && !testimonialInterval) {
+        testimonialInterval = setInterval(slideTestimonials, 4000);
       }
     });
 
@@ -4176,5 +4114,7 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-layout-42.css">
   <link rel="stylesheet" href="/sonorafan-profile-tour-43.css">
   <script defer src="/sonorafan-enhancements-43.js"></script>
+  <link rel="stylesheet" href="/sonorafan-experience-44.css">
+  <script defer src="/sonorafan-experience-44.js"></script>
 </body>
 </html>
