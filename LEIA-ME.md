@@ -1,25 +1,28 @@
-# SonoraFan 20.0 — Todo mundo é DJ + animações na pista
+# SonoraFan 21.0 — Personagens 2D ilustrados
 
-Atualização incremental a partir da versão 19.0. O ZIP contém somente arquivos alterados ou novos.
+Esta atualização é **incremental sobre a versão 20.0**. O sistema continua 100% colaborativo: todos os participantes podem adicionar músicas, sem modos DJ exclusivos.
 
-## Arquivos
-- `server.js` — substituir
-- `public/index.html` — substituir
-- `public/room-interactive-19.js` — substituir
-- `public/room-social-20.css` — adicionar
+## Arquivos alterados
+- `public/index.html` — substituir (inclui novo CSS)
+- `public/room-interactive-19.js` — substituir (renderiza personagens ilustrados)
+- `public/room-characters-21.css` — adicionar
 
-## Mudanças
-- Remoção do bloco Modo musical (Todos / Fila justa / DJ) e de seus controles de rádio da playlist.
-- Todas as salas, inclusive as antigas carregadas do banco, operam com **adição colaborativa**. Todo participante autenticado na sala pode adicionar faixas (respeitando cooldown, limites e permissões gerais).
-- Na criação e edição, a escolha 'colaborativa ou DJ único' foi removida; todos são DJs. Opções de privacidade e formato permanecem.
-- O servidor rejeita tentativas de ativar modos exclusivos por clientes antigos.
-- Novos movimentos de avatar: balançar, pular, dançar e ficar parado, transmitidos pelo Socket.IO aos participantes da sala.
-- Preferência de movimento temporária; a saída da sala reinicia a escolha.
+## Como funciona
+- Os 12 símbolos de avatar existentes passam a ter personagens 2D desenhados com SVG inline gerado no navegador, sem baixar imagens nem bibliotecas.
+- As 24 posições e as animações de dança existentes permanecem.
+- As reações continuam aparecendo sobre o personagem correto.
+- Quem está na sala, lugar, nome e movimento ainda vêm dos eventos reais do Socket.IO.
+- O servidor recebe os mesmos emojis/valores de avatar, portanto não precisa ser substituído nesta versão.
+- A seleção é feita no painel de personalização existente.
 
-## Importante
-- O botão Rádio Automática saiu junto com a seleção de modo musical. O servidor desativa automaticamente a rádio de salas existentes ao carregá-las e recusa reativação por clientes antigos.
-- Isto **não** torna todos administradores nem concede poderes de moderação: 'DJ' significa poder sugerir/adicionar músicas.
-- O backend ainda restringe vídeos longos e lives ao administrador global conforme a implementação existente.
-- Nenhuma mudança no Firebase Authentication; o problema anterior com login admin não é corrigido nesta atualização.
-- Reinicie o servidor após substituir `server.js`. Faça backup antes de aplicar.
-- Sintaxe validada localmente; testes reais de múltiplos usuários, Firebase/YouTube ainda necessários.
+## Instalação
+1. Faça backup.
+2. Substitua `public/index.html` e `public/room-interactive-19.js`.
+3. Adicione `public/room-characters-21.css`.
+4. Preserve **todos os outros arquivos** das versões anteriores, incluindo os CSS da 18, 19 e 20, e o `server.js` da 20.0.
+5. Faça recarga forçada no navegador.
+
+## Limitações
+- Personagens são desenhos vetoriais estilizados com diferentes roupas, cabelos e tons; não são avatares completamente customizáveis.
+- Assentos continuam temporários e são limitados a 24 posições na plateia.
+- Não foram executados testes multiplayer reais com Firebase e Socket.IO.
