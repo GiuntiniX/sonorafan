@@ -1818,15 +1818,16 @@
           <h1 id="roomTitle">Sala</h1>
           <button class="action-btn hidden" id="cfgBtn" onclick="openRoomCfg()" title="Personalizar sala">⚙️</button>
         </div>
-        <div class="header-right">
-          <button class="action-btn" onclick="copyInviteLink()" title="Convidar">🔗</button>
+        <div class="header-right sf9-room-header-actions">
+          <button class="action-btn sf9-invite-button" type="button" onclick="copyInviteLink()" title="Copiar convite da sala" aria-label="Copiar convite da sala">🔗 <span>Convidar</span></button>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
-          <button class="action-btn" onclick="openTutorial(0)" title="Ajuda">❓</button>
-          <button class="action-btn" type="button" onclick="window.sf5OpenCommunity?.()" title="Comunidade">👥</button>
-          <button class="action-btn" type="button" onclick="window.sf5OpenProfile?.()" title="Meu perfil">◉</button>
-          <button class="action-btn" onclick="openLeaderboard()" title="Ranking">🏆</button>
-          <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtnRoom">🌙</button>
-          <button class="action-btn" onclick="toggleFavorites()" title="Favoritos" style="border-color:var(--accent2);">⭐</button>
+          <details class="sf9-tools-menu" id="sf9ToolsMenu">
+            <summary title="Mais opções" aria-label="Mais opções da sala">⋯ <span>Mais</span></summary>
+            <div class="sf9-tools-dropdown">
+              <button type="button" onclick="openTutorial(0);document.getElementById('sf9ToolsMenu').open=false">❓ <span>Ajuda</span></button>
+              <button class="theme-toggle-btn" type="button" onclick="toggleTheme(event);document.getElementById('sf9ToolsMenu').open=false" title="Alternar tema" id="themeBtnRoom">🌙 <span>Tema</span></button>
+            </div>
+          </details>
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
         </div>
       </div>
@@ -1861,6 +1862,38 @@
           <div class="queue-list" id="queueList"></div>
           <div id="waitingQueueLabel" class="waiting-queue-label hidden">⏳ Fila de espera:</div>
           <div class="queue-list" id="waitingQueueList" style="max-height:120px;overflow-y:auto;padding:4px 12px 12px;border-top:1px solid var(--border);"></div>
+          <section class="sf8-queue-tools" aria-label="Ferramentas da playlist">
+            <div class="sf8-actions-heading"><strong>🎧 Ações da música</strong><span>Para a faixa atual</span></div>
+            <div class="track-actions sf8-track-actions">
+              <button onclick="favoriteCurrent()" id="favCurrentBtn" type="button">♡ Favoritar</button>
+              <button onclick="voteSkip()" id="skipBtn" type="button">⏭ Pular</button>
+              <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;" type="button">🗑 Remover</button>
+            </div>
+            <details class="sf8-add-details" id="sf8AddDetails">
+              <summary><span>＋ &nbsp; Buscar e adicionar música</span><span class="sf8-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="add-song-area">
+            <div class="add-song">
+              <input type="text" id="songUrl" placeholder="Buscar no YouTube ou colar link..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()">
+              <button id="addBtn" onclick="addSong()">Adicionar</button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+            <div class="song-preview hidden" id="songPreview">
+              <div class="song-preview-thumb" id="previewThumb">🎵</div>
+              <div class="song-preview-info">
+                <div class="song-preview-title" id="previewTitle">Prévia</div>
+                <div class="song-preview-artist" id="previewArtist">Cole um link</div>
+                <div class="song-preview-status" id="previewStatus"></div>
+              </div>
+              <div class="song-preview-actions" id="previewActions">
+                <button class="song-preview-confirm" onclick="confirmAdd()">✓</button>
+                <button class="song-preview-fav" onclick="favPreview()">⭐</button>
+                <button class="song-preview-cancel" onclick="clearPreview()">✕</button>
+              </div>
+            </div>
+            <div class="cooldown-text hidden" id="cooldownText"></div>
+          </div>
+            </details>
+          </section>
         </div>
 
         <div class="player-column">
@@ -1889,11 +1922,6 @@
                 <div class="track-title" id="trackTitle">Nenhuma música</div>
                 <div class="track-artist" id="trackArtist">Adicione uma música</div>
                 <div class="track-dj" id="trackDj"></div>
-                <div class="track-actions">
-                  <button onclick="favoriteCurrent()" id="favCurrentBtn">⭐ Favoritar</button>
-                  <button onclick="voteSkip()" id="skipBtn">⏭️ Pular</button>
-                  <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;">🗑️ Remover</button>
-                </div>
               </div>
             </div>
             <div class="progress-section">
@@ -1913,27 +1941,6 @@
             <div class="info"><div class="title" id="nextTitle">-</div><div class="artist" id="nextArtist">-</div></div>
           </div>
 
-          <div class="add-song-area">
-            <div class="add-song">
-              <input type="text" id="songUrl" placeholder="Buscar no YouTube ou colar link..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()">
-              <button id="addBtn" onclick="addSong()">Adicionar</button>
-            </div>
-            <div class="search-results" id="searchResults"></div>
-            <div class="song-preview hidden" id="songPreview">
-              <div class="song-preview-thumb" id="previewThumb">🎵</div>
-              <div class="song-preview-info">
-                <div class="song-preview-title" id="previewTitle">Prévia</div>
-                <div class="song-preview-artist" id="previewArtist">Cole um link</div>
-                <div class="song-preview-status" id="previewStatus"></div>
-              </div>
-              <div class="song-preview-actions" id="previewActions">
-                <button class="song-preview-confirm" onclick="confirmAdd()">✓</button>
-                <button class="song-preview-fav" onclick="favPreview()">⭐</button>
-                <button class="song-preview-cancel" onclick="clearPreview()">✕</button>
-              </div>
-            </div>
-            <div class="cooldown-text hidden" id="cooldownText"></div>
-          </div>
         </div>
 
         <div class="sf5-bottom-row">
@@ -2869,6 +2876,7 @@
       if (window.premiumReset) window.premiumReset();
       document.title = 'SonoraFan';
       if (crossfadeInterval) { clearInterval(crossfadeInterval); crossfadeInterval = null; }
+      if (sf9AudioCheck) { clearTimeout(sf9AudioCheck); sf9AudioCheck = null; }
       showScreen('lobby'); loadRooms();
       try { history.replaceState(null, '', location.pathname); } catch(e) {}
     }
@@ -2876,6 +2884,29 @@
     // ===== PLAYER =====
     function loadYouTubeAPI() { if (window.YT && window.YT.Player) { initPlayer(); return; } const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tag); }
     function onYouTubeIframeAPIReady() { initPlayer(); }
+    // Restabelece volume após cada troca de faixa. Evita que temporizadores antigos
+    // alterem o volume da música nova, respeitando volume 0 escolhido pelo usuário.
+    let sf9AudioCheck = null;
+    function sf9RestoreAudio() {
+      if (!player || !player.setVolume) return;
+      try {
+        player.setVolume(volumeLevel);
+        if (volumeLevel > 0 && player.unMute) player.unMute();
+        if (volumeLevel === 0 && player.mute) player.mute();
+      } catch (e) { /* player ainda inicializando */ }
+    }
+    function sf9CheckAudio(expectedId) {
+      if (sf9AudioCheck) clearTimeout(sf9AudioCheck);
+      sf9AudioCheck = setTimeout(() => {
+        if (!currentRoom || !player || !expectedId || currentTrackId !== expectedId || volumeLevel === 0) return;
+        try {
+          if (typeof player.isMuted === 'function' && player.isMuted()) {
+            $('soundGate').classList.add('show');
+          }
+        } catch (e) {}
+      }, 1100);
+    }
+
     function initPlayer() {
       if (player) return;
       player = new YT.Player('youtube-player', {
@@ -2883,12 +2914,13 @@
         playerVars: { autoplay: 1, controls: 0, disablekb: 1, fs: 0, rel: 0, modestbranding: 1, enablejsapi: 1 },
         events: {
           onReady: () => {
-            if (player && player.setVolume) player.setVolume(volumeLevel);
+            sf9RestoreAudio();
             if (currentRoomData) syncPlayer(currentRoomData);
           },
           onStateChange: (e) => {
             if (e.data === YT.PlayerState.PLAYING) {
-              if (player && player.setVolume) { player.setVolume(volumeLevel); player.unMute(); }
+              sf9RestoreAudio();
+              sf9CheckAudio(currentTrackId);
               try { const d = player.getDuration(); if (d > 0) socket.emit('videoDuration', { duration: Math.floor(d) }); } catch(e) {}
               if (crossfadeInterval) { clearInterval(crossfadeInterval); crossfadeInterval = null; }
               $('bufferingOverlay').classList.remove('show'); $('soundGate').classList.remove('show');
@@ -2943,17 +2975,19 @@
         skipVotes = { votes: 0, needed: 0 };
         updateSkipBtn();
         document.title = `▶ ${track.title || 'Música'} · SonoraFan`;
+        sf9RestoreAudio();
         player.loadVideoById({ videoId: track.id, startSeconds: Math.floor(state.position || 0) });
         setTimeout(checkGate, 3000);
         setTimeout(() => {
-          if (player) { try { player.unMute(); player.setVolume(volumeLevel); player.playVideo(); } catch(e) {} }
+          if (player && currentTrackId === track.id) { try { sf9RestoreAudio(); player.playVideo(); sf9CheckAudio(track.id); } catch(e) {} }
         }, 500);
         $('trackTitle').textContent = track.title || 'Música';
         $('trackArtist').textContent = track.artist || 'Desconhecido';
         $('trackDj').textContent = '👤 ' + (track.dj || '');
         $('trackCover').innerHTML = `<img src="https://img.youtube.com/vi/${track.id}/mqdefault.jpg" alt="" onerror="this.parentElement.textContent='🎵'">`;
         applyAlbumGlow(track.id);
-        if (player && player.setVolume) player.setVolume(volumeLevel);
+        sf9RestoreAudio();
+        sf9CheckAudio(track.id);
       }
     }
 
@@ -3035,24 +3069,7 @@
       }
     }
 
-    function startCrossfade() {
-      if (crossfadeInterval) clearInterval(crossfadeInterval);
-      crossfadeInterval = setInterval(() => {
-        try {
-          if (!player || !player.getCurrentTime) return;
-          const duration = player.getDuration();
-          if (!duration || duration <= 0) return;
-          const current = player.getCurrentTime();
-          const remaining = duration - current;
-          if (remaining <= 3 && remaining > 0) {
-            let cVol = volumeLevel;
-            const step = cVol / 20;
-            const fadeOut = setInterval(() => { cVol = Math.max(0, cVol - step); if (player && player.setVolume) player.setVolume(Math.round(cVol)); if (cVol <= 0) clearInterval(fadeOut); }, 50);
-            setTimeout(() => clearInterval(fadeOut), 3000);
-          }
-        } catch(e) {}
-      }, 500);
-    }
+    // Sem fade automático: preserva volume consistente entre músicas.
 
     function setVolume(val) {
       const volume = parseInt(val);
@@ -3062,7 +3079,9 @@
       $('volumeValue').textContent = volume + '%';
       const icon = document.getElementById('volIcon');
       if (icon) icon.textContent = volume === 0 ? '🔇' : volume < 40 ? '🔉' : '🔊';
-      if (player && player.setVolume) { player.setVolume(volume); player.unMute(); }
+      sf9RestoreAudio();
+      if (volume > 0 && currentTrackId) sf9CheckAudio(currentTrackId);
+      else $('soundGate').classList.remove('show');
     }
 
     function voteSong(id, type) {
@@ -3339,7 +3358,7 @@
       state._at = Date.now();
       const prev = currentRoomData?.queue?.[currentRoomData.currentIndex]?.id;
       const next = state.queue?.[state.currentIndex]?.id;
-      if (next !== prev) { currentTrackId = null; if (next) setTimeout(startCrossfade, 1000); }
+      if (next !== prev) { currentTrackId = null; if (sf9AudioCheck) clearTimeout(sf9AudioCheck); }
       if (window.premiumRoomState) window.premiumRoomState(state);
       currentRoomData = state;
       syncPlayer(state);
@@ -3497,12 +3516,12 @@
     }
     setTab('player');
 
-    function checkGate() { try { if (!player || !currentTrackId || !player.getPlayerState) return; const s = player.getPlayerState(); if (s !== 1 && s !== 3) $('soundGate').classList.add('show'); } catch (e) {} }
+    function checkGate() { try { if (!player || !currentTrackId || !player.getPlayerState || volumeLevel === 0) return; const s = player.getPlayerState(); if ((s !== 1 && s !== 3) || (player.isMuted && player.isMuted())) $('soundGate').classList.add('show'); } catch (e) {} }
     function enableSound() {
       $('soundGate').classList.remove('show');
       try {
         const s = currentRoomData || {}, pos = (s.position || 0) + (Date.now() - (s._at || Date.now())) / 1000;
-        player.seekTo(pos, true); player.unMute(); player.setVolume(volumeLevel); player.playVideo();
+        player.seekTo(pos, true); sf9RestoreAudio(); player.playVideo(); sf9CheckAudio(currentTrackId);
       } catch (e) {}
     }
 
@@ -3719,6 +3738,8 @@
   <link rel="stylesheet" href="/community-5.css">
   <link rel="stylesheet" href="/room-reference.css">
   <link rel="stylesheet" href="/room-polished-6.css">
+  <link rel="stylesheet" href="/room-controls-8.css">
+  <link rel="stylesheet" href="/room-header-audio-9.css">
   <script defer src="/room-reference.js"></script>
   <script defer src="/community-5.js"></script>
   <script defer src="/room-polished-6.js"></script>

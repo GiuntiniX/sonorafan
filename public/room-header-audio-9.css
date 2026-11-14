@@ -1,0 +1,12 @@
+/* SonoraFan 9 — cabeçalho limpo; ações secundárias acessíveis em menu. */
+#screen-room .sf9-room-header-actions{display:flex;align-items:center;gap:10px}
+#screen-room .sf9-invite-button{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid rgba(188,132,250,.3);border-radius:12px;background:linear-gradient(125deg,rgba(113,38,191,.2),rgba(230,110,79,.10));color:var(--text);font-weight:650;cursor:pointer}
+#screen-room .sf9-invite-button:hover{border-color:rgba(188,132,250,.8)}
+#screen-room .sf9-tools-menu{position:relative;z-index:190}
+#screen-room .sf9-tools-menu>summary{list-style:none;display:flex;align-items:center;gap:8px;cursor:pointer;border:1px solid var(--border);border-radius:12px;padding:8px 12px;color:var(--text);background:var(--bg-card);font-weight:650;font-size:13px}
+#screen-room .sf9-tools-menu>summary::-webkit-details-marker{display:none}
+#screen-room .sf9-tools-menu[open]>summary{border-color:rgba(188,132,250,.6)}
+#screen-room .sf9-tools-dropdown{position:absolute;right:0;top:calc(100% + 10px);min-width:164px;padding:6px;background:#1b1427;border:1px solid rgba(199,160,241,.3);border-radius:14px;box-shadow:0 14px 40px #000b;display:grid;gap:4px}
+#screen-room .sf9-tools-dropdown button,#screen-room .sf9-tools-dropdown .theme-toggle-btn{display:flex!important;align-items:center;justify-content:flex-start;gap:10px;width:100%;height:auto;border:0;border-radius:10px;padding:11px 12px;background:transparent;color:#f7f2ff;box-shadow:none;font-size:13px;cursor:pointer;text-align:left}
+#screen-room .sf9-tools-dropdown button:hover{background:#6531a84a}
+@media(max-width:720px){#screen-room .sf9-room-header-actions{gap:6px}#screen-room .sf9-invite-button span,#screen-room .sf9-tools-menu>summary span{display:none}#screen-room .sf9-invite-button,#screen-room .sf9-tools-menu>summary{padding:8px 10px}}
