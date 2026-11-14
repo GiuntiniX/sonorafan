@@ -1,27 +1,22 @@
-# SonoraFan 5.0 — Comunidade e Perfil | Apenas arquivos alterados
+# SonoraFan — Sala Profissional 6 | Apenas arquivos alterados
 
-Base: **SonoraFan Sala Imersiva Layout Referência / Social 4**.
+Esta atualização reproduz a hierarquia da referência visual: playlist à esquerda, player com vídeo YouTube no centro, chat à direita e, abaixo, painéis de informações, ouvintes e energia visual da sala.
 
-## Substitua
-- `server.js` na raiz
+## Substituir
 - `public/index.html`
 
-## Adicione
-- `public/community-5.css`
-- `public/community-5.js`
+## Adicionar
+- `public/room-polished-6.css`
+- `public/room-polished-6.js`
 
-Não substitua os outros arquivos do projeto. Landing page, player, fila, Firebase, salas e eventos existentes continuam na versão-base.
+## Base necessária
+Use com **SonoraFan 5.0 Comunidade & Perfil** e os demais arquivos da versão Sala Imersiva. **Não** substitua `server.js`, `room-reference.css`, `room-reference.js`, `premium-3.js`, `social-4.js` e demais arquivos anteriores: continuam necessários.
 
-## Novidades
-- A área de Amigos/Eventos foi retirada visualmente do lobby e aberta pelo menu **Comunidade**.
-- O usuário pode abrir o Perfil no menu da sala ou cabeçalho do lobby/sala.
-- Perfil: nome público, bio, até 6 gêneros, cor e opção de ocultar presença pública dos amigos.
-- Dados do perfil são gravados no Firestore pelo servidor autenticado.
-- O servidor continua sem revelar sala privada na atividade social.
-- O avatar continua usando a seleção existente na plataforma.
+## O que foi preservado
+Landing page, lobby, autenticação, backend, fila, YouTube, chat, reações, comunidade e perfil. A animação de barras no painel de energia é **decorativa**, não mede volume real nem atividade dos microfones.
 
-## Limitações
-- A edição de nome aparece nas sessões de chat **após sair e entrar novamente** na sala.
-- Não foram implementados uploads de imagem nem estatísticas históricas não existentes.
-- O pacote exige os demais arquivos da versão-base, como `social-4.js` e `room-reference.css`.
-- Requer validação com Firestore/Socket.IO real antes de publicar.
+## Limites da referência visual
+O design segue a distribuição, cores e acabamento do mockup, mas utiliza thumbnails e dados reais das músicas/salas; não há fotos, números ou funcionalidades de demonstração.
+
+## Teste recomendado
+Executar na aplicação real com uma sala vazia, música tocando, fila extensa, múltiplos ouvintes, chat e dispositivos móveis antes da publicação em produção.
