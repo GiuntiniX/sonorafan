@@ -1851,49 +1851,73 @@
 
   <!-- LOBBY -->
   <div class="screen" id="screen-lobby">
-    <div class="app">
-      <div class="header">
-        <div class="header-left"><h1>🎧 SonoraFan</h1></div>
-        <div class="header-right">
-          <div class="user-info" id="userInfo">
-            <span id="userAvatar" style="cursor:pointer;" onclick="openAvatarModal()">🎸</span>
-            <span id="userDisplayName">Usuário</span>
-            <span id="userPointsBadge" style="font-size:11px;color:var(--accent);margin-left:4px;"></span>
-          </div>
-          <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtn" style="display:none;">🎛️</button>
-          <button class="action-btn" onclick="openTutorial(0)" title="Ajuda">❓</button>
-          <button class="action-btn" type="button" onclick="window.sf5OpenCommunity?.()" title="Comunidade">👥</button>
-          <button class="action-btn" type="button" onclick="window.sf5OpenProfile?.()" title="Meu perfil">◉</button>
-          <button class="action-btn" onclick="openLeaderboard()" title="Ranking">🏆</button>
-          <button class="theme-toggle-btn" onclick="toggleTheme(event)" title="Tema" id="themeBtn">🌙</button>
-          <button class="logout-btn" onclick="doLogout()" data-i18n="logout">Sair</button>
+    <div class="app sf28-lobby-app">
+      <aside class="sf28-sidebar" aria-label="Navegação principal">
+        <div class="sf28-sidebar-brand">
+          <h1>🎧 SonoraFan</h1>
+          <small>Música, comunidade e descoberta.</small>
         </div>
-      </div>
-      <div class="lobby">
-        <div class="lobby-top">
-          <h2 data-i18n="lobby.title">Salas disponíveis</h2>
-          <div class="lobby-actions">
-            <button onclick="showCreateRoom()" data-i18n="lobby.newRoom">+ Nova sala</button>
-            <button onclick="joinRandomRoom()" data-i18n="lobby.random">🎲 Sala aleatória</button>
+        <nav class="sf28-sidebar-nav">
+          <button type="button" class="active" aria-current="page">◈ <span>Descobrir salas</span></button>
+          <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
+          <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
+          <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()">🔔 <span>Notificações</span></button>
+          <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
+          <button type="button" onclick="toggleTheme(event)" id="themeBtn">◐ <span>Tema</span></button>
+          <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda</span></button>
+          <button type="button" onclick="toggleAdmin()" id="adminBtn" style="display:none;">🎛️ <span>Painel Admin</span></button>
+          <button type="button" onclick="doLogout()">⇥ <span>Sair</span></button>
+        </nav>
+        <div class="sf28-sidebar-card">
+          <span>✦</span>
+          <strong>A música aproxima.</strong>
+          <small>Descubra salas, conecte pessoas e viva experiências em tempo real.</small>
+          <button type="button" onclick="showCreateRoom()">Criar nova sala</button>
+        </div>
+      </aside>
+      <main class="sf28-lobby-main">
+        <div class="header sf28-lobby-header">
+          <div class="header-left sf28-lobby-headcopy">
+            <span class="sf28-kicker">LOBBY SONORAFAN</span>
+            <h2>Encontre sua próxima vibe.</h2>
+            <p>Explore salas ao vivo, conheça comunidades e entre na música com mais contexto e organização.</p>
+          </div>
+          <div class="header-right sf28-lobby-userbar">
+            <div class="user-info" id="userInfo">
+              <span id="userAvatar" style="cursor:pointer;" onclick="openAvatarModal()">🎸</span>
+              <div class="sf28-user-meta">
+                <strong id="userDisplayName">Usuário</strong>
+                <span id="userPointsBadge"></span>
+              </div>
+            </div>
           </div>
         </div>
-        <section id="sfSocialHub" class="sf-social-hub" aria-label="Comunidade SonoraFan">
-          <div class="sf-hub-intro"><div><span class="sf-eyebrow">SONORAFAN COMMUNITY</span><h3>A música conecta a gente.</h3><p>Encontre sua galera e participe de sessões especiais.</p></div><div class="sf-hub-tabs"><button type="button" data-sf-tab="friends" class="active">👥 Amigos</button><button type="button" data-sf-tab="events">📅 Eventos</button></div></div>
-          <div id="sfFriendsPanel" class="sf-hub-panel"><div class="sf-search-row"><input id="sfFriendQuery" type="search" maxlength="40" placeholder="Buscar pessoas pelo nome" aria-label="Buscar pessoas pelo nome"><button id="sfFriendSearch" type="button">Buscar</button></div><div id="sfFriendsList" class="sf-social-results" aria-live="polite">Carregando comunidade...</div><div id="sfFriendSearchResults" class="sf-social-results" aria-live="polite"></div></div>
-          <div id="sfEventsPanel" class="sf-hub-panel" hidden><div class="sf-events-heading"><p>Encontros musicais agendados por quem cria as salas.</p><button id="sfNewEvent" type="button">+ Criar evento</button></div><div id="sfEventsList" class="sf-events-grid" aria-live="polite"></div></div>
-        </section>
-        <section class="sf10-discovery" aria-label="Explorar salas">
-          <div class="sf10-discovery-intro"><div><span class="sf10-kicker">ENCONTRE A SUA COMUNIDADE</span><h3>Encontre a sua próxima vibe.</h3><p>Descubra salas ao vivo, conheça pessoas e compartilhe suas músicas favoritas.</p></div><button class="sf10-event-shortcut" type="button" onclick="window.sf10OpenEvents?.()">▦ <span>Agenda de eventos</span></button></div>
-          <div class="sf10-discovery-controls">
-            <label class="sf10-room-search"><span aria-hidden="true">⌕</span><input id="sf10RoomQuery" type="search" placeholder="Buscar salas ou estilos musicais..." autocomplete="off" aria-label="Buscar salas"></label>
-            <div class="sf10-filters" role="group" aria-label="Filtrar salas"><button type="button" data-sf10-filter="all" class="on">Todas</button><button type="button" data-sf10-filter="live">● Ao vivo</button><button type="button" data-sf10-filter="favorites">♡ Minhas salas</button><button type="button" data-sf10-filter="collab">♫ Colaborativas</button></div>
+        <div class="lobby sf28-lobby-content">
+          <div class="lobby-top">
+            <h2 data-i18n="lobby.title">Salas disponíveis</h2>
+            <div class="lobby-actions">
+              <button onclick="showCreateRoom()" data-i18n="lobby.newRoom">+ Nova sala</button>
+              <button onclick="joinRandomRoom()" data-i18n="lobby.random">🎲 Sala aleatória</button>
+            </div>
           </div>
-          <div class="sf10-rooms-caption"><strong id="sf10RoomsHeading">Explore as salas</strong><span id="sf10RoomsCount">Carregando...</span></div>
-        </section>
-        <div class="room-grid" id="roomGrid">
-          <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+          <section id="sfSocialHub" class="sf-social-hub" aria-label="Comunidade SonoraFan">
+            <div class="sf-hub-intro"><div><span class="sf-eyebrow">SONORAFAN COMMUNITY</span><h3>A música conecta a gente.</h3><p>Encontre sua galera e participe de sessões especiais.</p></div><div class="sf-hub-tabs"><button type="button" data-sf-tab="friends" class="active">👥 Amigos</button><button type="button" data-sf-tab="events">📅 Eventos</button></div></div>
+            <div id="sfFriendsPanel" class="sf-hub-panel"><div class="sf-search-row"><input id="sfFriendQuery" type="search" maxlength="40" placeholder="Buscar pessoas pelo nome" aria-label="Buscar pessoas pelo nome"><button id="sfFriendSearch" type="button">Buscar</button></div><div id="sfFriendsList" class="sf-social-results" aria-live="polite">Carregando comunidade...</div><div id="sfFriendSearchResults" class="sf-social-results" aria-live="polite"></div></div>
+            <div id="sfEventsPanel" class="sf-hub-panel" hidden><div class="sf-events-heading"><p>Encontros musicais agendados por quem cria as salas.</p><button id="sfNewEvent" type="button">+ Criar evento</button></div><div id="sfEventsList" class="sf-events-grid" aria-live="polite"></div></div>
+          </section>
+          <section class="sf10-discovery" aria-label="Explorar salas">
+            <div class="sf10-discovery-intro"><div><span class="sf10-kicker">ENCONTRE A SUA COMUNIDADE</span><h3>Encontre a sua próxima vibe.</h3><p>Descubra salas ao vivo, conheça pessoas e compartilhe suas músicas favoritas.</p></div><button class="sf10-event-shortcut" type="button" onclick="window.sf10OpenEvents?.()">▦ <span>Agenda de eventos</span></button></div>
+            <div class="sf10-discovery-controls">
+              <label class="sf10-room-search"><span aria-hidden="true">⌕</span><input id="sf10RoomQuery" type="search" placeholder="Buscar salas ou estilos musicais..." autocomplete="off" aria-label="Buscar salas"></label>
+              <div class="sf10-filters" role="group" aria-label="Filtrar salas"><button type="button" data-sf10-filter="all" class="on">Todas</button><button type="button" data-sf10-filter="live">● Ao vivo</button><button type="button" data-sf10-filter="favorites">♡ Minhas salas</button><button type="button" data-sf10-filter="collab">♫ Colaborativas</button></div>
+            </div>
+            <div class="sf10-rooms-caption"><strong id="sf10RoomsHeading">Explore as salas</strong><span id="sf10RoomsCount">Carregando...</span></div>
+          </section>
+          <div class="room-grid" id="roomGrid">
+            <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   </div>
 
@@ -3931,5 +3955,6 @@ function openRoomCfg() {
 
   <script defer src="/sonorafan-wow-26.js"></script>
   <link rel="stylesheet" href="/sonorafan-clean-27.css">
+  <link rel="stylesheet" href="/lobby-sidebar-28.css">
 </body>
 </html>
