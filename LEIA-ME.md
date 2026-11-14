@@ -1,13 +1,20 @@
-# SonoraFan 29.0 — Menu lateral e novo tour de primeira visita
+# SonoraFan 43.0 — Perfil renovado, tour atualizado e presença por nickname
 
-Aplicar sobre a versão 28.0. Substitua `public/index.html` e adicione `public/sonorafan-tour-29.css` e `public/sonorafan-tour-29.js`. Preserve os demais arquivos e `server.js`.
+## Arquivos alterados
+- `public/index.html` — substituir
+- `public/sonorafan-profile-tour-43.css` — adicionar
+- `public/sonorafan-enhancements-43.js` — adicionar
 
-## Alterações
-- Convidar e Temas saem do cabeçalho da sala e ficam no menu esquerdo, mantendo as ações originais.
-- O convite promocional duplicado do cartão lateral foi removido.
-- O novo tour tem 7 etapas no lobby e 8 dentro da sala; destaca as áreas do novo layout.
-- Inicia automaticamente uma vez por conta em cada contexto e pode ser reaberto em Ajuda / Tour.
-- Não abre formulários ou adiciona músicas durante o guia; é apenas demonstrativo.
-- O tour anterior deixa de ser acionado automaticamente.
+## Ajustes aplicados
+1. **Busca corrigida no lobby.** O campo principal agora usa um único controle de limpeza, eliminando o efeito de “××” na lateral direita.
+2. **Perfil redesenhado.** Abertura do perfil trocada por um modal mais bonito e consistente, com scroll interno, topo visual sem repetição/corte estranho, avatar em destaque, bio, estilos musicais e ações rápidas.
+3. **Tour atualizado.** O tour agora acompanha o layout real do lobby e da sala, destacando banner, busca, filtros, salas, player, fila, presença e chat.
+4. **Presença com nicknames.** As áreas “Quem está ouvindo?” e “Pessoas ouvindo” mostram os nomes da galera na sala, deixando a leitura mais clara do que somente ícones.
+5. **Popup de ouvintes refinado.** A listagem de quem está na sala passa a priorizar o nickname também no pop de usuários.
 
-**Atenção:** testes estáticos feitos; validar o tour com navegador/servidor real, sobretudo responsividade e permissões Firebase/Socket.IO.
+## Instalação
+Aplicar sobre a versão 42.0. Mantenha a estrutura atual do projeto, faça backup antes de substituir e atualize o navegador com **Ctrl + F5**.
+
+## Observações
+- O novo perfil salva bio, estilos e apelido visual no navegador para preservar a experiência sem depender de nova API.
+- As integrações reais de Firebase, Socket.IO e YouTube continuam dependendo de validação no seu ambiente publicado.
