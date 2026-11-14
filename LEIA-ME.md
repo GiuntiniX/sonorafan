@@ -1,19 +1,27 @@
-# SonoraFan 22.0 — Editor de personagens 2D
+# SonoraFan 23.0 — Personagens Chibi e Perfil Firebase
 
-Aplicar sobre a **versão 21.0** (com o backend da 20.0).
+Atualização incremental sobre a versão **22.0**.
 
-## Arquivos modificados
-- `server.js` — substituir; sincroniza a aparência validada no Socket.IO.
-- `public/index.html` — substituir; inclui o editor no modal de avatar e o CSS.
-- `public/room-interactive-19.js` — substituir; atualiza SVG e personalização.
-- `public/room-characters-22.css` — adicionar; estilos do novo editor.
+## Arquivos alterados
+- `server.js` — substituir
+- `public/index.html` — substituir
+- `public/room-interactive-19.js` — substituir
+- `public/room-characters-23.css` — adicionar
 
-## Recursos
-- Seis cores de roupa, seis penteados e quatro acessórios.
-- Prévia imediata; os demais ouvintes veem a aparência ao receber a atualização de presença.
-- Preferências da aparência lembradas neste navegador via localStorage; reaplicadas na próxima entrada na sala. Não há persistência multiplataforma no Firebase nesta etapa.
-- Mantém as 24 posições, movimentos e colaboração musical da versão 20.0.
-- O servidor valida cada código de aparência; não aceita HTML, URLs nem estilos arbitrários.
+Mantenha todos os outros arquivos CSS/JS das versões anteriores. Reinicie o backend.
 
-## Antes de publicar
-Reinicie o Node.js após substituir o `server.js`. Teste com duas contas conectadas: cor da roupa, penteado, acessório, movimento e saída/reentrada. O login Firebase que foi relatado anteriormente não é alterado nesta atualização.
+## Mudanças
+- Personagens com proporções *chibi*: cabeça grande, corpo pequeno, olhos, expressões, roupa e acessórios.
+- O usuário mantém as opções de cabelo, cor de roupa e acessórios já existentes.
+- Novas rotas autenticadas `GET /api/avatar/me` e `PATCH /api/avatar/me` (perfil próprio).
+- Ao personalizar pela sala, o servidor valida e salva `stageAvatar` e `stageLook` no documento do usuário no Firestore.
+- Ao entrar em qualquer sala, o servidor recupera a aparência persistida. Posição na pista e movimento permanecem temporários.
+- A busca de músicas, fila colaborativa, player e permissões de sala são preservados.
+
+## Segurança e privacidade
+- Nunca usa e-mail enviado pelo navegador para selecionar o perfil; usa a sessão autenticada.
+- Avatar e aparência aceitam apenas valores de listas definidas no servidor.
+- Não inclui credenciais Firebase no ZIP.
+
+## Validação
+Sintaxe Node.js e arquivo ZIP verificados localmente. Não foram executados testes de integração com Firestore real e múltiplos clientes Socket.IO.

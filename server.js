@@ -563,6 +563,37 @@ app.patch('/api/community/profile', rateLimit(15, 60000), async (req, res) => {
   } catch(e) {console.error('Profile update',e);res.status(503).json({error:'Não foi possível salvar seu perfil'});}
 });
 
+// SonoraFan 23 — avatar chibi persistente no perfil do usuário autenticado.
+const SF23_AVATARS = ['🎧','🎸','🎹','🎤','🪩','🔥','💜','🦊','🐼','😎','🌙','👾'];
+const sf23LookOK = l => !!l && typeof l === 'object' && !Array.isArray(l) &&
+  ['violet','coral','mint','gold','blue','rose'].includes(l.shirt) &&
+  ['short','wave','side','curly','long','spiky'].includes(l.hair) &&
+  ['headphones','glasses','cap','none'].includes(l.accessory);
+const sf23Sanitize = l => ({shirt:l.shirt,hair:l.hair,accessory:l.accessory});
+app.get('/api/avatar/me', async (req,res) => {
+  const email=sessionEmail(req);
+  if(!email)return res.status(401).json({error:'Faça login'});
+  try{
+    const u=users.get(email)||await getUserFromFirestore(email);
+    if(!u)return res.status(404).json({error:'Perfil não encontrado'});
+    return res.json({avatar:SF23_AVATARS.includes(u.stageAvatar)?u.stageAvatar:'🎧',look:sf23LookOK(u.stageLook)?sf23Sanitize(u.stageLook):null});
+  }catch(e){return res.status(503).json({error:'Não foi possível carregar o personagem'});}
+});
+app.patch('/api/avatar/me', rateLimit(20,60000), async (req,res) => {
+  const email=sessionEmail(req);
+  if(!email)return res.status(401).json({error:'Faça login'});
+  const b=req.body||{};
+  if(!SF23_AVATARS.includes(b.avatar)||!sf23LookOK(b.look))return res.status(400).json({error:'Personagem inválido'});
+  try{
+    const u=users.get(email)||await getUserFromFirestore(email);
+    if(!u)return res.status(404).json({error:'Perfil não encontrado'});
+    const stageLook=sf23Sanitize(b.look),stageAvatar=b.avatar;
+    await db.collection('users').doc(email).set({stageAvatar,stageLook},{merge:true});
+    users.set(email,{...u,stageAvatar,stageLook});
+    return res.json({success:true,avatar:stageAvatar,look:stageLook});
+  }catch(e){console.error('Avatar profile save',e);return res.status(503).json({error:'Não foi possível salvar personagem'});}
+});
+
 // ========== SONORAFAN SOCIAL 4 — AMIGOS E EVENTOS ==========
 // IDs públicos não revelam email; sessões e permissões permanecem no servidor.
 const publicUserId = email => crypto.createHash('sha256').update('sf-public-v1:' + String(email).toLowerCase()).digest('hex').slice(0, 24);
@@ -1190,8 +1221,8 @@ io.on('connection', (socket) => {
       }
       currentRoom = slug;
       socket.data.sf19Seat = null;
-      socket.data.sf19Avatar = null;
-      socket.data.sf22Look = null;
+      socket.data.sf19Avatar = SF23_AVATARS.includes(prof.stageAvatar) ? prof.stageAvatar : null;
+      socket.data.sf22Look = sf23LookOK(prof.stageLook) ? sf23Sanitize(prof.stageLook) : null;
       socket.sfSocialEmail = who;
       socket.sfSocialRoom = slug;
       socket.join(slug);
@@ -1282,6 +1313,19 @@ io.on('connection', (socket) => {
       const taken = peers.some(s => s.id !== socket.id && s.data?.sf19Seat === payload.seat);
       if (taken) return socket.emit('sf19Error', 'Esse lugar já está ocupado. Escolha outro.');
       socket.data.sf19Seat = payload.seat;
+    }
+    // Persistência opcional sem bloquear a atualização da sala.
+    if (Object.prototype.hasOwnProperty.call(payload,'avatar') || Object.prototype.hasOwnProperty.call(payload,'look')) {
+      const acct=users.get(socket.userEmail);
+      if(acct) {
+        const stageAvatar=socket.data.sf19Avatar || (SF23_AVATARS.includes(acct.stageAvatar) ? acct.stageAvatar : '🎧');
+        const stageLook=socket.data.sf22Look || (sf23LookOK(acct.stageLook) ? sf23Sanitize(acct.stageLook) : {shirt:'violet',hair:'short',accessory:'headphones'});
+        users.set(socket.userEmail,{...acct,stageAvatar,stageLook});
+        db.collection('users').doc(socket.userEmail).set({stageAvatar,stageLook},{merge:true}).catch(e => {
+          console.error('SF23 character persist',e.message);
+          socket.emit('sf23SaveError','Não foi possível salvar o personagem no perfil.');
+        });
+      }
     }
     broadcastUsers(currentRoom);
     socket.emit('sf19Saved', { avatar: socket.data.sf19Avatar || socket.userAvatar || '🎧', seat: Number.isInteger(socket.data.sf19Seat) ? socket.data.sf19Seat : null, dance: socket.data.sf20Dance || 'sway', look: socket.data.sf22Look || null });
