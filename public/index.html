@@ -1809,20 +1809,25 @@
   </div>
 
   <!-- FAVORITOS -->
-  <div class="modal-overlay" id="favoritesModal">
-    <div class="modal">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid var(--border);">
-        <h3 style="font-size:20px;font-weight:800;" data-i18n="favorites.title">⭐ Minhas Favoritas</h3>
-        <button onclick="closeFavorites()" style="background:transparent;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">✕</button>
-      </div>
+  <div class="modal-overlay" id="favoritesModal" role="dialog" aria-modal="true" aria-labelledby="sf35FavoritesTitle">
+    <div class="modal sf35-favorites-modal">
+      <header class="sf35-favorites-hero">
+        <div>
+          <span class="sf35-kicker">✳ SUA COLEÇÃO MUSICAL</span>
+          <h3 id="sf35FavoritesTitle" data-i18n="favorites.title">⭐ Minhas Favoritas</h3>
+          <p>As músicas que merecem tocar de novo.</p>
+        </div>
+        <button type="button" onclick="closeFavorites()" aria-label="Fechar favoritos">✕</button>
+      </header>
       <div id="favoritesList"></div>
     </div>
   </div>
 
   <!-- AVATAR -->
-  <div class="modal-overlay" id="avatarModal">
-    <div class="modal">
-      <h3 data-i18n="avatar.title">🎨 Escolha seu avatar</h3>
+  <div class="modal-overlay" id="avatarModal" role="dialog" aria-modal="true" aria-labelledby="sf35AvatarTitle">
+    <div class="modal sf35-avatar-modal">
+      <span class="sf35-kicker">✦ SUA IDENTIDADE NO SOM</span>
+      <h3 id="sf35AvatarTitle" data-i18n="avatar.title">🎨 Escolha seu avatar</h3>
       <div class="avatar-grid" id="avatarGrid">
         <div class="avatar-option" data-avatar="🎸">🎸</div>
         <div class="avatar-option" data-avatar="🎤">🎤</div>
@@ -2080,7 +2085,7 @@
               <button class="new-msg-pill" id="newMsgPill" onclick="scrollChatToBottom(true)">
                 <span>▼</span> <span id="newMsgCount">Novas mensagens</span>
               </button>
-              <div class="chat-messages-inner" id="chatMessagesInner"></div>
+              <div class="chat-messages-inner" id="chatMessagesInner" role="log" aria-label="Mensagens da sala" aria-relevant="additions"></div>
             </div>
             <div class="chat-input-bar">
               <div class="typing-indicator" id="typingIndicator"></div>
@@ -2156,16 +2161,22 @@
   </div>
 
   <!-- CREATE ROOM -->
-  <div class="modal-overlay" id="createRoomModal">
-    <div class="modal">
-      <h3>Crie seu espaço musical</h3>
-      <p class="sf10-create-desc">Uma sala colaborativa: cada participante é DJ e pode escolher a próxima música.</p>
+  <div class="modal-overlay" id="createRoomModal" role="dialog" aria-modal="true" aria-labelledby="sf35CreateTitle">
+    <div class="modal sf35-create-modal">
+      <header class="sf35-create-hero">
+        <div class="sf35-create-copy">
+          <span class="sf35-kicker">✳ SEU SOM, SUA COMUNIDADE</span>
+          <h3 id="sf35CreateTitle">Crie seu espaço musical</h3>
+          <p class="sf10-create-desc">Todo mundo é DJ: cada pessoa pode adicionar músicas e construir a fila com você.</p>
+        </div>
+        <img src="/art-33/poster-indie.webp" alt="" width="160" height="160" loading="lazy" decoding="async">
+      </header>
       <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Tipo da sala</span></div>
       <div class="sf10-step-one"><label for="newRoomName">Como sua sala vai se chamar?</label><input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40"><p>O nome será mostrado para quem encontrar sua sala.</p></div>
       <div class="sf10-step-two"><div id="createCfg" class="cfg"></div></div>
       <div class="sf17-create-hint">
-        <strong>Como a sala funciona?</strong>
-        <span>Você escolhe se ela é colaborativa ou no estilo DJ. Também define se aceita músicas normais, vídeos longos ou lives.</span>
+        <strong>Playlist colaborativa para todos</strong>
+        <span>Todos os participantes podem adicionar músicas. Personalize a sala e escolha se aceita faixas comuns, vídeos longos ou lives.</span>
       </div>
       <div id="adminRoomOptions" style="display:none;margin-top:6px;text-align:left;">
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 0;cursor:pointer;">
@@ -2223,7 +2234,8 @@
 
   <div class="modal-overlay" id="pwModal"><div class="modal" style="max-width:360px;"><h3>🔒 Sala privada</h3><p id="pwMsg" style="font-size:13px;color:var(--text-secondary);margin:8px 0;"></p><input class="cfg-in" id="pwInput" type="password" maxlength="30" placeholder="Senha da sala" onkeydown="if(event.key==='Enter')submitRoomPw()"><div class="modal-actions"><button class="btn-secondary" onclick="$('pwModal').classList.remove('active')">Cancelar</button><button class="btn-primary" onclick="submitRoomPw()">Entrar</button></div></div></div>
   <div class="modal-overlay" id="roomCfgModal" onclick="if(event.target===this)this.classList.remove('active')">
-    <div class="modal" style="max-width:480px;max-height:88vh;overflow:auto;">
+    <div class="modal sf35-settings-modal" style="max-width:520px;max-height:88vh;overflow:auto;">
+      <span class="sf35-kicker">✦ PERSONALIZE SEU ESPAÇO</span>
       <h3>⚙️ Personalizar sala</h3>
       <div id="editCfg" class="cfg"></div>
       <div class="modal-actions"><button class="btn-secondary" onclick="$('roomCfgModal').classList.remove('active')">Cancelar</button><button class="btn-primary" onclick="saveRoomCfg()">Salvar</button></div>
@@ -2231,7 +2243,7 @@
   </div>
 
   <div class="conn-banner" id="connBanner">🔄 Reconectando…</div>
-  <div class="modal-overlay" id="lbModal" onclick="if(event.target===this)this.classList.remove('active')"><div class="modal" style="max-width:380px;"><h3>🏆 Ranking</h3><div id="lbList" style="margin:12px 0;"></div><div class="modal-actions"><button class="btn-secondary" onclick="$('lbModal').classList.remove('active')">OK</button></div></div></div>
+  <div class="modal-overlay" id="lbModal" onclick="if(event.target===this)this.classList.remove('active')"><div class="modal sf35-ranking-modal" style="max-width:420px;"><span class="sf35-kicker">✦ A GALERA QUE FAZ O SOM</span><h3>🏆 Ranking</h3><div id="lbList" style="margin:12px 0;"></div><div class="modal-actions"><button class="btn-secondary" onclick="$('lbModal').classList.remove('active')">OK</button></div></div></div>
   <div class="users-pop" id="usersPop"></div>
   <div class="theme-pop" id="themePop"></div>
   <div class="sf11-theme-panel" id="sf11ThemePanel" role="dialog" aria-label="Escolher tema visual" hidden>
@@ -4002,5 +4014,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-reference-33.js"></script>
   <link rel="stylesheet" href="/sonorafan-stage-34.css">
   <script defer src="/sonorafan-stage-34.js"></script>
+  <link rel="stylesheet" href="/sonorafan-refino-35.css">
+  <script defer src="/sonorafan-refino-35.js"></script>
 </body>
 </html>
