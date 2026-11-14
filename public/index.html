@@ -1373,6 +1373,7 @@
   <link rel="stylesheet" href="/player-premium.css">
   <link rel="stylesheet" href="/premium-3.css">
 
+  <link rel="stylesheet" href="/room-stage5.css">
 </head>
 <body>
   <!-- ===== LANDING PAGE ===== -->
@@ -1944,6 +1945,20 @@
             </div>
           </div>
 
+          <section class="sf18-world" id="sf18World" aria-label="Pista social da sala">
+            <div class="sf18-light-rays" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="sf18-world-header">
+              <div><span class="sf18-overline">Pista SonoraFan</span><h2>Estamos ouvindo juntos <span aria-hidden="true">✨</span></h2></div>
+              <span class="sf18-live"><i></i> AO VIVO</span>
+            </div>
+            <div class="sf18-social-scene">
+              <div class="sf18-dj-booth"><span class="sf18-decks" aria-hidden="true">◉ ▰ ◉</span><span class="sf18-host-avatar" id="sf18HostAvatar">🎧</span><div><small>ANFITRIÃO DA SALA</small><strong id="sf18HostName">Aguardando participantes</strong></div></div>
+              <div class="sf18-crowd" id="sf18Crowd" aria-live="polite"><span class="sf18-empty-crowd">A pista ganha vida quando os ouvintes entram.</span></div>
+              <div class="sf18-reactions" id="sf18ReactionStage" aria-hidden="true"></div>
+            </div>
+            <div class="sf18-world-bottom"><span><b id="sf18CrowdCount">0</b> na pista</span><div class="sf18-react-controls" aria-label="Reagir com a sala"><button type="button" data-sf18-react="🔥" aria-label="Reagir com fogo">🔥</button><button type="button" data-sf18-react="❤️" aria-label="Reagir com coração">❤️</button><button type="button" data-sf18-react="🙌" aria-label="Reagir com aplausos">🙌</button><button type="button" data-sf18-react="⚡" aria-label="Reagir com energia">⚡</button></div></div>
+          </section>
+
           <div class="next-track" id="nextTrack" style="display:none;">
             <span class="label">A seguir</span>
             <div class="thumb" id="nextThumb"></div>
@@ -2046,16 +2061,20 @@
   <div class="modal-overlay" id="createRoomModal">
     <div class="modal">
       <h3>Crie seu espaço musical</h3>
-      <p class="sf10-create-desc">Uma sala com a sua identidade, pronta para ouvir junto.</p>
-      <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Preferências</span></div>
+      <p class="sf10-create-desc">Uma sala pronta para ouvir junto. O padrão do SonoraFan é colaborativo: a galera participa e constrói a fila com você.</p>
+      <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Tipo da sala</span></div>
       <div class="sf10-step-one"><label for="newRoomName">Como sua sala vai se chamar?</label><input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40"><p>O nome será mostrado para quem encontrar sua sala.</p></div>
       <div class="sf10-step-two"><div id="createCfg" class="cfg"></div></div>
+      <div class="sf17-create-hint">
+        <strong>Como a sala funciona?</strong>
+        <span>Você escolhe se ela é colaborativa ou no estilo DJ. Também define se aceita músicas normais, vídeos longos ou lives.</span>
+      </div>
       <div id="adminRoomOptions" style="display:none;margin-top:6px;text-align:left;">
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 0;cursor:pointer;">
-          <input type="checkbox" id="optAllowLong" style="width:auto;margin:0;accent-color:var(--accent);"> 🎬 Permitir vídeos longos (até 6h)
+          <input type="checkbox" id="optAllowLong" style="width:auto;margin:0;accent-color:var(--accent);"> 🎬 Aceitar vídeos longos / sets / podcasts (até 6h)
         </label>
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 0;cursor:pointer;">
-          <input type="checkbox" id="optAllowLive" style="width:auto;margin:0;accent-color:var(--accent);"> 🔴 Permitir lives do YouTube
+          <input type="checkbox" id="optAllowLive" style="width:auto;margin:0;accent-color:var(--accent);"> 🔴 Aceitar lives do YouTube / transmissões contínuas
         </label>
       </div>
       <div class="modal-actions">
@@ -2839,17 +2858,23 @@
     const cfgState = {};
     let _joinExtra = {}, _pwSlug = null;
     function renderCfg(boxId, k, v) {
-      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', isPrivate: false }, v || {});
+      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', isPrivate: false, allowLong: false, allowLive: false }, v || {});
       const pick = (key, val) => `cfgPick('${boxId}','${k}','${key}','${val}')`;
       $(boxId).innerHTML = `
         <div class="cfg-lbl">Ícone da sala</div><div class="cfg-row">${CFG_EMOJIS.map(e => `<button type="button" class="cfg-e ${s.emoji === e ? 'on' : ''}" onclick="${pick('emoji', e)}">${e}</button>`).join('')}</div>
         <div class="cfg-lbl">Cor da sala</div><div class="cfg-row">${CFG_COLORS.map(c => `<button type="button" class="cfg-c ${s.color === c ? 'on' : ''}" style="background:${c}" onclick="${pick('color', c)}"></button>`).join('')}</div>
         <input class="cfg-in" id="${k}Desc" maxlength="80" placeholder="Descrição curta (opcional)" value="${escapeHtml(s.description || '')}">
         <input class="cfg-in" id="${k}Welcome" maxlength="200" placeholder="Boas-vindas ou regras" value="${escapeHtml(s.welcome || '')}">
-        <div class="cfg-lbl">Quem escolhe as músicas?</div>
-        <div class="kind-picker">
-          <button type="button" class="kind-tile ${s.addMode !== 'owner' ? 'on' : ''}" onclick="${pick('addMode', 'all')}"><span>🎶</span><b>Colaborativa</b><small>Todo mundo adiciona</small></button>
-          <button type="button" class="kind-tile ${s.addMode === 'owner' ? 'on' : ''}" onclick="${pick('addMode', 'owner')}"><span>🎧</span><b>Playlist do dono</b><small>Só você escolhe</small></button>
+        <div class="cfg-lbl">Estilo da sala</div>
+        <div class="kind-picker sf17-room-mode-grid">
+          <button type="button" class="kind-tile ${s.addMode !== 'owner' ? 'on' : ''}" onclick="${pick('addMode', 'all')}"><span>🤝</span><b>Colaborativa</b><small>Todo mundo adiciona músicas</small></button>
+          <button type="button" class="kind-tile ${s.addMode === 'owner' ? 'on' : ''}" onclick="${pick('addMode', 'owner')}"><span>🎧</span><b>DJ / anfitrião</b><small>Só uma pessoa controla a fila</small></button>
+        </div>
+        <div class="cfg-lbl">Formato de conteúdo</div>
+        <div class="kind-picker sf17-room-format-grid">
+          <button type="button" class="kind-tile ${!s.allowLong && !s.allowLive ? 'on' : ''}" onclick="${pick('allowLong', '')};${pick('allowLive', '')}"><span>🎵</span><b>Padrão</b><small>Faixas e vídeos comuns</small></button>
+          <button type="button" class="kind-tile ${s.allowLong && !s.allowLive ? 'on' : ''}" onclick="${pick('allowLong', '1')};${pick('allowLive', '')}"><span>🎬</span><b>Longform</b><small>Sets, shows longos e podcasts</small></button>
+          <button type="button" class="kind-tile ${s.allowLive ? 'on' : ''}" onclick="${pick('allowLong', '1')};${pick('allowLive', '1')}"><span>🔴</span><b>Live</b><small>Aceita transmissões e vídeos longos</small></button>
         </div>
         <div class="cfg-lbl">Quem pode entrar?</div>
         <div class="kind-picker">
@@ -2857,15 +2882,19 @@
           <button type="button" class="kind-tile ${s.isPrivate ? 'on' : ''}" onclick="${pick('isPrivate', '1')}"><span>🔒</span><b>Privada</b><small>Só por link ou senha</small></button>
         </div>
         ${s.isPrivate ? `<input class="cfg-in" id="${k}Pw" type="password" maxlength="30" placeholder="Senha (opcional)" value="${escapeHtml(s.password || '')}">` : ''}
-        <select class="cfg-in" id="${k}Slow">${[0, 5, 10, 30, 60].map(v => `<option value="${v}" ${+s.slowMode === v ? 'selected' : ''}>${v ? 'Modo lento: ' + v + 's' : 'Chat sem limite'}</option>`).join('')}</select>`;
+        <select class="cfg-in" id="${k}Slow">${[0, 5, 10, 30, 60].map(v => `<option value="${v}" ${+s.slowMode === v ? 'selected' : ''}>${v ? 'Modo lento: ' + v + 's' : 'Chat sem limite'}</option>`).join('')}</select>
+        <div class="sf17-create-summary">
+          <strong>${s.addMode === 'owner' ? 'Sala em modo DJ.' : 'Sala colaborativa por padrão.'}</strong>
+          <span>${s.allowLive ? 'Aceita lives e vídeos longos.' : (s.allowLong ? 'Aceita vídeos longos.' : 'Aceita músicas e vídeos comuns.')}</span>
+        </div>`;
     }
-    function readCfg(k) {
-      const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: s.addMode, isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value };
+function readCfg(k) {
+      const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: s.addMode, isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value, allowLong: !!s.allowLong, allowLive: !!s.allowLive };
       const pw = $(k + 'Pw'); if (pw && pw.value) out.password = pw.value;
       return out;
     }
-    function cfgPick(boxId, k, key, val) { renderCfg(boxId, k, Object.assign({}, cfgState[k], readCfg(k), { [key]: key === 'isPrivate' ? !!val : val })); }
-    function openRoomCfg() {
+function cfgPick(boxId, k, key, val) { const boolKeys = ['isPrivate', 'allowLong', 'allowLive']; renderCfg(boxId, k, Object.assign({}, cfgState[k], readCfg(k), { [key]: boolKeys.includes(key) ? !!val : val })); }
+function openRoomCfg() {
       const d = currentRoomData || {};
       renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
       $('roomCfgModal').classList.add('active');
@@ -2896,7 +2925,7 @@
       const name = $('newRoomName').value.trim();
       if (!name) return toast('Digite um nome', 'error');
       try {
-        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, ...readCfg('c'), allowLong: $('optAllowLong') ? $('optAllowLong').checked : false, allowLive: $('optAllowLive') ? $('optAllowLive').checked : false }) });
+        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, ...readCfg('c') }) });
         const d = await r.json();
         if (d.slug) { closeCreateRoom(); joinRoom(d.slug); } else toast(d.error || 'Erro', 'error');
       } catch(e) { toast('Erro ao criar sala', 'error'); }
@@ -3862,7 +3891,16 @@
   <script defer src="/room-discovery-10.js"></script>
   <link rel="stylesheet" href="/sonorafan-11.css">
   <script defer src="/sonorafan-11.js"></script>
+  <link rel="stylesheet" href="/social-stage3.css">
+  <script defer src="/social-stage3.js"></script>
+  <link rel="stylesheet" href="/music-stage2.css">
+  <script defer src="/music-stage2.js"></script>
   <link rel="stylesheet" href="/admin-control-12.css">
   <script defer src="/admin-control-12.js"></script>
+  <link rel="stylesheet" href="/visual-stage4.css">
+  <script defer src="/visual-stage4.js"></script>
+  <script src="/room-stage5.js"></script>
+  <link rel="stylesheet" href="/room-immersive-18.css">
+  <script defer src="/room-immersive-18.js"></script>
 </body>
 </html>
