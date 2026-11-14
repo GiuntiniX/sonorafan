@@ -1658,13 +1658,43 @@
     </div>
   </div>
 
-  <!-- ===== ADMIN PANEL ===== -->
-  <div class="modal-overlay" id="adminPanel">
-    <div class="modal admin-panel">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);">
-        <h3 style="font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🎛️ Painel Admin</h3>
-        <button onclick="closeAdmin()" style="background:transparent;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">✕</button>
+  <!-- ===== SONORAFAN 12 ADMIN CONTROL CENTER ===== -->
+  <div class="modal-overlay" id="adminPanel" role="dialog" aria-modal="true" aria-labelledby="sf12AdminTitle">
+    <div class="modal admin-panel sf12-admin-shell">
+      <aside class="sf12-admin-sidebar" aria-label="Navegação administrativa">
+        <div class="sf12-admin-brand"><span class="sf12-brand-mark">◖♫◗</span><div><strong>Sonora<span>Fan</span></strong><small>ADMIN CONTROL CENTER</small></div></div>
+        <nav class="sf12-admin-nav" aria-label="Seções do painel">
+          <button type="button" data-sf12-nav="overview" class="active">▦ <span>Visão geral</span></button>
+          <button type="button" data-sf12-nav="users">♙ <span>Usuários</span></button>
+          <button type="button" data-sf12-nav="rooms">◉ <span>Salas</span></button>
+          <button type="button" data-sf12-nav="queues">♫ <span>Filas musicais</span></button>
+          <button type="button" data-sf12-nav="moderation">⬡ <span>Moderação</span></button>
+          <button type="button" data-sf12-nav="audit">▤ <span>Auditoria</span></button>
+          <button type="button" data-sf12-nav="settings">⚙ <span>Operação</span></button>
+        </nav>
+        <div class="sf12-admin-security">🔒 <div><strong>Acesso restrito</strong><small>admin@sonora.com</small></div></div>
+      </aside>
+      <div class="sf12-admin-main">
+        <header class="sf12-admin-top"><div><div class="sf12-admin-eyebrow">PAINEL DE CONTROLE · SONORAFAN</div><h2 id="sf12AdminTitle">Visão geral</h2><p id="sf12AdminSubtitle">Acompanhe a operação da comunidade em tempo real.</p></div><div class="sf12-admin-topactions"><span class="sf12-admin-live"><i></i> Ambiente protegido</span><button type="button" id="sf12Refresh" title="Atualizar informações">↻ <span>Atualizar</span></button><button type="button" onclick="closeAdmin()" aria-label="Fechar painel">✕</button></div></header>
+        <div class="sf12-admin-content">
+          <p id="sf12AdminNotice" class="sf12-admin-notice" role="status" aria-live="polite"></p>
+          <section class="sf12-admin-view active" data-sf12-view="overview">
+            <div class="sf12-metrics" id="sf12Metrics" aria-label="Indicadores da plataforma"><p>Carregando indicadores...</p></div>
+            <div class="sf12-grid-two">
+              <div class="sf12-card"><div class="sf12-card-head"><div><h3>Salas em atividade</h3><p>Panorama da comunidade neste momento</p></div><button type="button" data-sf12-goto="rooms">Ver salas →</button></div><div id="sf12LiveRooms" class="sf12-stack"></div></div>
+              <div class="sf12-card"><div class="sf12-card-head"><div><h3>Atividade administrativa</h3><p>Últimas ações registradas</p></div><button type="button" data-sf12-goto="audit">Auditoria →</button></div><div id="sf12RecentAudit" class="sf12-stack"></div></div>
+            </div>
+            <div class="sf12-card sf12-health"><div><strong>● Monitoramento operacional</strong><small>Dados carregados diretamente da sessão administrativa</small></div><span id="sf12CheckedAt">Aguardando atualização</span></div>
+          </section>
+          <section class="sf12-admin-view" data-sf12-view="users"><div class="sf12-toolbar"><label><span>Buscar usuário</span><input id="sf12UserSearch" type="search" placeholder="Nome ou e-mail..." autocomplete="off"></label><label><span>Status</span><select id="sf12UserStatus"><option value="all">Todos</option><option value="active">Ativos</option><option value="banned">Banidos</option><option value="mod">Moderadores</option></select></label><button type="button" id="sf12RefreshUsers">↻ Atualizar</button></div><div id="sf12UsersTable" class="sf12-data-list"></div></section>
+          <section class="sf12-admin-view" data-sf12-view="rooms"><div class="sf12-toolbar"><label><span>Buscar sala</span><input id="sf12RoomSearch" type="search" placeholder="Nome, slug ou responsável..."></label><label><span>Visualizar</span><select id="sf12RoomStatus"><option value="all">Todas</option><option value="occupied">Com ouvintes</option><option value="private">Privadas</option><option value="locked">Chat travado</option></select></label><button type="button" id="sf12RefreshRooms">↻ Atualizar</button></div><div id="sf12RoomsTable" class="sf12-data-list"></div></section>
+          <section class="sf12-admin-view" data-sf12-view="queues"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Filas compartilhadas</h3><p>Acompanhe a música atual e o tamanho de cada fila</p></div></div><div id="sf12QueuesList"></div></div></section>
+          <section class="sf12-admin-view" data-sf12-view="moderation"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Sanções ativas</h3><p>Silenciamentos e banimentos temporários registrados</p></div></div><div id="sf12ModerationList"></div></div></section>
+          <section class="sf12-admin-view" data-sf12-view="audit"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Histórico de ações</h3><p>Registro de operações administrativas</p></div><button type="button" id="sf12RefreshAudit">↻ Atualizar</button></div><div id="sf12AuditList"></div></div></section>
+          <section class="sf12-admin-view" data-sf12-view="settings"><div class="sf12-card"><h3>Comunicação e manutenção</h3><p>Estas ações afetam a comunidade e exigem confirmação.</p><div class="sf12-settings-grid"><button type="button" data-sf12-action="broadcast">📣 Enviar comunicado</button><button type="button" data-sf12-action="export">⇩ Exportar informações</button><button type="button" data-sf12-action="clear-chats">⌫ Limpar todos os chats</button><button type="button" data-sf12-action="clear-rooms">⚠ Encerrar todas as salas criadas</button></div></div><div class="sf12-card"><h3>Política de acesso</h3><p>As APIs administrativas exigem uma sessão válida da conta <strong>admin@sonora.com</strong>. Donos de salas continuam gerenciando apenas suas próprias salas.</p></div></section>
+        </div>
       </div>
+      <div class="sf12-admin-legacy" hidden aria-hidden="true">
       <div class="tab-bar">
         <button class="active" data-tab="tab-users" onclick="switchAdminTab('tab-users')">👥 Usuários</button>
         <button data-tab="tab-rooms" onclick="switchAdminTab('tab-rooms')">🏠 Salas</button>
@@ -1723,6 +1753,8 @@
           <button onclick="adminExport()">📥 Exportar</button>
           <button onclick="adminBroadcast()">📢 Mensagem</button>
         </div>
+      </div>
+
       </div>
     </div>
   </div>
@@ -3763,5 +3795,7 @@
   <script defer src="/room-discovery-10.js"></script>
   <link rel="stylesheet" href="/sonorafan-11.css">
   <script defer src="/sonorafan-11.js"></script>
+  <link rel="stylesheet" href="/admin-control-12.css">
+  <script defer src="/admin-control-12.js"></script>
 </body>
 </html>
