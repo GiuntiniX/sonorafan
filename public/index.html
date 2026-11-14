@@ -1876,11 +1876,11 @@
         </div>
       </aside>
       <main class="sf28-lobby-main">
-        <div class="header sf28-lobby-header">
+        <div class="header sf28-lobby-header sf32-header">
           <div class="header-left sf28-lobby-headcopy">
-            <span class="sf28-kicker">LOBBY SONORAFAN</span>
-            <h2>Encontre sua próxima vibe.</h2>
-            <p>Explore salas ao vivo, conheça comunidades e entre na música com mais contexto e organização.</p>
+            <span class="sf28-kicker">SONORAFAN / SUA VIBE, SEU SOM</span>
+            <h2>Encontre sua próxima <em>vibe.</em></h2>
+            <p>Música boa, gente interessante e salas feitas para ouvir juntos.</p>
           </div>
           <div class="header-right sf28-lobby-userbar">
             <div class="user-info" id="userInfo">
@@ -1892,71 +1892,52 @@
             </div>
           </div>
         </div>
-        <div class="lobby sf28-lobby-content">
-          <div class="lobby-top">
-            <h2 data-i18n="lobby.title">Salas disponíveis</h2>
+        <div class="lobby sf28-lobby-content sf32-content">
+          <section class="sf32-discovery" aria-label="Encontre sua sala de música">
+            <div class="sf32-discovery-copy">
+              <span class="sf32-eyebrow">✳  SALAS AO VIVO · TODO MUNDO É DJ</span>
+              <h3>Seu próximo som começa aqui<span aria-hidden="true">✦</span></h3>
+              <p>Explore suas cenas favoritas, encontre uma sala e entre na conversa.</p>
+              <div class="sf10-discovery-controls sf32-search-controls">
+                <div class="sf32-search-wrap">
+                  <label class="sf32-search" for="sf10RoomQuery">
+                    <span aria-hidden="true">⌕</span>
+                    <input id="sf10RoomQuery" type="search" placeholder="Buscar sala ou estilo musical" autocomplete="off" aria-label="Buscar salas ou estilos musicais">
+                  </label>
+                  <button type="button" id="sf32SearchClear" aria-label="Limpar busca" hidden>×</button>
+                </div>
+              </div>
+              <div class="sf32-genres" aria-label="Buscar por gênero musical">
+                <button type="button" data-sf32-genre="indie">Indie</button>
+                <button type="button" data-sf32-genre="rock">Rock</button>
+                <button type="button" data-sf32-genre="pop">Pop</button>
+                <button type="button" data-sf32-genre="mpb">MPB</button>
+                <button type="button" data-sf32-genre="eletrônica">Eletrônica</button>
+                <button type="button" data-sf32-genre="rap">Rap</button>
+                <button type="button" data-sf32-genre="pagode">Pagode</button>
+              </div>
+            </div>
+            <img class="sf32-festival-illustration" src="/art-32/festival-hero.svg" alt="Ilustração de um festival musical indie, com guitarras, vinil, estrelas e público" loading="eager" width="560" height="310">
+          </section>
+          <div class="sf32-rooms-title lobby-top">
+            <div><span class="sf32-overline">ENCONTROS MUSICAIS</span><h2 data-i18n="lobby.title">Salas disponíveis <span aria-hidden="true">✳</span></h2></div>
             <div class="lobby-actions">
               <button onclick="showCreateRoom()" data-i18n="lobby.newRoom">+ Nova sala</button>
               <button onclick="joinRandomRoom()" data-i18n="lobby.random">🎲 Sala aleatória</button>
             </div>
           </div>
-          <section id="sfSocialHub" class="sf-social-hub" aria-label="Comunidade SonoraFan">
-            <div class="sf-hub-intro"><div><span class="sf-eyebrow">SONORAFAN COMMUNITY</span><h3>A música conecta a gente.</h3><p>Encontre sua galera e participe de sessões especiais.</p></div><div class="sf-hub-tabs"><button type="button" data-sf-tab="friends" class="active">👥 Amigos</button><button type="button" data-sf-tab="events">📅 Eventos</button></div></div>
-            <div id="sfFriendsPanel" class="sf-hub-panel"><div class="sf-search-row"><input id="sfFriendQuery" type="search" maxlength="40" placeholder="Buscar pessoas pelo nome" aria-label="Buscar pessoas pelo nome"><button id="sfFriendSearch" type="button">Buscar</button></div><div id="sfFriendsList" class="sf-social-results" aria-live="polite">Carregando comunidade...</div><div id="sfFriendSearchResults" class="sf-social-results" aria-live="polite"></div></div>
-            <div id="sfEventsPanel" class="sf-hub-panel" hidden><div class="sf-events-heading"><p>Encontros musicais agendados por quem cria as salas.</p><button id="sfNewEvent" type="button">+ Criar evento</button></div><div id="sfEventsList" class="sf-events-grid" aria-live="polite"></div></div>
-          </section>
-          <section class="sf31-discovery" aria-label="Descoberta musical SonoraFan">
-            <div class="sf31-hero">
-              <div class="sf31-copy">
-                <span class="sf31-kicker">MÚSICA, DESCOBERTA E COMUNIDADE</span>
-                <h3>Encontre a sua próxima vibe.</h3>
-                <p>Descubra salas ao vivo, artistas, estilos e pessoas com a mesma energia musical que a sua.</p>
-              </div>
-              <div class="sf31-pulse-card" aria-hidden="true">
-                <div class="sf31-pulse-top"><span class="live"><i></i> em movimento</span><span>indie mood</span></div>
-                <div class="sf31-wave"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
-                <div class="sf31-pulse-note">Todos os estilos cabem aqui.</div>
-              </div>
-            </div>
-            <div class="sf31-search-panel">
-              <label class="sf31-search" for="sf10RoomQuery">
-                <span aria-hidden="true">⌕</span>
-                <input id="sf10RoomQuery" type="search" placeholder="Busque uma sala, artista ou estilo musical" autocomplete="off" aria-label="Buscar salas">
-                <button type="button" id="sf31SearchAction">Explorar</button>
-              </label>
-              <div class="sf31-quick-tags" aria-label="Sugestões rápidas">
-                <button type="button" data-genre="indie">indie</button>
-                <button type="button" data-genre="rock">rock</button>
-                <button type="button" data-genre="pop">pop</button>
-                <button type="button" data-genre="funk">funk</button>
-                <button type="button" data-genre="rap">rap</button>
-                <button type="button" data-genre="eletrônica">eletrônica</button>
-                <button type="button" data-genre="mpb">mpb</button>
-                <button type="button" data-genre="pagode">pagode</button>
-              </div>
-            </div>
-            <div class="sf31-genre-stage" aria-label="Estilos musicais em destaque">
-              <div class="sf31-stage-copy">
-                <strong>Uma plataforma para todos os estilos musicais</strong>
-                <p>Do indie ao pagode, do eletrônico ao rock alternativo — uma descoberta contínua, com linguagem mais artística e viva.</p>
-              </div>
-              <div class="sf31-genre-stream" aria-hidden="true">
-                <div class="sf31-genre-track">
-                  <span>indie</span><span>alternative</span><span>rock</span><span>pop</span><span>funk</span><span>rap</span><span>lo-fi</span><span>jazz</span><span>r&b</span><span>mpb</span><span>pagode</span><span>house</span><span>disco</span><span>sertanejo</span><span>forró</span><span>trap</span>
-                  <span>indie</span><span>alternative</span><span>rock</span><span>pop</span><span>funk</span><span>rap</span><span>lo-fi</span><span>jazz</span><span>r&b</span><span>mpb</span><span>pagode</span><span>house</span><span>disco</span><span>sertanejo</span><span>forró</span><span>trap</span>
-                </div>
-              </div>
-              <div class="sf31-vibe-cards">
-                <article><small>DESCUBRA</small><strong>Salas ao vivo</strong><span>Veja rapidamente o que está tocando e onde a energia está mais alta.</span></article>
-                <article><small>ENCONTRE</small><strong>Pessoas da sua vibe</strong><span>Use a música como ponto de encontro para entrar nas comunidades certas.</span></article>
-                <article><small>VOLTE</small><strong>Favoritas e eventos</strong><span>Guarde suas salas preferidas e acompanhe encontros musicais especiais.</span></article>
-              </div>
-            </div>
-            <div class="sf31-rooms-header"><strong id="sf10RoomsHeading">Salas em destaque</strong><span id="sf10RoomsCount">Carregando...</span></div>
-          </section>
+          <div class="sf32-room-counter" aria-live="polite"><strong id="sf10RoomsHeading">Salas para você</strong><span id="sf10RoomsCount">Carregando...</span></div>
           <div class="room-grid" id="roomGrid">
-            <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+            <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
           </div>
+          <details class="sf32-community-drawer">
+            <summary>✦ Comunidade e eventos <span>Amigos, encontros e novidades <b>⌄</b></span></summary>
+            <section id="sfSocialHub" class="sf-social-hub" aria-label="Comunidade SonoraFan">
+              <div class="sf-hub-intro"><div><span class="sf-eyebrow">SONORAFAN COMMUNITY</span><h3>A música conecta a gente.</h3><p>Encontre sua galera e participe de sessões especiais.</p></div><div class="sf-hub-tabs"><button type="button" data-sf-tab="friends" class="active">👥 Amigos</button><button type="button" data-sf-tab="events">📅 Eventos</button></div></div>
+              <div id="sfFriendsPanel" class="sf-hub-panel"><div class="sf-search-row"><input id="sfFriendQuery" type="search" maxlength="40" placeholder="Buscar pessoas pelo nome" aria-label="Buscar pessoas pelo nome"><button id="sfFriendSearch" type="button">Buscar</button></div><div id="sfFriendsList" class="sf-social-results" aria-live="polite">Carregando comunidade...</div><div id="sfFriendSearchResults" class="sf-social-results" aria-live="polite"></div></div>
+              <div id="sfEventsPanel" class="sf-hub-panel" hidden><div class="sf-events-heading"><p>Encontros musicais agendados por quem cria as salas.</p><button id="sfNewEvent" type="button">+ Criar evento</button></div><div id="sfEventsList" class="sf-events-grid" aria-live="polite"></div></div>
+            </section>
+          </details>
         </div>
       </main>
     </div>
@@ -4001,7 +3982,7 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-tour-29.css">
   <script defer src="/sonorafan-tour-29.js"></script>
   <link rel="stylesheet" href="/sonorafan-controls-30.css">
-  <link rel="stylesheet" href="/sonorafan-discovery-31.css">
-  <script defer src="/sonorafan-discovery-31.js"></script>
+  <link rel="stylesheet" href="/sonorafan-indie-32.css">
+  <script defer src="/sonorafan-indie-32.js"></script>
 </body>
 </html>
