@@ -824,8 +824,12 @@
     .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .player-frame { position: relative; background: #000; }
+    .player-frame { position: relative; background: #000; overflow: hidden; }
     .player-frame iframe, .player-frame #youtube-player { display: block; width: 100%; height: auto !important; aspect-ratio: 16 / 9; }
+    /* Bloqueia cliques/toques no iframe: o usuário não consegue acionar o pause do YouTube. */
+    .player-frame iframe { pointer-events: none !important; }
+    .youtube-interaction-shield { position: absolute; inset: 0; z-index: 4; background: transparent; cursor: default; touch-action: pan-y; }
+    .player-frame .sound-gate { position: relative; z-index: 6; }
 
     #spectrum { position: absolute; bottom: 0; left: 0; right: 0; height: 48px; display: flex; align-items: flex-end; gap: 2px; padding: 0 12px; pointer-events: none; z-index: 5; opacity: 0; transition: opacity .6s; mask-image: linear-gradient(to top, #000 30%, transparent); -webkit-mask-image: linear-gradient(to top, #000 30%, transparent); }
     #spectrum.on { opacity: .7; }
@@ -1840,6 +1844,7 @@
             </div>
             <div class="player-frame">
               <div id="youtube-player"></div>
+              <div class="youtube-interaction-shield" aria-hidden="true"></div>
               <div class="buffering-overlay" id="bufferingOverlay"><div class="spinner"></div></div>
               <div id="spectrum" aria-hidden="true"></div>
               <div class="sound-gate" id="soundGate"><button onclick="enableSound()">🔊 Ativar som e entrar na música</button></div>
@@ -2836,7 +2841,15 @@
               $('bufferingOverlay').classList.remove('show'); $('soundGate').classList.remove('show');
               setSpectrum(true);
             }
-            if (e.data === YT.PlayerState.PAUSED) setSpectrum(false);
+            if (e.data === YT.PlayerState.PAUSED) {
+              setSpectrum(false);
+              // Se a pausa vier de um controle externo ao player, retoma a faixa da sala.
+              setTimeout(() => {
+                if (currentRoom && currentRoomData && currentTrackId && player && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PAUSED) {
+                  try { player.playVideo(); } catch(e) {}
+                }
+              }, 350);
+            }
             if (e.data === YT.PlayerState.BUFFERING) $('bufferingOverlay').classList.add('show');
             if (e.data === YT.PlayerState.ENDED) { setSpectrum(false); socket.emit('videoEnded'); }
           },
