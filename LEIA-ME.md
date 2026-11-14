@@ -1,32 +1,37 @@
-# SonoraFan 16.0 — Pacote consolidado de arquivos atualizados
+# SonoraFan — Etapa 1/4: Estabilidade e Sincronização (13.0)
 
-Este ZIP reúne os arquivos de código mais recentes das atualizações anteriores, para instalação sem ter que aplicar os pacotes incrementalmente. Não inclui dados pessoais, credenciais nem o arquivo `.env`.
+**Base:** versão 12.0 Admin Control Center com estilos da 11.1 mantidos.
 
-## Instalação
+## Arquivos modificados
 
-1. Faça um backup do projeto em execução e do seu `.env`.
-2. Extraia este ZIP **na pasta raiz do projeto**, preservando a estrutura `public/`.
-3. Substitua o `server.js` existente pelo deste pacote.
-4. Substitua `public/index.html` e copie os arquivos `.css` e `.js` incluídos em `public/`.
-5. Mantenha os arquivos anteriores não incluídos (por exemplo `package.json`, `package-lock.json`, `room-settings.js`, `.env` e outros do seu deploy).
-6. Reinicie o servidor para carregar o backend atualizado.
-7. Faça um recarregamento completo do navegador (Ctrl+F5) e confira o painel, o chat, a busca de músicas e o fluxo da reprodução.
+- `public/index.html` — substituir.
+- `server.js` — substituir e reiniciar o servidor.
 
-## Versões e dependências
+Os demais CSS e JS existentes permanecem como estão.
 
-- `public/index.html`: versão 16.0 (mais recente).
-- `server.js`: versão 15.0 (última etapa que alterou o backend; a versão 16 não o mudou).
-- `public/sonorafan-11.css`: revisão 11.1 (chat e Convidar).
-- Demais assets `.css` e `.js`: versões pertinentes a cada funcionalidade acumulada (player, sala, descoberta, comunidade, administração, música, notificações e visual).
+## Alterações
 
-## Arquivos que não estão neste ZIP
+- API do YouTube carregada apenas uma vez por sessão de página.
+- Cancelamento dos temporizadores antigos ao trocar de faixa/sair da sala, evitando executar comandos numa música posterior.
+- Eventos `videoEnded` incluem ID da música; servidor ignora eventos atrasados de outra faixa.
+- Ao receber `roomState`, o estado da sala fica disponível mesmo antes do carregamento do player.
+- Reconexão só refaz a entrada se o usuário ainda estiver na mesma sala; aviso de desconexão mantido.
+- Verificação de áudio quando o navegador bloqueia autoplay; volume definido pelo usuário preservado.
+- Ressincronização não busca posições inválidas depois do término estimado da música.
 
-O projeto original utiliza também `public/manifest.json`, `public/icon.svg`, `package.json`, `package-lock.json` e `room-settings.js`. Esses arquivos não são parte das atualizações consolidadas. **Mantenha os seus**. `icon.svg` não havia sido enviado nos anexos anteriores.
+## Como validar
 
-## Validação
+1. Suba o servidor em ambiente de desenvolvimento com variáveis Firebase corretas.
+2. Entre em uma sala com duas sessões de navegador.
+3. Coloque ao menos quatro faixas e deixe avançar automaticamente sem tocar no volume.
+4. Desconecte e reconecte uma sessão; confirme que volta à sala atual sem iniciar música antiga.
+5. Teste com o navegador bloqueando autoplay e confirme que o botão **Ativar som** aparece quando necessário.
+6. Verifique o Console do navegador e logs do servidor ao pular/encerrar faixas.
 
-Sintaxe do servidor e dos arquivos JavaScript externos conferida com `node --check`; scripts inline do HTML também conferidos. As referências CSS/JS locais do HTML correspondem aos arquivos presentes neste pacote. O ZIP foi testado quanto à integridade. **Não foram realizados testes completos de integração com Firebase, YouTube e Socket.IO em produção**.
+**Limitação:** verificações locais de sintaxe e de consistência de código não substituem testes reais com YouTube/Firebase e múltiplos usuários. O teste completo de `npm test` depende de `tests/run.js`, que não foi enviado no projeto original.
 
-## Atenção
+## Próximas etapas
 
-Esta entrega substitui todos os ZIPs incrementais anteriores para fins de atualização de arquivos, mas **não é um projeto autônomo**: mantenha os arquivos originais do seu repositório. O admin global é destinado à conta `admin@sonora.com`.
+- **Etapa 2 — Música:** fila inteligente, pedidos justos, votação e modo DJ, incluindo novas regras no servidor.
+- **Etapa 3 — Comunidade:** notificações sociais e melhorias de convivência com privacidade.
+- **Etapa 4 — Visual e performance:** reorganização gradual do CSS/JS acumulado e temas consistentes.
