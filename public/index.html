@@ -1875,12 +1875,6 @@
           <button type="button" onclick="doLogout()">⇥ <span>Sair</span></button>
         </nav>
         <div class="sf33-sidebar-art" aria-hidden="true"><img src="/art-33/speakers.webp" loading="lazy" alt="" width="480" height="392"></div>
-        <div class="sf28-sidebar-card">
-          <span>✦</span>
-          <strong>A música aproxima.</strong>
-          <small>Descubra salas, conecte pessoas e viva experiências em tempo real.</small>
-          <button type="button" onclick="showCreateRoom()">Criar nova sala</button>
-        </div>
       </aside>
       <main class="sf28-lobby-main">
         <div class="header sf28-lobby-header sf32-header">
@@ -1992,7 +1986,6 @@
           <button type="button" onclick="leaveRoom()">⇥ <span>Sair da Sala</span></button>
         </nav>
         <div class="sf33-room-nav-art" aria-hidden="true"><img src="/art-33/speakers.webp" loading="lazy" alt="" width="480" height="392"></div>
-        <div class="sf5-sidebar-card"><span>✦</span><strong>A música aproxima.</strong><small>Conecte pessoas, músicas e histórias.</small></div>
         <div class="sf5-side-waves" aria-hidden="true"></div>
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
@@ -2932,12 +2925,16 @@
         roomsData.forEach(r => {
           const card = document.createElement('div');
           card.className = 'room-card' + (r.isPlaying ? ' live' : '');
-          if (r.currentTrack && r.currentTrack.id) card.style.backgroundImage = `url(https://img.youtube.com/vi/${r.currentTrack.id}/maxresdefault.jpg)`;
-          card.onclick = () => joinRoom(r.slug);
           const track = r.currentTrack;
+          const trackThumb = track && track.id ? `https://img.youtube.com/vi/${track.id}/hqdefault.jpg` : '';
+          if (trackThumb) card.style.backgroundImage = `url(${trackThumb})`;
+          card.dataset.hasTrack = trackThumb ? '1' : '0';
+          card.onclick = () => joinRoom(r.slug);
           const live = r.isPlaying ? '<div class="room-live-badge"><span class="live-dot"></span> AO VIVO</div>' : '';
           const playingIndicator = r.isPlaying ? `<div class="playing-indicator"><span></span><span></span><span></span><span></span></div>` : '';
-          card.innerHTML = `${live}<div class="room-listeners-badge">🎧 ${r.listenerCount || 0}</div>${playingIndicator}
+          const roomVisual = trackThumb ? `<div class="sf36-room-visual"><img src="${trackThumb}" alt="Capa do que está tocando em ${escapeHtml(r.name)}" loading="lazy"></div>` : '';
+          const nowPlaying = track ? `<div class="sf36-room-now"><img src="https://img.youtube.com/vi/${track.id}/default.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div class="sf36-room-now-copy"><small>Tocando agora</small><strong>${escapeHtml(track.title || 'Música')}</strong><span>${escapeHtml(track.artist || 'Ao vivo na sala')}</span></div></div>` : `<div class="sf36-room-idle">Entre e comece a trilha da sala</div>`;
+          card.innerHTML = `${live}<div class="room-listeners-badge">🎧 ${r.listenerCount || 0}</div>${playingIndicator}${roomVisual}
             <div class="room-card-body">
               <h3>${escapeHtml(r.emoji || '')} ${escapeHtml(r.name)} ${r.radioMode ? '📻' : ''}</h3>
               ${r.description ? `<div class="np" style="margin:2px 0 6px;">${escapeHtml(r.description)}</div>` : ''}
@@ -2948,7 +2945,7 @@
                 ${r.isPrivate ? '<span class="genre-tag">🔒 Privada</span>' : ''}
                 ${r.allowLive ? '<span class="genre-tag" style="background:rgba(239,68,68,.25);color:#fca5a5;font-weight:700;">🔴 LIVE</span>' : ''}
               </div>
-              ${track ? `<div class="np">▶ ${escapeHtml(track.title || '')}</div>` : ''}
+              ${nowPlaying}
             </div>`;
           grid.appendChild(card);
         });
@@ -4016,5 +4013,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-stage-34.js"></script>
   <link rel="stylesheet" href="/sonorafan-refino-35.css">
   <script defer src="/sonorafan-refino-35.js"></script>
+  <link rel="stylesheet" href="/sonorafan-next-36.css">
 </body>
 </html>

@@ -1,0 +1,57 @@
+/* SonoraFan 36.0 — next level da descoberta e da barra lateral */
+/* remove blocos promocionais sem função prática */
+#screen-lobby .sf28-sidebar-card,
+#screen-room .sf5-sidebar-card{display:none!important}
+#screen-lobby .sf33-sidebar-art{margin-top:auto;padding-top:10px}
+#screen-room .sf33-room-nav-art{margin-top:auto;padding-top:10px}
+
+/* convidar amigos alinhado com os outros itens do menu */
+#screen-room .sf5-navigation .sf29-side-invite{
+  display:flex;align-items:center;gap:10px;width:100%;
+  min-height:46px;padding:12px 14px;border-radius:14px;
+  font-size:15px;font-weight:600;line-height:1.15;letter-spacing:0;
+}
+#screen-room .sf5-navigation .sf29-side-invite span{font-size:15px;font-weight:600;line-height:1.15}
+#screen-room .sf5-navigation .sf29-side-invite[title]{text-transform:none}
+
+/* cards de sala com thumbnail real do que toca agora */
+#screen-lobby .room-card[data-has-track="1"]{
+  background-size:cover;background-position:center;
+}
+#screen-lobby .room-card[data-has-track="1"]::before{
+  background:linear-gradient(180deg, rgba(6,5,15,.10) 0%, rgba(6,5,15,.26) 28%, rgba(6,5,15,.74) 62%, rgba(6,5,15,.95) 100%);
+}
+#screen-lobby .sf36-room-visual{
+  position:absolute;inset:14px 14px auto auto;z-index:2;width:110px;height:74px;
+  border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.15);
+  box-shadow:0 10px 26px rgba(0,0,0,.34), 0 0 0 1px rgba(255,255,255,.03) inset;
+  background:rgba(15,10,25,.8);backdrop-filter:blur(6px)
+}
+#screen-lobby .sf36-room-visual img{width:100%;height:100%;object-fit:cover;display:block}
+#screen-lobby .sf36-room-now{
+  display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center;
+  margin-top:12px;padding:10px 12px;border-radius:14px;
+  background:rgba(8,6,18,.58);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px)
+}
+#screen-lobby .sf36-room-now img{width:44px;height:44px;border-radius:10px;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,.22)}
+#screen-lobby .sf36-room-now-copy{min-width:0;display:grid;gap:2px}
+#screen-lobby .sf36-room-now-copy small{font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#f3c2d7}
+#screen-lobby .sf36-room-now-copy strong{font-size:13px;line-height:1.2;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#screen-lobby .sf36-room-now-copy span{font-size:12px;color:rgba(255,255,255,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#screen-lobby .sf36-room-idle{margin-top:12px;padding:12px 14px;border-radius:14px;background:rgba(8,6,18,.42);border:1px dashed rgba(255,255,255,.12);font-size:12px;color:rgba(255,255,255,.7)}
+#screen-lobby .room-card .np{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+#screen-lobby .room-card-body h3{padding-right:116px}
+
+/* pequenos ajustes de layout */
+#screen-lobby .sf32-room-counter{margin-bottom:12px}
+#screen-room .sf5-navigation button, #screen-lobby .sf28-sidebar-nav button{font-size:15px}
+
+@media (max-width: 860px){
+  #screen-lobby .sf36-room-visual{width:92px;height:62px;right:12px;top:12px}
+  #screen-lobby .room-card-body h3{padding-right:98px}
+}
+@media (max-width: 640px){
+  #screen-lobby .sf36-room-visual{position:relative;inset:auto;width:100%;height:136px;margin:0 0 12px}
+  #screen-lobby .room-card-body h3{padding-right:0}
+  #screen-lobby .sf36-room-now{grid-template-columns:40px minmax(0,1fr)}
+}
