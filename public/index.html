@@ -1894,9 +1894,10 @@
         </div>
         <div class="lobby sf28-lobby-content sf32-content">
           <section class="sf32-discovery sf33-discovery" aria-label="Descobrir salas e estilos musicais">
-            <div class="sf33-banner">
-              <img src="/art-33/hero-banner.webp" alt="SonoraFan. Música, gente e boas vibrações na mesma sala. Ilustração de uma mulher com fones de ouvido, guitarras e flores de festival." width="1220" height="398" decoding="async" fetchpriority="high">
-              <span class="sf33-banner-stamp" aria-hidden="true">✶  TODO MUNDO É DJ</span>
+            <div class="sf33-banner sf41-hero-banner">
+              <img src="/art-41/festival-noite.webp" alt="Ilustração de festival com palco, músicos, vinil e flores em cores vibrantes" width="1500" height="502" decoding="async" fetchpriority="high">
+              <div class="sf41-hero-copy"><span>SONORAFAN · SUA VIBE</span><strong>A música acontece aqui.</strong><small>Entre em uma sala, conheça a galera e escolha a próxima música.</small></div>
+              <span class="sf33-banner-stamp" aria-hidden="true">✶ TODO MUNDO É DJ</span>
             </div>
             <div class="sf33-discovery-controls">
               <div class="sf10-discovery-controls sf32-search-controls">
@@ -1929,13 +1930,17 @@
                 </div>
                 <div class="sf40-panel sf40-panel-events">
                   <div class="sf40-panel-head">
-                    <div><span class="sf40-kicker">AGENDA</span><h3>Sessões em destaque</h3></div>
+                    <div><span class="sf40-kicker">EVENTOS REAIS</span><h3>Agenda da comunidade</h3></div>
                     <button type="button" class="sf40-mini-action" id="sf40OpenEvents">Ver eventos</button>
                   </div>
                   <div class="sf40-event-grid" id="sf40EventsCompact"></div>
                 </div>
               </section>
             </div>
+          </section>
+          <section class="sf41-playing" id="sf41Playing" aria-label="Músicas tocando agora" hidden>
+            <div class="sf41-playing-head"><span class="sf41-playing-dot" aria-hidden="true"></span><strong>Agora nas salas</strong><small>Músicas escolhidas pela comunidade, ao vivo</small></div>
+            <div class="sf41-playing-list" id="sf41PlayingList"></div>
           </section>
           <div class="sf32-rooms-title lobby-top">
             <div><span class="sf32-overline">ENCONTROS MUSICAIS</span><h2 data-i18n="lobby.title">Salas disponíveis <span aria-hidden="true">✳</span></h2></div>
@@ -2944,7 +2949,7 @@
         if (!r.ok) throw new Error('Erro');
         const roomsData = await r.json();
         sf39UpdateRoomPulse(roomsData);
-        if (!roomsData.length) { grid.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Nenhuma sala ainda. Crie a primeira!</p></div>'; return; }
+        if (!roomsData.length) { window.sf41UpdateRooms?.([]); grid.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Nenhuma sala ainda. Crie a primeira!</p></div>'; return; }
         roomsData.sort((a,b) => b.listenerCount - a.listenerCount);
         grid.innerHTML = '';
         roomsData.forEach(r => {
@@ -2979,7 +2984,10 @@
                 ${r.allowLive ? '<span class="genre-tag">🔴 Live</span>' : ''}
               </div>
               ${nowPlaying}
+              <button class="sf41-room-share" type="button" aria-label="Copiar link desta sala" title="Copiar link da sala">↗ Compartilhar</button>
             </div>`;
+          const shareBtn = card.querySelector('.sf41-room-share');
+          if (shareBtn) shareBtn.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); window.sf41ShareRoom?.(r.slug); });
           const img = card.querySelector('.sf37-room-media img');
           if (img && videoId) {
             img.addEventListener('error', () => {
@@ -2995,7 +3003,8 @@
           grid.appendChild(card);
         });
         window.sf10DecorateRooms?.(roomsData);
-      } catch(e) { sf39UpdateRoomPulse(null); grid.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Erro ao carregar salas.</p></div>'; }
+        window.sf41UpdateRooms?.(roomsData);
+      } catch(e) { sf39UpdateRoomPulse(null); window.sf41UpdateRooms?.(null); grid.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Erro ao carregar salas.</p></div>'; }
     }
     function showCreateRoom() {
       const opts = $('adminRoomOptions');
@@ -4073,6 +4082,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-ui-38.js"></script>
   <script defer src="/sonorafan-music-39.js"></script>
   <link rel="stylesheet" href="/sonorafan-lobby-40.css">
-  <script defer src="/sonorafan-lobby-40.js"></script>
+  <script defer src="/sonorafan-lobby-41.js"></script>
+  <link rel="stylesheet" href="/sonorafan-lobby-41.css">
 </body>
 </html>
