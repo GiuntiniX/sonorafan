@@ -1929,7 +1929,7 @@
               <button onclick="joinRandomRoom()" data-i18n="lobby.random">🎲 Sala aleatória</button>
             </div>
           </div>
-          <div class="sf32-room-counter" aria-live="polite"><strong id="sf10RoomsHeading">Salas para você</strong><span id="sf10RoomsCount">Carregando...</span></div>
+          <div class="sf32-room-counter sf39-room-counter" aria-live="polite"><strong id="sf10RoomsHeading">Salas para você</strong><div class="sf39-lobby-meta"><span class="sf39-room-pulse" id="sf39RoomPulse" role="status">Atualizando salas…</span><span id="sf10RoomsCount">Carregando...</span></div></div>
           <div class="room-grid" id="roomGrid">
             <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
           </div>
@@ -2000,6 +2000,7 @@
             </div>
           </div>
           <div class="premium-queue-summary"><span id="premiumQueueDuration">Sua seleção coletiva</span><span id="premiumQueueNext">Próximas faixas</span></div>
+          <div class="sf39-queue-insight" id="sf39QueueInsight" role="status" aria-live="polite"><span class="sf39-status-dot" aria-hidden="true"></span><span id="sf39QueueInsightText">Aguardando a primeira música</span></div>
           <div class="queue-list" id="queueList"></div>
           <div id="waitingQueueLabel" class="waiting-queue-label hidden">⏳ Fila de espera:</div>
           <div class="queue-list" id="waitingQueueList" style="max-height:120px;overflow-y:auto;padding:4px 12px 12px;border-top:1px solid var(--border);"></div>
@@ -2909,6 +2910,15 @@
     }
 
     // ===== LOBBY =====
+    // Status calculado exclusivamente com dados reais retornados por /api/rooms.
+    function sf39UpdateRoomPulse(rooms) {
+      const el = $('sf39RoomPulse'); if (!el) return;
+      if (!Array.isArray(rooms)) { el.textContent = 'Status indisponível'; el.classList.remove('sf39-has-live'); return; }
+      const live = rooms.filter(r => r.isPlaying).length;
+      const listeners = rooms.reduce((n, r) => n + Math.max(0, Number(r.listenerCount) || 0), 0);
+      el.textContent = live ? `${live} ${live === 1 ? 'sala tocando' : 'salas tocando'} · ${listeners} ${listeners === 1 ? 'ouvinte' : 'ouvintes'}` : 'Nenhuma sala tocando agora';
+      el.classList.toggle('sf39-has-live', live > 0);
+    }
     async function loadRooms() {
       const grid = $('roomGrid');
       if (!grid.querySelector('.room-card')) grid.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
@@ -2919,6 +2929,7 @@
         clearTimeout(timeout);
         if (!r.ok) throw new Error('Erro');
         const roomsData = await r.json();
+        sf39UpdateRoomPulse(roomsData);
         if (!roomsData.length) { grid.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Nenhuma sala ainda. Crie a primeira!</p></div>'; return; }
         roomsData.sort((a,b) => b.listenerCount - a.listenerCount);
         grid.innerHTML = '';
@@ -2970,7 +2981,7 @@
           grid.appendChild(card);
         });
         window.sf10DecorateRooms?.(roomsData);
-      } catch(e) { grid.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Erro ao carregar salas.</p></div>'; }
+      } catch(e) { sf39UpdateRoomPulse(null); grid.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Erro ao carregar salas.</p></div>'; }
     }
     function showCreateRoom() {
       const opts = $('adminRoomOptions');
@@ -3257,10 +3268,22 @@ function openRoomCfg() {
     }
     function removePinnedMessage() { if (!amIAdmin) return; socket.emit('removePinnedMessage'); }
 
+    function sf39QueueInsight(queue, currentIndex) {
+      const el = $('sf39QueueInsightText'); if (!el) return;
+      if (!Array.isArray(queue) || !queue.length) { el.textContent = 'A fila está livre. Escolha a primeira música ✦'; return; }
+      const after = Math.max(0, queue.length - Math.max(0, currentIndex) - 1);
+      const next = queue[Math.max(0, currentIndex) + 1];
+      el.textContent = next
+        ? `${after} ${after === 1 ? 'próxima faixa' : 'próximas faixas'} · A seguir: ${String(next.title || 'Música').slice(0, 72)}`
+        : 'A última música da fila está tocando · Adicione a próxima ✦';
+    }
     function renderQueue(queue, currentIndex) {
       const list = $('queueList');
       const count = $('queueCount');
+      const index = Number.isInteger(currentIndex) ? currentIndex : 0;
       count.textContent = queue.length + ' música' + (queue.length !== 1 ? 's' : '');
+      sf39QueueInsight(queue, index);
+      list.setAttribute('role', 'list');
       list.innerHTML = '';
       if (queue.length === 0) {
         list.innerHTML = `<div class="empty-state-mini">
@@ -3272,24 +3295,34 @@ function openRoomCfg() {
       }
       const isUserAdmin = amIAdmin || (currentUser && currentUser.email === 'admin@sonora.com');
       queue.forEach((track, i) => {
+        const isCurrent = i === index, isNext = i === index + 1;
         const div = document.createElement('div');
-        div.className = 'queue-item' + (i === currentIndex ? ' current' : '');
-        if (i !== currentIndex && isUserAdmin) {
+        div.className = 'queue-item sf39-queue-item' + (isCurrent ? ' current' : '') + (isNext ? ' sf39-next' : '');
+        div.setAttribute('role','listitem');
+        if (!isCurrent && isUserAdmin) {
           div.draggable = true;
           div.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', i); div.classList.add('dragging'); });
           div.addEventListener('dragend', () => div.classList.remove('dragging'));
           div.addEventListener('dragover', (e) => e.preventDefault());
-          div.addEventListener('drop', (e) => { e.preventDefault(); const from = parseInt(e.dataTransfer.getData('text/plain')); if (from === i || from === currentIndex) return; const newOrder = queue.map(t => t.id); const [removed] = newOrder.splice(from, 1); newOrder.splice(i, 0, removed); socket.emit('reorderQueue', newOrder); });
+          div.addEventListener('drop', (e) => { e.preventDefault(); const from = parseInt(e.dataTransfer.getData('text/plain')); if (from === i || from === index) return; const newOrder = queue.map(t => t.id); const [removed] = newOrder.splice(from, 1); newOrder.splice(i, 0, removed); socket.emit('reorderQueue', newOrder); });
         }
         const votes = queueVotes[track.id] || { up: [], down: [] };
-        const upCount = votes.up.length, downCount = votes.down.length;
-        const userVotedUp = votes.up.includes(myName), userVotedDown = votes.down.includes(myName);
+        const up = Array.isArray(votes.up) ? votes.up : [], down = Array.isArray(votes.down) ? votes.down : [];
+        const upCount = up.length, downCount = down.length;
+        const userVotedUp = up.includes(myName), userVotedDown = down.includes(myName);
         const total = upCount + downCount, score = upCount - downCount;
         let scoreClass = '', scoreSymbol = '⚪';
         if (score > 0) { scoreClass = 'positive'; scoreSymbol = '👍'; }
         if (score < 0) { scoreClass = 'negative'; scoreSymbol = '👎'; }
-        const votesHtml = (i === currentIndex) ? '' : `<div class="queue-votes"><button class="vote-btn up ${userVotedUp ? 'voted-up' : ''}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'up')" data-id="${escapeHtml(track.id)}">👍</button><span class="vote-count ${scoreClass}">${total > 0 ? scoreSymbol + score : '0'}</span><button class="vote-btn down ${userVotedDown ? 'voted-down' : ''}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'down')" data-id="${escapeHtml(track.id)}">👎</button></div>`;
-        div.innerHTML = `<span class="pos">${i === currentIndex ? '▶' : i + 1}</span><div class="thumb"><img src="https://img.youtube.com/vi/${track.id}/default.jpg" onerror="this.style.display='none'"></div><div class="info"><div class="title">${escapeHtml(track.title || 'Música')}</div><div class="artist">${escapeHtml(track.artist || 'Desconhecido')}</div></div><span class="dj">${escapeHtml(track.dj || '')}</span>${votesHtml}`;
+        const title = escapeHtml(track.title || 'Música');
+        const safeId = typeof track.id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(track.id) ? track.id : '';
+        const safeVoteId = escapeHtml(track.id || '');
+        const thumbnail = safeId ? `<img src="https://img.youtube.com/vi/${safeId}/default.jpg" alt="" loading="lazy" onerror="this.style.display='none'">` : '♫';
+        const phase = isCurrent ? 'TOCANDO' : (isNext ? 'A SEGUIR' : `NA FILA · ${i + 1}`);
+        const who = track.dj ? `<span class="sf39-added-by">por ${escapeHtml(String(track.dj).slice(0,40))}</span>` : '';
+        const votesHtml = isCurrent ? '' : `<div class="queue-votes"><button type="button" class="vote-btn up ${userVotedUp ? 'voted-up' : ''}" title="Votar a favor de ${title}" aria-label="Votar a favor de ${title}" aria-pressed="${userVotedUp}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'up')" data-id="${safeVoteId}">👍</button><span class="vote-count ${scoreClass}" title="Saldo de votos">${total > 0 ? scoreSymbol + score : '0'}</span><button type="button" class="vote-btn down ${userVotedDown ? 'voted-down' : ''}" title="Votar contra ${title}" aria-label="Votar contra ${title}" aria-pressed="${userVotedDown}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'down')" data-id="${safeVoteId}">👎</button></div>`;
+        const share = safeId ? `<button class="sf39-share-track" type="button" data-video="${safeId}" title="Copiar link do YouTube" aria-label="Copiar link de ${title}">↗</button>` : '';
+        div.innerHTML = `<span class="pos">${isCurrent ? '▶' : i + 1}</span><div class="thumb">${thumbnail}</div><div class="info"><div class="sf39-phase">${phase}</div><div class="title">${title}</div><div class="artist">${escapeHtml(track.artist || 'Desconhecido')}</div>${who}</div>${votesHtml}${share}`;
         list.appendChild(div);
       });
     }
@@ -4021,7 +4054,9 @@ function openRoomCfg() {
 
   <script defer src="/sonorafan-wow-26.js"></script>
   <link rel="stylesheet" href="/sonorafan-ui-38.css">
+  <link rel="stylesheet" href="/sonorafan-music-39.css">
   <script defer src="/sonorafan-tour-29.js"></script>
   <script defer src="/sonorafan-ui-38.js"></script>
+  <script defer src="/sonorafan-music-39.js"></script>
 </body>
 </html>
