@@ -1,0 +1,174 @@
+/* SonoraFan 42 — densidade real, prioridade às salas e vídeo em tamanho útil.
+   Uma camada final, isolada, sem modificar YouTube, Firebase ou eventos Socket.IO. */
+:root{--sf42-line:rgba(250,198,230,.17)}
+/* 1. Cabeçalho e banner discretos, busca primeiro e salas reais imediatamente abaixo. */
+#screen-lobby .sf28-lobby-header.sf32-header{
+  position:relative!important;top:auto!important;z-index:1!important;
+  min-height:0!important;padding:12px 22px!important;gap:12px!important;
+  background:rgba(11,7,20,.76)!important
+}
+#screen-lobby .sf28-lobby-headcopy{display:grid!important;gap:3px!important}
+#screen-lobby .sf28-kicker{font-size:9px!important;letter-spacing:.14em!important}
+#screen-lobby .sf28-lobby-headcopy h2{font-size:clamp(18px,1.65vw,25px)!important;line-height:1.1!important;margin:0!important}
+#screen-lobby .sf28-lobby-headcopy p{font-size:11px!important;line-height:1.3!important;margin:0!important}
+#screen-lobby .sf28-lobby-userbar .user-info{padding:5px 9px!important;border-radius:13px!important}
+#screen-lobby .sf28-lobby-userbar #userAvatar{width:34px!important;height:34px!important;border-radius:10px!important}
+#screen-lobby .sf28-lobby-content.sf32-content{padding:12px clamp(12px,1.6vw,22px) 32px!important}
+#screen-lobby .sf32-discovery.sf33-discovery{padding:0!important;margin:0!important;gap:0!important;background:transparent!important;border:none!important;box-shadow:none!important}
+#screen-lobby .sf33-banner.sf41-hero-banner{height:clamp(96px,9vw,136px)!important;max-height:136px!important;min-height:0!important;border-radius:16px!important}
+#screen-lobby .sf41-hero-banner img{height:100%!important;object-position:67% 48%!important}
+#screen-lobby .sf41-hero-copy{left:clamp(12px,2vw,26px)!important;max-width:46%!important;gap:3px!important}
+#screen-lobby .sf41-hero-copy span{font-size:9px!important}
+#screen-lobby .sf41-hero-copy strong{font-size:clamp(18px,2vw,29px)!important;line-height:1.04!important}
+#screen-lobby .sf41-hero-copy small{font-size:10px!important;line-height:1.28!important}
+#screen-lobby .sf41-hero-banner .sf33-banner-stamp{padding:5px 8px!important;font-size:9px!important;bottom:8px!important;right:8px!important}
+#screen-lobby .sf33-discovery-controls{margin-top:8px!important;padding:0!important;gap:5px!important;display:grid!important}
+#screen-lobby .sf10-discovery-controls.sf32-search-controls{margin:0!important}
+#screen-lobby .sf32-search-wrap.sf33-search-wrap{width:100%!important}
+#screen-lobby .sf32-search{height:42px!important;min-height:42px!important;max-height:42px!important;padding:6px 12px!important;border-radius:13px!important}
+#screen-lobby .sf32-search input{font-size:13px!important;min-height:28px!important}
+#screen-lobby .sf33-genres-label{display:none!important}
+#screen-lobby .sf32-genres.sf33-genres{display:flex!important;flex-wrap:nowrap!important;gap:6px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:3px 1px 6px!important;margin:0!important;scrollbar-width:thin;scrollbar-color:#775084 transparent}
+#screen-lobby .sf32-genres.sf33-genres button{flex:0 0 auto!important;min-height:31px!important;height:31px!important;padding:5px 10px!important;font-size:11px!important;border-radius:10px!important;white-space:nowrap!important}
+#screen-lobby .sf32-genres.sf33-genres button span{font-size:12px!important}
+#screen-lobby .sf32-rooms-title.lobby-top{margin:8px 0 5px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+#screen-lobby .sf32-rooms-title .sf32-overline{display:none!important}
+#screen-lobby .sf32-rooms-title h2{font-size:clamp(17px,1.5vw,22px)!important;letter-spacing:-.03em!important;line-height:1.15!important;margin:0!important}
+#screen-lobby .sf32-rooms-title .lobby-actions{display:flex!important;gap:6px!important;margin:0!important;flex-wrap:nowrap!important}
+#screen-lobby .sf32-rooms-title .lobby-actions button{min-height:31px!important;padding:6px 10px!important;font-size:11px!important;border-radius:10px!important;white-space:nowrap!important;box-shadow:none!important}
+#screen-lobby .sf32-room-counter.sf39-room-counter{margin:0 0 8px!important;min-height:21px!important;padding:0!important}
+#screen-lobby .sf39-room-counter #sf10RoomsHeading{font-size:11px!important;color:#d9c3da!important;font-weight:600!important}
+#screen-lobby .sf39-room-counter .sf39-room-pulse{padding:4px 7px!important;font-size:10px!important}
+#screen-lobby #roomGrid{margin:0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;align-items:stretch}
+#screen-lobby #roomGrid .sf37-room-card{height:auto!important;min-height:215px!important;border-radius:15px!important}
+#screen-lobby #roomGrid .sf37-room-card .sf37-room-media{height:102px!important;border-radius:12px 12px 0 0!important}
+#screen-lobby #roomGrid .sf37-room-card .room-card-body{padding:10px 12px!important;gap:2px!important}
+#screen-lobby #roomGrid .sf37-room-card .room-card-body h3{font-size:15px!important;margin-bottom:2px!important}
+#screen-lobby #roomGrid .sf37-room-card .room-card-body .meta{gap:5px!important}
+#screen-lobby #roomGrid .sf37-room-card .sf37-room-now{margin-top:5px!important;min-height:0!important;padding:7px 9px!important}
+#screen-lobby #roomGrid .sf37-room-card .sf36-room-now-copy strong{font-size:11px!important}
+#screen-lobby #roomGrid .sf37-room-card .sf41-room-share{margin-top:4px!important;padding:5px 9px!important}
+/* Secondary discovery is AFTER actual available rooms: unobtrusive but functional. */
+#screen-lobby .sf42-explore-more{margin:14px 0 4px;padding-top:10px;border-top:1px solid var(--sf42-line)}
+#screen-lobby .sf42-more-heading{display:flex;align-items:baseline;gap:11px;margin-bottom:8px;flex-wrap:wrap}
+#screen-lobby .sf42-more-heading span{font-size:9px;letter-spacing:.16em;font-weight:800;color:#f2b6d3}
+#screen-lobby .sf42-more-heading strong{font-size:15px;color:#fff0df}
+#screen-lobby .sf40-mosaic{display:grid!important;grid-template-columns:minmax(0,1.45fr) minmax(245px,.8fr)!important;gap:10px!important;margin:0!important;align-items:start!important}
+#screen-lobby .sf40-panel{padding:10px!important;border-radius:15px!important}
+#screen-lobby .sf40-panel-head{margin-bottom:7px!important}
+#screen-lobby .sf40-panel-head h3{font-size:14px!important}
+#screen-lobby .sf40-kicker{font-size:8px!important;margin-bottom:3px!important}
+#screen-lobby .sf40-preset-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+#screen-lobby .sf40-preset{height:67px!important;min-height:67px!important;padding:6px 8px!important;border-radius:10px!important}
+#screen-lobby .sf40-preset img{object-position:center 78%!important;filter:saturate(.82) brightness(.75)}
+#screen-lobby .sf40-preset .sf40-preset-copy .tag{display:none!important}
+#screen-lobby .sf40-preset .sf40-preset-copy strong{font-size:11px!important;margin:0!important;max-height:14px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#screen-lobby .sf40-preset .sf40-preset-copy > span:not(.tag){display:none!important}
+#screen-lobby .sf40-preset .sf41-preset-state{font-size:8px!important;padding:3px 5px!important;right:4px!important;top:4px!important}
+#screen-lobby .sf40-event-grid{gap:6px!important}
+#screen-lobby .sf40-event{grid-template-columns:48px minmax(0,1fr)!important;gap:7px!important;padding:5px!important;min-height:66px!important}
+#screen-lobby .sf40-event img{width:48px!important;height:53px!important}
+#screen-lobby .sf40-event strong{font-size:11px!important}
+#screen-lobby .sf40-event p{display:none!important}
+#screen-lobby .sf40-event .sf41-event-meta{font-size:9px!important;margin:3px 0!important}
+#screen-lobby .sf40-event .sf41-event-actions button{font-size:9px!important;padding:4px 7px!important}
+#screen-lobby .sf41-events-empty{min-height:76px!important;padding:10px!important}
+#screen-lobby .sf41-playing{margin:0 0 10px!important;min-height:67px!important;padding:7px 10px!important;gap:10px!important}
+#screen-lobby .sf41-playing-head{flex-basis:110px!important}
+#screen-lobby .sf41-playing-head small{display:none!important}
+#screen-lobby .sf41-live-track{min-height:49px!important}
+#screen-lobby .sf41-live-track img{width:48px!important;height:38px!important;flex-basis:48px!important}
+#screen-lobby .sf32-community-drawer{margin-top:10px!important}
+/* 2. Real YouTube frame: enlarged center column, natural content height and top alignment. */
+@media(min-width:1400px){
+ #screen-room .room-layout{grid-template-columns:minmax(185px,.76fr) minmax(500px,1.93fr) minmax(225px,.88fr)!important;gap:9px!important;padding:0 9px 9px!important}
+ #screen-room .sf34-room-title{padding:4px 8px!important}
+}
+@media(min-width:1025px) and (max-width:1399px){
+ #screen-room .room-layout{grid-template-columns:minmax(205px,.72fr) minmax(420px,1.55fr)!important;grid-template-rows:46px minmax(365px,1fr) minmax(180px,.42fr)!important;gap:8px!important}
+}
+@media(min-width:1025px){
+ #screen-room .player-column.sf34-player-column{
+   height:max-content!important;max-height:100%!important;min-height:0!important;align-self:start!important;
+   justify-content:flex-start!important;overflow:hidden!important;padding:0!important
+ }
+ #screen-room .player-column.sf34-player-column .player-section{
+   height:auto!important;max-height:none!important;min-height:0!important;
+   flex:0 0 auto!important;justify-content:flex-start!important;overflow:visible!important
+ }
+ #screen-room .player-column.sf34-player-column .player-frame{
+   flex:0 0 auto!important;width:100%!important;height:auto!important;max-height:none!important;
+   min-height:0!important;margin:0!important;aspect-ratio:16/9!important
+ }
+ #screen-room .player-column.sf34-player-column .player-section .progress-section{
+   flex:0 0 auto!important;min-height:58px!important;padding:8px 10px!important;
+ }
+ #screen-room .player-column.sf34-player-column .player-section .volume-control{max-width:420px!important;min-width:0!important;gap:7px!important}
+ #screen-room .player-column.sf34-player-column .sf30-player-actions{gap:6px!important}
+ #screen-room .player-column.sf34-player-column .sf30-player-actions button{min-height:33px!important;padding:6px 9px!important}
+ #screen-room .player-column.sf34-player-column .progress-section .progress-time{display:none!important}
+}
+/* Mobile: no squashed viewport, full-width video, keep existing controls and tabs. */
+@media(max-width:1024px){
+ #screen-room .player-column.sf34-player-column{justify-content:flex-start!important}
+ #screen-room .player-column.sf34-player-column .player-section{justify-content:flex-start!important;flex:0 0 auto!important}
+ #screen-room .player-column.sf34-player-column .player-frame{max-height:none!important;width:100%!important;aspect-ratio:16/9!important}
+ #screen-lobby .sf40-mosaic{grid-template-columns:1fr!important}
+}
+@media(min-width:721px) and (max-width:1150px){
+ #screen-lobby #roomGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #screen-lobby .sf40-preset-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+@media(max-width:720px){
+ #screen-lobby .sf28-lobby-header.sf32-header{padding:9px 12px!important}
+ #screen-lobby .sf28-lobby-headcopy h2{font-size:18px!important}
+ #screen-lobby .sf28-lobby-headcopy p{display:none!important}
+ #screen-lobby .sf28-lobby-content.sf32-content{padding:8px 10px 95px!important}
+ #screen-lobby .sf33-banner.sf41-hero-banner{height:87px!important;min-height:0!important;max-height:87px!important;border-radius:12px!important}
+ #screen-lobby .sf41-hero-copy{max-width:59%!important;left:10px!important}
+ #screen-lobby .sf41-hero-copy span{display:none!important}
+ #screen-lobby .sf41-hero-copy strong{font-size:16px!important}
+ #screen-lobby .sf41-hero-copy small{display:none!important}
+ #screen-lobby .sf41-hero-banner .sf33-banner-stamp{display:none!important}
+ #screen-lobby .sf32-search{height:41px!important;min-height:41px!important}
+ #screen-lobby .sf32-genres.sf33-genres{padding-bottom:4px!important}
+ #screen-lobby .sf32-rooms-title.lobby-top{flex-wrap:wrap!important;gap:6px!important}
+ #screen-lobby .sf32-rooms-title h2{font-size:17px!important}
+ #screen-lobby .sf32-rooms-title .lobby-actions button{font-size:10px!important;padding:6px 8px!important}
+ #screen-lobby #roomGrid{grid-template-columns:1fr!important;gap:8px!important}
+ #screen-lobby #roomGrid .sf37-room-card{min-height:206px!important}
+ #screen-lobby #roomGrid .sf37-room-card .sf37-room-media{height:101px!important}
+ #screen-lobby .sf40-mosaic{display:grid!important;grid-template-columns:1fr!important}
+ #screen-lobby .sf40-preset-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #screen-lobby .sf40-preset{height:65px!important;min-height:65px!important}
+ #screen-lobby .sf41-playing{flex-direction:column!important;align-items:stretch!important}
+ #screen-lobby .sf41-playing-head{flex:0 0 auto!important}
+ #screen-room .player-column.sf34-player-column{height:auto!important}
+}
+@media(prefers-reduced-motion:reduce){#screen-lobby .sf40-preset{transition:none!important}}
+/* Não deixar padding e a base flex antiga empurrarem botões para fora do painel. */
+#screen-room .sf34-player-column .player-section .progress-section{
+  box-sizing:border-box!important;width:100%!important;max-width:100%!important
+}
+#screen-room .sf5-navigation .sf29-side-invite,
+#screen-room .sf5-navigation .sf29-side-invite span{white-space:nowrap!important;font-size:13px!important}
+@media(max-width:768px){
+  #screen-room .sf34-player-column .player-section .progress-section{
+    display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+    align-items:stretch!important;gap:8px!important;min-height:0!important;height:auto!important;
+    padding:9px 10px!important
+  }
+  #screen-room .sf34-player-column .player-section .volume-control{
+    flex:0 0 27px!important;max-height:27px!important;height:27px!important;
+    width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;
+    justify-content:flex-start!important;gap:8px!important
+  }
+  #screen-room .sf34-player-column .player-section .sf30-player-actions{
+    display:flex!important;flex:0 0 auto!important;align-items:stretch!important;gap:7px!important;
+    width:100%!important;min-height:0!important;margin:0!important
+  }
+  #screen-room .sf34-player-column .sf30-player-actions button{
+    flex:1 1 0!important;min-width:0!important;min-height:34px!important;
+    padding:6px 8px!important
+  }
+}

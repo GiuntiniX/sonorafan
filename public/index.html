@@ -1878,9 +1878,9 @@
       <main class="sf28-lobby-main">
         <div class="header sf28-lobby-header sf32-header">
           <div class="header-left sf28-lobby-headcopy">
-            <span class="sf28-kicker">SONORAFAN / SUA VIBE, SEU SOM</span>
-            <h2>Encontre sua próxima <em>vibe.</em></h2>
-            <p>Música boa, gente interessante e salas feitas para ouvir juntos.</p>
+            <span class="sf28-kicker">SONORAFAN · AO VIVO</span>
+            <h2>Descubra salas <em>e músicas.</em></h2>
+            <p>Escolha uma sala e participe da playlist.</p>
           </div>
           <div class="header-right sf28-lobby-userbar">
             <div class="user-info" id="userInfo">
@@ -1920,6 +1920,27 @@
                 <button type="button" data-sf32-genre="mpb"><span>♫</span>MPB</button>
                 <button type="button" data-sf32-genre="pagode"><span>◉</span>Pagode</button>
               </div>
+
+            </div>
+          </section>
+
+          <div class="sf32-rooms-title lobby-top">
+            <div><span class="sf32-overline">ACONTECENDO AGORA</span><h2 data-i18n="lobby.title">Salas disponíveis <span aria-hidden="true">✳</span></h2></div>
+            <div class="lobby-actions">
+              <button onclick="showCreateRoom()" data-i18n="lobby.newRoom">+ Nova sala</button>
+              <button onclick="joinRandomRoom()" data-i18n="lobby.random">🎲 Sala aleatória</button>
+            </div>
+          </div>
+          <div class="sf32-room-counter sf39-room-counter" aria-live="polite"><strong id="sf10RoomsHeading">Salas para você</strong><div class="sf39-lobby-meta"><span class="sf39-room-pulse" id="sf39RoomPulse" role="status">Atualizando salas…</span><span id="sf10RoomsCount">Carregando...</span></div></div>
+          <div class="room-grid" id="roomGrid">
+            <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+          </div>
+          <section class="sf42-explore-more" aria-label="Outras formas de descobrir música">
+            <div class="sf42-more-heading"><span>✳ CONTINUE EXPLORANDO</span><strong>Salas por estilo e agenda</strong></div>
+          <section class="sf41-playing" id="sf41Playing" aria-label="Músicas tocando agora" hidden>
+            <div class="sf41-playing-head"><span class="sf41-playing-dot" aria-hidden="true"></span><strong>Agora nas salas</strong><small>Músicas escolhidas pela comunidade, ao vivo</small></div>
+            <div class="sf41-playing-list" id="sf41PlayingList"></div>
+          </section>
               <section class="sf40-mosaic" aria-label="Salas prontas e eventos">
                 <div class="sf40-panel">
                   <div class="sf40-panel-head">
@@ -1936,23 +1957,7 @@
                   <div class="sf40-event-grid" id="sf40EventsCompact"></div>
                 </div>
               </section>
-            </div>
           </section>
-          <section class="sf41-playing" id="sf41Playing" aria-label="Músicas tocando agora" hidden>
-            <div class="sf41-playing-head"><span class="sf41-playing-dot" aria-hidden="true"></span><strong>Agora nas salas</strong><small>Músicas escolhidas pela comunidade, ao vivo</small></div>
-            <div class="sf41-playing-list" id="sf41PlayingList"></div>
-          </section>
-          <div class="sf32-rooms-title lobby-top">
-            <div><span class="sf32-overline">ENCONTROS MUSICAIS</span><h2 data-i18n="lobby.title">Salas disponíveis <span aria-hidden="true">✳</span></h2></div>
-            <div class="lobby-actions">
-              <button onclick="showCreateRoom()" data-i18n="lobby.newRoom">+ Nova sala</button>
-              <button onclick="joinRandomRoom()" data-i18n="lobby.random">🎲 Sala aleatória</button>
-            </div>
-          </div>
-          <div class="sf32-room-counter sf39-room-counter" aria-live="polite"><strong id="sf10RoomsHeading">Salas para você</strong><div class="sf39-lobby-meta"><span class="sf39-room-pulse" id="sf39RoomPulse" role="status">Atualizando salas…</span><span id="sf10RoomsCount">Carregando...</span></div></div>
-          <div class="room-grid" id="roomGrid">
-            <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
-          </div>
           <details class="sf32-community-drawer">
             <summary>✦ Comunidade e eventos <span>Amigos, encontros e novidades <b>⌄</b></span></summary>
             <section id="sfSocialHub" class="sf-social-hub" aria-label="Comunidade SonoraFan">
@@ -4084,5 +4089,6 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-lobby-40.css">
   <script defer src="/sonorafan-lobby-41.js"></script>
   <link rel="stylesheet" href="/sonorafan-lobby-41.css">
+  <link rel="stylesheet" href="/sonorafan-layout-42.css">
 </body>
 </html>
