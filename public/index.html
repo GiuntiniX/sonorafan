@@ -1829,13 +1829,7 @@
         <div class="header-right sf9-room-header-actions">
           <button class="action-btn sf9-invite-button" type="button" onclick="copyInviteLink()" title="Copiar convite da sala" aria-label="Copiar convite da sala">🔗 <span>Convidar</span></button>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
-          <details class="sf9-tools-menu" id="sf9ToolsMenu">
-            <summary title="Mais opções" aria-label="Mais opções da sala">⋯ <span>Mais</span></summary>
-            <div class="sf9-tools-dropdown">
-              <button type="button" onclick="openTutorial(0);document.getElementById('sf9ToolsMenu').open=false">❓ <span>Ajuda</span></button>
-              <button class="theme-toggle-btn" type="button" onclick="toggleTheme(event);document.getElementById('sf9ToolsMenu').open=false" title="Alternar tema" id="themeBtnRoom">🌙 <span>Tema</span></button>
-            </div>
-          </details>
+          <button type="button" class="sf11-theme-trigger" id="sf11ThemeButton" aria-haspopup="dialog" aria-expanded="false" onclick="window.sf11ToggleThemes?.(event)">◐ <span>Temas</span></button>
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
         </div>
       </div>
@@ -1870,6 +1864,7 @@
           <div class="queue-list" id="queueList"></div>
           <div id="waitingQueueLabel" class="waiting-queue-label hidden">⏳ Fila de espera:</div>
           <div class="queue-list" id="waitingQueueList" style="max-height:120px;overflow-y:auto;padding:4px 12px 12px;border-top:1px solid var(--border);"></div>
+          <details class="sf11-about-drawer"><summary>ⓘ Sobre esta sala <span>Ver detalhes ▾</span></summary><section class="sf5-about-card" aria-label="Sobre a sala"><div class="sf5-card-heading">ⓘ &nbsp; Sobre a Sala <button type="button" onclick="copyInviteLink()" title="Compartilhar sala">↗</button></div><div class="sf5-about-body"><div class="sf5-about-art">♫</div><div><strong id="sf5AboutName">Sala musical</strong><p id="sf5AboutDescription">Aqui a música nunca para. Venha curtir com a galera!</p><small id="sf5AboutTag">#SonoraFan &nbsp; #AoVivo</small></div></div><div class="sf5-about-stats"><span>♙ <b id="sf5StatsListeners">0</b><small>Ouvintes</small></span><span>♫ <b id="sf5StatsTracks">0</b><small>Na fila</small></span><span>◷ <b>LIVE</b><small>Agora</small></span></div></section></details>
 
         </div>
 
@@ -1895,7 +1890,7 @@
             <div class="player-info">
               <div class="cover" id="trackCover">🎵</div>
               <div class="track-info">
-                <div class="premium-playing-label">AGORA TOCANDO NA SALA <button type="button" class="sf10-request-link" onclick="window.sf10FocusSong?.()">＋ Adicionar música</button></div>
+                <div class="premium-playing-label">AGORA TOCANDO NA SALA</div>
                 <div class="track-title" id="trackTitle">Nenhuma música</div>
                 <div class="track-artist" id="trackArtist">Adicione uma música</div>
                 <div class="track-dj" id="trackDj"></div>
@@ -1971,11 +1966,6 @@
             </div>
           </div>
         </div>
-        <section class="sf5-listening-card" aria-label="Ouvintes da sala">
-          <div class="sf5-card-heading">🟢 &nbsp; Quem está ouvindo? <span id="sf5ListenersCount">0</span></div>
-          <div class="sf5-listeners-body" id="sf5ListenersBody"></div>
-          <div class="sf5-listening-note"><strong>✦ &nbsp; A trilha sonora é melhor juntos!</strong><small>Compartilhe sua vibe com quem está na sala 💜</small></div>
-        </section>
         <section class="sf10-request-card" id="sf10RequestCard" aria-label="Buscar e adicionar músicas à sala">
           <div class="sf10-request-top"><div class="sf10-request-icon">♫</div><div><strong>Escolha a próxima música</strong><small>Procure no YouTube ou cole um link</small></div></div>
           <div class="sf10-request-fields">
@@ -2003,7 +1993,12 @@
           </div>
           <div class="sf10-request-help">Sua escolha entra na playlist compartilhada.</div>
         </section>
-        <section class="sf5-about-card" aria-label="Sobre a sala"><div class="sf5-card-heading">ⓘ &nbsp; Sobre a Sala <button type="button" onclick="copyInviteLink()" title="Compartilhar sala">↗</button></div><div class="sf5-about-body"><div class="sf5-about-art">♫</div><div><strong id="sf5AboutName">Sala musical</strong><p id="sf5AboutDescription">Aqui a música nunca para. Venha curtir com a galera!</p><small id="sf5AboutTag">#SonoraFan &nbsp; #AoVivo</small></div></div><div class="sf5-about-stats"><span>♙ <b id="sf5StatsListeners">0</b><small>Ouvintes</small></span><span>♫ <b id="sf5StatsTracks">0</b><small>Na fila</small></span><span>◷ <b>LIVE</b><small>Agora</small></span></div></section>
+
+        <section class="sf5-listening-card" aria-label="Ouvintes da sala">
+          <div class="sf5-card-heading">🟢 &nbsp; Quem está ouvindo? <span id="sf5ListenersCount">0</span></div>
+          <div class="sf5-listeners-body" id="sf5ListenersBody"></div>
+          <div class="sf5-listening-note"><strong>✦ &nbsp; A trilha sonora é melhor juntos!</strong><small>Compartilhe sua vibe com quem está na sala 💜</small></div>
+        </section>
         </div>
       </div>
       <div class="premium-mini-player" id="premiumMiniPlayer" aria-label="Faixa em reprodução"><div class="premium-mini-cover" id="premiumMiniCover">♫</div><div class="premium-mini-text"><strong id="premiumMiniTitle">Nenhuma música</strong><span id="premiumMiniArtist">Escolha uma música</span></div><span class="premium-mini-live">● LIVE</span><button type="button" onclick="setTab('player')" aria-label="Abrir player">↗</button><div class="premium-mini-progress"><span id="premiumMiniFill"></span></div></div>
@@ -2090,6 +2085,11 @@
   <div class="modal-overlay" id="lbModal" onclick="if(event.target===this)this.classList.remove('active')"><div class="modal" style="max-width:380px;"><h3>🏆 Ranking</h3><div id="lbList" style="margin:12px 0;"></div><div class="modal-actions"><button class="btn-secondary" onclick="$('lbModal').classList.remove('active')">OK</button></div></div></div>
   <div class="users-pop" id="usersPop"></div>
   <div class="theme-pop" id="themePop"></div>
+  <div class="sf11-theme-panel" id="sf11ThemePanel" role="dialog" aria-label="Escolher tema visual" hidden>
+    <div class="sf11-theme-panel-header"><div><strong>Personalize sua vibe</strong><small>Seu estilo, sua sala.</small></div><button type="button" aria-label="Fechar temas" onclick="window.sf11CloseThemes?.()">✕</button></div>
+    <div class="sf11-theme-grid" id="sf11ThemeGrid"></div>
+    <div class="sf11-theme-footer"><button type="button" onclick="openTutorial(0);window.sf11CloseThemes?.()">❔ Ajuda da plataforma</button></div>
+  </div>
   <div class="modal-overlay" id="tutorialModal">
     <div class="modal" style="text-align:center;max-width:440px;">
       <div class="tut-icon" id="tutIcon">🎧</div>
@@ -2436,9 +2436,13 @@
         'forest': { btn:'🌿', bg:'#0f130a', card:'#1c2415', hover:'#2a3420', border:'#3d4a30', text:'#edf3e0', textSec:'#b3c99a', textMuted:'#6b7f56', accent:'#8bc34a', accent2:'#558b2f', bgImage:'none', overlay:'transparent' },
         'high-contrast': { btn:'🟡', bg:'#000000', card:'#1a1a1a', hover:'#333333', border:'#666666', text:'#ffffff', textSec:'#f0f0f0', textMuted:'#aaaaaa', accent:'#ffd700', accent2:'#ffaa00', bgImage:'none', overlay:'transparent' },
         'cherry': { btn:'🌸', bg:'#fcf4f7', card:'#ffffff', hover:'#fce4ec', border:'#f8bbd0', text:'#4a1a2c', textSec:'#7a4b5c', textMuted:'#b08b9a', accent:'#e91e63', accent2:'#ad1457', bgImage:'none', overlay:'transparent' },
+        'winamp': { btn:'🎛️', bg:'#080d13', card:'#15202b', hover:'#233445', border:'#4b6b77', text:'#efffea', textSec:'#b7d9c2', textMuted:'#849e92', accent:'#73e04d', accent2:'#339cb8', bgImage:'none', overlay:'transparent' },
+        'neon': { btn:'🌌', bg:'#090513', card:'#1c1033', hover:'#2c164e', border:'#56307f', text:'#f6eaff', textSec:'#c8aceb', textMuted:'#9378bc', accent:'#fc4eb0', accent2:'#8d43ff', bgImage:'none', overlay:'transparent' },
+        'studio': { btn:'🎚️', bg:'#101418', card:'#1a242b', hover:'#293843', border:'#3d5360', text:'#f1f7f9', textSec:'#b8cad2', textMuted:'#8599a6', accent:'#29c8df', accent2:'#e9a44c', bgImage:'none', overlay:'transparent' },
         'retro': { btn:'📺', bg:'#0f0b06', card:'#1c150d', hover:'#2a1f14', border:'#3d2e1e', text:'#e8c98a', textSec:'#c4a064', textMuted:'#7a633a', accent:'#ffa500', accent2:'#cc8400', bgImage:'none', overlay:'rgba(0,0,0,0.4)' }
       };
       const t = themes[currentTheme] || themes['dark'];
+      document.documentElement.dataset.sfTheme = currentTheme;
       const map = { bg:'--bg', card:'--bg-card', hover:'--bg-hover', border:'--border', text:'--text', textSec:'--text-secondary', textMuted:'--text-muted', accent:'--accent', accent2:'--accent2', overlay:'--bg-overlay' };
       const rs = document.documentElement.style;
       Object.entries(map).forEach(([k, v]) => rs.setProperty(v, t[k]));
@@ -2455,7 +2459,10 @@
       dark: ['Escuro', 'Dark', 'Oscuro', '#050508', '#ff6b35', '#7c3aed'], ocean: ['Oceano', 'Ocean', 'Océano', '#e8f0fe', '#1a73e8', '#0d47a1'],
       sunset: ['Pôr do sol', 'Sunset', 'Atardecer', '#1a0e12', '#ff7b54', '#ffb26b'], forest: ['Floresta', 'Forest', 'Bosque', '#0f130a', '#8bc34a', '#558b2f'],
       'high-contrast': ['Alto contraste', 'High contrast', 'Alto contraste', '#000000', '#ffd700', '#ffaa00'], cherry: ['Cereja', 'Cherry', 'Cereza', '#fcf4f7', '#e91e63', '#ad1457'],
-      retro: ['Retrô', 'Retro', 'Retro', '#0f0b06', '#ffa500', '#cc8400']
+      retro: ['Retrô', 'Retro', 'Retro', '#0f0b06', '#ffa500', '#cc8400'],
+      winamp: ['Winamp Classic', 'Winamp Classic', 'Winamp Classic', '#080d13', '#73e04d', '#339cb8'],
+      neon: ['Neon Nights', 'Neon Nights', 'Neon Nights', '#090513', '#fc4eb0', '#8d43ff'],
+      studio: ['Studio Pro', 'Studio Pro', 'Studio Pro', '#101418', '#29c8df', '#e9a44c']
     };
     function renderThemePop() {
       const i = { pt: 0, en: 1, es: 2 }[currentLang] || 0;
@@ -2578,8 +2585,7 @@
     }
 
     function checkAdmin() {
-      const isAdmin = currentUser && (currentUser.email === 'admin@sonora.com' || amIAdmin);
-      amIAdmin = isAdmin;
+      const isAdmin = !!currentUser && String(currentUser.email || '').toLowerCase() === 'admin@sonora.com';
       ['adminBtn','adminBtnRoom'].forEach(id => { const el = $(id); if(el) el.style.display = isAdmin ? 'flex' : 'none'; });
       $('adminBadge').classList.toggle('hidden', !isAdmin);
       const adminRemoveBtn = $('adminRemoveBtn');
@@ -2643,7 +2649,7 @@
       if (tabId === 'tab-rooms') loadAdminRooms();
     }
     function toggleAdmin() {
-      if (!amIAdmin) return toast('Apenas administradores', 'error');
+      if (!currentUser || String(currentUser.email || '').toLowerCase() !== 'admin@sonora.com') return toast('Painel exclusivo do administrador global', 'error');
       const p = $('adminPanel');
       p.classList.toggle('active');
       if (p.classList.contains('active')) { loadAdminData(); loadAdminUsers(); loadAdminQueues(); loadAdminTopSongs(); }
@@ -2659,7 +2665,7 @@
         const users = await r.json(); const list = $('adminUserList'); const count = $('adminUserCount');
         if (!users.length) { list.innerHTML = '<div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px;">Nenhum usuário</div>'; return; }
         count.textContent = users.length;
-        list.innerHTML = users.map(u => `<div class="admin-user-item"><div><span class="name">${escapeHtml(u.nome)}</span>${u.isAdmin ? '<span class="admin-badge-mini">Admin</span>' : ''}${u.banned ? '<span class="admin-badge-mini" style="background:var(--danger)">Banido</span>' : ''}${u.isMod ? '<span class="admin-badge-mini" style="background:var(--accent2)">Mod</span>' : ''}<div class="email">${escapeHtml(u.email)}</div></div><div class="actions">${!u.isAdmin ? `<button class="promote" data-email="${escapeHtml(u.email)}" onclick="adminPromote(this.dataset.email)">👑</button>` : ''}${u.banned ? `<button class="unban" data-email="${escapeHtml(u.email)}" onclick="adminUnban(this.dataset.email)">♻️</button>` : `<button class="ban" data-email="${escapeHtml(u.email)}" onclick="adminBanUser(this.dataset.email)">⛔</button>`}<button class="delete" data-email="${escapeHtml(u.email)}" onclick="adminDeleteUser(this.dataset.email)">🗑️</button></div></div>`).join('');
+        list.innerHTML = users.map(u => `<div class="admin-user-item"><div><span class="name">${escapeHtml(u.nome)}</span>${u.isAdmin ? '<span class="admin-badge-mini">Admin</span>' : ''}${u.banned ? '<span class="admin-badge-mini" style="background:var(--danger)">Banido</span>' : ''}${u.isMod ? '<span class="admin-badge-mini" style="background:var(--accent2)">Mod</span>' : ''}<div class="email">${escapeHtml(u.email)}</div></div><div class="actions">${!u.isAdmin ? `<button class="promote" data-email="${escapeHtml(u.email)}" onclick="return false">👑</button>` : ''}${u.banned ? `<button class="unban" data-email="${escapeHtml(u.email)}" onclick="adminUnban(this.dataset.email)">♻️</button>` : `<button class="ban" data-email="${escapeHtml(u.email)}" onclick="adminBanUser(this.dataset.email)">⛔</button>`}<button class="delete" data-email="${escapeHtml(u.email)}" onclick="adminDeleteUser(this.dataset.email)">🗑️</button></div></div>`).join('');
       } catch(e) {}
     }
     async function loadAdminQueues() {
@@ -3429,7 +3435,7 @@
     });
     socket.on('votesState', (votesData) => { queueVotes = votesData || {}; if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex); });
     socket.on('error', (msg) => toast(msg, 'error'));
-    socket.on('isAdmin', (isAdmin) => { amIAdmin = isAdmin || currentUser?.email === 'admin@sonora.com'; if (amIAdmin) { $('adminBadge').classList.remove('hidden'); toast('Você é admin!', 'success'); } $('cfgBtn').classList.toggle('hidden', !amIAdmin); checkAdmin(); });
+    socket.on('isAdmin', (isAdmin) => { amIAdmin = !!isAdmin || currentUser?.email === 'admin@sonora.com'; $('cfgBtn').classList.toggle('hidden', !amIAdmin); checkAdmin(); });
     socket.on('kicked', (msg) => { alert(msg); leaveRoom(); });
     socket.on('banned', (msg) => { alert(msg); leaveRoom(); });
     socket.on('chatCleared', () => { const container = document.getElementById('chatMessagesInner'); if (container) { container.innerHTML = ''; const div = document.createElement('div'); div.className = 'msg msg-system'; div.innerHTML = '<span class="msg-text">🧹 Chat limpo</span>'; container.appendChild(div); } toast('Chat limpo!', 'success'); });
@@ -3755,5 +3761,7 @@
   <script defer src="/room-polished-6.js"></script>
   <link rel="stylesheet" href="/room-discovery-10.css">
   <script defer src="/room-discovery-10.js"></script>
+  <link rel="stylesheet" href="/sonorafan-11.css">
+  <script defer src="/sonorafan-11.js"></script>
 </body>
 </html>
