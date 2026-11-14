@@ -1949,14 +1949,14 @@
             <div class="sf18-light-rays" aria-hidden="true"><i></i><i></i><i></i></div>
             <div class="sf18-world-header">
               <div><span class="sf18-overline">Pista SonoraFan</span><h2>Estamos ouvindo juntos <span aria-hidden="true">✨</span></h2></div>
-              <span class="sf18-live"><i></i> AO VIVO</span>
+              <div class="sf19-scene-actions"><span class="sf18-live"><i></i> AO VIVO</span><button id="sf19CustomizeButton" class="sf19-customize-trigger" type="button">✦ Meu avatar</button></div>
             </div>
             <div class="sf18-social-scene">
               <div class="sf18-dj-booth"><span class="sf18-decks" aria-hidden="true">◉ ▰ ◉</span><span class="sf18-host-avatar" id="sf18HostAvatar">🎧</span><div><small>ANFITRIÃO DA SALA</small><strong id="sf18HostName">Aguardando participantes</strong></div></div>
-              <div class="sf18-crowd" id="sf18Crowd" aria-live="polite"><span class="sf18-empty-crowd">A pista ganha vida quando os ouvintes entram.</span></div>
+              <div class="sf18-crowd sf19-crowd" id="sf18Crowd" aria-label="Plateia interativa, escolha um lugar"><span class="sf18-empty-crowd">A pista ganha vida quando os ouvintes entram.</span></div>
               <div class="sf18-reactions" id="sf18ReactionStage" aria-hidden="true"></div>
             </div>
-            <div class="sf18-world-bottom"><span><b id="sf18CrowdCount">0</b> na pista</span><div class="sf18-react-controls" aria-label="Reagir com a sala"><button type="button" data-sf18-react="🔥" aria-label="Reagir com fogo">🔥</button><button type="button" data-sf18-react="❤️" aria-label="Reagir com coração">❤️</button><button type="button" data-sf18-react="🙌" aria-label="Reagir com aplausos">🙌</button><button type="button" data-sf18-react="⚡" aria-label="Reagir com energia">⚡</button></div></div>
+            <div class="sf18-world-bottom"><span><b id="sf18CrowdCount">0</b> na pista <small class="sf19-seat-label" id="sf19MySeat">Escolha seu lugar</small></span><div class="sf18-react-controls" aria-label="Reagir com a sala"><button type="button" data-sf18-react="🔥" aria-label="Reagir com fogo">🔥</button><button type="button" data-sf18-react="❤️" aria-label="Reagir com coração">❤️</button><button type="button" data-sf18-react="🙌" aria-label="Reagir com aplausos">🙌</button><button type="button" data-sf18-react="⚡" aria-label="Reagir com energia">⚡</button></div></div>
           </section>
 
           <div class="next-track" id="nextTrack" style="display:none;">
@@ -2047,6 +2047,17 @@
           <div class="sf5-listening-note"><strong>✦ &nbsp; A trilha sonora é melhor juntos!</strong><small>Compartilhe sua vibe com quem está na sala 💜</small></div>
         </section>
         </div>
+      </div>
+
+      <div class="sf19-overlay" id="sf19Overlay" hidden>
+        <section class="sf19-dialog" role="dialog" aria-modal="true" aria-labelledby="sf19DialogTitle">
+          <div class="sf19-dialog-head"><div><span>SEU LUGAR NA MÚSICA</span><h2 id="sf19DialogTitle">Personalize sua presença</h2></div><button type="button" id="sf19Close" aria-label="Fechar">✕</button></div>
+          <p>Escolha como você aparece para os outros ouvintes e uma posição livre na pista. As mudanças são compartilhadas com a sala.</p>
+          <h3>Seu avatar</h3><div class="sf19-avatar-options" id="sf19AvatarOptions" role="group" aria-label="Escolher avatar"></div>
+          <h3>Seu lugar na pista <small>(toque em uma posição livre)</small></h3><div class="sf19-seats" id="sf19Seats" role="group" aria-label="Escolher lugar na pista"></div>
+          <div class="sf19-status" id="sf19Status" aria-live="polite"></div>
+          <div class="sf19-dialog-footer"><button id="sf19CloseBottom" type="button">Voltar à sala</button></div>
+        </section>
       </div>
       <div class="premium-mini-player" id="premiumMiniPlayer" aria-label="Faixa em reprodução"><div class="premium-mini-cover" id="premiumMiniCover">♫</div><div class="premium-mini-text"><strong id="premiumMiniTitle">Nenhuma música</strong><span id="premiumMiniArtist">Escolha uma música</span></div><span class="premium-mini-live">● LIVE</span><button type="button" onclick="setTab('player')" aria-label="Abrir player">↗</button><div class="premium-mini-progress"><span id="premiumMiniFill"></span></div></div>
       <nav class="mtabs" id="mTabs">
@@ -3902,5 +3913,7 @@ function openRoomCfg() {
   <script src="/room-stage5.js"></script>
   <link rel="stylesheet" href="/room-immersive-18.css">
   <script defer src="/room-immersive-18.js"></script>
+  <link rel="stylesheet" href="/room-interactive-19.css">
+  <script defer src="/room-interactive-19.js"></script>
 </body>
 </html>

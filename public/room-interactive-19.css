@@ -1,0 +1,41 @@
+/* SonoraFan 19 · Plateia interativa — camada após a v18, sem tocar na landing */
+#screen-room .sf19-scene-actions{display:flex;align-items:center;gap:8px}
+#screen-room .sf19-customize-trigger{background:linear-gradient(130deg,#7a2ec7,#c13bc4);border:1px solid #bd7bea82;border-radius:11px;color:#fff;cursor:pointer;font-size:11px;font-weight:800;padding:9px 12px;white-space:nowrap;transition:transform .2s,box-shadow .2s}
+#screen-room .sf19-customize-trigger:hover{transform:translateY(-2px);box-shadow:0 8px 22px #a542db55}
+#screen-room .sf19-crowd{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));place-items:center;gap:3px!important;padding:6px 2px!important;overflow:hidden}
+#screen-room .sf19-crowd .sf19-seat{position:relative;display:flex;justify-content:center;align-items:center;width:100%;height:100%;min-height:25px;border:1px dashed #9974bb3d;border-radius:10px;color:#6a527d;background:#3b25511f;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+#screen-room .sf19-crowd .sf19-seat:hover{border-color:#c58bff;background:#7c39ac36;transform:translateY(-2px)}
+#screen-room .sf19-crowd .sf19-seat:focus-visible{outline:2px solid #ffae61;outline-offset:2px}
+#screen-room .sf19-crowd .sf19-seat.sf19-filled{border:1px solid #a564daaa;background:linear-gradient(155deg,#51316b,#211b39)}
+#screen-room .sf19-crowd .sf19-seat.sf19-self{border:2px solid #ffbd61;box-shadow:0 0 15px #ffb14877;background:linear-gradient(145deg,#58346a,#4b2455)}
+#screen-room .sf19-crowd .sf19-seat.sf19-host{border-color:#61eaca}
+#screen-room .sf19-crowd .sf19-seat .sf19-face{font-size:clamp(16px,1.5vw,24px);display:block;line-height:1}
+#screen-room .sf19-crowd .sf19-seat .sf19-seatnum{font-size:8px;opacity:.62}
+#screen-room .sf19-crowd .sf19-seat.sf19-filled .sf19-seatnum{display:none}
+#screen-room .sf19-crowd .sf19-seat .sf19-you{position:absolute;bottom:-2px;font-size:7px;font-weight:900;background:#ffba5c;color:#271322;padding:1px 4px;border-radius:4px}
+#screen-room .sf19-crowd .sf19-seat .sf19-reaction{position:absolute;top:-19px;left:50%;font-size:18px;pointer-events:none;animation:sf19Bubble 1.2s ease-out forwards}
+@keyframes sf19Bubble{from{opacity:0;transform:translate(-50%,8px) scale(.7)}30%{opacity:1}to{opacity:0;transform:translate(-50%,-26px) scale(1.3)}}
+#screen-room .sf19-seat-label{display:block;color:#ad93cb;font-size:9px;margin-top:3px}
+.sf19-overlay[hidden]{display:none!important}
+.sf19-overlay{position:fixed;inset:0;background:#030208d9;backdrop-filter:blur(14px);z-index:100050;display:flex;justify-content:center;align-items:center;padding:16px}
+.sf19-dialog{width:min(560px,96vw);max-height:92vh;overflow:auto;background:linear-gradient(150deg,#251330,#0f0e1c 70%);border:1px solid #9f60c670;border-radius:23px;box-shadow:0 28px 90px #000b;padding:22px;color:#f5eafb;font:14px 'Inter',sans-serif}
+.sf19-dialog-head{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.sf19-dialog-head span{font-size:10px;font-weight:900;letter-spacing:1.5px;color:#c68cff}
+.sf19-dialog h2{font-size:21px;margin-top:5px}
+.sf19-dialog h3{font-size:13px;margin:18px 0 10px}
+.sf19-dialog h3 small{font-weight:400;color:#b2a6bf}
+.sf19-dialog p{font-size:12px;line-height:1.55;color:#b8abc6;margin:12px 0}
+.sf19-dialog button{font:inherit;cursor:pointer}
+.sf19-dialog-head button{border:1px solid #6f597f;border-radius:9px;background:#21132e;color:white;padding:7px 11px}
+.sf19-avatar-options{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.sf19-avatar-options button{font-size:24px;padding:10px 4px;border-radius:12px;border:1px solid #6a457e85;background:#241631;color:white}
+.sf19-avatar-options button[aria-pressed=true]{border:2px solid #fbb763;background:#5c285e;box-shadow:0 0 15px #b43eda33}
+.sf19-seats{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+.sf19-seats button{min-height:36px;border-radius:10px;border:1px solid #78539b6b;color:#e8d9f5;background:#261832}
+.sf19-seats button[aria-pressed=true]{border:2px solid #ffc477;background:#4e2b62}
+.sf19-seats button:disabled{opacity:.4;cursor:not-allowed;background:#18101e}
+.sf19-status{min-height:20px;color:#e8b985;font-size:12px;margin-top:10px}
+.sf19-dialog-footer{display:flex;justify-content:flex-end;margin-top:16px}
+.sf19-dialog-footer button{background:linear-gradient(130deg,#9634dc,#ec684c);color:white;border:0;padding:11px 15px;border-radius:10px;font-weight:800}
+@media(max-width:570px){#screen-room .sf19-customize-trigger{padding:7px 8px;font-size:10px}#screen-room .sf19-crowd .sf19-seat{min-height:24px}#screen-room .sf19-crowd .sf19-seat .sf19-face{font-size:15px}.sf19-dialog{padding:14px}.sf19-avatar-options{gap:5px}.sf19-seats{gap:4px}.sf19-seats button{min-height:32px}}
+@media(prefers-reduced-motion:reduce){#screen-room .sf19-crowd .sf19-seat .sf19-reaction{animation:none!important}#screen-room .sf19-customize-trigger{transition:none!important}}
