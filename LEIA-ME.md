@@ -1,28 +1,19 @@
-# SonoraFan 21.0 — Personagens 2D ilustrados
+# SonoraFan 22.0 — Editor de personagens 2D
 
-Esta atualização é **incremental sobre a versão 20.0**. O sistema continua 100% colaborativo: todos os participantes podem adicionar músicas, sem modos DJ exclusivos.
+Aplicar sobre a **versão 21.0** (com o backend da 20.0).
 
-## Arquivos alterados
-- `public/index.html` — substituir (inclui novo CSS)
-- `public/room-interactive-19.js` — substituir (renderiza personagens ilustrados)
-- `public/room-characters-21.css` — adicionar
+## Arquivos modificados
+- `server.js` — substituir; sincroniza a aparência validada no Socket.IO.
+- `public/index.html` — substituir; inclui o editor no modal de avatar e o CSS.
+- `public/room-interactive-19.js` — substituir; atualiza SVG e personalização.
+- `public/room-characters-22.css` — adicionar; estilos do novo editor.
 
-## Como funciona
-- Os 12 símbolos de avatar existentes passam a ter personagens 2D desenhados com SVG inline gerado no navegador, sem baixar imagens nem bibliotecas.
-- As 24 posições e as animações de dança existentes permanecem.
-- As reações continuam aparecendo sobre o personagem correto.
-- Quem está na sala, lugar, nome e movimento ainda vêm dos eventos reais do Socket.IO.
-- O servidor recebe os mesmos emojis/valores de avatar, portanto não precisa ser substituído nesta versão.
-- A seleção é feita no painel de personalização existente.
+## Recursos
+- Seis cores de roupa, seis penteados e quatro acessórios.
+- Prévia imediata; os demais ouvintes veem a aparência ao receber a atualização de presença.
+- Preferências da aparência lembradas neste navegador via localStorage; reaplicadas na próxima entrada na sala. Não há persistência multiplataforma no Firebase nesta etapa.
+- Mantém as 24 posições, movimentos e colaboração musical da versão 20.0.
+- O servidor valida cada código de aparência; não aceita HTML, URLs nem estilos arbitrários.
 
-## Instalação
-1. Faça backup.
-2. Substitua `public/index.html` e `public/room-interactive-19.js`.
-3. Adicione `public/room-characters-21.css`.
-4. Preserve **todos os outros arquivos** das versões anteriores, incluindo os CSS da 18, 19 e 20, e o `server.js` da 20.0.
-5. Faça recarga forçada no navegador.
-
-## Limitações
-- Personagens são desenhos vetoriais estilizados com diferentes roupas, cabelos e tons; não são avatares completamente customizáveis.
-- Assentos continuam temporários e são limitados a 24 posições na plateia.
-- Não foram executados testes multiplayer reais com Firebase e Socket.IO.
+## Antes de publicar
+Reinicie o Node.js após substituir o `server.js`. Teste com duas contas conectadas: cor da roupa, penteado, acessório, movimento e saída/reentrada. O login Firebase que foi relatado anteriormente não é alterado nesta atualização.

@@ -309,7 +309,7 @@ function broadcastState(slug) {
 function broadcastUsers(slug) {
   io.in(slug).fetchSockets().then(sockets => {
     const userList = sockets.map(s => ({
-      name: s.userName || 'Anônimo', color: s.userColor || '#888', isAdmin: s.isAdmin || false, role: roleOf(s), muted: !!sanActive(s.userEmail, 'mute', slug), avatar: s.data?.sf19Avatar || s.userAvatar || '👤', seat: Number.isInteger(s.data?.sf19Seat) ? s.data.sf19Seat : null, dance: ['bounce','sway','groove','still'].includes(s.data?.sf20Dance) ? s.data.sf20Dance : 'sway',
+      name: s.userName || 'Anônimo', color: s.userColor || '#888', isAdmin: s.isAdmin || false, role: roleOf(s), muted: !!sanActive(s.userEmail, 'mute', slug), avatar: s.data?.sf19Avatar || s.userAvatar || '👤', seat: Number.isInteger(s.data?.sf19Seat) ? s.data.sf19Seat : null, dance: ['bounce','sway','groove','still'].includes(s.data?.sf20Dance) ? s.data.sf20Dance : 'sway', look: s.data?.sf22Look || null,
       points: userPoints.get(s.userEmail)?.points || 0, badges: userPoints.get(s.userEmail)?.badges || [],
     }));
     io.to(slug).emit('users', userList);
@@ -1191,6 +1191,7 @@ io.on('connection', (socket) => {
       currentRoom = slug;
       socket.data.sf19Seat = null;
       socket.data.sf19Avatar = null;
+      socket.data.sf22Look = null;
       socket.sfSocialEmail = who;
       socket.sfSocialRoom = slug;
       socket.join(slug);
@@ -1259,6 +1260,17 @@ io.on('connection', (socket) => {
       if (!allowedAvatars.includes(payload.avatar)) return socket.emit('sf19Error', 'Avatar não permitido.');
       socket.data.sf19Avatar = payload.avatar;
     }
+    // SonoraFan 22 — somente paletas e acessórios aprovados; nada de HTML/URLs do cliente.
+    if (Object.prototype.hasOwnProperty.call(payload, 'look')) {
+      const look = payload.look;
+      if (!look || typeof look !== 'object' || Array.isArray(look) ||
+          !['violet','coral','mint','gold','blue','rose'].includes(look.shirt) ||
+          !['short','wave','side','curly','long','spiky'].includes(look.hair) ||
+          !['headphones','glasses','cap','none'].includes(look.accessory)) {
+        return socket.emit('sf19Error', 'Aparência inválida.');
+      }
+      socket.data.sf22Look = { shirt: look.shirt, hair: look.hair, accessory: look.accessory };
+    }
     if (Object.prototype.hasOwnProperty.call(payload, 'dance')) {
       if (!['bounce', 'sway', 'groove', 'still'].includes(payload.dance)) return socket.emit('sf19Error', 'Animação inválida.');
       socket.data.sf20Dance = payload.dance;
@@ -1272,7 +1284,7 @@ io.on('connection', (socket) => {
       socket.data.sf19Seat = payload.seat;
     }
     broadcastUsers(currentRoom);
-    socket.emit('sf19Saved', { avatar: socket.data.sf19Avatar || socket.userAvatar || '🎧', seat: Number.isInteger(socket.data.sf19Seat) ? socket.data.sf19Seat : null, dance: socket.data.sf20Dance || 'sway' });
+    socket.emit('sf19Saved', { avatar: socket.data.sf19Avatar || socket.userAvatar || '🎧', seat: Number.isInteger(socket.data.sf19Seat) ? socket.data.sf19Seat : null, dance: socket.data.sf20Dance || 'sway', look: socket.data.sf22Look || null });
   });
 
   // Reações efêmeras autenticadas, restritas à sala atual e com limite por socket.
