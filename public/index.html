@@ -1802,6 +1802,14 @@
           <div id="sfFriendsPanel" class="sf-hub-panel"><div class="sf-search-row"><input id="sfFriendQuery" type="search" maxlength="40" placeholder="Buscar pessoas pelo nome" aria-label="Buscar pessoas pelo nome"><button id="sfFriendSearch" type="button">Buscar</button></div><div id="sfFriendsList" class="sf-social-results" aria-live="polite">Carregando comunidade...</div><div id="sfFriendSearchResults" class="sf-social-results" aria-live="polite"></div></div>
           <div id="sfEventsPanel" class="sf-hub-panel" hidden><div class="sf-events-heading"><p>Encontros musicais agendados por quem cria as salas.</p><button id="sfNewEvent" type="button">+ Criar evento</button></div><div id="sfEventsList" class="sf-events-grid" aria-live="polite"></div></div>
         </section>
+        <section class="sf10-discovery" aria-label="Explorar salas">
+          <div class="sf10-discovery-intro"><div><span class="sf10-kicker">ENCONTRE A SUA COMUNIDADE</span><h3>Encontre a sua próxima vibe.</h3><p>Descubra salas ao vivo, conheça pessoas e compartilhe suas músicas favoritas.</p></div><button class="sf10-event-shortcut" type="button" onclick="window.sf10OpenEvents?.()">▦ <span>Agenda de eventos</span></button></div>
+          <div class="sf10-discovery-controls">
+            <label class="sf10-room-search"><span aria-hidden="true">⌕</span><input id="sf10RoomQuery" type="search" placeholder="Buscar salas ou estilos musicais..." autocomplete="off" aria-label="Buscar salas"></label>
+            <div class="sf10-filters" role="group" aria-label="Filtrar salas"><button type="button" data-sf10-filter="all" class="on">Todas</button><button type="button" data-sf10-filter="live">● Ao vivo</button><button type="button" data-sf10-filter="favorites">♡ Minhas salas</button><button type="button" data-sf10-filter="collab">♫ Colaborativas</button></div>
+          </div>
+          <div class="sf10-rooms-caption"><strong id="sf10RoomsHeading">Explore as salas</strong><span id="sf10RoomsCount">Carregando...</span></div>
+        </section>
         <div class="room-grid" id="roomGrid">
           <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
         </div>
@@ -1862,38 +1870,7 @@
           <div class="queue-list" id="queueList"></div>
           <div id="waitingQueueLabel" class="waiting-queue-label hidden">⏳ Fila de espera:</div>
           <div class="queue-list" id="waitingQueueList" style="max-height:120px;overflow-y:auto;padding:4px 12px 12px;border-top:1px solid var(--border);"></div>
-          <section class="sf8-queue-tools" aria-label="Ferramentas da playlist">
-            <div class="sf8-actions-heading"><strong>🎧 Ações da música</strong><span>Para a faixa atual</span></div>
-            <div class="track-actions sf8-track-actions">
-              <button onclick="favoriteCurrent()" id="favCurrentBtn" type="button">♡ Favoritar</button>
-              <button onclick="voteSkip()" id="skipBtn" type="button">⏭ Pular</button>
-              <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;" type="button">🗑 Remover</button>
-            </div>
-            <details class="sf8-add-details" id="sf8AddDetails">
-              <summary><span>＋ &nbsp; Buscar e adicionar música</span><span class="sf8-chevron" aria-hidden="true">⌄</span></summary>
-          <div class="add-song-area">
-            <div class="add-song">
-              <input type="text" id="songUrl" placeholder="Buscar no YouTube ou colar link..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()">
-              <button id="addBtn" onclick="addSong()">Adicionar</button>
-            </div>
-            <div class="search-results" id="searchResults"></div>
-            <div class="song-preview hidden" id="songPreview">
-              <div class="song-preview-thumb" id="previewThumb">🎵</div>
-              <div class="song-preview-info">
-                <div class="song-preview-title" id="previewTitle">Prévia</div>
-                <div class="song-preview-artist" id="previewArtist">Cole um link</div>
-                <div class="song-preview-status" id="previewStatus"></div>
-              </div>
-              <div class="song-preview-actions" id="previewActions">
-                <button class="song-preview-confirm" onclick="confirmAdd()">✓</button>
-                <button class="song-preview-fav" onclick="favPreview()">⭐</button>
-                <button class="song-preview-cancel" onclick="clearPreview()">✕</button>
-              </div>
-            </div>
-            <div class="cooldown-text hidden" id="cooldownText"></div>
-          </div>
-            </details>
-          </section>
+
         </div>
 
         <div class="player-column">
@@ -1918,10 +1895,15 @@
             <div class="player-info">
               <div class="cover" id="trackCover">🎵</div>
               <div class="track-info">
-                <div class="premium-playing-label">AGORA TOCANDO NA SALA</div>
+                <div class="premium-playing-label">AGORA TOCANDO NA SALA <button type="button" class="sf10-request-link" onclick="window.sf10FocusSong?.()">＋ Adicionar música</button></div>
                 <div class="track-title" id="trackTitle">Nenhuma música</div>
                 <div class="track-artist" id="trackArtist">Adicione uma música</div>
                 <div class="track-dj" id="trackDj"></div>
+                <div class="sf10-track-actions" aria-label="Ações da faixa atual">
+                  <button onclick="favoriteCurrent()" id="favCurrentBtn" type="button" title="Adicionar a favoritos">♡ <span>Favoritar</span></button>
+                  <button onclick="voteSkip()" id="skipBtn" type="button" title="Votar para pular a faixa">⏭ <span>Pular faixa</span></button>
+                  <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;" type="button">🗑 <span>Remover</span></button>
+                </div>
               </div>
             </div>
             <div class="progress-section">
@@ -1994,10 +1976,32 @@
           <div class="sf5-listeners-body" id="sf5ListenersBody"></div>
           <div class="sf5-listening-note"><strong>✦ &nbsp; A trilha sonora é melhor juntos!</strong><small>Compartilhe sua vibe com quem está na sala 💜</small></div>
         </section>
-        <section class="sf6-energy-card" aria-label="Clima da sala">
-          <div class="sf6-panel-title"><span>🔥 &nbsp; Energia da sala</span><span class="sf6-live-pill"><i></i> AO VIVO</span></div>
-          <div class="sf6-equalizer" id="sf6Equalizer" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          <div class="sf6-energy-footer"><div><b id="sf6EnergyHeadline">A vibe começa aqui</b><small id="sf6EnergyDetail">Aguardando a próxima música</small></div><span id="sf6EnergyPeople">0 ouvintes</span></div>
+        <section class="sf10-request-card" id="sf10RequestCard" aria-label="Buscar e adicionar músicas à sala">
+          <div class="sf10-request-top"><div class="sf10-request-icon">♫</div><div><strong>Escolha a próxima música</strong><small>Procure no YouTube ou cole um link</small></div></div>
+          <div class="sf10-request-fields">
+          <div class="add-song-area">
+            <div class="add-song">
+              <input type="text" id="songUrl" placeholder="Buscar no YouTube ou colar link..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()">
+              <button id="addBtn" onclick="addSong()">Adicionar</button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+            <div class="song-preview hidden" id="songPreview">
+              <div class="song-preview-thumb" id="previewThumb">🎵</div>
+              <div class="song-preview-info">
+                <div class="song-preview-title" id="previewTitle">Prévia</div>
+                <div class="song-preview-artist" id="previewArtist">Cole um link</div>
+                <div class="song-preview-status" id="previewStatus"></div>
+              </div>
+              <div class="song-preview-actions" id="previewActions">
+                <button class="song-preview-confirm" onclick="confirmAdd()">✓</button>
+                <button class="song-preview-fav" onclick="favPreview()">⭐</button>
+                <button class="song-preview-cancel" onclick="clearPreview()">✕</button>
+              </div>
+            </div>
+            <div class="cooldown-text hidden" id="cooldownText"></div>
+          </div>
+          </div>
+          <div class="sf10-request-help">Sua escolha entra na playlist compartilhada.</div>
         </section>
         <section class="sf5-about-card" aria-label="Sobre a sala"><div class="sf5-card-heading">ⓘ &nbsp; Sobre a Sala <button type="button" onclick="copyInviteLink()" title="Compartilhar sala">↗</button></div><div class="sf5-about-body"><div class="sf5-about-art">♫</div><div><strong id="sf5AboutName">Sala musical</strong><p id="sf5AboutDescription">Aqui a música nunca para. Venha curtir com a galera!</p><small id="sf5AboutTag">#SonoraFan &nbsp; #AoVivo</small></div></div><div class="sf5-about-stats"><span>♙ <b id="sf5StatsListeners">0</b><small>Ouvintes</small></span><span>♫ <b id="sf5StatsTracks">0</b><small>Na fila</small></span><span>◷ <b>LIVE</b><small>Agora</small></span></div></section>
         </div>
@@ -2014,9 +2018,11 @@
   <!-- CREATE ROOM -->
   <div class="modal-overlay" id="createRoomModal">
     <div class="modal">
-      <h3>Criar sala</h3>
-      <input type="text" id="newRoomName" placeholder="Nome da sala" maxlength="40">
-      <div id="createCfg" class="cfg"></div>
+      <h3>Crie seu espaço musical</h3>
+      <p class="sf10-create-desc">Uma sala com a sua identidade, pronta para ouvir junto.</p>
+      <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Preferências</span></div>
+      <div class="sf10-step-one"><label for="newRoomName">Como sua sala vai se chamar?</label><input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40"><p>O nome será mostrado para quem encontrar sua sala.</p></div>
+      <div class="sf10-step-two"><div id="createCfg" class="cfg"></div></div>
       <div id="adminRoomOptions" style="display:none;margin-top:6px;text-align:left;">
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 0;cursor:pointer;">
           <input type="checkbox" id="optAllowLong" style="width:auto;margin:0;accent-color:var(--accent);"> 🎬 Permitir vídeos longos (até 6h)
@@ -2027,7 +2033,9 @@
       </div>
       <div class="modal-actions">
         <button class="btn-secondary" onclick="closeCreateRoom()">Cancelar</button>
-        <button class="btn-primary" onclick="createRoom()">Criar</button>
+        <button class="btn-secondary sf10-back" type="button" onclick="window.sf10WizardBack?.()" hidden>← Anterior</button>
+        <button class="btn-primary sf10-next" type="button" onclick="window.sf10WizardNext?.()">Continuar →</button>
+        <button class="btn-primary sf10-submit" type="button" onclick="createRoom()" hidden>Criar sala ♫</button>
       </div>
     </div>
   </div>
@@ -2777,12 +2785,14 @@
             </div>`;
           grid.appendChild(card);
         });
+        window.sf10DecorateRooms?.(roomsData);
       } catch(e) { grid.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Erro ao carregar salas.</p></div>'; }
     }
     function showCreateRoom() {
       const opts = $('adminRoomOptions');
       if (opts) opts.style.display = (currentUser && currentUser.email === 'admin@sonora.com') ? 'block' : 'none';
       $('createRoomModal').classList.add('active');
+      window.sf10WizardReset?.();
     }
     function closeCreateRoom() { $('createRoomModal').classList.remove('active'); }
 
@@ -3743,5 +3753,7 @@
   <script defer src="/room-reference.js"></script>
   <script defer src="/community-5.js"></script>
   <script defer src="/room-polished-6.js"></script>
+  <link rel="stylesheet" href="/room-discovery-10.css">
+  <script defer src="/room-discovery-10.js"></script>
 </body>
 </html>

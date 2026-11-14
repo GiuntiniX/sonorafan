@@ -1,0 +1,82 @@
+/* SonoraFan 10.0 — somente lobby, sala e modal de criação. */
+#screen-lobby .lobby{max-width:1540px;padding:25px clamp(16px,3.1vw,52px)}
+#screen-lobby .lobby-top{padding-bottom:4px;margin-bottom:20px}
+#screen-lobby .lobby-top h2{font-size:clamp(22px,2vw,30px)}
+#screen-lobby .sf10-discovery{padding:24px 26px 16px;border:1px solid #b78be823;border-radius:23px;background:radial-gradient(ellipse at 88% 0%,rgba(173,64,235,.16),transparent 55%),linear-gradient(145deg,#191024,#0c0b15);margin:0 0 26px;box-shadow:0 18px 55px #0004}
+#screen-lobby .sf10-discovery-intro{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+#screen-lobby .sf10-kicker{font-size:10px;letter-spacing:2px;color:#d7a0ff;font-weight:800}
+#screen-lobby .sf10-discovery h3{font:800 clamp(22px,2.7vw,36px)/1.14 'Space Grotesk','Inter',sans-serif;letter-spacing:-1px;margin:8px 0}
+#screen-lobby .sf10-discovery p{color:#b6abc5;font-size:13px;line-height:1.6}
+#screen-lobby .sf10-event-shortcut{border:1px solid #ab74e65a;border-radius:12px;padding:12px 16px;color:#f0e4ff;background:#2a1844;cursor:pointer;font-weight:750;font-size:12px}
+#screen-lobby .sf10-event-shortcut:hover{background:#48256b}
+#screen-lobby .sf10-discovery-controls{display:flex;align-items:center;gap:14px;margin:22px 0 19px;flex-wrap:wrap}
+#screen-lobby .sf10-room-search{display:flex;align-items:center;gap:12px;background:#0e0d19;border:1px solid #ffffff24;border-radius:13px;min-width:230px;flex:1;padding:0 15px;min-height:46px}
+#screen-lobby .sf10-room-search span{font-size:25px;color:#c79bed}
+#screen-lobby .sf10-room-search input{width:100%;border:0;outline:none;background:transparent;color:#f5efff;font:inherit;font-size:13px}
+#screen-lobby .sf10-room-search:focus-within{border-color:#b66ffc;box-shadow:0 0 0 3px #a34be71d}
+#screen-lobby .sf10-filters{display:flex;gap:7px;flex-wrap:wrap}
+#screen-lobby .sf10-filters button{border:1px solid #ffffff20;color:#b9aecb;background:#ffffff08;border-radius:999px;padding:10px 13px;cursor:pointer;font-size:11px;font-weight:750}
+#screen-lobby .sf10-filters button.on,#screen-lobby .sf10-filters button:hover{color:white;border-color:#9b43ed;background:#6525a8}
+#screen-lobby .sf10-rooms-caption{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #ffffff14;padding-top:16px;gap:12px}
+#screen-lobby .sf10-rooms-caption strong{font-size:13px}
+#screen-lobby .sf10-rooms-caption span{font-size:11px;color:#a99cb9}
+#screen-lobby .room-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+#screen-lobby .room-card{min-height:280px;border-radius:19px;isolation:isolate;border:1px solid #c494f732;box-shadow:0 14px 30px #0006;cursor:pointer}
+#screen-lobby .room-card:hover{transform:translateY(-5px);box-shadow:0 22px 45px #0008;border-color:#b96afe}
+#screen-lobby .room-card::before{background:linear-gradient(180deg,#08071418 0%,#0b09143b 32%,#0c0815ed 87%,#0b0817 100%)}
+#screen-lobby .room-card.sf10-no-art{background-image:radial-gradient(circle at 60% 10%,#9639bb54,transparent 65%),linear-gradient(140deg,#321e56,#0d0a16)!important}
+#screen-lobby .room-card-body{padding:18px}
+#screen-lobby .room-card-body h3{font-size:18px;line-height:1.3;margin:7px 30px 8px 0}
+#screen-lobby .room-card-body .np{margin-top:10px;font-size:11px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#screen-lobby .room-card .room-live-badge{background:#103524d9;color:#6cffb0;border:1px solid #3d9a65a0;top:14px;left:15px}
+#screen-lobby .room-card .room-live-badge .live-dot{background:#39ff93}
+#screen-lobby .room-card .room-listeners-badge{top:14px;right:15px;background:#100f19d6;border:1px solid #ffffff1c}
+#screen-lobby .sf10-favorite-room{position:absolute;right:13px;bottom:95px;z-index:5;background:#1d142bcc;color:#f3e6ff;border:1px solid #ffffff45;border-radius:12px;width:34px;height:34px;font-size:19px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px)}
+#screen-lobby .sf10-favorite-room[aria-pressed="true"]{color:#ff9ace;background:#571c40e8;border-color:#ff82cb88}
+#screen-lobby .sf10-favorite-room:hover{transform:scale(1.07)}
+#screen-lobby .sf10-card-type{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#d7a7ff}
+#screen-lobby .sf10-card-enter{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#ffb48e;font-weight:800;margin-top:12px}
+#screen-lobby .sf10-empty-filter{grid-column:1/-1;border:1px dashed #a96bf65c;border-radius:16px;padding:45px;text-align:center;color:#c9b8db;background:#1b1125}
+/* Remove decorative energy panel. Search always visible beside player, in the bottom-right tile. */
+#screen-room .sf10-request-card{grid-column:3;grid-row:3;display:flex;flex-direction:column;gap:11px;padding:14px 15px;border:1px solid #b68cea37;border-radius:19px;background:linear-gradient(135deg,#251338,#151021 75%);min-width:0;min-height:0;position:relative;overflow:visible;z-index:12;box-shadow:0 14px 34px #0005}
+#screen-room .sf10-request-top{display:flex;gap:10px;align-items:center}
+#screen-room .sf10-request-icon{display:grid;place-items:center;border-radius:12px;width:36px;height:36px;flex-shrink:0;color:white;background:linear-gradient(135deg,#a435ff,#eb6949);font-size:21px}
+#screen-room .sf10-request-top strong{display:block;font-size:12px;color:#f8f0ff}
+#screen-room .sf10-request-top small{display:block;font-size:10px;color:#bdaccd;margin-top:3px}
+#screen-room .sf10-request-fields{min-width:0;position:relative}
+#screen-room .sf10-request-card .add-song-area{display:flex!important;flex-direction:column!important;gap:6px!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;overflow:visible!important;max-height:none!important}
+#screen-room .sf10-request-card .add-song{display:flex!important;gap:5px!important;padding:5px!important;border:1px solid #a56fbc77!important;background:#0c0b17!important;border-radius:11px!important;min-width:0;flex-wrap:nowrap!important}
+#screen-room .sf10-request-card .add-song input{flex:1 1 auto!important;min-width:0!important;width:0!important;padding:8px 5px!important;border:0!important;background:transparent!important;color:#fff!important;font-size:11px!important;box-shadow:none!important}
+#screen-room .sf10-request-card .add-song button{flex:0 0 auto!important;width:auto!important;padding:9px 10px!important;font-size:10px!important;background:linear-gradient(115deg,#7926df,#ec654a)!important;border-radius:8px!important}
+#screen-room .sf10-request-help{font-size:9px;color:#a99bbd;line-height:1.4}
+#screen-room .sf10-request-card .search-results.show{display:flex!important;position:absolute!important;bottom:calc(100% + 12px)!important;left:0!important;width:100%!important;max-height:min(45vh,350px)!important;overflow:auto!important;z-index:55!important;background:#181022!important;border:1px solid #9f60e8!important;box-shadow:0 16px 45px #000d!important;border-radius:12px!important}
+#screen-room .sf10-request-card .song-preview:not(.hidden){position:absolute;bottom:calc(100% + 12px);left:0;right:0;z-index:52;border:1px solid #9553c7;background:#20132d;box-shadow:0 10px 40px #000b;flex-wrap:wrap}
+#screen-room .sf10-request-card .search-results.show:has(+ .song-preview:not(.hidden)){bottom:calc(100% + 104px)!important}
+#screen-room .sf10-request-card .song-preview-actions{margin-left:auto}
+#screen-room .sf10-track-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+#screen-room .sf10-track-actions button{padding:7px 11px;min-height:30px;border-radius:10px;border:1px solid #ac6ad455;background:#341c47a3;color:#ead7fa;font-weight:750;font-size:10px;cursor:pointer;transition:background .18s}
+#screen-room .sf10-track-actions button:hover{background:#613182;border-color:#c681fc}
+#screen-room .sf10-track-actions button:focus-visible{outline:2px solid #c97bff;outline-offset:2px}
+#screen-room .sf10-request-link{border:0;background:none;color:#ffb681;cursor:pointer;font-weight:750;font-size:10px;margin-left:8px;letter-spacing:0}
+#screen-room .sf10-request-link:hover{text-decoration:underline}
+#screen-room .player-info{align-items:center}
+#screen-room .sf10-request-card .song-preview .song-preview-info{min-width:0}
+/* Responsive: on small screens the chooser belongs to the player tab, not a hidden bottom grid tile. */
+@media(min-width:1025px){#screen-room .sf10-request-card{grid-column:3;grid-row:3}#screen-room .room-layout{overflow:visible!important}#screen-room .sf10-request-card{height:100%}}
+@media(min-width:1025px) and (max-height:760px){#screen-room .sf10-request-card{padding:9px 11px;gap:5px}#screen-room .sf10-request-top small,#screen-room .sf10-request-help{display:none}#screen-room .sf10-request-icon{width:29px;height:29px}#screen-room .sf10-track-actions{margin-top:5px}}
+@media(max-width:1024px){#screen-room .sf10-request-card{display:block;grid-column:auto;grid-row:auto;margin:10px;min-height:134px}#screen-room .sf10-request-card .search-results.show{position:relative!important;bottom:auto!important;max-height:190px!important}#screen-room .sf10-request-card .song-preview:not(.hidden){position:relative;bottom:auto}}
+@media(max-width:768px){#screen-room .sf10-track-actions button{padding:8px 10px}#screen-room .sf10-request-card{margin:8px 0 0}#screen-room .sf10-request-card .add-song{flex-wrap:nowrap!important}#screen-room .sf10-request-card .add-song button{width:auto!important}}
+/* creation: 2-stage flow retains original IDs and backend configuration */
+#createRoomModal .modal{max-width:540px;width:calc(100% - 22px);max-height:90vh;overflow:auto;background:linear-gradient(160deg,#1e142b,#0e0c18);border:1px solid #a967e952;border-radius:22px;padding:23px}
+#createRoomModal h3{font-size:24px;letter-spacing:-.6px}
+#createRoomModal .sf10-create-desc{font-size:12px;color:#b9a9c7;margin:8px 0 19px}
+#createRoomModal .sf10-stepper{display:flex;gap:8px;margin:14px 0 22px}
+#createRoomModal .sf10-stepper span{flex:1;border-radius:9px;background:#ffffff0c;border:1px solid #ffffff20;padding:10px 6px;color:#9f92ab;font-size:11px;text-align:center;font-weight:700}
+#createRoomModal[data-sf10-step="1"] [data-sf10-step-mark="1"],#createRoomModal[data-sf10-step="2"] [data-sf10-step-mark="2"]{background:#6728a5;color:white;border-color:#ac65ef}
+#createRoomModal .sf10-step-one label{font-size:13px;font-weight:700;display:block;margin:9px 0}
+#createRoomModal .sf10-step-one input{width:100%;padding:13px}
+#createRoomModal .sf10-step-one p{font-size:11px;color:#aa9bb9;margin:10px 0}
+#createRoomModal[data-sf10-step="1"] .sf10-step-two,#createRoomModal[data-sf10-step="1"] #adminRoomOptions,#createRoomModal[data-sf10-step="2"] .sf10-step-one{display:none!important}
+#createRoomModal .sf10-submit[hidden],#createRoomModal .sf10-next[hidden],#createRoomModal .sf10-back[hidden]{display:none!important}
+@media(max-width:600px){#screen-lobby .sf10-discovery{padding:19px 16px}#screen-lobby .sf10-discovery-controls{align-items:stretch}#screen-lobby .sf10-room-search{flex-basis:100%}#screen-lobby .sf10-filters{gap:6px}#screen-lobby .sf10-filters button{font-size:10px;padding:9px 11px}#screen-lobby .room-card{min-height:255px}}
+@media(prefers-reduced-motion:reduce){#screen-lobby .room-card,#screen-room .sf10-track-actions button{transition:none!important}}
