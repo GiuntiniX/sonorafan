@@ -4347,5 +4347,129 @@ function openRoomCfg() {
   <script defer src="/sonorafan-visual-74.js"></script>
   <link rel="stylesheet" href="/sonorafan-mobile-music-76.css">
   <script defer src="/sonorafan-mobile-music-76.js"></script>
+
+  <!-- SONORAFAN · Ajuste 77: menus laterais sem rolagem vertical -->
+  <style id="sf77-menu-fit">
+    /* Somente os MENUS laterais: a lista de salas, a fila e o chat
+       continuam com rolagem própria para não perder conteúdo. */
+    #screen-lobby .sf28-sidebar,
+    #screen-room .sf5-sidebar {
+      box-sizing: border-box;
+      /* Preserva o display original (inclusive o drawer mobile fechado). */
+      flex-direction: column;
+      min-height: 0 !important;
+      max-height: 100dvh;
+      overflow-x: hidden !important;
+      overflow-y: hidden !important;
+      overscroll-behavior: contain;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none;
+    }
+    #screen-lobby .sf28-sidebar::-webkit-scrollbar,
+    #screen-room .sf5-sidebar::-webkit-scrollbar,
+    #screen-lobby .sf28-sidebar-nav::-webkit-scrollbar,
+    #screen-room .sf5-navigation::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+    #screen-lobby .sf28-sidebar-brand,
+    #screen-room .sf5-brand {
+      flex: 0 0 auto;
+      min-height: 0;
+      margin-bottom: clamp(5px, 1vh, 12px);
+    }
+    #screen-lobby .sf28-sidebar-nav,
+    #screen-room .sf5-navigation {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      flex: 0 1 auto;
+      gap: clamp(1px, .35dvh, 5px) !important;
+      min-height: 0 !important;
+      max-height: 100%;
+      overflow: hidden !important;
+      scrollbar-width: none !important;
+    }
+    #screen-lobby .sf28-sidebar-nav > button,
+    #screen-room .sf5-navigation > button {
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex: 0 0 auto;
+      width: 100%;
+      min-width: 0;
+      min-height: 0 !important;
+      height: clamp(30px, 4.7dvh, 42px) !important;
+      padding: 0 11px !important;
+      margin-block: 0 !important;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    #screen-lobby .sf28-sidebar-nav > button > span:last-child,
+    #screen-room .sf5-navigation > button > span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #screen-lobby .sf28-sidebar-nav .sf64-menu-icon,
+    #screen-room .sf5-navigation .sf64-menu-icon {
+      flex: 0 0 auto;
+    }
+    /* Ilustração é decorativa: não pode forçar um scroll no menu. */
+    #screen-lobby .sf33-sidebar-art,
+    #screen-room .sf33-room-nav-art {
+      flex: 0 1 auto;
+      min-height: 0 !important;
+      max-height: min(11dvh, 96px) !important;
+      overflow: hidden;
+      margin-top: auto;
+    }
+    #screen-lobby .sf33-sidebar-art img,
+    #screen-room .sf33-room-nav-art img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-height: 96px;
+      object-fit: contain;
+    }
+    @media (max-height: 790px) {
+      #screen-lobby .sf33-sidebar-art,
+      #screen-room .sf33-room-nav-art,
+      #screen-room .sf5-side-waves { display: none !important; }
+      #screen-lobby .sf28-sidebar,
+      #screen-room .sf5-sidebar { padding-top: 10px !important; padding-bottom: 10px !important; }
+    }
+    @media (max-height: 680px) {
+      #screen-lobby .sf28-sidebar-brand small { display: none !important; }
+      #screen-lobby .sf28-sidebar-brand,
+      #screen-room .sf5-brand { margin-bottom: 5px !important; }
+      #screen-lobby .sf28-sidebar-nav,
+      #screen-room .sf5-navigation { gap: 1px !important; }
+      #screen-lobby .sf28-sidebar-nav > button,
+      #screen-room .sf5-navigation > button {
+        height: clamp(27px, 5.1dvh, 34px) !important;
+        padding: 0 9px !important;
+        font-size: 12px;
+      }
+    }
+    @media (max-height: 490px) {
+      #screen-lobby .sf28-sidebar,
+      #screen-room .sf5-sidebar { padding-top: 4px !important; padding-bottom: 4px !important; }
+      #screen-lobby .sf28-sidebar-brand,
+      #screen-room .sf5-brand { display: none !important; }
+      #screen-lobby .sf28-sidebar-nav > button,
+      #screen-room .sf5-navigation > button {
+        height: 24px !important;
+        font-size: 11px;
+      }
+    }
+    /* Evita recortes por regras de versões anteriores sem alterar
+       os painéis modais nem a navegação principal de conteúdo. */
+    #screen-lobby .sf28-lobby-app,
+    #screen-room .app { min-height: 0; }
+  </style>
 </body>
 </html>
