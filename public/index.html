@@ -1879,13 +1879,22 @@
               <button type="button" class="sf50-filter" data-sf50-filter="live" aria-pressed="false"><span class="sf50-live-dot" aria-hidden="true"></span> Tocando agora</button>
               <button type="button" class="sf50-filter" data-sf50-filter="vibe" aria-pressed="false">✿ Para minha vibe</button>
             </div>
-            <label class="sf50-sort-label"><span>Ordenar</span>
-              <select id="sf50RoomOrder" aria-label="Ordenar salas">
+            <div class="sf50-sort-label sf65-sort" aria-label="Ordenar salas">
+              <span id="sf65SortLabel">Ordenar</span>
+              <select id="sf50RoomOrder" aria-label="Ordenar salas" class="sf65-native-sort" tabindex="-1" aria-hidden="true">
                 <option value="popular">Mais ouvintes</option>
                 <option value="active">Tocando primeiro</option>
                 <option value="name">Nome A–Z</option>
               </select>
-            </label>
+              <div class="sf65-sort-combobox">
+                <button type="button" class="sf65-sort-trigger" id="sf65SortTrigger" aria-haspopup="listbox" aria-controls="sf65SortList" aria-expanded="false" aria-labelledby="sf65SortLabel sf65SortValue"><span id="sf65SortValue">Mais ouvintes</span><span class="sf65-sort-chevron" aria-hidden="true">⌄</span></button>
+                <div class="sf65-sort-list" id="sf65SortList" role="listbox" aria-labelledby="sf65SortLabel" hidden>
+                  <button type="button" role="option" class="sf65-sort-option is-selected" data-sort="popular" aria-selected="true"><span aria-hidden="true">♛</span>Mais ouvintes</button>
+                  <button type="button" role="option" class="sf65-sort-option" data-sort="active" aria-selected="false"><span aria-hidden="true">♫</span>Tocando primeiro</button>
+                  <button type="button" role="option" class="sf65-sort-option" data-sort="name" aria-selected="false"><span aria-hidden="true">A–Z</span>Nome A–Z</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="sf63-discover-bar" id="sf63DiscoverTools" aria-label="Descoberta e comunidade">
             <span>✦ Descubra música com pessoas da sua vibe</span>
@@ -1962,26 +1971,27 @@
         </div>
       </div>
 
-      <aside class="sf5-sidebar" aria-label="Menu da sala">
+      <aside class="sf5-sidebar" id="sf64RoomSidebar" aria-label="Menu da sala">
         <div class="sf5-brand sf54-brand sf54-brand-room"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
         <nav class="sf5-navigation">
-          <button class="sf5-active" type="button" onclick="setTab('player')">⌂ <span>Sala Atual</span></button>
-          <button type="button" onclick="leaveRoom()">◈ <span>Descobrir salas</span></button>
-          <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
-          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry">🏅 <span>SonoraFan Club</span></button>
-          <button type="button" data-sf63-open="passport" class="sf63-menu-entry">🎟️ <span>Minha Jornada</span></button>
-          <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
-          <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
-          <button type="button" class="sf53-nav-inbox" onclick="window.sf53OpenInbox?.()">✉ <span>Mensagens <b class="sf53-unread" hidden>0</b></span></button>
-          <button type="button" class="sf29-side-invite" onclick="copyInviteLink()" title="Copiar link de convite">🔗 <span>Convidar amigos</span></button>
-          <button type="button" onclick="toggleFavorites()">☆ <span>Favoritos</span></button>
-          <button type="button" onclick="openRoomCfg()" id="sf5SettingsBtn">⚙ <span>Configurações</span></button>
-          <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
-          <button type="button" onclick="leaveRoom()">⇥ <span>Sair da Sala</span></button>
+          <button class="sf5-active" type="button" onclick="setTab('player')"><span class="sf64-menu-icon sf64-icon-room" aria-hidden="true">♫</span><span>Sala atual</span></button>
+          <button type="button" onclick="leaveRoom()"><span class="sf64-menu-icon sf64-icon-discover" aria-hidden="true">◈</span><span>Descobrir salas</span></button>
+          <button type="button" onclick="openLeaderboard()"><span class="sf64-menu-icon sf64-icon-ranking" aria-hidden="true">♛</span><span>Ranking</span></button>
+          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry"><span class="sf64-menu-icon sf64-icon-club" aria-hidden="true">🏅</span><span>SonoraFan Club</span></button>
+          <button type="button" data-sf63-open="passport" class="sf63-menu-entry"><span class="sf64-menu-icon sf64-icon-passport" aria-hidden="true">🎟️</span><span>Minha Jornada</span></button>
+          <button type="button" onclick="window.sf5OpenCommunity?.()"><span class="sf64-menu-icon sf64-icon-community" aria-hidden="true">💬</span><span>Comunidade</span></button>
+          <button type="button" onclick="window.sf5OpenProfile?.()"><span class="sf64-menu-icon sf64-icon-profile" aria-hidden="true">👤</span><span>Meu perfil</span></button>
+          <button type="button" class="sf53-nav-inbox" onclick="window.sf53OpenInbox?.()"><span class="sf64-menu-icon sf64-icon-messages" aria-hidden="true">✉</span><span>Mensagens <b class="sf53-unread" hidden>0</b></span></button>
+          <button type="button" class="sf29-side-invite" onclick="copyInviteLink()" title="Copiar link de convite"><span class="sf64-menu-icon sf64-icon-invite" aria-hidden="true">🔗</span><span>Convidar amigos</span></button>
+          <button type="button" onclick="toggleFavorites()"><span class="sf64-menu-icon sf64-icon-favorites" aria-hidden="true">❤</span><span>Favoritos</span></button>
+          <button type="button" onclick="openRoomCfg()" id="sf5SettingsBtn"><span class="sf64-menu-icon sf64-icon-settings" aria-hidden="true">⚙</span><span>Configurações</span></button>
+          <button type="button" onclick="openTutorial(0)"><span class="sf64-menu-icon sf64-icon-help" aria-hidden="true">❔</span><span>Ajuda / Tour</span></button>
+          <button type="button" onclick="leaveRoom()"><span class="sf64-menu-icon sf64-icon-logout" aria-hidden="true">⇥</span><span>Sair da sala</span></button>
         </nav>
         <div class="sf33-room-nav-art" aria-hidden="true"><img src="/art-33/speakers.webp" loading="lazy" alt="" width="480" height="392"></div>
         <div class="sf5-side-waves" aria-hidden="true"></div>
       </aside>
+      <button type="button" class="sf64-room-menu-reopen" id="sf64RoomSidebarShow" aria-controls="sf64RoomSidebar" aria-label="Abrir menu da sala" hidden><span aria-hidden="true">☰</span><span>Menu</span></button>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
         <div class="sf5-section-title sf34-room-title"><span class="sf44-room-sparks" aria-hidden="true">✳ ♫ ✦</span><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
@@ -4287,5 +4297,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-fila-56.js"></script>
   <link rel="stylesheet" href="/sonorafan-evolution-63.css">
   <script defer src="/sonorafan-evolution-63.js"></script>
+  <link rel="stylesheet" href="/sonorafan-ui-65.css">
+  <script defer src="/sonorafan-ui-65.js"></script>
 </body>
 </html>
