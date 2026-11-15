@@ -1,0 +1,100 @@
+/* SonoraFan 54.0 — logotipo oficial e fila com três músicas antes do scroll */
+/* O logotipo sempre usa o arquivo aprovado, sem filtros ou alterações de cor. */
+.sf54-brand { display:flex!important; align-items:center!important; justify-content:flex-start!important; min-width:0; flex-shrink:0; background:none!important; -webkit-text-fill-color:initial!important; text-shadow:none!important; }
+.sf54-brand .sf54-brand-image { display:block; max-width:100%; width:100%; height:auto; object-fit:contain; object-position:left center; filter:none!important; mix-blend-mode:normal!important; border:0; }
+.topnav-logo.sf54-brand-top {width:174px!important; min-width:0!important; padding:0!important; margin:0!important;}
+#landingScreen .sf54-brand-top .sf54-brand-image{max-height:56px;}
+#loginScreen .sf54-brand-login {width:min(250px, 100%)!important; margin:0 auto 14px!important; justify-content:center!important; font-size:inherit!important;}
+#loginScreen .sf54-brand-login img {object-position:center;}
+#screen-lobby .sf54-brand-lobby {margin:0!important; width:min(170px,100%)!important; max-width:100%!important; height:auto!important; padding:0!important; font-size:inherit!important;}
+#screen-lobby .sf54-brand-lobby .sf54-brand-image {max-height:57px;}
+#screen-room .sf5-brand.sf54-brand-room {width:min(174px,100%)!important; height:auto!important; min-height:48px; font-size:inherit!important; line-height:normal!important; padding:9px 10px!important;}
+#screen-room .sf54-brand-room .sf54-brand-image {max-height:48px;}
+.sf12-admin-brand.sf54-brand-admin {display:flex!important; align-items:flex-start!important; flex-direction:column!important; gap:2px!important; min-width:0;}
+.sf12-admin-brand.sf54-brand-admin .sf54-brand {width:160px; max-width:100%;}
+.sf12-admin-brand.sf54-brand-admin .sf54-brand-image {max-height:55px;}
+.sf12-admin-brand.sf54-brand-admin small {font-size:10px; letter-spacing:.11em; color:#d7b9dc;}
+.sf54-brand-signup {width:190px;max-width:100%;margin-bottom:14px;}
+.sf54-brand-signup img {max-height:70px;}
+
+/* Fila: textos de ajuda recolhíveis e contadores que não ocupam espaço desnecessário. */
+#screen-room .sf54-voting-guide {flex:0 0 auto;margin:4px 10px 5px; color:#dac8e8; font-size:11px; background:rgba(120,55,140,.09); border:1px solid rgba(255,255,255,.09); border-radius:10px;}
+#screen-room .sf54-voting-guide summary {display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 10px;cursor:pointer;list-style:none;font-weight:700;line-height:1.25;}
+#screen-room .sf54-voting-guide summary::-webkit-details-marker{display:none}
+#screen-room .sf54-voting-guide summary span{transition:transform .18s ease}
+#screen-room .sf54-voting-guide[open] summary span{transform:rotate(180deg)}
+#screen-room .sf54-voting-guide p{padding:0 10px 11px;margin:0;line-height:1.45;max-width:42ch;color:#e1d0ee}
+#screen-room .sf54-voting-guide strong{color:#fff1c9}
+#screen-room .sf39-queue-insight{min-height:0!important;padding:5px 10px!important;margin:2px 8px!important; font-size:10px!important;}
+#screen-room .sf52-vote-status:not(:empty){margin:3px 10px!important;padding:6px 9px!important;font-size:11px!important;line-height:1.25!important;}
+
+/* JS mede os três primeiros cards, incluindo o espaço entre eles. A lista rola só a partir do 4º. */
+#screen-room #queueList.queue-list {
+  flex: 0 0 auto!important;
+  min-height: 0!important;
+  height: var(--sf54-queue-height, 284px)!important;
+  max-height: var(--sf54-queue-height, 284px)!important;
+  overflow-y: auto!important;
+  overflow-x: hidden!important;
+  overscroll-behavior: contain;
+  scroll-padding-top: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #b376d7 #261430;
+  align-content:start;
+}
+#screen-room #queueList .queue-item {flex:0 0 auto; scroll-margin-top:8px;}
+/* Painel pode crescer até acomodar as três faixas; a rolagem da sala absorve a altura adicional. */
+@media (min-width:1025px) {
+  #screen-room .room-layout {
+    grid-template-rows: 52px minmax(428px, 1fr) minmax(150px, .32fr)!important;
+    overflow-y:auto!important;
+    overscroll-behavior-y:contain;
+    scrollbar-width:thin;
+  }
+  #screen-room .sf34-queue.queue-column {min-height:428px!important; height:max-content!important; max-height:none!important; align-self:start!important; overflow:hidden!important;}
+}
+@media (max-width:1024px) {
+  #screen-room .sf34-queue.queue-column {min-height:420px!important; height:auto!important; max-height:none!important; overflow:hidden!important;}
+  #screen-room #queueList.queue-list {max-width:100%!important;}
+}
+@media (max-width:768px) {
+  #screen-room .sf34-queue.queue-column{height:auto!important;min-height:398px!important;}
+  #screen-room #queueList.queue-list{height:var(--sf54-queue-height, 284px)!important;max-height:var(--sf54-queue-height, 284px)!important;}
+  .topnav-logo.sf54-brand-top{width:135px!important;}
+  #screen-lobby .sf54-brand-lobby{width:150px!important;}
+  #screen-room .sf5-brand.sf54-brand-room{width:151px!important;}
+}
+@media(prefers-reduced-motion:reduce){#screen-room .sf54-voting-guide summary span {transition:none}}
+/* Votos aparecem na segunda linha, preservando a largura para títulos e artista. */
+#screen-room #queueList .queue-item {
+  display:grid!important;
+  grid-template-columns:16px 45px minmax(0,1fr) 35px!important;
+  grid-template-rows:auto auto;
+  align-items:center!important;
+  column-gap:6px!important;
+  row-gap:5px!important;
+  min-height:67px!important;
+  padding:8px!important;
+  flex-wrap:nowrap!important;
+  box-sizing:border-box;
+}
+#screen-room #queueList .queue-item .pos {grid-column:1;grid-row:1;min-width:0!important;}
+#screen-room #queueList .queue-item .thumb {grid-column:2;grid-row:1;width:44px!important;height:44px!important;}
+#screen-room #queueList .queue-item .info {grid-column:3;grid-row:1;min-width:0!important;max-width:100%;overflow:hidden;}
+#screen-room #queueList .queue-item .sf39-phase{font-size:9px!important;line-height:1.1!important;}
+#screen-room #queueList .queue-item .info .title,
+#screen-room #queueList .queue-item .info .artist,
+#screen-room #queueList .queue-item .sf39-added-by {max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;display:block;line-height:1.3!important;}
+#screen-room #queueList .queue-item .sf39-share-track{grid-column:4;grid-row:1;justify-self:end;min-width:32px!important;width:32px!important;min-height:35px!important;}
+#screen-room #queueList .queue-item .sf52-vote-controls{
+  grid-column:3/5!important;grid-row:2!important;
+  display:flex!important;justify-content:flex-start!important;
+  justify-self:start!important;gap:7px!important;
+  margin:0!important;max-width:100%;min-width:0;
+}
+#screen-room #queueList .queue-item .sf52-vote-btn {min-width:53px!important;min-height:36px!important;padding:7px!important;}
+#screen-room #queueList .queue-item.current{grid-template-rows:auto!important;}
+@media(max-width:768px){
+  #screen-room #queueList .queue-item{grid-template-columns:16px 44px minmax(0,1fr) 33px!important;}
+  #screen-room #queueList .queue-item .sf52-vote-btn{min-width:58px!important;min-height:40px!important;}
+}

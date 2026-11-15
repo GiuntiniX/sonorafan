@@ -7,8 +7,9 @@
   <meta name="description" content="Salas colaborativas de música: todo mundo adiciona músicas do YouTube e conversa em tempo real.">
   <meta property="og:type" content="website"><meta property="og:title" content="SonoraFan — Sua vibe, sua música">
   <meta property="og:description" content="Entre numa sala, adicione suas músicas e converse ao vivo com a galera.">
-  <meta property="og:image" content="/icon.svg"><meta name="theme-color" content="#7c3aed">
-  <link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <meta property="og:image" content="/brand-54/sonorafan-logo.png"><meta name="theme-color" content="#7c3aed">
+  <link rel="manifest" href="/manifest.json"><link rel="icon" href="/brand-54/sonorafan-favicon-64.png" type="image/png">
+  <link rel="apple-touch-icon" href="/brand-54/sonorafan-icon-192.png">
   <script src="/socket.io/socket.io.js"></script>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1389,7 +1390,7 @@
     </div>
 
     <nav class="topnav">
-      <div class="topnav-logo">🎧 SonoraFan</div>
+      <div class="topnav-logo sf54-brand sf54-brand-top"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
       <div class="topnav-actions">
         <button class="lang-btn active" data-lang="pt" onclick="setLanguage('pt')">PT</button>
         <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
@@ -1578,7 +1579,7 @@
         </div>
       </div>
       <div class="login-card sf26-login-card">
-        <div class="logo">🎧</div>
+        <div class="logo sf54-brand sf54-brand-login"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
         <h1>Entre no SonoraFan</h1>
         <p data-i18n="login.sub">Entre com sua conta para acessar as salas.</p>
         <div class="login-error" id="loginError" data-i18n="login.error">Credenciais inválidas.</div>
@@ -1601,6 +1602,7 @@
   <div class="modal-overlay sf26-signup-overlay" id="signupModal">
     <div class="modal sf26-signup-shell">
       <div class="sf26-signup-side">
+        <div class="sf54-brand sf54-brand-signup"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
         <span class="sf26-auth-kicker">CRIAR CONTA</span>
         <h3>Seu convite para a melhor versão do SonoraFan</h3>
         <p>Crie sua conta e entre em uma experiência social de música com presença ao vivo, salas colaborativas e muita personalidade.</p>
@@ -1644,7 +1646,7 @@
   <div class="modal-overlay" id="adminPanel" role="dialog" aria-modal="true" aria-labelledby="sf12AdminTitle">
     <div class="modal admin-panel sf12-admin-shell">
       <aside class="sf12-admin-sidebar" aria-label="Navegação administrativa">
-        <div class="sf12-admin-brand"><span class="sf12-brand-mark">◖♫◗</span><div><strong>Sonora<span>Fan</span></strong><small>ADMIN CONTROL CENTER</small></div></div>
+        <div class="sf12-admin-brand sf54-brand-admin"><div class="sf54-brand"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div><small>ADMIN CONTROL CENTER</small></div>
         <nav class="sf12-admin-nav" aria-label="Seções do painel">
           <button type="button" data-sf12-nav="overview" class="active">▦ <span>Visão geral</span></button>
           <button type="button" data-sf12-nav="users">♙ <span>Usuários</span></button>
@@ -1820,7 +1822,7 @@
     <div class="app sf28-lobby-app">
       <aside class="sf28-sidebar" aria-label="Navegação principal">
         <div class="sf28-sidebar-brand">
-          <h1>🎧 SonoraFan</h1>
+          <h1 class="sf54-brand sf54-brand-lobby"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></h1>
           <small>Música, comunidade e descoberta.</small>
         </div>
         <nav class="sf28-sidebar-nav">
@@ -1981,7 +1983,7 @@
       </div>
 
       <aside class="sf5-sidebar" aria-label="Menu da sala">
-        <div class="sf5-brand"><span>◖♫◗</span> Sonora<b>Fan</b></div>
+        <div class="sf5-brand sf54-brand sf54-brand-room"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
         <nav class="sf5-navigation">
           <button class="sf5-active" type="button" onclick="setTab('player')">⌂ <span>Sala Atual</span></button>
           <button type="button" onclick="leaveRoom()">◈ <span>Descobrir salas</span></button>
@@ -2012,7 +2014,10 @@
           </div>
           <div class="premium-queue-summary"><span id="premiumQueueDuration">Sua seleção coletiva</span><span id="premiumQueueNext">Próximas faixas</span></div>
           <div class="sf39-queue-insight" id="sf39QueueInsight" role="status" aria-live="polite"><span class="sf39-status-dot" aria-hidden="true"></span><span id="sf39QueueInsightText">Aguardando a primeira música</span></div>
-          <p class="sf52-voting-help" id="sf52VotingHelp">Nas próximas faixas: <strong>👍 Apoiar</strong> · <strong>👎 Remover</strong> (10 votos). Clique de novo para desfazer. Para a música atual, use <strong>Pular</strong>.</p>
+          <details class="sf54-voting-guide" id="sf52VotingHelp">
+            <summary>👍 Apoiar · 👎 Remover (10 votos) <span aria-hidden="true">⌄</span></summary>
+            <p>Vote nas próximas músicas. Clique novamente para desfazer ou troque seu voto. A música atual usa o botão <strong>Pular</strong>, ao lado do vídeo.</p>
+          </details>
           <p class="sf52-vote-status" id="sf52VoteStatus" role="status" aria-live="polite" aria-atomic="true"></p>
           <div class="queue-list" id="queueList" aria-label="Músicas na fila colaborativa"></div>
           <div class="sf44-queue-idle-card" id="sf44QueueIdle" aria-hidden="true"><img src="/art-44/vinyl-card.webp" alt="" loading="lazy" decoding="async" width="960" height="467"><span>✿ O próximo som pode ser seu.</span></div>
@@ -4261,5 +4266,7 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-votos-ux-52.css">
   <link rel="stylesheet" href="/sonorafan-chat-53.css">
   <script defer src="/sonorafan-chat-53.js"></script>
+  <link rel="stylesheet" href="/sonorafan-brand-fila-54.css">
+  <script defer src="/sonorafan-fila-54.js"></script>
 </body>
 </html>
