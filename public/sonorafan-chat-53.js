@@ -163,16 +163,33 @@
     $('sf53ReplyPreview').hidden=false;$('sf53ReplyName').textContent=name;$('sf53ReplyText').textContent=text.slice(0,140);
     $('chatInput')?.focus();
   }
+  // 55.0: only existing reactions stay visible as compact counts.
+  // New reactions are available through a single contextual popover.
   function renderReactions(div,id,reactions={}){
     let panel=div.querySelector('.sf53-reactions');
-    if(!panel){panel=document.createElement('div');panel.className='sf53-reactions';div.querySelector('.msg-content')?.appendChild(panel);}
+    if(!panel){panel=document.createElement('div');panel.className='sf53-reactions sf55-react-summary';div.querySelector('.msg-content')?.appendChild(panel);}
     panel.replaceChildren();
-    for(const emoji of EMOJIS){const users=Array.isArray(reactions?.[emoji])?reactions[emoji]:[];
-      const button=document.createElement('button');button.type='button';button.dataset.sf53Emoji=emoji;button.dataset.sf53Mid=id;button.textContent=emoji+(users.length?' '+users.length:'');
+    let count=0;
+    for(const emoji of EMOJIS){
+      const users=Array.isArray(reactions?.[emoji])?reactions[emoji]:[];
+      if(!users.length)continue;
+      count+=users.length;
+      const button=document.createElement('button');button.type='button';button.dataset.sf53Emoji=emoji;button.dataset.sf53Mid=id;
+      button.textContent=emoji+' '+users.length;
       button.className=users.includes(state.id)?'is-mine':'';
-      button.setAttribute('aria-label',`Reagir com ${emoji}. ${users.length} reações`);button.setAttribute('aria-pressed',String(users.includes(state.id)));
+      button.setAttribute('aria-label',`Reagir com ${emoji}. ${users.length} reações`);
+      button.setAttribute('aria-pressed',String(users.includes(state.id)));
       panel.appendChild(button);
     }
+    panel.hidden=count===0;
+  }
+  function closeReactionPickers(except){
+    document.querySelectorAll('.sf55-reaction-menu:not([hidden])').forEach(menu=>{
+      if(menu===except)return;
+      menu.hidden=true;
+      const trigger=menu.closest('.sf55-reaction-wrap')?.querySelector('[data-sf55-reaction-toggle]');
+      trigger?.setAttribute('aria-expanded','false');
+    });
   }
   function renderPublic(div,msg){
     if(msg.isSystem||msg.isMusic||!div.querySelector('.msg-content'))return;
@@ -185,7 +202,17 @@
     }
     const replyBtn=document.createElement('button');replyBtn.type='button';replyBtn.className='sf53-reply-btn';replyBtn.textContent='↩ Responder';replyBtn.dataset.sf53Reply=div.dataset.msgId;
     const report=document.createElement('button');report.type='button';report.className='sf53-public-report';report.textContent='Denunciar';report.dataset.sf53Report=div.dataset.msgId;
-    actions.append(replyBtn,report);
+    const reactionWrap=document.createElement('span');reactionWrap.className='sf55-reaction-wrap';
+    const reactionTrigger=document.createElement('button');reactionTrigger.type='button';reactionTrigger.className='sf55-reaction-trigger';
+    reactionTrigger.textContent='☺ Reagir';reactionTrigger.dataset.sf55ReactionToggle='1';
+    reactionTrigger.setAttribute('aria-label','Escolher reação para esta mensagem');reactionTrigger.setAttribute('aria-expanded','false');
+    const reactionMenu=document.createElement('span');reactionMenu.className='sf55-reaction-menu';reactionMenu.hidden=true;
+    reactionMenu.setAttribute('role','group');reactionMenu.setAttribute('aria-label','Escolher reação');
+    for(const emoji of EMOJIS){const option=document.createElement('button');option.type='button';
+      option.dataset.sf53Emoji=emoji;option.dataset.sf53Mid=div.dataset.msgId;option.textContent=emoji;
+      option.setAttribute('aria-label','Reagir com '+emoji);reactionMenu.appendChild(option);}
+    reactionWrap.append(reactionTrigger,reactionMenu);
+    actions.append(replyBtn,reactionWrap,report);
     renderReactions(div,div.dataset.msgId,msg.reactions);
   }
   async function reportMessage(type,id,otherId){
@@ -205,6 +232,7 @@
     }catch(e){holder.textContent='Denúncias indisponíveis.';}
   }
   function setupEvents(){
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeReactionPickers();});
     $('sf53RefreshReports')?.addEventListener('click',refreshReports);
     document.addEventListener('click',async e=>{
       const b=e.target.closest('[data-sf53-resolve]');if(b){
@@ -243,7 +271,21 @@
         }
         return;
       }
-      const react=e.target.closest('[data-sf53-emoji]');if(react){e.stopPropagation();if(typeof socket!=='undefined')socket.emit('sf53Reaction',{messageId:react.dataset.sf53Mid,emoji:react.dataset.sf53Emoji});return;}
+      const picker=e.target.closest('[data-sf55-reaction-toggle]');
+      if(picker){e.stopPropagation();const menu=picker.closest('.sf55-reaction-wrap')?.querySelector('.sf55-reaction-menu');
+        if(!menu)return;
+        const opening=menu.hidden;closeReactionPickers();menu.hidden=!opening;
+        if(opening){
+          const area=picker.closest('.chat-messages-inner')?.getBoundingClientRect();
+          const rect=picker.getBoundingClientRect();
+          menu.classList.toggle('sf55-reaction-down',!!area && rect.top-area.top<65);
+        }
+        picker.setAttribute('aria-expanded',String(opening));return;
+      }
+      const react=e.target.closest('[data-sf53-emoji]');if(react){e.stopPropagation();closeReactionPickers();
+        if(typeof socket!=='undefined')socket.emit('sf53Reaction',{messageId:react.dataset.sf53Mid,emoji:react.dataset.sf53Emoji});return;
+      }
+      if(!e.target.closest('.sf55-reaction-wrap'))closeReactionPickers();
       const reply=e.target.closest('[data-sf53-reply]');if(reply){const msg=reply.closest('.msg');replyTo(reply.dataset.sf53Reply,msg?.querySelector('.sf51-nick-label')?.textContent||'Participante',msg?.querySelector('.msg-text')?.textContent||'');return;}
       const report=e.target.closest('[data-sf53-report]');if(report)reportMessage('room',report.dataset.sf53Report);
     });

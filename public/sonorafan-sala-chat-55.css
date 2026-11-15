@@ -1,0 +1,44 @@
+/* SonoraFan 55.0 — Chat menos poluído, contexto útil abaixo do player. */
+#screen-room .premium-reactions,
+#screen-room #premiumReactionStage {display:none!important;}
+
+/* Chat: sem cinco emojis fixos sob TODAS as mensagens. */
+#screen-room .sf53-reactions[hidden]{display:none!important}
+#screen-room .sf55-react-summary{gap:5px;margin:5px 0 0;flex-wrap:wrap}
+#screen-room .sf55-react-summary button{min-height:25px!important;padding:4px 7px!important;font-size:11px!important;border-radius:999px!important}
+#screen-room .sf55-reaction-wrap{position:relative;display:inline-flex;align-items:center;z-index:2}
+#screen-room .msg .msg-actions .sf55-reaction-trigger{background:transparent;border:0;color:#c3accf;padding:4px 7px;min-height:27px;cursor:pointer;font:500 11px/1.2 system-ui;border-radius:7px}
+#screen-room .msg .msg-actions .sf55-reaction-trigger:hover,
+#screen-room .msg .msg-actions .sf55-reaction-trigger[aria-expanded="true"]{background:rgba(188,110,239,.14);color:#fff}
+#screen-room .sf55-reaction-menu[hidden]{display:none!important}
+#screen-room .sf55-reaction-menu{position:absolute;z-index:20;left:0;bottom:calc(100% + 5px);display:flex;gap:5px;padding:7px;border-radius:12px;background:#271534;border:1px solid rgba(231,185,246,.3);box-shadow:0 16px 35px rgba(0,0,0,.45);white-space:nowrap;max-width:min(255px,calc(100vw - 60px))}
+#screen-room .sf55-reaction-menu.sf55-reaction-down{top:calc(100% + 5px);bottom:auto}
+#screen-room .sf55-reaction-menu button{min-width:35px;height:35px;border-radius:9px;border:1px solid rgba(255,255,255,.08);color:#fff;background:rgba(255,255,255,.05);cursor:pointer;font-size:17px;line-height:1}
+#screen-room .sf55-reaction-menu button:hover{background:rgba(185,103,236,.29)}
+#screen-room .sf55-reaction-trigger:focus-visible,
+#screen-room .sf55-reaction-menu button:focus-visible,
+#screen-room .sf55-session-add:focus-visible{outline:2px solid #ffc078;outline-offset:3px}
+
+/* A seção substitui o quadro 'A seguir' antigo, sem repetir informação. */
+#screen-room #nextTrack{display:none!important}
+#screen-room .sf55-session{position:relative;width:100%;flex:0 0 auto;display:flex;flex-direction:column;gap:9px;padding:13px 14px 12px;border:1px solid rgba(207,142,230,.21);border-radius:18px;background:linear-gradient(135deg,rgba(78,30,85,.35),rgba(27,12,42,.84));box-shadow:inset 0 1px rgba(255,255,255,.055);isolation:isolate;overflow:hidden;margin:0}
+#screen-room .sf55-session:before{content:'';position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,#ff9a6a,#d55aba,#8642e9);opacity:.8;z-index:-1}
+#screen-room .sf55-session-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+#screen-room .sf55-session-kicker{display:flex;align-items:center;gap:7px;font:800 10px/1.3 system-ui;letter-spacing:.14em;color:#f4d0ee}
+#screen-room .sf55-session-dot{height:7px;width:7px;background:#4adea0;border-radius:50%;box-shadow:0 0 0 3px rgba(74,222,160,.12)}
+#screen-room .sf55-session-count{font:600 11px/1.3 system-ui;color:#c9b6d6;text-align:right}
+#screen-room .sf55-session-tracks{display:grid;grid-template-columns:1.18fr 1fr 1fr;gap:8px;min-width:0}
+#screen-room .sf55-session-track{display:flex;align-items:center;gap:9px;min-width:0;min-height:68px;padding:8px;border:1px solid rgba(255,255,255,.065);background:rgba(10,6,20,.4);border-radius:12px}
+#screen-room .sf55-session-track.is-now{border-color:rgba(247,161,139,.3);background:rgba(87,35,71,.3)}
+#screen-room .sf55-session-track img{width:46px;height:46px;flex:0 0 46px;object-fit:cover;border-radius:8px;background:#130b1e}
+#screen-room .sf55-track-copy{min-width:0;display:grid;gap:3px}
+#screen-room .sf55-track-copy small{font:800 9px/1.2 system-ui;letter-spacing:.11em;text-transform:uppercase;color:#dbaff4}
+#screen-room .sf55-track-copy strong{font:750 12px/1.3 system-ui;color:#fff6ef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:100%}
+#screen-room .sf55-track-copy span{font:500 10px/1.3 system-ui;color:#bfa9d1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:100%}
+#screen-room .sf55-session-placeholder{grid-column:1/-1;color:#dbc8e6;font:500 12px/1.5 system-ui;padding:6px 2px}
+#screen-room .sf55-session-add{border:1px solid rgba(255,199,134,.24);background:rgba(255,176,101,.10);color:#ffe2bb;cursor:pointer;align-self:flex-start;border-radius:999px;min-height:31px;padding:6px 12px;font:750 11px/1 system-ui}
+#screen-room .sf55-session-add:hover{background:rgba(255,176,101,.19)}
+@media(max-width:1350px){#screen-room .sf55-session-tracks{grid-template-columns:1fr 1fr}#screen-room .sf55-session-track:nth-child(3){display:none}}
+@media(max-width:670px){#screen-room .sf55-session{padding:11px;gap:8px;border-radius:15px}#screen-room .sf55-session-tracks{grid-template-columns:1fr 1fr}#screen-room .sf55-session-track{min-height:58px;padding:6px;gap:6px}#screen-room .sf55-session-track img{width:35px;height:35px;flex-basis:35px}#screen-room .sf55-track-copy strong{font-size:11px}#screen-room .sf55-track-copy span{font-size:9px}#screen-room .sf55-reaction-menu{right:0;left:auto}}
+@media(max-width:360px){#screen-room .sf55-session-tracks{grid-template-columns:1fr}#screen-room .sf55-session-track:nth-child(2){display:none}}
+@media(prefers-reduced-motion:reduce){#screen-room .sf55-session *,#screen-room .sf55-reaction-menu *{animation:none!important;transition:none!important}}

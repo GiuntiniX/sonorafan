@@ -2080,6 +2080,16 @@
             <div class="thumb" id="nextThumb"></div>
             <div class="info"><div class="title" id="nextTitle">-</div><div class="artist" id="nextArtist">-</div></div>
           </div>
+          <section class="sf55-session" id="sf55Session" aria-label="O que está tocando e o que vem a seguir">
+            <div class="sf55-session-head">
+              <div class="sf55-session-kicker"><span class="sf55-session-dot" aria-hidden="true"></span> ROLANDO NA SALA</div>
+              <span class="sf55-session-count" id="sf55SessionCount" aria-live="polite">Aguardando músicas</span>
+            </div>
+            <div class="sf55-session-tracks" id="sf55SessionTracks">
+              <div class="sf55-session-placeholder">A próxima descoberta musical começa aqui. Adicione uma música à playlist colaborativa.</div>
+            </div>
+            <button type="button" class="sf55-session-add" id="sf55SessionAdd" aria-label="Buscar música para adicionar à playlist">＋ Escolher música</button>
+          </section>
 
         </div>
 
@@ -2087,8 +2097,7 @@
         <div class="chat-column sf34-chat">
           <div class="premium-chat-heading sf53-chat-heading"><span class="premium-online-dot"></span> Chat da sala <small>✦ CONECTADOS</small><button type="button" class="sf53-inbox-shortcut" onclick="window.sf53OpenInbox?.()">✉ Privado <b class="sf53-unread" hidden>0</b></button></div>
           <div class="premium-presence" id="premiumPresence" aria-label="Pessoas ouvindo"><span class="premium-presence-empty">Entre na vibe com a galera</span></div>
-          <div class="premium-reactions" aria-label="Reações rápidas"><span>Reagir à música</span><button type="button" onclick="premiumReact('🔥')" aria-label="Reagir com fogo">🔥</button><button type="button" onclick="premiumReact('❤️')" aria-label="Reagir com coração">❤️</button><button type="button" onclick="premiumReact('🎶')" aria-label="Reagir com nota musical">🎶</button><button type="button" onclick="premiumReact('🙌')" aria-label="Reagir com celebração">🙌</button><button type="button" onclick="premiumReact('⚡')" aria-label="Reagir com energia">⚡</button></div>
-          <div id="premiumReactionStage" class="premium-reaction-stage" aria-hidden="true"></div>
+          <div id="premiumReactionStage" class="premium-reaction-stage" aria-hidden="true" hidden></div>
           <div class="users-panel">
             <div class="user-count" onclick="toggleUsersPop(event)" style="cursor:pointer">
               <span class="icon">👥</span> <span id="userCount">0</span> <span>ouvintes</span>
@@ -4268,5 +4277,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-chat-53.js"></script>
   <link rel="stylesheet" href="/sonorafan-brand-fila-54.css">
   <script defer src="/sonorafan-fila-54.js"></script>
+  <link rel="stylesheet" href="/sonorafan-sala-chat-55.css">
+  <script defer src="/sonorafan-sala-55.js"></script>
 </body>
 </html>
