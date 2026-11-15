@@ -4,12 +4,15 @@
 const crypto = require('crypto');
 const THEMES = new Set(['vinyl','stage','cassette','waves']);
 const CLUBS = 'sonorafanFanClubs71';
+const COVERS = 'sonorafanFanClubCovers73';
+const MAX_COVER_BYTES = 180 * 1024;
 const clean = (value, max) => typeof value === 'string'
   ? value.normalize('NFC').replace(/[\u0000-\u001f\u007f<>]/g,' ').replace(/\s+/g,' ').trim().slice(0,max)
   : '';
 const unique = values => Array.from(new Set(Array.isArray(values) ? values.filter(x=>typeof x==='string') : []));
 
-function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify }) {
+function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser }) {
+  const coverRef = id => db.collection(COVERS).doc(id);
   const refFor = id => db.collection(CLUBS).doc(id);
   // Streams are attached only after cookie-session and membership verification.
   // Never emit post content over a public Socket.IO room.
@@ -63,7 +66,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     id: String(id || data.id), title: data.title, artist: data.artist, description:data.description,
     rules:data.rules, theme:data.theme, ownerId:data.ownerId, ownerName:data.ownerName,
     memberCount:unique(data.memberIds).length, roomCount:unique(data.roomSlugs).length,
-    createdAt:data.createdAt, isUnofficial:true
+    createdAt:data.createdAt, coverVersion:Number(data.coverVersion)||0, isUnofficial:true
   });
   const overview=(data,id,me)=>({
     ...record(data,id),
@@ -136,7 +139,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       res.json({clubs:list});
     } catch(e){error(res,e);}
   });
-  app.post('/api/fan-clubs',rateLimit(5,3600000),async(req,res)=>{
+  // Falhas anteriores consumiam 5 tentativas por IP/hora. O limite estrutural de
+  // cinco clubes por criador continua sendo verificado no banco.
+  app.post('/api/fan-clubs',rateLimit(20,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const artist=clean(req.body?.artist,65),title=clean(req.body?.title,75),description=clean(req.body?.description,280),rules=clean(req.body?.rules,300);
     const theme=THEMES.has(req.body?.theme)?req.body.theme:'vinyl';
@@ -149,6 +154,48 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         memberIds:[me.id],blockedIds:[],roomSlugs:[],createdAt:Date.now(),updatedAt:Date.now()};
       await refFor(id).create(data);
       res.status(201).json({club:overview(data,id,me)});
+    }catch(e){error(res,e);}
+  });
+  // Capas pequenas em uma coleção SEPARADA: consultas do lobby não carregam bytes da imagem.
+  // WebP/JPEG/PNG somente, dados brutos limitados a 180 KiB por grupo.
+  const sniffCover = buffer => {
+    if (!Buffer.isBuffer(buffer) || buffer.length<16 || buffer.length>MAX_COVER_BYTES) return null;
+    if (buffer.subarray(0,4).toString()==='RIFF' && buffer.subarray(8,12).toString()==='WEBP') return 'image/webp';
+    if (buffer.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) return 'image/png';
+    if (buffer[0]===255 && buffer[1]===216 && buffer[2]===255) return 'image/jpeg';
+    return null;
+  };
+  app.get('/api/fan-clubs/:id/cover',rateLimit(120,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{const {data}=await readClub(req.params.id);
+      if(!(Number(data.coverVersion)>0))throwHttp(404,'Esta comunidade ainda não tem capa.');
+      const snap=await coverRef(req.params.id).get();
+      if(!snap.exists)throwHttp(404,'Capa não encontrada.');
+      const blob=Buffer.from(String(snap.data()?.imageBase64||''),'base64');
+      const mime=sniffCover(blob);if(!mime)throwHttp(404,'Capa indisponível.');
+      res.set('Content-Type',mime);res.set('Cache-Control','private, max-age=120');
+      res.set('X-Content-Type-Options','nosniff');return res.send(blob);
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/cover',rateLimit(15,60000),
+    rawCoverParser||((req,res,next)=>next()),async(req,res)=>{
+      const me=identity(req,res);if(!me)return;
+      try{const {ref,data}=await readClub(req.params.id);
+        if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode alterar a capa.');
+        const bytes=req.body;const mime=sniffCover(bytes);
+        if(!mime)throwHttp(400,'A imagem deve ser WebP, PNG ou JPG e ter no máximo 180 KB.');
+        const v=Math.max(Date.now(),Number(data.coverVersion||0)+1);
+        await coverRef(req.params.id).set({imageBase64:bytes.toString('base64'),mime,updatedAt:v});
+        await ref.update({coverVersion:v,updatedAt:v});publish(req.params.id,'cover');
+        res.json({success:true,coverVersion:v});
+      }catch(e){error(res,e);}
+    });
+  app.delete('/api/fan-clubs/:id/cover',rateLimit(15,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode remover a capa.');
+      await ref.update({coverVersion:0,updatedAt:Date.now()});
+      await coverRef(req.params.id).delete();publish(req.params.id,'cover');res.json({success:true});
     }catch(e){error(res,e);}
   });
   app.get('/api/fan-clubs/:id',rateLimit(75,60000),async(req,res)=>{

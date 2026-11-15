@@ -1,78 +1,59 @@
-# SonoraFan 72.0 — Busca estável, Favoritos simplificados e Fan Clubs ao vivo
+# SonoraFan 73.0 — Criação de Fan Club corrigida + Capa personalizável
 
-**Pacote incremental sobre o SonoraFan 71.0.** Não é o projeto completo. Faça backup da aplicação antes de substituir os arquivos. Preserve o `.env`, os assets e as demais dependências anteriores.
+**Base obrigatória: SonoraFan 72.0.** Este ZIP é incremental e inclui apenas os arquivos novos/alterados da 73.0.
+Faça backup dos arquivos e do banco de dados antes da instalação.
 
-## Arquivos alterados
+## Arquivos para substituir
 
 | Arquivo | Ação |
 |---|---|
 | `server.js` | Substituir na raiz |
 | `fan-clubs-71.js` | Substituir na raiz |
-| `public/index.html` | Substituir |
-| `public/sonorafan-evolution-63.js` | Substituir |
-| `public/sonorafan-menu-favorites-67.js` | Substituir |
-| `public/sonorafan-menu-favorites-67.css` | Substituir |
-| `public/sonorafan-discovery-70.js` | Substituir |
 | `public/sonorafan-community-71.js` | Substituir |
-| `public/social-stage3.js` | Substituir |
-| `public/sonorafan-polish-72.css` | Adicionar |
-| `tests/fan-clubs-72.test.js` | Testes opcionais |
+| `public/sonorafan-community-71.css` | Substituir |
+| `tests/fan-clubs-73.test.js` | Teste adicional (opcional) |
 
-## 1. Buscar músicas voltou a funcionar
+**Não há `public/index.html` novo**: a versão 72.0 já carrega os CSS e JS acima. Não sobrescreva seus outros arquivos.
 
-Causas investigadas e corrigidas:
+## Correções da criação
 
-1. O observador de alterações de DOM reescrevia os rótulos do painel sem necessidade e disparava novas alterações em ciclo.
-2. A janela `Favoritar / Escolher categoria` usava `z-index: 1300`, mas a janela `Descobrir músicas` usava `z-index: 10050`, deixando o fluxo de classificação invisível/sem clique.
+- `#sf71Modal` passa a ter prioridade visual superior aos painéis, com foco por teclado, Esc e rolagem interna.
+- O formulário de criação é fechado após a resposta de sucesso do servidor, **antes** de navegar à comunidade criada. Isso evita a janela nova atrás da criação.
+- O botão Salvar fica desabilitado durante o envio, impedindo cliques duplos.
+- A criação anterior tinha `rateLimit(5,3600000)`: 5 tentativas por IP/hora (inclusive tentativas inválidas). Agora é `rateLimit(20,60000)` para evitar bloqueios prematuros. O limite real de **até 5 comunidades por criador** continua aplicado no Firestore.
+- Erro HTTP 429 recebe mensagem orientativa; nenhuma falha de upload da capa desfaz um Fan Club já criado.
 
-Correções: observador idempotente, alterações do DOM agendadas, janela de favoritos com camada superior, limite de espera em requisições, estados de falha, Esc e foco por teclado, proteção contra salvamentos duplicados.
+## Imagem de capa
 
-## 2. Favoritos organizados por categoria
+- Campo `Imagem de capa (opcional)` com prévia na criação.
+- Arquivos de origem: JPG, PNG ou WebP, até **8 MB antes da compressão**.
+- O navegador recorta a imagem em formato panorâmico e converte em WebP até **175 KiB**.
+- O servidor limita a **180 KiB**, verifica assinaturas JPEG/PNG/WebP, rejeita HTML/SVG/arquivos inválidos e valida a sessão.
+- Somente o criador ou administrador pode trocar/remover a capa.
+- O hero e os cards passam a mostrar a imagem real, com degradê para assegurar a legibilidade do título.
+- Fan Clubs antigos aparecem normalmente sem capa e podem ganhar imagem depois.
+- Em caso de falha na imagem, o Fan Club já criado é aberto e o usuário recebe aviso de que pode adicionar a capa posteriormente.
 
-- **Todas**: os seletores de gênero continuam disponíveis para organizar ou transferir músicas.
-- **Rock, MPB, Indie e qualquer categoria criada**: mostra apenas as músicas da categoria, sem repetir um seletor de gênero em cada faixa.
-- As categorias existentes e músicas salvas no Firestore são preservadas.
-- Excluir a categoria continua trazendo suas faixas para `Sem gênero`, conforme a versão 67.
+### Persistência
 
-## 3. Menu sem Mais/Menos opções
+As capas otimizadas são salvas separadamente em `sonorafanFanClubCovers73` no Firestore, em documentos com ID do Fan Club. O documento principal guarda apenas `coverVersion`. Não é preciso instalar bibliotecas novas nem configurar Firebase Storage para este pacote. Cada capa tem limite estrito para não ultrapassar o tamanho máximo de um documento Firestore.
 
-- Removida a criação dinâmica desse botão no lobby e na sala.
-- Todos os atalhos permanecem acessíveis, em formato compacto e com brilho suave nos ícones.
-- O botão independente de recolher/reabrir **o menu lateral da sala** continua existindo no lado direito do cabeçalho.
-
-## 4. Comunidade: Fan Clubs com atualizações e notificações
-
-- O mural de um Fan Club aberto atualiza automaticamente quando alguém publica ou exclui uma publicação.
-- Foi criada uma rota **SSE (Server-Sent Events)** autenticada: `/api/fan-clubs/:id/stream`.
-- Apenas membros autorizados recebem o canal; remover ou bloquear um membro encerra a conexão.
-- O aviso de mudança no canal contém **somente identificador e tipo de evento**, nunca o conteúdo do mural.
-- As publicações continuam sendo obtidas pela rota autenticada existente.
-- Novas publicações geram notificações no sistema social para membros cadastrados, exceto o autor, usando a estrutura existente de notificações.
-- Na notificação, o usuário pode clicar em **Abrir Fan Club**.
-- A conexão SSE é encerrada ao trocar de aba, sair do Fan Club ou fechar a Comunidade.
-- Sem suporte nativo a EventSource, o mural usa atualização periódica de 25 segundos enquanto a comunidade estiver aberta.
-
-**Infraestrutura:** a conexão SSE usa `text/event-stream`, `Cache-Control: no-store`, `Content-Encoding: identity`, `X-Accel-Buffering: no` e heartbeat. Garanta que seu proxy não armazene essas respostas em buffer nem encerre conexões longas prematuramente. Notificações são entregues em lotes assíncronos e podem falhar temporariamente sem desfazer a publicação.
+**Escala futura:** para alto volume de Fan Clubs/imagens, migrar a coleção de capas para Firebase Cloud Storage (mais adequado para mídia). Este pacote privilegia a implantação sem nova dependência e com imagens pequenas.
 
 ## Instalação
 
-1. Faça backup da versão 71.0 e da configuração Firebase.
-2. Extraia este ZIP na **raiz** do projeto SonoraFan, respeitando a pasta `public/`.
-3. Substitua os arquivos correspondentes e adicione `public/sonorafan-polish-72.css`.
-4. **Reinicie o Node.js**, pois existem alterações no servidor e nos Fan Clubs.
-5. Atualize o navegador com **Ctrl + F5**.
-6. Abra `Descobrir músicas`, faça uma busca e salve uma favorita em Rock. Confirme que a categoria Rock lista apenas suas músicas e que `Todas` continua permitindo trocar o gênero.
-7. Confira os menus do lobby e da sala, incluindo o botão de recolhimento independente.
-8. Com duas contas reais, entre no mesmo Fan Club, publique pelo primeiro perfil e confira a atualização do mural e a notificação no segundo perfil. Teste também saída e bloqueio.
+1. Faça backup da versão 72.0 e do `.env`/variáveis de ambiente (não os compartilhe).
+2. Extraia o ZIP na raiz do repositório, preservando a pasta `public/`.
+3. Substitua apenas os quatro arquivos indicados.
+4. Reinicie o processo Node.js. A redefinição das contagens em memória do limitador depende do reinício.
+5. No navegador: Ctrl+F5.
+6. Abra Comunidade → Fan Clubs → Criar Fan Club; preencha, escolha uma foto e confirme. Verifique se a criação fecha e exibe o hero.
+7. Abra o mesmo Fan Club com a outra conta: confirme a capa, entre no grupo, publique no mural e verifique o evento/notificação com a primeira conta.
+8. Confira Buscar músicas e Favoritos por gênero; eles não foram modificados nesta rodada.
 
-## Validações feitas nesta entrega
+## Validação realizada
 
-- **8 testes automatizados** do backend, incluindo sessão/membros, publicações, moderação, vínculo de salas, SSE sem vazamento de conteúdo e encerramento de conexões.
-- Testes isolados em Chromium (1440 px e 390 px), com API simulada: abertura de Descobrir músicas, busca, favoritar, classificar, alternar Rock/Todas e receber atualização do mural, sem erro JavaScript.
-- Sintaxe dos scripts, IDs únicos no HTML, parsing dos novos CSS, referências de assets verificadas contra a base anterior e integridade do ZIP.
-
-**Limite de validação:** não foi possível abrir a aplicação completa via localhost no Chromium de teste deste ambiente. Não foram executados testes reais com Firebase publicado, YouTube ou duas sessões de produção. Os fluxos críticos devem ser verificados em homologação antes de substituir a produção. A revisão não equivale a uma auditoria integral de segurança da aplicação.
-
-## Preservado
-
-Firebase Auth, YouTube, Socket.IO das salas, XP, missões, fila, votação, histórico de músicas, páginas e configurações anteriores. Nenhum dado do Firestore foi alterado ou migrado por este pacote.
+- **10 testes Node.js** (contas simuladas) passando: autenticação, membros, moderação, SSE, notificações e capa.
+- Fluxo visual isolado com APIs simuladas em Chromium: **1440 px e 390 px**, formulário, seleção/compactação e envio da imagem, navegação e hero; sem erros JS.
+- Testes isolados de Buscar músicas e Favoritos da versão 72.0 repetidos em 1440 px e 390 px, sem regressões detectadas.
+- Não foi possível verificar a integração com o Firebase publicado nem com duas sessões reais simultâneas. Teste esses cenários após implantar.
