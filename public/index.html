@@ -1420,35 +1420,10 @@
           <img class="sf33-woman-art" src="/art-33/woman-headphones.webp" alt="Ilustração indie de uma pessoa ouvindo música com fones e flores" width="813" height="600" decoding="async">
           <div class="visual-glow"></div>
           <div class="vinyl"></div>
-          <div class="now-playing-card">
-            <div class="np-row">
-              <div class="np-cover"></div>
-              <div class="np-info">
-                <div class="np-label">Tocando agora</div>
-                <div class="np-title">Blinding Lights</div>
-                <div class="np-artist">The Weeknd · Sala do Gui</div>
-              </div>
-              <div class="np-eq"><span></span><span></span><span></span><span></span></div>
-            </div>
-            <div class="np-progress"><div class="np-progress-fill"></div></div>
-            <div class="np-controls">
-              <span>⏮️</span>
-              <div class="play-btn">▶</div>
-              <span>⏭️</span>
-            </div>
-          </div>
-          <div class="float-card">
-            <img src="https://img.youtube.com/vi/TUVcZfQe-Kw/default.jpg" alt="">
-            <div class="fc-info"><div class="fc-title">Levitating</div><div class="fc-artist">Dua Lipa</div></div>
-            <span class="fc-live">🔴 LIVE</span>
-          </div>
-          <div class="float-card">
-            <img src="https://img.youtube.com/vi/2vjPBrBU-TM/default.jpg" alt="">
-            <div class="fc-info"><div class="fc-title">Chandelier</div><div class="fc-artist">Sia</div></div>
-          </div>
-          <div class="float-card">
-            <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/default.jpg" alt="">
-            <div class="fc-info"><div class="fc-title">Despacito</div><div class="fc-artist">Luis Fonsi</div></div>
+          <div class="sf63-landing-vibe" aria-live="polite">
+            <span>✦ UM PALCO PARA TODO MUNDO</span>
+            <strong id="sf63LandingHighlight">Sua próxima descoberta começa aqui.</strong>
+            <small id="sf63LandingActivity">Salas colaborativas, artistas e amizades musicais.</small>
           </div>
         </div>
       </section>
@@ -1829,6 +1804,7 @@
           <button type="button" class="active" aria-current="page">◈ <span>Descobrir salas</span></button>
           <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
           <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry">🏅 <span>SonoraFan Club</span></button>
+          <button type="button" data-sf63-open="passport" class="sf63-menu-entry">🎟️ <span>Minha Jornada</span></button>
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()">🔔 <span>Notificações</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
@@ -1911,6 +1887,10 @@
               </select>
             </label>
           </div>
+          <div class="sf63-discover-bar" id="sf63DiscoverTools" aria-label="Descoberta e comunidade">
+            <span>✦ Descubra música com pessoas da sua vibe</span>
+            <div><button type="button" data-sf63-open="music">⌕ Buscar músicas</button><button type="button" data-sf63-open="passport">🎟️ Meu passaporte</button><button type="button" data-sf63-open="social">✉ Amigos</button></div>
+          </div>
           <p id="sf50RoomHint" class="sf50-room-hint" role="status" aria-live="polite"></p>
           <div class="room-grid" id="roomGrid" tabindex="-1" aria-label="Salas disponíveis">
             <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
@@ -1989,6 +1969,7 @@
           <button type="button" onclick="leaveRoom()">◈ <span>Descobrir salas</span></button>
           <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
           <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry">🏅 <span>SonoraFan Club</span></button>
+          <button type="button" data-sf63-open="passport" class="sf63-menu-entry">🎟️ <span>Minha Jornada</span></button>
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
           <button type="button" class="sf53-nav-inbox" onclick="window.sf53OpenInbox?.()">✉ <span>Mensagens <b class="sf53-unread" hidden>0</b></span></button>
@@ -2090,7 +2071,10 @@
             </div>
             <button type="button" class="sf55-session-add" id="sf55SessionAdd" aria-label="Buscar música para adicionar à playlist">＋ Escolher música</button>
           </section>
-
+          <div class="sf63-room-activity" id="sf63RoomTools" aria-label="Atividades musicais da sala">
+            <span>✦ Participe da sessão</span>
+            <div><button type="button" data-sf63-open="music">＋ Música</button><button type="button" data-sf63-open="battle">⚡ Batalha</button><button type="button" data-sf63-open="challenge">🏅 Desafio</button><button type="button" data-sf63-open="history">☰ Histórico</button></div>
+          </div>
         </div>
 
         <div class="sf5-bottom-row">
@@ -2371,7 +2355,7 @@
           <section class="sf43-profile-card">
             <div class="sf43-section-head"><strong>Ações rápidas</strong><small>Atalhos úteis para o dia a dia</small></div>
             <div class="sf43-quick-actions">
-              <button type="button" onclick="window.sf45OpenClub?.(); window.sf43CloseProfile?.();">🏅 SonoraFan Club</button>
+              <button type="button" onclick="window.sf45OpenClub?.(); window.sf43CloseProfile?.();">🏅 SonoraFan Club</button><button type="button" data-sf63-open="passport" data-sf63-close-profile="1">🎟️ Passaporte</button>
               <button type="button" onclick="toggleFavorites(); window.sf43CloseProfile?.();">☆ Favoritos</button>
               <button type="button" onclick="openLeaderboard(); window.sf43CloseProfile?.();">♛ Ranking</button>
               <button type="button" onclick="window.sf5OpenCommunity?.(); window.sf43CloseProfile?.();">♧ Comunidade</button>
@@ -2429,6 +2413,24 @@
       </div>
       <div id="sf53Status" class="sf53-status" role="status" aria-live="polite"></div>
     </div>
+  </div>
+  <!-- 57–63: experiências musicais, dados reais e tour renovado -->
+  <div class="sf63-overlay" id="sf63Hub" role="dialog" aria-modal="true" aria-labelledby="sf63HubTitle" hidden>
+    <div class="sf63-hub" role="document">
+      <header class="sf63-hub-header"><div><span class="sf63-eyebrow">SONORAFAN · SUA JORNADA</span><h2 id="sf63HubTitle">Descobrir e participar</h2><p>Mais música, desafios e descobertas — sempre juntos.</p></div><button type="button" class="sf63-close" id="sf63HubClose" aria-label="Fechar painel">✕</button></header>
+      <nav class="sf63-tabs" aria-label="Áreas da sua jornada">
+        <button type="button" data-sf63-tab="music">♫ Músicas</button><button type="button" data-sf63-tab="passport">🎟️ Passaporte</button><button type="button" data-sf63-tab="battle">⚡ Batalha</button><button type="button" data-sf63-tab="challenge">🏅 Desafio</button><button type="button" data-sf63-tab="history">☰ Histórico</button><button type="button" data-sf63-tab="social">✉ Amigos</button>
+      </nav>
+      <main class="sf63-hub-body" id="sf63HubBody" tabindex="-1" aria-live="polite"></main>
+      <footer class="sf63-hub-foot"><span>Todos são DJs • Recompensas validadas pelo servidor</span><button type="button" id="sf63HubDismiss">Fechar painel</button></footer>
+    </div>
+  </div>
+  <div class="sf63-tour" id="sf63Tour" role="dialog" aria-modal="true" aria-label="Tour SonoraFan" hidden>
+    <div class="sf63-tour-dimmer"></div><div class="sf63-tour-ring" id="sf63TourRing" aria-hidden="true"></div>
+    <section class="sf63-tour-card" id="sf63TourCard" tabindex="-1">
+      <span class="sf63-eyebrow">AJUDA / TOUR · VERSÃO 63</span><h2 id="sf63TourHeading">Bem-vindo ao SonoraFan</h2><p id="sf63TourDescription"></p><small id="sf63TourStepCount"></small>
+      <div class="sf63-tour-actions"><button type="button" id="sf63TourSkip">Pular</button><button type="button" id="sf63TourPrevious">Voltar</button><button type="button" id="sf63TourNext">Próximo →</button></div>
+    </section>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
@@ -3104,6 +3106,7 @@
         sf50DisplayRooms.forEach(r => {
           const card = document.createElement('div');
           card.className = 'room-card sf37-room-card' + (r.isPlaying ? ' live' : '');
+          card.dataset.slug = r.slug;
           const track = r.currentTrack;
           // YouTube images are only ever built using a validated 11-character video ID.
           const videoId = typeof track?.id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(track.id) ? track.id : null;
@@ -3154,6 +3157,7 @@
         window.sf10DecorateRooms?.(roomsData);
         window.sf41UpdateRooms?.(roomsData);
         window.sf50AfterRooms?.(roomsData, sf50DisplayRooms);
+        window.sf63RefreshRoomSort?.();
       } catch(e) { sf39UpdateRoomPulse(null); window.sf41UpdateRooms?.(null); grid.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Erro ao carregar salas.</p></div>'; }
     }
     function showCreateRoom() {
@@ -4281,5 +4285,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-sala-55.js"></script>
   <link rel="stylesheet" href="/sonorafan-fila-56.css">
   <script defer src="/sonorafan-fila-56.js"></script>
+  <link rel="stylesheet" href="/sonorafan-evolution-63.css">
+  <script defer src="/sonorafan-evolution-63.js"></script>
 </body>
 </html>

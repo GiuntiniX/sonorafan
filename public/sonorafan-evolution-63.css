@@ -1,0 +1,178 @@
+/* SONORAFAN 57–63 — compact UX, accessibility, achievements and tour */
+:root { --sf63-panel:#1b112a; --sf63-line:rgba(235,197,255,.16); --sf63-text:#f5eafc; --sf63-soft:#c9b9d7; --sf63-orange:#ffad63; --sf63-pink:#f97db2; }
+/* A página inicial ganhou hierarquia compacta: sem forçar zoom ou gerar falsos dados ao vivo. */
+#landingScreen { min-height:100vh; max-height:none; overflow-y:auto !important; overflow-x:clip !important; scroll-behavior:smooth; }
+#landingScreen .landing-content { max-width:1220px; padding:0 clamp(16px,3vw,36px) 34px; }
+#landingScreen .topnav { max-width:1220px; padding:12px clamp(16px,3vw,36px); min-height:66px; }
+#landingScreen .hero { grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr); align-items:center; gap:clamp(14px,3vw,36px); padding:clamp(16px,3.5vh,32px) 0 28px; min-height:0; }
+#landingScreen .hero-text { align-self:center; }
+#landingScreen .hero-text h1 span,#landingScreen .hero-text h1 em { opacity:1 !important; animation:none !important; transform:none !important; display:block; }
+#landingScreen .hero-text h1 { font-size:clamp(38px,4.8vw,66px); line-height:1.02; letter-spacing:-.05em; margin:12px 0 18px; }
+#landingScreen .hero-text > p { font-size:clamp(15px,1.2vw,17px); line-height:1.6; max-width:510px; margin-bottom:18px; }
+#landingScreen .hero-badge { margin-bottom:8px; font-size:10px; letter-spacing:.11em; }
+#landingScreen .hero-ctas { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+#landingScreen .hero-ctas button { min-height:44px; }
+#landingScreen .hero-visual { position:relative; min-height:clamp(255px,27vw,365px); max-height:365px; overflow:visible; }
+#landingScreen .sf33-woman-art { max-height:365px; object-fit:contain; object-position:center; }
+#landingScreen .hero-visual .float-card, #landingScreen .hero-visual .now-playing-card { display:none !important; }
+#landingScreen .sf63-landing-vibe { position:absolute; left:3%; bottom:1%; right:3%; max-width:340px; padding:12px 16px; border:1px solid rgba(255,255,255,.2); border-radius:16px; background:rgba(21,9,35,.8); backdrop-filter:blur(12px); display:grid; gap:4px; box-shadow:0 14px 35px rgba(0,0,0,.25); z-index:5; }
+#landingScreen .sf63-landing-vibe span { font-size:9px; color:#ffbc78; font-weight:800; letter-spacing:.14em; }
+#landingScreen .sf63-landing-vibe strong { font-size:14px; color:#fff; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+#landingScreen .sf63-landing-vibe small { font-size:11px; color:#ead5ed; }
+#landingScreen .sf26-live-marquee { margin-bottom:24px; }
+#landingScreen .landing-section { margin-bottom:32px; }
+#landingScreen .section-head { margin-bottom:18px; }
+#landingScreen .section-head h2 { font-size:clamp(24px,2.9vw,34px); }
+#landingScreen .how-grid,#landingScreen .feature-grid { gap:12px; }
+#landingScreen .how-card { padding:22px 18px; }
+#landingScreen .feature-card { padding:20px 18px; }
+#landingScreen .sf44-festival-section,#landingScreen .sf44-story-grid { margin-bottom:24px; }
+#landingScreen .sf44-story-card { min-height:0; }
+#landingScreen .sf44-story-card img { max-height:210px; object-fit:cover; }
+#landingScreen .sf44-last-call { margin-block:20px; }
+#landingScreen .landing-footer { padding-bottom:32px; }
+#landingScreen .sf63-landing-tour-link { appearance:none; background:transparent; border:1px solid rgba(255,255,255,.22); color:#eddaef; border-radius:14px; padding:10px 14px; font:600 12px/1.3 inherit; cursor:pointer; }
+#landingScreen .sf63-landing-tour-link:hover { background:rgba(255,255,255,.07); }
+/* Lobby real rooms remain first. Activities never push existing cards down more than one compact row. */
+#screen-lobby .sf63-discover-bar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:10px 14px; border-radius:16px; margin:2px 0 12px; background:linear-gradient(110deg,rgba(105,40,151,.16),rgba(251,125,99,.09)); border:1px solid var(--sf63-line); }
+#screen-lobby .sf63-discover-bar > span { font-size:12px; color:#ebd6f3; font-weight:700; }
+#screen-lobby .sf63-discover-bar > div, #screen-room .sf63-room-activity > div { display:flex; gap:7px; flex-wrap:wrap; }
+#screen-lobby .sf63-discover-bar button,#screen-room .sf63-room-activity button { font:700 12px/1.1 inherit; padding:9px 12px; border-radius:12px; background:rgba(255,255,255,.05); color:#f5e7f5; border:1px solid rgba(255,255,255,.13); cursor:pointer; }
+#screen-lobby .sf63-discover-bar button:hover,#screen-room .sf63-room-activity button:hover { background:rgba(157,76,221,.25); border-color:#b783e1; }
+#screen-room .sf63-room-activity { display:flex; align-items:center; justify-content:space-between; gap:9px; flex-wrap:wrap; padding:12px 14px; background:rgba(39,19,57,.65); border:1px solid rgba(255,255,255,.1); border-radius:16px; margin:8px 0 16px; }
+#screen-room .sf63-room-activity > span { color:#e8c7f3; font-size:11px; font-weight:800; letter-spacing:.06em; }
+#screen-room .sf63-room-activity button { white-space:nowrap; min-height:38px; }
+.sf63-menu-entry { display:flex; width:100%; align-items:center; gap:10px; min-height:42px; border:0; padding:10px 14px; border-radius:12px; background:transparent; color:inherit; font:inherit; font-size:14px; font-weight:650; cursor:pointer; text-align:left; }
+.sf63-menu-entry:hover { background:rgba(153,84,219,.14); }
+/* Dialog, one compact panel for music and games. */
+.sf63-overlay[hidden],.sf63-tour[hidden] { display:none !important; }
+.sf63-overlay { position:fixed; inset:0; z-index:10050; display:grid; place-items:center; padding:12px; background:rgba(8,4,18,.81); backdrop-filter:blur(10px); }
+body.sf63-hub-active { overflow:hidden !important; }
+.sf63-hub { width:min(960px,100%); max-height:min(94dvh,850px); border-radius:24px; background:linear-gradient(150deg,#241234,#130d21 64%); color:var(--sf63-text); border:1px solid rgba(244,197,255,.24); display:flex; flex-direction:column; min-height:0; box-shadow:0 30px 100px rgba(0,0,0,.48); overflow:hidden; }
+.sf63-hub-header { display:flex; justify-content:space-between; align-items:flex-start; gap:14px; padding:20px 22px 14px; background:radial-gradient(circle at 80% 0,rgba(255,134,109,.22),transparent 42%),linear-gradient(100deg,rgba(147,64,186,.25),transparent); }
+.sf63-eyebrow { display:block; color:#f6bd92; letter-spacing:.16em; font-size:10px; font-weight:900; }
+.sf63-hub-header h2 { font-size:clamp(22px,3vw,31px); margin:4px 0 7px; line-height:1.15; letter-spacing:-.035em; }
+.sf63-hub-header p { font-size:12px; color:var(--sf63-soft); line-height:1.55; margin:0; }
+.sf63-close { flex:none; width:38px; height:38px; border:1px solid rgba(255,255,255,.18); border-radius:12px; background:rgba(255,255,255,.05); color:white; font-size:18px; cursor:pointer; }
+.sf63-tabs { display:flex; gap:5px; flex-wrap:nowrap; padding:8px 16px; overflow-x:auto; border-bottom:1px solid var(--sf63-line); }
+.sf63-tabs button { flex:0 0 auto; min-height:38px; font:750 12px/1.1 inherit; border:1px solid transparent; border-radius:12px; padding:9px 12px; background:transparent; color:#c9b7d7; cursor:pointer; white-space:nowrap; }
+.sf63-tabs button.is-active { color:#fff; background:linear-gradient(115deg,#7432b4,#d45c9b); border-color:rgba(255,255,255,.2); }
+.sf63-hub-body { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:18px clamp(12px,3vw,24px) 28px; display:block; }
+.sf63-hub-foot { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:9px 18px; border-top:1px solid var(--sf63-line); color:#b7a5c5; font-size:11px; }
+.sf63-hub-foot button { min-height:36px; border:1px solid var(--sf63-line); background:#372148; color:#fff; font:inherit; font-weight:700; border-radius:10px; padding:8px 13px; cursor:pointer; }
+.sf63-hub-body button:not(.sf63-music-search button),.sf63-hub-body a.sf63-download { cursor:pointer; }
+.sf63-intro { margin-bottom:16px; }
+.sf63-intro strong { font-size:20px; color:#fff6fc; }
+.sf63-intro p { font-size:13px; line-height:1.6; color:var(--sf63-soft); margin:6px 0; }
+.sf63-muted { color:#dcc8e5; }
+.sf63-caption { font-size:12px; color:#a995b9; line-height:1.6; }
+.sf63-empty { padding:16px; border-radius:14px; border:1px dashed rgba(255,255,255,.2); color:#d7c1df; font-size:13px; line-height:1.6; }
+.sf63-section-heading { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin:19px 0 10px; }
+.sf63-section-heading strong { font-size:16px; }
+.sf63-section-heading span { color:#b8a7c9; font-size:11px; }
+.sf63-music-search { display:grid; gap:9px; margin-bottom:14px; }
+.sf63-music-search label { font-weight:700; font-size:12px; }
+.sf63-music-search > div { display:flex; gap:8px; }
+.sf63-music-search input { flex:1; width:0; min-width:0; min-height:44px; background:#110b1e; border:1px solid rgba(255,255,255,.17); padding:10px 12px; color:white; border-radius:12px; font:inherit; font-size:14px; }
+.sf63-music-search button,.sf63-actions button,.sf63-hub-body [data-sf63-action],.sf63-download { border-radius:12px; border:1px solid rgba(255,255,255,.12); padding:10px 12px; font:700 12px/1.1 inherit; color:white; background:linear-gradient(135deg,#7c3aed,#b34b88); cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; }
+.sf63-track-list,.sf63-results { display:grid; gap:8px; }
+.sf63-track { display:flex; align-items:center; gap:12px; padding:9px; border-radius:13px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.035); min-width:0; }
+.sf63-track img { width:66px; height:50px; object-fit:cover; border-radius:9px; background:#271537; flex:none; }
+.sf63-track > div { min-width:0; flex:1; display:grid; gap:5px; }
+.sf63-track strong { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:13px; }
+.sf63-track small { color:#c4b1d3; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sf63-track [data-sf63-action] { font-size:11px; white-space:nowrap; }
+.sf63-passport-intro { display:flex; gap:15px; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.sf63-passport-intro h3 { font-size:22px; margin:8px 0; }
+.sf63-passport-intro p { color:var(--sf63-soft); font-size:13px; line-height:1.55; }
+.sf63-passport-stamp { font-size:54px; }
+.sf63-progress { background:#41304f; border-radius:99px; height:8px; overflow:hidden; }
+.sf63-progress > span { display:block; height:100%; background:linear-gradient(90deg,#a855f7,#ffb46d); border-radius:inherit; transition:width .25s ease; }
+.sf63-passport-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; margin:18px 0; }
+.sf63-stamp { display:grid; gap:4px; align-items:center; justify-items:center; padding:15px 5px; border-radius:16px; border:1px dashed rgba(255,255,255,.15); background:rgba(255,255,255,.03); text-align:center; }
+.sf63-stamp > span { font-size:24px; color:#987bb1; }
+.sf63-stamp strong { font-size:12px; }
+.sf63-stamp small { font-size:10px; color:#ad9abf; }
+.sf63-stamp.unlocked { background:linear-gradient(135deg,rgba(171,80,189,.22),rgba(244,140,69,.15)); border-style:solid; border-color:rgba(252,194,146,.45); }
+.sf63-stamp.unlocked span { color:#ffbf81; }
+.sf63-preferences,.sf63-actions { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+.sf63-preferences button { border:1px solid rgba(255,255,255,.14); background:#30203f; color:white; padding:9px 13px; border-radius:99px; font:700 12px/1.2 inherit; cursor:pointer; }
+.sf63-preferences button.is-on { background:#8c4dbe; border-color:#d3a1ff; }
+.sf63-goal { border:1px solid var(--sf63-line); background:rgba(255,255,255,.03); border-radius:16px; padding:14px; margin:12px 0; }
+.sf63-goal > div:first-child { display:flex; justify-content:space-between; gap:12px; font-size:14px; margin-bottom:12px; }
+.sf63-goal > div:first-child span { font-weight:800; color:#ffa66a; }
+.sf63-challenge-state { padding:12px; background:rgba(115,68,155,.22); border-radius:12px; color:#f2d8f9; font-size:13px; }
+.sf63-battle-head { display:flex; justify-content:space-between; gap:10px; color:#d7aed6; font-weight:900; font-size:12px; padding:8px 0; }
+.sf63-battle-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:12px 0 17px; }
+.sf63-battle-choice { display:grid; gap:8px; padding:12px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); border-radius:18px; }
+.sf63-battle-choice.selected { border-color:#ffbd79; box-shadow:0 0 0 1px #ffbd79; }
+.sf63-battle-choice img { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:12px; }
+.sf63-battle-choice strong { font-size:14px; }
+.sf63-battle-choice small { color:#b99dc6; }
+.sf63-battle-choice > span { color:#ffb876; font-weight:800; font-size:13px; }
+.sf63-battle-choice b { color:#86efac; }
+.sf63-history-actions { display:flex; align-items:center; justify-content:space-between; gap:14px; margin:12px 0; color:#cbb1d9; font-size:11px; }
+.sf63-history-note { color:#af99bc; font-size:11px; margin-top:-8px; margin-bottom:5px; }
+.sf63-social-list { display:grid; gap:9px; }
+.sf63-person { display:flex; align-items:center; gap:10px; padding:10px; border-radius:13px; background:rgba(255,255,255,.035); border:1px solid var(--sf63-line); }
+.sf63-person > span { font-size:24px; }
+.sf63-person > div { display:grid; gap:4px; min-width:0; flex:1; }
+.sf63-person strong { font-size:13px; }
+.sf63-person small { font-size:11px; color:#c0aacd; overflow:hidden; text-overflow:ellipsis; }
+.sf63-person button { flex:none; }
+/* Accessible tour: spotlight plus an unobtrusive keyboard-operable dialog. */
+.sf63-tour { position:fixed; inset:0; z-index:10070; pointer-events:none; }
+body.sf63-tour-active { overflow:hidden !important; }
+.sf63-tour-dimmer { position:absolute; inset:0; pointer-events:auto; background:rgba(3,2,9,.65); }
+.sf63-tour-ring { position:fixed; z-index:1; border:2px solid #ffa15e; border-radius:15px; box-shadow:0 0 0 4px rgba(186,91,225,.32); pointer-events:none; }
+.sf63-tour-card { position:fixed; z-index:2; width:min(348px,calc(100vw - 24px)); max-height:70vh; overflow-y:auto; border-radius:20px; border:1px solid #a479c8; background:linear-gradient(145deg,#341949,#1b0d2d); color:white; padding:18px; box-shadow:0 22px 80px rgba(0,0,0,.6); pointer-events:auto; outline:0; }
+.sf63-tour-card h2 { font-size:20px; line-height:1.2; margin:12px 0; }
+.sf63-tour-card p { font-size:13px; color:#e7d4f0; line-height:1.55; margin:0 0 12px; }
+.sf63-tour-card small { color:#c4a9d2; }
+.sf63-tour-actions { display:flex; gap:7px; justify-content:flex-end; align-items:center; margin-top:16px; }
+.sf63-tour-actions button { min-height:38px; padding:9px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:#3c2556; color:white; font:700 12px/1.2 inherit; cursor:pointer; }
+.sf63-tour-actions button:last-child { background:#a34fa8; }
+.sf63-tour-actions button:disabled { opacity:.4; cursor:default; }
+.sf63-overlay :focus-visible,.sf63-tour :focus-visible,.sf63-discover-bar :focus-visible,.sf63-room-activity :focus-visible { outline:3px solid #ffd079 !important; outline-offset:3px; }
+/* Mobile: no horizontal overflow, no decorative controls over video. */
+@media(max-width:900px){
+  #landingScreen .hero { grid-template-columns:1fr; text-align:center; gap:16px; padding:18px 0 22px; }
+  #landingScreen .hero-text > p { margin-inline:auto; }
+  #landingScreen .hero-ctas,.sf50-hero-benefits { justify-content:center; }
+  #landingScreen .hero-visual { max-width:540px; width:100%; margin:0 auto; min-height:260px; }
+  #screen-lobby .sf63-discover-bar { align-items:flex-start; }
+}
+@media(max-width:600px){
+  #landingScreen .topnav { padding:12px 14px; }
+  #landingScreen .landing-content { padding:0 14px 28px; }
+  #landingScreen .hero-text h1 { font-size:clamp(32px,8vw,46px); }
+  #landingScreen .hero-visual { min-height:250px; max-height:300px; }
+  #landingScreen .sf33-woman-art { height:260px; max-height:260px; }
+  #landingScreen .sf63-landing-vibe { max-width:245px; padding:9px; left:6%; }
+  #landingScreen .sf44-story-card img { max-height:160px; }
+  #landingScreen .landing-section { margin-bottom:22px; }
+  #landingScreen .how-card,#landingScreen .feature-card { padding:15px; }
+  #screen-lobby .sf63-discover-bar { padding:8px; }
+  #screen-lobby .sf63-discover-bar > span { display:none; }
+  #screen-lobby .sf63-discover-bar > div { width:100%; flex-wrap:nowrap; gap:4px; }
+  #screen-lobby .sf63-discover-bar button,#screen-room .sf63-room-activity button { flex:1; min-width:0; padding:10px 5px; font-size:10px; white-space:nowrap; }
+  #screen-room .sf63-room-activity { padding:10px; margin-bottom:12px; }
+  #screen-room .sf63-room-activity > div { width:100%; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .sf63-hub { max-height:96dvh; border-radius:17px; }
+  .sf63-hub-header { padding:14px; }
+  .sf63-hub-foot { font-size:10px; }
+  .sf63-hub-body { padding:12px 12px 22px; }
+  .sf63-passport-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .sf63-battle-choices { grid-template-columns:1fr; }
+  .sf63-battle-choice img { max-height:150px; }
+  .sf63-track img { width:54px; height:44px; }
+  .sf63-track [data-sf63-action] { font-size:10px; padding:9px; }
+  .sf63-person { flex-wrap:wrap; }
+  .sf63-person > div { min-width:140px; }
+  .sf63-tour-card { max-height:min(65vh,350px); }
+}
+@media(prefers-reduced-motion:reduce){
+  #landingScreen .float-notes *,#landingScreen .btn-shake,#landingScreen .btn-shake::after,#landingScreen .landing-bg::before { animation:none !important; }
+  .sf63-progress > span { transition:none; }
+  #landingScreen { scroll-behavior:auto; }
+}
