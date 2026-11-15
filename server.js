@@ -612,10 +612,24 @@ app.get('/api/social/search', rateLimit(30,60000), (req,res) => {
   if(q.length<2 || q.length>40) return res.json([]);
   res.json([...users.entries()].filter(([e,u])=>e!==me && !u.banned && String(u.nome||'').toLocaleLowerCase('pt-BR').includes(q)).slice(0,15).map(profileSafe));
 });
+function socialOnline(email) {
+  // Identidade vinculada à sessão pelo servidor, nunca ao nickname enviado pelo navegador.
+  const account = users.get(email);
+  if (!account || account.banned || account.showListeningActivity === false) return false;
+  for (const client of io.sockets.sockets.values()) {
+    if (client.connected && (client.sf53Email === email || client.sfSocialEmail === email)) return true;
+  }
+  return false;
+}
 app.get('/api/social/following', async(req,res)=>{
   const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
-  try { const ids=await getFollowing(me); res.json(ids.map(id=>{const found=findSocialUser(id);return found?{...profileSafe(found),activity:publicActivity(found[0])}:null;}).filter(Boolean)); }
-  catch(e){res.status(503).json({error:'Serviço social indisponível'});}
+  try {
+    const ids=await getFollowing(me);
+    res.json(ids.map(id=>{
+      const found=findSocialUser(id);
+      return found && !found[1].banned ? {...profileSafe(found),online:socialOnline(found[0]),activity:publicActivity(found[0])} : null;
+    }).filter(Boolean));
+  }catch(e){res.status(503).json({error:'Serviço social indisponível'});}
 });
 app.post('/api/social/follow',rateLimit(24,60000),async(req,res)=>{
   const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});

@@ -67,9 +67,9 @@ function installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, 
       res.json(ids.map(id=>{
         const u=findSocialUser(id);
         if(!u || u[1].banned) return null;
-        const sockets=[...io.sockets.sockets.values()].filter(s=>s.sfSocialEmail===u[0] && s.sfSocialRoom && rooms.has(s.sfSocialRoom));
-        const available = sockets.some(s=>{const r=rooms.get(s.sfSocialRoom);return r&&!r.isPrivate&&u[1].showListeningActivity!==false;});
-        return {id,name:String(u[1].nome||'Ouvinte').slice(0,40),avatar:String(u[1].avatar||'🎧').slice(0,8),online:available};
+        const online = u[1].showListeningActivity!==false && [...io.sockets.sockets.values()]
+          .some(s=>s.connected && (s.sf53Email===u[0] || s.sfSocialEmail===u[0]));
+        return {id,name:String(u[1].nome||'Ouvinte').slice(0,40),avatar:String(u[1].avatar||'🎧').slice(0,8),online};
       }).filter(Boolean));
     } catch(e){console.error('chat53 contacts',e.message);res.status(503).json({error:'Contatos indisponíveis'});}
   });

@@ -1,41 +1,38 @@
-# SonoraFan 67.0 — Menus compactos + Favoritos por gênero
+# SonoraFan 69.0 — Comunidade limpa e amigos conectados
 
-**Atualização incremental da base 66.0.** Contém somente arquivos alterados ou necessários para compatibilidade. Aplique na raiz do projeto, respeitando a pasta `public/`.
+Pacote incremental **sobre a versão 68.0**. Inclui apenas arquivos novos ou modificados desta etapa. As comunidades permanentes por artista **ainda não foram implementadas**; o documento separa a ideia da entrega realizada.
 
 ## Arquivos
 
-| Arquivo | O que fazer |
-|---|---|
-| `server.js` | Substituir na raiz do projeto |
-| `favorite-genres-67.js` | Adicionar na raiz do projeto, ao lado de `server.js` |
-| `public/index.html` | Substituir |
-| `public/sonorafan-menu-favorites-67.css` | Adicionar |
-| `public/sonorafan-menu-favorites-67.js` | Adicionar |
-| `public/sonorafan-ui-65.css` e `.js` | Restaurados no pacote por compatibilidade com o seletor de ordenação customizado da versão 65 |
-| `tests/favorite-genres-67.test.js` | Testes opcionais do servidor |
+- `server.js` — **substituir** na raiz.
+- `chat-social-53.js` — **substituir** na raiz.
+- `public/index.html` — **substituir**.
+- `public/social-4.js` — **substituir**.
+- `public/sonorafan-social-69.css` — **adicionar**.
+- `public/art-33/flowers.webp` — **substituir** por versão transparente para neutralizar as decorações antigas que exibiam texto recortado.
 
-**Não exclua os demais CSS, JS ou imagens anteriores.** Não altere o `.env`, o Firebase nem o `package.json`.
+## Novidades implementadas
 
-## O que mudou
+**Presença de amigos:** a API `/api/social/following` indica se as contas seguidas estão conectadas, sem revelar a atividade de quem desligou a opção de visibilidade. O módulo de mensagens privadas utiliza a mesma regra para a lista de contatos. A presença é baseada na identidade autenticada, nunca no nickname escrito pelo cliente.
 
-1. **Menu mais simples:** ícones de 24 px, linhas com 36 px, brilho discreto e “Mais opções” para os recursos secundários. Atalhos originais preservados. O menu do lado direito continua controlando o recolhimento da barra lateral da sala (base 66).
-2. **Favoritos por gênero criado pelo usuário:** novas coleções personalizadas, criação, renomeação, exclusão, busca, filtro e organização manual de cada música. A lista completa permanece acessível em “Todas”.
-3. **Músicas antigas preservadas:** músicas que já estavam salvas começam em “Sem gênero”. Excluir uma coleção devolve suas músicas para “Sem gênero”; não as exclui.
-4. **Persistência entre dispositivos:** gêneros e atribuições são mantidos na coleção `favorites` do Firestore, associada à conta autenticada; não dependem só do navegador.
-5. **Ordenação preservada:** `index.html` volta a carregar os arquivos de ordenação customizada da versão 65 (contraste do menu escuro).
+**Interações:** usuários seguidos aparecem com status e ordenados por online primeiro. É possível abrir mensagem privada, entrar em uma sala pública onde a pessoa já está ou convidá-la para outra sala pública. Convites usam `/api/social/invite-friend` já existente no servidor, que valida a relação de seguir e a visibilidade da sala.
 
-## Passos para instalar
+**Remoção do material floral:** removidos os elementos de flores no perfil, neutralizadas as regras de decoração floral antigas e substituído o arquivo `art-33/flowers.webp` (que continha parte do texto "erme"). Um símbolo musical discreto substitui a decoração no cabeçalho da Comunidade.
 
-1. Faça **backup** do projeto e, se possível, da coleção `favorites` do Firestore.
-2. Sobre o projeto na versão **66.0**, copie o conteúdo deste ZIP para a raiz, substituindo `server.js` e `public/index.html`.
-3. Confirme que `favorite-genres-67.js` está **na raiz**, não em `public/`.
-4. Reinicie o Node.js (as APIs de gêneros são novas) e recarregue a página com **Ctrl + F5**.
-5. Entre com sua conta, abra Favoritos, crie um gênero, mova uma música, atualize a página e confira se tudo permaneceu salvo.
-6. Teste o menu “Mais opções” no lobby e na sala, e o botão único à direita para recolher o menu da sala.
+## Instalação
 
-## Testes e limitações
+1. Faça backup da versão 68.0, incluindo `server.js`, `chat-social-53.js` e a pasta `public/`.
+2. Substitua os arquivos correspondentes pelos deste ZIP, mantendo **todos os demais módulos** e imagens existentes.
+3. Reinicie Node.js: o `server.js` e `chat-social-53.js` foram modificados.
+4. Faça atualização forçada do navegador (`Ctrl + F5`) para descartar a imagem floral do cache.
+5. Teste com **duas contas reais**: seguimento, status online no lobby, mensagem privada, convite para sala pública, e privacidade com “mostrar atividade” desativada.
 
-- Testes Node: `node --test tests/favorite-genres-67.test.js`.
-- Verificações feitas: sintaxe JavaScript, estrutura HTML, CSS, operações de criação/renomeação/atribuição/exclusão, prévias de Favoritos em desktop e celular.
-- A interface foi testada em navegador isolado, com respostas simuladas da API. **A persistência no Firebase real e a sincronização em múltiplas contas precisam ser testadas no seu servidor publicado.**
-- Até **24 gêneros** por usuário, com nomes de até **28 caracteres**. Não há classificação automática: a pessoa escolhe onde guardar cada faixa.
+## Próxima proposta — Comunidades de fãs por artista
+
+Desenvolver um módulo de comunidades permanentes por artista, com criação por usuário, listagem/busca, entrada/saída, regras e moderadores, mural de mensagens, eventos e salas públicas vinculadas. Essas funções **não fazem parte deste ZIP**.
+
+## Limites
+
+- Prévia do frontend validada com API simulada em 1440 px e 390 px; fluxos reais com Firebase e Socket.IO publicados devem ser validados no ambiente de implantação.
+- Presença online é disponibilizada apenas a usuários que você segue e que não ocultaram sua atividade. “Offline ou presença oculta” evita revelar dados privados.
+- Imagens compostas de banners de festival, que podem conter desenhos integrados, foram preservadas. A arte avulsa de flores com texto quebrado foi removida em todos os locais que a referenciavam.
