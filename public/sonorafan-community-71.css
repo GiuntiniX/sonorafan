@@ -110,3 +110,29 @@
 .sf71-club-event strong{font-size:12px}
 .sf71-club-event small{font-size:11px;color:#bfb0ca}
 .sf71-club-events button{width:100%;margin:9px 0 0;padding:8px 10px;border:1px solid #72458b;background:#472657;color:#f3e1fb;border-radius:10px;cursor:pointer;font-size:12px;font-weight:700}
+
+/* SonoraFan 73 — dialog na camada superior (acima da Comunidade e dos outros painéis). */
+#sf71Modal.sf71-modal-overlay{z-index:12050!important;isolation:isolate;overscroll-behavior:contain}
+#sf71Modal .sf71-modal{width:min(530px,calc(100vw - 26px));max-height:min(94dvh,840px);overflow:auto;scrollbar-width:thin;overscroll-behavior:contain}
+#sf71Modal .sf71-modal-form:focus-within{scroll-margin:80px}
+#sf71Modal .sf71-action-primary:disabled{opacity:.65;cursor:progress}
+#sf71Modal .sf71-form-status:not(:empty){padding:8px 10px;background:rgba(232,88,113,.12);border-radius:9px;line-height:1.45}
+.sf73-cover-field input[type=file]{font-size:12px;min-height:auto;padding:11px;cursor:pointer}
+.sf73-cover-field small{font-size:11px;font-weight:400;color:#cbb9d7;line-height:1.5}
+#sf73CoverPreview:not([hidden]){display:block;width:100%;aspect-ratio:2.8;object-fit:cover;border-radius:12px;border:1px solid rgba(197,125,248,.32);background:#160c25}
+#sf73CoverPreview[hidden]{display:none!important}
+.sf71-club-art.sf73-with-cover{position:relative;background:#201129;overflow:hidden}
+.sf73-cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:block}
+.sf71-club-art.sf73-with-cover>span{display:none}
+.sf71-detail-hero.sf73-with-cover{min-height:clamp(180px,24vw,280px);padding:clamp(22px,3vw,38px);background:#1b0c28;align-items:flex-end}
+.sf71-detail-hero.sf73-with-cover::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(0deg,rgba(16,6,26,.92),rgba(16,6,26,.20) 78%);pointer-events:none}
+.sf71-detail-hero .sf73-hero-info{position:relative;z-index:2;max-width:60ch}
+.sf71-detail-hero.sf73-with-cover .sf71-detail-symbol{display:none}
+.sf71-detail-hero.sf73-with-cover h3{font-size:clamp(22px,3.8vw,38px);line-height:1.13;text-shadow:0 2px 12px rgba(0,0,0,.75)}
+.sf71-detail-hero.sf73-with-cover p{text-shadow:0 1px 9px rgba(0,0,0,.95)}
+.sf71-detail-actions [data-sf73-change-cover],.sf71-detail-actions [data-sf73-remove-cover]{border-radius:10px;min-height:36px;padding:8px 12px;font-size:12px}
+.sf71-detail-actions [data-sf73-change-cover]{background:linear-gradient(125deg,#8234a4,#b85b82);border:1px solid rgba(218,139,244,.36);color:#fff;font-weight:750}
+.sf71-detail-actions [data-sf73-remove-cover]{background:rgba(255,255,255,.04);border:1px solid rgba(200,143,190,.35);color:#ead2e8}
+.sf71-detail-actions [data-sf73-change-cover]:focus-visible,.sf71-detail-actions [data-sf73-remove-cover]:focus-visible,#sf71Modal button:focus-visible{outline:2px solid #ffcc94;outline-offset:3px}
+@media(max-width:560px){#sf71Modal .sf71-modal{width:min(100%,calc(100vw - 16px));padding:16px;max-height:calc(100dvh - 24px)}.sf71-detail-hero.sf73-with-cover{min-height:205px;padding:18px}.sf71-detail-actions [data-sf73-change-cover]{flex:1}}
+@media(prefers-reduced-motion:reduce){#sf71Modal *,#sf71ClubDetail .sf73-cover-img{transition:none!important}}
