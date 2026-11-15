@@ -695,7 +695,7 @@ async function sf15WriteAlerts(email,list) {
 }
 async function sf15Notify(email,data) {
   const items = await sf15GetAlerts(email);
-  const next=[{id:crypto.randomUUID(),type:data.type,title:eventClean(data.title,90),message:eventClean(data.message,200),roomSlug:data.roomSlug||null,createdAt:Date.now(),read:false},...items].slice(0,70);
+  const next=[{id:crypto.randomUUID(),type:data.type,title:eventClean(data.title,90),message:eventClean(data.message,200),roomSlug:data.roomSlug||null,fanClubId:/^[a-f0-9-]{36}$/.test(data.fanClubId||'')?data.fanClubId:null,createdAt:Date.now(),read:false},...items].slice(0,70);
   await sf15WriteAlerts(email,next);
 }
 app.get('/api/social/notifications',rateLimit(50,60000),async(req,res)=>{
@@ -739,7 +739,7 @@ app.post('/api/social/invite-friend',rateLimit(8,60000),async(req,res)=>{
 // 53.0 — mensagens privadas, caixa de entrada e privacidade persistidos no Firestore.
 installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit });
 // Comunidades permanentes de fãs: membros e mural protegidos pela sessão.
-installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit });
+installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify });
 
 // Administração de denúncias 53.0 — protegida por requireAdmin já aplicado em /api/admin.
 app.get('/api/admin/chat-reports', async(req,res)=>{
