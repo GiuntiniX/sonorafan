@@ -26,6 +26,16 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       try{entry.res.write(payload);entry.res.flush?.();}catch(e){entry.close();}
     }
   }
+  function closeClubStreams(id){
+    const watchers=subscribers.get(streamKey(id));
+    if(!watchers)return;
+    for(const entry of [...watchers]){
+      try{entry.res.write('event: deleted\ndata: '+JSON.stringify({clubId:id,kind:'deleted'})+'\n\n');}catch(e){}
+      entry.close();
+      try{entry.res.end();}catch(e){}
+    }
+    subscribers.delete(streamKey(id));
+  }
   function disconnectMember(id,userId){
     const watchers=subscribers.get(streamKey(id));
     if(!watchers)return;
@@ -72,12 +82,13 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     ...record(data,id),
     joined:unique(data.memberIds).includes(me.id),
     owner:data.ownerId===me.id,
-    blocked:unique(data.blockedIds).includes(me.id)
+    blocked:unique(data.blockedIds).includes(me.id),
+    canDelete:ownerOrAdmin(data,me)
   });
   async function readClub(id){
     if (!validateId(id))throwHttp(400,'Fan Club inválido.');
     const snap=await refFor(id).get();
-    if (!snap.exists)throwHttp(404,'Fan Club não encontrado.');
+    if (!snap.exists || snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
     return {ref:snap.ref,data:snap.data()};
   }
   const ownerOrAdmin=(data,me)=>data.ownerId===me.id || adminEmails.has(me.email);
@@ -132,7 +143,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const q=clean(req.query.q,60).toLocaleLowerCase('pt-BR');
     try {
       const snap=await db.collection(CLUBS).orderBy('createdAt','desc').limit(150).get();
-      const list=snap.docs.map(d=>overview(d.data(),d.id,me))
+      const list=snap.docs.filter(d=>!d.data()?.deleting).map(d=>overview(d.data(),d.id,me))
         .filter(c=>!q||`${c.artist} ${c.title} ${c.description}`.toLocaleLowerCase('pt-BR').includes(q))
         .filter(c=>req.query.mine!=='true'||c.joined)
         .slice(0,80);
@@ -210,7 +221,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
-        const doc=await tx.get(ref);if(!doc.exists)throwHttp(404,'Fan Club não encontrado.');
+        const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();if(unique(data.blockedIds).includes(me.id))throwHttp(403,'A participação nesta comunidade está restrita.');
         const members=unique(data.memberIds);if(members.includes(me.id))return;
         if(members.length>=300)throwHttp(409,'Esta comunidade atingiu o limite atual de membros.');
@@ -222,7 +233,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
-        const doc=await tx.get(ref);if(!doc.exists)throwHttp(404,'Fan Club não encontrado.');
+        const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();if(data.ownerId===me.id)throwHttp(403,'O criador não pode sair sem transferir a comunidade.');
         tx.update(ref,{memberIds:unique(data.memberIds).filter(id=>id!==me.id),updatedAt:Date.now()});
       });disconnectMember(req.params.id,me.id);publish(req.params.id,'members');res.json({joined:false});
@@ -234,7 +245,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(!/^[a-f0-9]{24}$/.test(userId)||!['block','unblock'].includes(action))return res.status(400).json({error:'Ação inválida.'});
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
-        const doc=await tx.get(ref);if(!doc.exists)throwHttp(404,'Fan Club não encontrado.');
+        const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();if(!ownerOrAdmin(data,me))throwHttp(403,'Apenas a moderação pode alterar membros.');
         if(userId===data.ownerId)throwHttp(403,'Não é possível bloquear o criador.');
         const blocked=unique(data.blockedIds).filter(id=>id!==userId);
@@ -280,7 +291,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(room.ownerEmail!==me.email&&!adminEmails.has(me.email))return res.status(403).json({error:'Você precisa administrar a sala para vinculá-la.'});
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
-        const snap=await tx.get(ref);if(!snap.exists)throwHttp(404,'Fan Club não encontrado.');
+        const snap=await tx.get(ref);if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=snap.data();if(!ownerOrAdmin(data,me))throwHttp(403,'Apenas o criador pode vincular salas.');
         const slugs=unique(data.roomSlugs);if(slugs.includes(slug))return;
         if(slugs.length>=3)throwHttp(409,'Limite de três salas por Fan Club.');
@@ -292,10 +303,46 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
-        const snap=await tx.get(ref);if(!snap.exists)throwHttp(404,'Fan Club não encontrado.');
+        const snap=await tx.get(ref);if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         if(!ownerOrAdmin(snap.data(),me))throwHttp(403,'Sem permissão.');
         tx.update(ref,{roomSlugs:unique(snap.data().roomSlugs).filter(x=>x!==req.params.slug),updatedAt:Date.now()});
       });publish(req.params.id,'rooms');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  // Exclusão irreversível: só o criador ou um admin global pode iniciar.
+  // Primeiro marca como "deleting" para retirar o clube das buscas e bloquear
+  // novas publicações. Se ocorrer falha na limpeza, o mesmo responsável pode
+  // repetir DELETE; o Firestore não remove subcoleções automaticamente.
+  app.delete('/api/fan-clubs/:id',rateLimit(8,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const id=req.params.id;
+    if(!validateId(id))return res.status(400).json({error:'Fan Club inválido.'});
+    const ref=refFor(id);
+    try{
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(ref);
+        if(!snap.exists)throwHttp(404,'Fan Club não encontrado.');
+        const data=snap.data();
+        if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador ou um administrador pode excluir este Fan Club.');
+        const confirmation=String(req.body?.confirmation??'');
+        if(confirmation!==String(data.title||''))throwHttp(400,'Digite o nome exato do Fan Club para confirmar a exclusão.');
+        if(!data.deleting)tx.update(ref,{deleting:true,updatedAt:Date.now()});
+      });
+      // O mural deve ser apagado por lotes, inclusive na retomada de exclusão.
+      // Cada lote é limitado para evitar sobrecarga de gravações.
+      const posts=ref.collection('posts');
+      for(let batch=0;batch<100;batch++){
+        const snap=await posts.orderBy('createdAt','desc').limit(100).get();
+        if(!snap.docs.length)break;
+        // Firestore permite excluir os documentos individualmente. Falhas
+        // interrompem a limpeza e deixam o tombstone para uma nova tentativa.
+        for(const doc of snap.docs)await doc.ref.delete();
+        if(batch===99)throwHttp(503,'A limpeza ainda não terminou. Repita a exclusão.');
+      }
+      await coverRef(id).delete();
+      await ref.delete();
+      publish(id,'deleted');closeClubStreams(id);
+      res.json({success:true,deletedId:id,roomsPreserved:true});
     }catch(e){error(res,e);}
   });
   return {CLUBS,clean,record};

@@ -1,51 +1,45 @@
-# SonoraFan 74.0 — Revisão visual de home, sala, fila, chat, perfil e Fan Clubs
+# SonoraFan 75.0 — Fila ampliada e exclusão de Fan Club
 
-**Pacote incremental para instalar SOBRE a versão 73.0.**
+**Atualização incremental sobre a versão 74.0.** Faça backup do projeto e dos dados do Firestore antes de aplicar.
 
-## Arquivos modificados
+## Arquivos para atualizar
 
-Substituir:
-- `public/index.html`
-- `public/sonorafan-evolution-63.js`
-- `public/sonorafan-sala-55.js`
+| Caminho no projeto | Ação |
+|---|---|
+| `fan-clubs-71.js` | **Substituir** na raiz — nova rota autenticada de exclusão |
+| `public/sonorafan-community-71.js` | **Substituir** — botão de exclusão e confirmação por nome |
+| `public/index.html` | **Substituir** — carregar o novo CSS da versão 75 |
+| `public/sonorafan-fila-fanclub-75.css` | **Adicionar** — fila ampliada, separação do formulário e estilos de exclusão |
+| `tests/fan-clubs-75.test.js` | Teste automatizado opcional |
 
-Adicionar:
-- `public/sonorafan-visual-74.css`
-- `public/sonorafan-visual-74.js`
+Os demais arquivos, inclusive `server.js`, continuam os mesmos da base **74.0**. Como o módulo `fan-clubs-71.js` é carregado pelo servidor Node.js, **é necessário reiniciar o Node.js**.
 
-Nenhum arquivo `.env`, Firebase, banco de dados, credencial, servidor ou dependência npm é substituído. Mantenha os arquivos das versões anteriores.
+## 1. Fila colaborativa
 
-## Correções aplicadas
+- Em desktop, a grade reserva menos altura para o formulário de adicionar música e mais para a playlist.
+- A fila utiliza o espaço restante, e músicas adicionais permanecem acessíveis pelo scroll interno.
+- A fila não invade o formulário abaixo. As votações e os controles existentes continuam intactos.
+- Em mobile, o layout da aba Fila é respeitado; a fila não aparece na tela do player antes que a aba seja selecionada.
 
-1. **Landing:** removidos os textos “Explore a vibe ↓” e “Feito com ♥ pela comunidade SonoraFan”. Desativado o bloco auxiliar antigo que era injetado sem estilos completos. No lugar, três cards menores e alinhados ao tema indie/festival, com destaques úteis para colaboração, amigos e Fan Clubs.
-2. **Fila colaborativa:** desativado o painel de resumos duplicado da v67 que causava texto sobreposto. Mantidas a lista oficial da fila, a votação e a busca. Revisados cabeçalho, informações, altura de rolagem, títulos e espaço para a música seguinte. A arte de estado vazio é ocultada enquanto existirem faixas reais.
-3. **Chat da sala:** removido o bloco redundante de “Interação rápida”, que apresentava textos e botões espremidos. Reorganizados cabeçalho, presença, mensagens e campo de envio; a ilustração de fundo recebeu camada escura para preservar a legibilidade.
-4. **Player:** a coluna central tem rolagem segura quando a altura da janela não é suficiente para exibir vídeo, controles e painéis. O menu recolhível continua compatível. O bloco “Rolando na sala” ficou mais compacto.
-5. **Fan Clubs:** adicionado um acesso curto diretamente na sala. Ele abre a aba Fan Clubs da Comunidade, sem criar outra janela. Corrigida também a alternância das abas Amigos/Fan Clubs/Eventos, inclusive a compatibilidade com a implementação social antiga.
-6. **Perfil:** corrigidos espaçamentos, cartões, badges, barra de progresso, botão do Club e layout dos estilos/ações rápidas, com adaptação para mobile.
-7. **Títulos musicais:** decodificação de uma camada de entidades comuns (`&amp;` → `&`) antes de apresentar a música. Ao inserir os títulos no HTML, o conteúdo segue escapado para manter proteção contra HTML arbitrário.
-8. **Tour:** referências a painéis antigos foram removidas, e incluído o novo atalho para Fan Clubs da sala.
+## 2. Excluir Fan Club
 
-## Instalação
+- Criador **ou administrador global** pode visualizar o botão `Excluir Fan Club` dentro do detalhe da comunidade.
+- A interface exige **digitar o nome exato do Fan Club** para confirmar. Erros e cancelamento deixam o grupo intacto.
+- O servidor verifica a sessão, o papel do solicitante e a confirmação; manipular o HTML não dá permissão a outros usuários.
+- Exclui de modo **permanente**: cadastro da comunidade, vínculos de membros, imagem de capa e publicações do mural.
+- **Não apaga as salas de música** que estavam vinculadas ao Fan Club — elas seguem independentes.
+- As conexões de atualização ao vivo do mural são encerradas quando a comunidade é excluída.
+- Durante a exclusão, a comunidade é marcada como indisponível para impedir novas operações. Se a remoção dos documentos falhar, uma nova tentativa autorizada pela mesma rota pode completar a limpeza.
+- Notificações enviadas anteriormente podem permanecer no histórico de notificações, mas não reabrem uma comunidade excluída.
 
-1. Faça um backup da **versão 73.0** em uso.
-2. Extraia o ZIP na raiz do projeto SonoraFan, preservando a pasta `public/`.
-3. Substitua os arquivos indicados; adicione os novos CSS/JS.
-4. Reinicie ou recarregue seu servidor web conforme seu processo de publicação. O **Node.js não precisa ser alterado** para esta atualização, mas reiniciar o serviço pode ajudar a limpar caches de implantação.
-5. Recarregue o navegador com **Ctrl+F5**. Se houver CDN/service worker, invalide os recursos atualizados.
+## Testes
 
-## O que conferir no teste real
+Com Node.js instalado na raiz do projeto, execute:
 
-- **Landing:** botões Entrar/Criar conta, hero e cartões no desktop e celular; sem as duas frases removidas.
-- **Sala com menu aberto/recolhido:** vídeo, volume, Favoritar/Pular, “Rolando na sala” e Fan Clubs acessíveis por rolagem na coluna central.
-- **Fila com 0, 1, 3 e 6 músicas:** títulos legíveis, votação, inserir e remover, e scroll interno onde necessário.
-- **Chat:** resposta, clique no nick, privado, mensagens novas, rolagem e envio por Enter.
-- **Perfil:** barra XP, medalhas, estilos, favorito e botões dos atalhos.
-- **Fan Clubs:** botão Explorar na sala e navegação entre Amigos/Fan Clubs/Eventos; abertura, publicação e notificações com contas reais.
+```bash
+node --test tests/fan-clubs-75.test.js
+```
 
-## Validação e limites
+Testes locais executados: **14 testes de backend passaram**, cobrindo autenticação, permissão do criador e administrador, confirmação exata, remoção da capa e 110 publicações, preservação de salas e encerramento do canal ao vivo. A janela de exclusão foi verificada no navegador em **1440px e 390px**, inclusive confirmação incorreta e correta. A grade da fila foi examinada com seis faixas simuladas no desktop; no mobile foi verificado que a aba continua oculta até seleção.
 
-- Validação local de sintaxe JS e scripts embutidos, estrutura HTML, referências aos novos recursos, e verificação de ZIP.
-- Capturas **estáticas** da home/sala/perfil em desktop e celular com CSS acumulado. Dados do player e do chat simulados para as capturas, sem backend real.
-- Teste isolado no Chromium do botão da sala e abas da Comunidade.
-- **Não foi executada uma auditoria end-to-end** com Firebase, Socket.IO, YouTube e duas contas reais no servidor publicado. A versão corrige os conflitos visuais observados nos arquivos e prints fornecidos; outros problemas de produção ainda podem existir.
+**Limite:** a integração publicada com Firebase/Firestore e a reprodução YouTube em sala real ainda precisam de validação no seu ambiente. A exclusão é irreversível; faça backup do Firestore antes de testar com uma comunidade que contenha dados importantes.
