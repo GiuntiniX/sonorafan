@@ -1,0 +1,84 @@
+/* SonoraFan 56.0 — a playlist aproveita a altura realmente disponível.
+   Mantém a medição dos 3 primeiros cards da versão 54 e amplia a área útil. */
+#screen-room #queueList.queue-list {
+  --sf56-space: clamp(300px, 43vh, 430px);
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 0 0 auto !important;
+  height: max(var(--sf54-queue-height, 284px), var(--sf56-space)) !important;
+  max-height: max(var(--sf54-queue-height, 284px), var(--sf56-space)) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  min-height: 0 !important;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+/* A lista vazia já tem seu próprio estado — não criamos área artificial ali. */
+#screen-room #queueList[data-sf56-state="empty"] {
+  height: var(--sf54-queue-height, 140px) !important;
+  max-height: var(--sf54-queue-height, 140px) !important;
+}
+/* Estado útil quando a fila tem só 1 ou 2 faixas. */
+#screen-room #queueList .sf56-next-space {
+  flex: 1 0 116px;
+  min-height: 116px;
+  margin: 7px 1px 3px;
+  padding: 13px 10px;
+  border: 1px dashed rgba(226,173,244,.22);
+  background: radial-gradient(circle at 92% 12%,rgba(239,126,184,.07),transparent 60%),rgba(255,255,255,.018);
+  border-radius: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  text-align: center;
+  color: #d7c1e2;
+  box-sizing: border-box;
+}
+#screen-room #queueList .sf56-next-space .sf56-note {
+  font-size: 18px;
+  line-height: 1;
+  color: #eeafd3;
+}
+#screen-room #queueList .sf56-next-space strong {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #f7eaf7;
+  font-weight: 750;
+}
+#screen-room #queueList .sf56-next-space p {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #bda5c7;
+  margin: 0;
+  max-width: 26ch;
+}
+#screen-room #queueList .sf56-next-space button {
+  min-height: 33px;
+  padding: 7px 12px;
+  margin-top: 6px;
+  font: 700 11px/1.2 system-ui, sans-serif;
+  color: #fce6fc;
+  border: 1px solid rgba(217,143,236,.34);
+  border-radius: 999px;
+  background: rgba(158,72,173,.19);
+  cursor: pointer;
+  transition: background .18s ease,border-color .18s ease;
+}
+#screen-room #queueList .sf56-next-space button:hover {
+  background: rgba(166,72,187,.31);
+  border-color: #dba3f4;
+}
+#screen-room #queueList .sf56-next-space button:focus-visible {
+  outline: 2px solid #ffca83;
+  outline-offset: 3px;
+}
+/* Em telas pequenas mantém 3 cartões legíveis, sem impor uma coluna gigante. */
+@media(max-width:768px) {
+  #screen-room #queueList.queue-list {--sf56-space:clamp(275px,39vh,365px)}
+  #screen-room #queueList .sf56-next-space {min-height:95px;flex-basis:95px;padding:11px 8px}
+}
+@media(prefers-reduced-motion:reduce) {
+  #screen-room #queueList .sf56-next-space button {transition:none}
+}
