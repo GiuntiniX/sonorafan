@@ -13,6 +13,7 @@ const { getAuth } = require('firebase-admin/auth');
 const { createGamification45 } = require('./gamification-45');
 const { installChat53 } = require('./chat-social-53');
 const { installPlatform63 } = require('./sonorafan-platform-63');
+const { installFavoriteGenres67 } = require('./favorite-genres-67');
 
 // ===== PROTEÇÃO GLOBAL PARA O SERVIDOR NUNCA CAIR =====
 process.on('uncaughtException', (err) => {
@@ -128,6 +129,7 @@ const waitingRooms = new Map();
 const gamification45 = createGamification45({ db, app, sessionEmail, users, userPoints, io });
 // 57–63: preserve XP, chats and queue; register server-validated new experiences.
 const platform63 = installPlatform63({ app, io, db, rooms, users, sessionEmail, userPoints, gamification45 });
+installFavoriteGenres67({ app, db, sessionEmail });
 
 
 // ========== FUNÇÕES DE APOIO ==========
@@ -218,7 +220,7 @@ async function getFavoritesFromFirestore(email) {
   return [];
 }
 async function setFavoritesInFirestore(email, items) {
-  try { await db.collection('favorites').doc(email).set({ items }); } catch (e) {}
+  try { await db.collection('favorites').doc(email).set({ items }, { merge: true }); } catch (e) {}
 }
 async function getPointsFromFirestore(email) {
   try { const doc = await db.collection('points').doc(email).get(); if (doc.exists) return doc.data(); } catch (e) {}
@@ -829,32 +831,37 @@ app.get('/api/favorites', async (req, res) => {
 });
 
 app.post('/api/favorites', async (req, res) => {
-  const token = req.cookies.sessionToken;
-  if (!token) return res.status(401).json({ error: 'Não autenticado' });
-  const email = sessions.get(token);
-  if (!email) return res.status(401).json({ error: 'Sessão inválida' });
-  const { videoId, title, artist } = req.body;
-  if (!videoId) return res.status(400).json({ error: 'ID do vídeo necessário' });
-  let favs = await getFavoritesFromFirestore(email);
-  if (!favs.find(f => f.id === videoId)) {
-    favs.push({ id: videoId, title: title || 'Música', artist: artist || 'Desconhecido' });
-    await setFavoritesInFirestore(email, favs);
-    userFavorites.set(email, favs);
-  }
-  res.json({ success: true });
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Não autenticado' });
+  const { videoId, title, artist } = req.body || {};
+  if (typeof videoId !== 'string' || !/^[\w-]{11}$/.test(videoId)) return res.status(400).json({ error: 'ID do vídeo inválido' });
+  try {
+    const ref=db.collection('favorites').doc(email);
+    const favs=await db.runTransaction(async tx=>{
+      const doc=await tx.get(ref);
+      const list=Array.isArray(doc.data()?.items)?doc.data().items:[];
+      if (list.some(f=>f.id===videoId)) return list;
+      const next=[...list,{id:videoId,title:String(title||'Música').slice(0,160),artist:String(artist||'Desconhecido').slice(0,100),genreId:''}];
+      tx.set(ref,{items:next},{merge:true});return next;
+    });
+    userFavorites.set(email,favs);res.json({success:true});
+  } catch(e) { console.error('Salvar favorito:',e.message);res.status(500).json({error:'Não foi possível salvar o favorito.'}); }
 });
 
 app.delete('/api/favorites/:id', async (req, res) => {
-  const token = req.cookies.sessionToken;
-  if (!token) return res.status(401).json({ error: 'Não autenticado' });
-  const email = sessions.get(token);
-  if (!email) return res.status(401).json({ error: 'Sessão inválida' });
-  const id = req.params.id;
-  let favs = await getFavoritesFromFirestore(email);
-  favs = favs.filter(f => f.id !== id);
-  await setFavoritesInFirestore(email, favs);
-  userFavorites.set(email, favs);
-  res.json({ success: true });
+  const email = sessionEmail(req);
+  if (!email) return res.status(401).json({ error: 'Não autenticado' });
+  const id=req.params.id;
+  try {
+    const ref=db.collection('favorites').doc(email);
+    const favs=await db.runTransaction(async tx=>{
+      const doc=await tx.get(ref);
+      const list=Array.isArray(doc.data()?.items)?doc.data().items:[];
+      const next=list.filter(f=>f.id!==id);
+      tx.set(ref,{items:next},{merge:true});return next;
+    });
+    userFavorites.set(email,favs);res.json({success:true});
+  } catch(e) { console.error('Remover favorito:',e.message);res.status(500).json({error:'Não foi possível remover o favorito.'}); }
 });
 
 // ========== AVATAR ==========
