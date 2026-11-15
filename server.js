@@ -12,6 +12,7 @@ const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 const { createGamification45 } = require('./gamification-45');
 const { installChat53 } = require('./chat-social-53');
+const { installPlatform63 } = require('./sonorafan-platform-63');
 
 // ===== PROTEÇÃO GLOBAL PARA O SERVIDOR NUNCA CAIR =====
 process.on('uncaughtException', (err) => {
@@ -125,6 +126,8 @@ const waitingRooms = new Map();
 
 // 45.0 — mesma coleção `points`, com progressão transacional e ranking persistente.
 const gamification45 = createGamification45({ db, app, sessionEmail, users, userPoints, io });
+// 57–63: preserve XP, chats and queue; register server-validated new experiences.
+const platform63 = installPlatform63({ app, io, db, rooms, users, sessionEmail, userPoints, gamification45 });
 
 
 // ========== FUNÇÕES DE APOIO ==========
@@ -370,7 +373,7 @@ function advanceQueue(slug) {
   if (Date.now() - room.lastAdvanceAt < 10000) return false;
   room.lastAdvanceAt = Date.now();
   const current = room.queue[room.currentIndex];
-  if (current) { room.history.push(current); if (room.history.length > 50) room.history.shift(); updateMostVoted(room, current); }
+  if (current) { room.history.push(current); if (room.history.length > 50) room.history.shift(); updateMostVoted(room, current); platform63.onAdvance(room, current).catch(e => console.error('History63:',e.message)); }
   room.queue.shift();
   room.currentIndex = 0;
   room.startedAt = Date.now();
@@ -762,6 +765,7 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   if (rooms.has(slug)) return res.status(400).json({ error: 'Sala já existe' });
   const room = createRoom(slug, name.trim(), String(adminName || 'Anônimo').slice(0, 40));
   room.ownerEmail = email;
+  room.musicMode = 'fair'; // novas salas: distribuição justa, todos continuam adicionando
   const cfg = sanitize(req.body);
   Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
   if (cfg.welcome) room.pinnedMessage = { author: room.admin, text: cfg.welcome };
@@ -1230,6 +1234,7 @@ io.on('connection', (socket) => {
       if (!email && token) { const rt = socketTokens.get(token); socketTokens.delete(token); if (rt && rt.exp > Date.now()) email = rt.email; }   // login feito depois de abrir a página
       userEmail = email;
       socket.userEmail = email;
+      if (email) platform63.onJoin(room,email).catch(e => console.error('Passport63:',e.message));
       const isGlobalAdmin = adminEmails.has(email);
       // dono = quem criou (por e-mail). Só salas antigas, sem dono registrado, caem no nome de exibição.
       const isRoomAdmin = !!email && (room.ownerEmail ? room.ownerEmail === email : room.admin === name);
@@ -1448,6 +1453,7 @@ io.on('connection', (socket) => {
       const lastAdd = room.lastAddTime.get(socket.userEmail || socket.userName) || 0;
       if (now - lastAdd < 30000) { const wait = Math.ceil((30000 - (now - lastAdd)) / 1000); socket.emit('error', `Aguarde ${wait}s`); return; }
       const userSongs = room.queue.filter(t => t.dj === socket.userName).length + room.waitingQueue.filter(t => t.dj === socket.userName).length;
+      if (room.listenerCount > 1 && userSongs >= 5) { socket.emit('error','Para manter a fila colaborativa, aguarde uma de suas 5 músicas pendentes tocar.'); return; }
       if (userSongs >= MAX_SONGS_PER_USER) { socket.emit('error', `Você já tem ${MAX_SONGS_PER_USER} músicas na fila/espera. Aguarde outras serem tocadas.`); return; }
       const limit = room.maxDuration || settings.maxDuration;
       const liveOk = !!room.allowLive;
@@ -1456,13 +1462,13 @@ io.on('connection', (socket) => {
       const isQueueFull = room.queue.length >= settings.maxQueue;
       if (isQueueFull) {
         if (room.waitingQueue.length >= settings.maxQueue) { socket.emit('error', `Fila de espera cheia (${settings.maxQueue})`); return; }
-        song.dj = socket.userName; room.waitingQueue.push(song); room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 1, 'song', currentRoom + ':' + song.id);
+        song.dj = socket.userName; room.waitingQueue.push(song); room.lastAddTime.set(socket.userEmail || socket.userName, now); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); addPoints(socket.userEmail, 1, 'song', currentRoom + ':' + song.id);
         io.to(currentRoom).emit('playSound', 'waiting');
         addSystemMsg(currentRoom, `⏳ "${song.title}" entrou na fila de espera (${room.waitingQueue.length} músicas aguardando)`);
         broadcastState(currentRoom);
         return;
       }
-      song.dj = socket.userName; room.queue.push(song); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2, 'song', currentRoom + ':' + song.id);
+      song.dj = socket.userName; room.queue.push(song); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2, 'song', currentRoom + ':' + song.id);
       room.totalSongsAdded = (room.totalSongsAdded || 0) + 1;
       if (!room.isPlaying && room.queue.length === 1) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); addSystemMsg(currentRoom, `▶ ${song.title} — ${song.artist}`); }
       broadcastState(currentRoom);
