@@ -1,0 +1,110 @@
+/* SonoraFan 75: a fila usa o espaço disponível e a exclusão de Fan Club é clara. */
+@media (min-width: 1025px) {
+  /* Menos altura reservada para "Escolha a próxima música", mais para a fila. */
+  #screen-room .room-layout {
+    grid-template-rows: 54px minmax(0, 1fr) clamp(130px, 16vh, 146px) !important;
+  }
+  #screen-room .queue-column.sf34-queue {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #screen-room .sf10-request-card.sf34-request {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 9px 10px !important;
+    overflow: hidden !important;
+  }
+  #screen-room .sf10-request-card .sf10-request-top { gap: 8px !important; }
+  #screen-room .sf10-request-card .sf10-request-help { font-size: 10px !important; margin: 0 !important; }
+  #screen-room .queue-column #queueList.queue-list {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin;
+    overscroll-behavior: contain;
+  }
+  #screen-room .queue-column #waitingQueueList:empty,
+  #screen-room .queue-column #sf52VoteStatus:empty { display: none !important; }
+}
+/* Em telas menores, a fila também pode apresentar mais faixas antes de rolar. */
+@media (max-width: 1024px) {
+  /* Não forçar display: nas abas do celular a fila deve continuar oculta
+     até o usuário selecionar "Fila". */
+  #screen-room .queue-column.sf34-queue {
+    height: min(75dvh, 680px) !important;
+    min-height: 350px !important;
+    max-height: none !important;
+  }
+  #screen-room .queue-column #queueList.queue-list {
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+  }
+  #screen-room .queue-column #waitingQueueList:empty,
+  #screen-room .queue-column #sf52VoteStatus:empty { display: none !important; }
+}
+/* Nenhuma música = arte discreta; várias faixas = área 100% para a lista. */
+#screen-room .queue-column:has(#queueList .queue-item) .sf44-queue-idle-card {
+  display: none !important;
+}
+#screen-room .queue-column #queueList .queue-item {
+  flex-shrink: 0 !important;
+  max-width: 100% !important;
+}
+#screen-room .queue-column #queueList {scrollbar-color:#b079d8 transparent}
+/* Exclusão destrutiva fica numa ação secundária; nunca parece "Participar". */
+#sf71ClubDetail .sf75-delete-club {
+  margin-left:auto;
+  min-height:36px;
+  padding:8px 12px;
+  border:1px solid rgba(252,129,155,.48);
+  border-radius:10px;
+  background:rgba(129,37,66,.19);
+  color:#ffc1cc;
+  font-size:12px;
+  font-weight:750;
+  cursor:pointer;
+  transition:background .2s,border-color .2s;
+}
+#sf71ClubDetail .sf75-delete-club:hover{background:rgba(168,45,78,.30);border-color:#ff9cb1}
+#sf71Modal .sf75-delete-warning{
+  margin:0;
+  padding:11px 13px;
+  border-radius:11px;
+  background:rgba(147,40,68,.24);
+  border:1px solid rgba(252,139,158,.35);
+  color:#ffe0e5;
+  font-size:13px;
+  line-height:1.5;
+}
+#sf71Modal .sf75-delete-name{margin:0;color:#dec8e7;font-size:12px;line-height:1.45}
+#sf71Modal .sf75-delete-name strong{color:#ffd2a2;overflow-wrap:anywhere}
+#sf71Modal .sf75-delete-confirm{
+  background:linear-gradient(115deg,#9d294c,#d34e6a);
+  border:1px solid #f49db0;
+  box-shadow:0 8px 23px #8d173f35;
+  color:#fff;
+}
+#sf71Modal .sf75-delete-confirm:focus-visible,
+#sf71ClubDetail .sf75-delete-club:focus-visible{
+  outline:2px solid #ffd7a2;
+  outline-offset:3px;
+}
+@media(max-width:560px){
+  #sf71ClubDetail .sf75-delete-club{margin-left:0;width:100%}
+  #sf71Modal .sf75-delete-confirm{width:100%;min-height:42px}
+}

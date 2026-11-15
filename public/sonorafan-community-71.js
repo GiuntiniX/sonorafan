@@ -82,6 +82,7 @@
      stream.addEventListener('members',()=>scheduleRefresh(id,'members'));
      stream.addEventListener('rooms',()=>scheduleRefresh(id,'rooms'));
      stream.addEventListener('cover',()=>scheduleRefresh(id,'cover'));
+     stream.addEventListener('deleted',()=>{stopLive();showList();loadClubs();status('Este Fan Club foi excluído.');});
      stream.addEventListener('error',()=>{if(label)label.textContent='Reconectando…';});
    }else{
      if(label)label.textContent='Atualização periódica';
@@ -130,7 +131,7 @@
        if(afterSubmit)await afterSubmit(result);
      }catch(err){
        const statusEl=overlay.querySelector('.sf71-form-status');
-       if(statusEl){statusEl.textContent=err.message||'Não foi possível concluir a operação.';submit.disabled=false;submit.textContent='Salvar';}
+       if(statusEl){statusEl.textContent=err.message||'Não foi possível concluir a operação.';submit.disabled=false;submit.textContent=submit.classList.contains('sf75-delete-confirm')?'Excluir definitivamente':'Salvar';}
        else status(err.message||'Falha ao abrir o Fan Club.',true);
        busy=false;
      }
@@ -180,7 +181,8 @@
        ${c.rules?`<div class="sf71-rule"><strong>Regras da comunidade</strong><p>${esc(c.rules)}</p></div>`:''}
        <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
          <button type="button" data-sf71-events>📅 Ver eventos</button>
-         ${c.owner?`<button type="button" data-sf73-change-cover>🖼 ${c.coverVersion?'Trocar':'Adicionar'} capa</button>${c.coverVersion?'<button type="button" data-sf73-remove-cover>Remover capa</button>':''}<input id="sf73DetailCover" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher imagem de capa" hidden>`:''}</div>
+         ${c.owner?`<button type="button" data-sf73-change-cover>🖼 ${c.coverVersion?'Trocar':'Adicionar'} capa</button>${c.coverVersion?'<button type="button" data-sf73-remove-cover>Remover capa</button>':''}<input id="sf73DetailCover" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher imagem de capa" hidden>`:''}
+         ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns"><section class="sf71-feed"><div class="sf71-rooms-head"><h4>Conversa da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
          ${c.joined?`<form id="sf71PostForm"><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Compartilhe uma música, uma descoberta ou um assunto sobre o artista…" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </section><aside class="sf71-room-list"><div class="sf71-rooms-head"><h4>Salas do Fan Club</h4>${c.owner?'<button type="button" data-sf71-addroom>＋ Vincular sala</button>':''}</div>
@@ -203,6 +205,21 @@
      },async id=>{await openDetail(id);});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+   if(t.hasAttribute('data-sf75-delete-club')){
+     const club=state.detail?.club;
+     if(!club?.canDelete)return;
+     const title=String(club.title||'');
+     const overlay=modal('Excluir Fan Club',`<p class="sf75-delete-warning">A exclusão é permanente e remove a comunidade, seus membros, o mural e a imagem de capa. As salas vinculadas continuarão existindo.</p>
+       <p class="sf75-delete-name">Digite <strong>${esc(title)}</strong> para confirmar:</p>
+       <label>Nome exato da comunidade<input name="confirmation" required autocomplete="off" spellcheck="false" placeholder="Nome do Fan Club"></label>`,async fd=>{
+       if(String(fd.get('confirmation')||'')!==title)throw Error('O nome digitado não corresponde ao Fan Club.');
+       await api('/api/fan-clubs/'+encodeURIComponent(id),{method:'DELETE',body:JSON.stringify({confirmation:title})});
+       return true;
+     },async()=>{showList();await loadClubs();status('Fan Club excluído. As salas musicais foram preservadas.');});
+     const submit=overlay.querySelector('[type="submit"]');
+     if(submit){submit.textContent='Excluir definitivamente';submit.classList.add('sf75-delete-confirm');}
+     return;
+   }
    if(t.hasAttribute('data-sf73-change-cover')){$('sf73DetailCover')?.click();return;}
    if(t.hasAttribute('data-sf73-remove-cover')){
      if(!confirm('Remover a imagem de capa deste Fan Club?'))return;
