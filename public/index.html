@@ -1380,6 +1380,7 @@
 <body>
   <!-- ===== LANDING PAGE ===== -->
   <div class="landing-screen" id="landingScreen">
+    <a class="sf52-skip-link" href="#sf52LandingMain">Ir para o conteúdo principal</a>
     <div class="landing-bg"></div>
     <div class="sf26-noise" aria-hidden="true"></div>
     <div class="sf26-ambient" aria-hidden="true"><span class="orb orb-a"></span><span class="orb orb-b"></span><span class="orb orb-c"></span><span class="beam beam-a"></span><span class="beam beam-b"></span></div>
@@ -1399,7 +1400,7 @@
     </nav>
 
     <div class="sf44-scroll-cue" aria-hidden="true">EXPLORE A VIBE <span>↓</span></div>
-    <div class="landing-content">
+    <div class="landing-content" id="sf52LandingMain" tabindex="-1">
       <section class="hero">
         <div class="hero-text">
           <span class="hero-badge"><span class="live-dot"></span> <span data-i18n="hero.badge">AO VIVO • SALAS COLABORATIVAS DE MÚSICA</span></span>
@@ -1815,6 +1816,7 @@
 
   <!-- LOBBY -->
   <div class="screen" id="screen-lobby">
+    <a class="sf52-skip-link" href="#roomGrid">Ir para as salas disponíveis</a>
     <div class="app sf28-lobby-app">
       <aside class="sf28-sidebar" aria-label="Navegação principal">
         <div class="sf28-sidebar-brand">
@@ -1907,7 +1909,7 @@
             </label>
           </div>
           <p id="sf50RoomHint" class="sf50-room-hint" role="status" aria-live="polite"></p>
-          <div class="room-grid" id="roomGrid">
+          <div class="room-grid" id="roomGrid" tabindex="-1" aria-label="Salas disponíveis">
             <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
           </div>
           <section class="sf44-lobby-story" aria-label="Explore o SonoraFan por dentro">
@@ -1960,6 +1962,7 @@
 
   <!-- ROOM -->
   <div class="screen" id="screen-room">
+    <a class="sf52-skip-link" href="#playerSection">Ir para o player da sala</a>
     <div class="app">
       <div class="header">
         <div class="header-left">
@@ -1995,18 +1998,20 @@
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
-        <div class="sf5-section-title sf34-room-title"><span class="sf44-room-sparks" aria-hidden="true">✳ ♫ ✦</span><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span><button type="button" class="sf50-focus-toggle" id="sf50FocusToggle" aria-pressed="false" aria-label="Ativar modo foco" onclick="window.sf50ToggleFocus?.()"><span aria-hidden="true">◉</span> Modo foco</button></div>
+        <div class="sf5-section-title sf34-room-title"><span class="sf44-room-sparks" aria-hidden="true">✳ ♫ ✦</span><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
         <div class="queue-column sf33-queue-column sf34-queue">
           <div class="queue-header">
             <span>♫ &nbsp;Fila colaborativa</span>
             <div style="display:flex;gap:8px;align-items:center;">
-              <span class="count" id="queueCount">0 músicas</span>
-              <button onclick="copyQueueIds()" style="background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);padding:2px 6px;font-size:10px;cursor:pointer;">📋</button>
+              <span class="count" id="queueCount" aria-live="polite">0 músicas</span>
+              <button type="button" onclick="copyQueueIds()" title="Copiar IDs da fila" aria-label="Copiar IDs das músicas da fila" style="background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);padding:2px 6px;font-size:10px;cursor:pointer;">📋</button>
             </div>
           </div>
           <div class="premium-queue-summary"><span id="premiumQueueDuration">Sua seleção coletiva</span><span id="premiumQueueNext">Próximas faixas</span></div>
           <div class="sf39-queue-insight" id="sf39QueueInsight" role="status" aria-live="polite"><span class="sf39-status-dot" aria-hidden="true"></span><span id="sf39QueueInsightText">Aguardando a primeira música</span></div>
-          <div class="queue-list" id="queueList"></div>
+          <p class="sf52-voting-help" id="sf52VotingHelp">Nas próximas faixas: <strong>👍 Apoiar</strong> · <strong>👎 Remover</strong> (10 votos). Clique de novo para desfazer. Para a música atual, use <strong>Pular</strong>.</p>
+          <p class="sf52-vote-status" id="sf52VoteStatus" role="status" aria-live="polite" aria-atomic="true"></p>
+          <div class="queue-list" id="queueList" aria-label="Músicas na fila colaborativa"></div>
           <div class="sf44-queue-idle-card" id="sf44QueueIdle" aria-hidden="true"><img src="/art-44/vinyl-card.webp" alt="" loading="lazy" decoding="async" width="960" height="467"><span>✿ O próximo som pode ser seu.</span></div>
           <div id="waitingQueueLabel" class="waiting-queue-label hidden">⏳ Fila de espera:</div>
           <div class="queue-list" id="waitingQueueList" style="max-height:120px;overflow-y:auto;padding:4px 12px 12px;border-top:1px solid var(--border);"></div>
@@ -2015,12 +2020,12 @@
         </div>
 
         <div class="player-column sf34-player-column">
-          <div class="sf50-focus-intro" aria-live="polite"><span>✳ MODO FOCO</span><strong>É você e a música.</strong><small>Assista com mais espaço. A playlist colaborativa continua funcionando para todos.</small></div>
-          <button type="button" class="sf50-mobile-focus" id="sf50MobileFocus" aria-pressed="false" aria-label="Ativar modo foco" onclick="window.sf50ToggleFocus?.()">◉ Modo foco</button>
+          
+          
           <div class="sf5-hero-badge">♫ &nbsp; AGORA TOCANDO</div>
           <div class="premium-room-meta"><span class="premium-live-dot"></span><span id="premiumRoomMood">Ambiente compartilhado</span><span id="premiumRoomListeners">0 ouvintes conectados</span></div>
           <div class="premium-eyebrow"><span class="premium-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><strong>Sua sessão musical</strong><small>Uma experiência compartilhada, em tempo real</small></div><span class="premium-session-pill">SONORAFAN LIVE</span></div>
-          <div class="player-section" id="playerSection">
+          <div class="player-section" id="playerSection" tabindex="-1">
             <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);">
               <span style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;font-weight:700;">Tocando agora</span>
               <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--danger);font-weight:700;text-transform:uppercase;letter-spacing:1px;">
@@ -2056,18 +2061,11 @@
               </div>
               <div class="sf30-player-actions" aria-label="Ações da música atual">
                 <button onclick="favoriteCurrent()" id="favCurrentBtn" type="button" title="Adicionar a favoritos">♡ <span>Favoritar</span></button>
-                <button onclick="voteSkip()" id="skipBtn" type="button" title="Votar para pular a faixa">⏭ <span>Pular faixa</span></button>
+                <button onclick="voteSkip()" id="skipBtn" type="button" title="Votação para pular a música que está tocando" aria-label="Votar para pular a música atual">⏭ <span>Pular faixa</span></button>
                 <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;" type="button">🗑 <span>Remover</span></button>
               </div>
 
             </div>
-          </div>
-
-          <div class="sf50-focus-dock" id="sf50FocusDock" aria-label="Atalhos do modo foco">
-            <button type="button" onclick="window.sf50GoSocial?.('queue')">♫ Ver fila</button>
-            <button type="button" onclick="window.sf50GoSocial?.('chat')">☏ Conversar</button>
-            <button type="button" onclick="window.sf50GoSocial?.('song')">＋ Adicionar música</button>
-            <button type="button" class="sf50-focus-exit" onclick="window.sf50ToggleFocus?.(false)">⊞ Modo social</button>
           </div>
           <div class="next-track" id="nextTrack" style="display:none;">
             <span class="label">A seguir</span>
@@ -2097,8 +2095,8 @@
             </div>
             <div class="chat-input-bar">
               <div class="typing-indicator" id="typingIndicator"></div>
-              <button class="emoji-btn" onclick="toggleEmojis()">😀</button>
-              <input type="text" id="chatInput" placeholder="Mensagem..." onkeydown="if(event.key==='Enter') sendMessage()">
+              <button class="emoji-btn" type="button" aria-label="Abrir seletor de emojis" aria-controls="emojiPanel" aria-expanded="false" onclick="toggleEmojis()">😀</button>
+              <input type="text" id="chatInput" aria-label="Mensagem para o chat da sala" placeholder="Mensagem..." onkeydown="if(event.key==='Enter') sendMessage()">
               <button onclick="sendMessage()">Enviar</button>
               <div class="emoji-panel" id="emojiPanel">
                 <span class="emoji-item" onclick="insertEmoji('😀')">😀</span>
@@ -2128,7 +2126,7 @@
           <div class="sf10-request-fields">
           <div class="add-song-area">
             <div class="add-song">
-              <input type="text" id="songUrl" placeholder="Buscar no YouTube ou colar link..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()">
+              <input type="text" id="songUrl" aria-label="Buscar música no YouTube ou colar link" placeholder="Buscar no YouTube ou colar link..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()">
               <button id="addBtn" onclick="addSong()">Adicionar</button>
             </div>
             <div class="search-results" id="searchResults"></div>
@@ -2379,7 +2377,7 @@
     <button type="button" data-sf51-action="copy"><span aria-hidden="true">⧉</span> Copiar nickname</button>
     <p>As mensagens deste chat são visíveis para toda a sala.</p>
   </div>
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <div class="footer">
     <span>Desenvolvido por <a href="https://www.linkedin.com/in/ggiuntini/" target="_blank">Guilherme Giuntini</a></span>
@@ -3432,17 +3430,13 @@ function openRoomCfg() {
         const up = Array.isArray(votes.up) ? votes.up : [], down = Array.isArray(votes.down) ? votes.down : [];
         const upCount = up.length, downCount = down.length;
         const userVotedUp = up.includes(myName), userVotedDown = down.includes(myName);
-        const total = upCount + downCount, score = upCount - downCount;
-        let scoreClass = '', scoreSymbol = '⚪';
-        if (score > 0) { scoreClass = 'positive'; scoreSymbol = '👍'; }
-        if (score < 0) { scoreClass = 'negative'; scoreSymbol = '👎'; }
         const title = escapeHtml(track.title || 'Música');
         const safeId = typeof track.id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(track.id) ? track.id : '';
         const safeVoteId = escapeHtml(track.id || '');
         const thumbnail = safeId ? `<img src="https://img.youtube.com/vi/${safeId}/default.jpg" alt="" loading="lazy" onerror="this.style.display='none'">` : '♫';
         const phase = isCurrent ? 'TOCANDO' : (isNext ? 'A SEGUIR' : `NA FILA · ${i + 1}`);
         const who = track.dj ? `<span class="sf39-added-by">por ${escapeHtml(String(track.dj).slice(0,40))}</span>` : '';
-        const votesHtml = isCurrent ? '' : `<div class="queue-votes"><button type="button" class="vote-btn up ${userVotedUp ? 'voted-up' : ''}" title="Votar a favor de ${title}" aria-label="Votar a favor de ${title}" aria-pressed="${userVotedUp}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'up')" data-id="${safeVoteId}">👍</button><span class="vote-count ${scoreClass}" title="Saldo de votos">${total > 0 ? scoreSymbol + score : '0'}</span><button type="button" class="vote-btn down ${userVotedDown ? 'voted-down' : ''}" title="Votar contra ${title}" aria-label="Votar contra ${title}" aria-pressed="${userVotedDown}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'down')" data-id="${safeVoteId}">👎</button></div>`;
+        const votesHtml = isCurrent ? '' : `<div class="queue-votes sf52-vote-controls" role="group" aria-label="Avaliar ${title}"><button type="button" class="vote-btn up sf52-vote-btn ${userVotedUp ? 'voted-up' : ''}" title="${userVotedUp ? 'Retirar apoio' : 'Apoiar música'}" aria-label="${userVotedUp ? 'Retirar apoio de' : 'Apoiar'} ${title}. ${upCount} votos positivos" aria-pressed="${userVotedUp}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'up')" data-id="${safeVoteId}" data-vote="up"><span aria-hidden="true">👍</span><span class="sf52-vote-num">${upCount}</span></button><button type="button" class="vote-btn down sf52-vote-btn ${userVotedDown ? 'voted-down' : ''}" title="${userVotedDown ? 'Retirar pedido de remoção' : 'Pedir remoção'}" aria-label="${userVotedDown ? 'Retirar pedido de remoção de' : 'Pedir remoção de'} ${title}. ${downCount} de 10 votos para retirar" aria-pressed="${userVotedDown}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'down')" data-id="${safeVoteId}" data-vote="down"><span aria-hidden="true">👎</span><span class="sf52-vote-num">${downCount}<small>/10</small></span></button></div>`;
         const share = safeId ? `<button class="sf39-share-track" type="button" data-video="${safeId}" title="Copiar link do YouTube" aria-label="Copiar link de ${title}">↗</button>` : '';
         div.innerHTML = `<span class="pos">${isCurrent ? '▶' : i + 1}</span><div class="thumb">${thumbnail}</div><div class="info"><div class="sf39-phase">${phase}</div><div class="title">${title}</div><div class="artist">${escapeHtml(track.artist || 'Desconhecido')}</div>${who}</div>${votesHtml}${share}`;
         list.appendChild(div);
@@ -3461,9 +3455,11 @@ function openRoomCfg() {
       const btn = $('skipBtn'); if (!btn) return;
       if (skipVotes.votes > 0 && skipVotes.needed > 0) {
         btn.textContent = `⏭️ Pular (${skipVotes.votes}/${skipVotes.needed})`;
+        btn.setAttribute('aria-label', `Votar para pular a música atual. ${skipVotes.votes} de ${skipVotes.needed} votos recebidos.`);
         btn.classList.add('voting');
       } else {
         btn.textContent = '⏭️ Pular';
+        btn.setAttribute('aria-label', 'Votar para pular a música atual');
         btn.classList.remove('voting');
       }
     }
@@ -3483,12 +3479,23 @@ function openRoomCfg() {
       else $('soundGate').classList.remove('show');
     }
 
+    let sf52PendingVote = null;
+    function sf52AnnounceVote(message) {
+      const region = document.getElementById('sf52VoteStatus');
+      if (region) region.textContent = message;
+    }
     function voteSong(id, type) {
       if (!currentRoom) { toast('Entre em uma sala', 'error'); return; }
-      if (currentRoomData && currentRoomData.queue) {
-        const idx = currentRoomData.queue.findIndex(t => t.id === id);
-        if (idx === currentRoomData.currentIndex) { toast('Não pode votar na atual', 'error'); return; }
+      if (type !== 'up' && type !== 'down') return;
+      if (!socket.connected) { sf52AnnounceVote('Sem conexão. Reconecte-se para votar.'); return; }
+      const track = currentRoomData?.queue?.find(t => t.id === id);
+      if (!track) return;
+      if (currentRoomData.queue[currentRoomData.currentIndex]?.id === id) {
+        sf52AnnounceVote('Use Pular faixa para votar na música atual.'); return;
       }
+      const alreadyVoted = (queueVotes[id]?.[type] || []).includes(myName);
+      sf52PendingVote = { id, type, wasSelected: alreadyVoted };
+      sf52AnnounceVote(alreadyVoted ? 'Retirando seu voto…' : 'Enviando seu voto…');
       socket.emit('voteSong', { id, type, room: currentRoom });
     }
 
@@ -3738,8 +3745,8 @@ function openRoomCfg() {
       }
     }
     function sendMessage() { const input = $('chatInput'); const text = input.value.trim(); if (!text) return; socket.emit('chat', { text: censorText(text) }); input.value = ''; clearTimeout(typingTimer); socket.emit('typingStop', { room: currentRoom }); }
-    function toggleEmojis() { $('emojiPanel').classList.toggle('show'); }
-    function insertEmoji(e) { $('chatInput').value += e; $('chatInput').focus(); $('emojiPanel').classList.remove('show'); }
+    function toggleEmojis() { const isOpen = $('emojiPanel').classList.toggle('show'); document.querySelector('.emoji-btn')?.setAttribute('aria-expanded', String(isOpen)); }
+    function insertEmoji(e) { $('chatInput').value += e; $('chatInput').focus(); $('emojiPanel').classList.remove('show'); document.querySelector('.emoji-btn')?.setAttribute('aria-expanded', 'false'); }
 
     document.addEventListener('keydown', (e) => {
       const roomActive = document.getElementById('screen-room').classList.contains('active');
@@ -3811,11 +3818,27 @@ function openRoomCfg() {
     socket.on('likeUpdate', (data) => { const { messageId, likes, users } = data; messageLikesSync[messageId] = { likes, users }; updateLikeDisplay(messageId); });
     socket.on('likesState', (likesData) => { messageLikesSync = likesData || {}; const container = document.getElementById('chatMessagesInner'); if (!container) return; for (const el of container.querySelectorAll('.msg')) { if (el.dataset.msgId && messageLikesSync[el.dataset.msgId]) updateLikeDisplay(el.dataset.msgId); } });
     socket.on('voteUpdate', (data) => {
-      const { id, up, down, removed } = data;
+      const { id, up, down, removed } = data || {};
       if (!id) return;
       if (removed) delete queueVotes[id]; else queueVotes[id] = { up, down };
-      if (removed) toast(`👎 Música removida por votação!`, 'error');
+      if (removed) toast('Música retirada da fila após 10 votos negativos.', 'success');
+      const voteHadFocus = document.activeElement?.classList?.contains('sf52-vote-btn') === true;
       if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex);
+      if (sf52PendingVote?.id === id) {
+        const pending = sf52PendingVote;
+        sf52PendingVote = null;
+        if (removed) sf52AnnounceVote('A comunidade retirou essa faixa da fila.');
+        else {
+          const selected = (queueVotes[id]?.[pending.type] || []).includes(myName);
+          sf52AnnounceVote(selected ?
+            (pending.type === 'up' ? 'Seu apoio foi registrado.' : 'Seu pedido de remoção foi registrado.') :
+            'Seu voto foi retirado.');
+          if (voteHadFocus) {
+            const focusBack = [...document.querySelectorAll('#queueList .sf52-vote-btn')].find(button => button.dataset.id === id && button.dataset.vote === pending.type);
+            focusBack?.focus({preventScroll:true});
+          }
+        }
+      }
     });
     socket.on('votesState', (votesData) => { queueVotes = votesData || {}; if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex); });
     socket.on('error', (msg) => toast(msg, 'error'));
@@ -4194,5 +4217,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-ux-50.js"></script>
   <link rel="stylesheet" href="/sonorafan-social-51.css">
   <script defer src="/sonorafan-social-51.js"></script>
+  <link rel="stylesheet" href="/sonorafan-votos-ux-52.css">
 </body>
 </html>

@@ -1,0 +1,104 @@
+/* SonoraFan 52.0 — fila mais clara, acessibilidade e navegação sem Modo Foco. */
+:root { --sf52-focus-outline: #ffcb8f; }
+.sf52-skip-link {
+  position: fixed;
+  left: 16px;
+  top: 12px;
+  z-index: 10020;
+  transform: translateY(-160%);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #ffcb8f;
+  background: #1c0d2b;
+  color: #fff;
+  font-family: inherit; font-size: 14px; font-weight: 700; line-height: 1.3;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+.sf52-skip-link:focus,
+.sf52-skip-link:focus-visible { transform: translateY(0); outline: 3px solid #ffd27b; outline-offset: 3px; }
+:where(#landingScreen,#loginScreen,#screen-lobby,#screen-room,.modal-overlay) :is(button,a,input,select,textarea,[tabindex="0"]):focus-visible {
+  outline: 3px solid var(--sf52-focus-outline) !important;
+  outline-offset: 3px !important;
+}
+:where(#landingScreen,#loginScreen,#screen-lobby,#screen-room) :is(input,textarea)::placeholder { color: #baa9cd; opacity:1; }
+:where(#landingScreen,#loginScreen,#screen-lobby,#screen-room) :is(button,a) { -webkit-tap-highlight-color: rgba(255,173,106,.15); }
+:where(#landingScreen,#loginScreen,#screen-lobby,#screen-room) button:disabled { opacity:.55; cursor:not-allowed; }
+#screen-room .sf52-voting-help {
+  padding: 9px 14px 5px;
+  margin: 0;
+  color: #c5b3d6;
+  font-size: 11px;
+  line-height: 1.45;
+}
+#screen-room .sf52-voting-help strong { color: #f4e5ff; font-weight:700; }
+#screen-room .sf52-vote-status:not(:empty) {
+  margin: 4px 12px 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(180,127,222,.35);
+  border-radius: 10px;
+  color: #f5e7ff;
+  font-size: 12px;
+  line-height: 1.35;
+  background: rgba(126,55,159,.12);
+}
+#screen-room .sf52-vote-status:empty {display:none;}
+#screen-room .queue-item .sf52-vote-controls {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 2px 0 4px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+#screen-room .queue-item .sf52-vote-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 38px;
+  min-width: 56px;
+  padding: 7px 9px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 12px;
+  background: rgba(255,255,255,.035);
+  color: #eee1f9;
+  font-family: inherit; font-size: 12px; font-weight: 700; line-height: 1.1;
+  white-space: nowrap;
+  opacity: 1;
+  transform: none;
+  box-shadow:none;
+  transition: border-color .18s ease, background .18s ease;
+}
+#screen-room .queue-item .sf52-vote-btn .sf52-vote-num { font-variant-numeric:tabular-nums; font-weight:800; font-size:12px; color:#f5e8ff; }
+#screen-room .queue-item .sf52-vote-btn .sf52-vote-num small { font-size:10px; opacity:.8; font-weight:500; }
+#screen-room .queue-item .sf52-vote-btn.up:hover { border-color:rgba(116,230,183,.52); background:rgba(20,108,73,.18); }
+#screen-room .queue-item .sf52-vote-btn.down:hover { border-color:rgba(255,162,166,.55); background:rgba(128,44,59,.15); }
+#screen-room .queue-item .sf52-vote-btn.voted-up { border-color:#62dba9; background:rgba(17,98,65,.38); color:#ceffe9; animation:none; }
+#screen-room .queue-item .sf52-vote-btn.voted-down { border-color:#ff9ba5; background:rgba(137,40,65,.32); color:#ffe4e7; animation:none; }
+#screen-room .queue-item .sf52-vote-btn:active { transform:translateY(1px); }
+#screen-room .queue-item .sf52-vote-btn[aria-pressed="true"] { box-shadow:inset 0 0 0 1px currentColor; }
+#screen-room .queue-item .sf52-vote-btn:focus-visible { outline:3px solid #ffcb8f!important; outline-offset:2px; }
+/* Make it clear that the music skip button is separate from negative votes in the queue. */
+#screen-room #skipBtn { min-height:42px; }
+#screen-room .queue-item .sf39-share-track { min-width:34px; min-height:38px; }
+#screen-room .sf30-player-actions button { min-height:42px; }
+@media (max-width: 800px) {
+  #screen-room .queue-item { flex-wrap:wrap; row-gap:7px; }
+  #screen-room .queue-item .sf52-vote-controls {margin-left:auto;}
+  #screen-room .queue-item .sf52-vote-btn {min-height:44px;min-width:66px;}
+  #screen-room .sf52-voting-help {padding:10px 13px 5px;}
+}
+@media (prefers-reduced-motion: reduce) {
+  html {scroll-behavior:auto!important;}
+  :where(#landingScreen,#loginScreen,#screen-lobby,#screen-room,.modal-overlay) *,
+  :where(#landingScreen,#loginScreen,#screen-lobby,#screen-room,.modal-overlay) *::before,
+  :where(#landingScreen,#loginScreen,#screen-lobby,#screen-room,.modal-overlay) *::after {
+    animation-duration: .01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
