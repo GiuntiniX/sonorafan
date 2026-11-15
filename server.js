@@ -11,6 +11,7 @@ const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 const { createGamification45 } = require('./gamification-45');
+const { installChat53 } = require('./chat-social-53');
 
 // ===== PROTEÇÃO GLOBAL PARA O SERVIDOR NUNCA CAIR =====
 process.on('uncaughtException', (err) => {
@@ -314,7 +315,7 @@ function broadcastState(slug) {
 function broadcastUsers(slug) {
   io.in(slug).fetchSockets().then(sockets => {
     const userList = sockets.map(s => ({
-      name: s.userName || 'Anônimo', color: s.userColor || '#888', isAdmin: s.isAdmin || false, role: roleOf(s), muted: !!sanActive(s.userEmail, 'mute', slug), avatar: s.userAvatar || '👤',
+      id: s.userEmail ? publicUserId(s.userEmail) : null, name: s.userName || 'Anônimo', color: s.userColor || '#888', isAdmin: s.isAdmin || false, role: roleOf(s), muted: !!sanActive(s.userEmail, 'mute', slug), avatar: s.userAvatar || '👤',
       points: userPoints.get(s.userEmail)?.points || 0, badges: userPoints.get(s.userEmail)?.badges || [],
     }));
     io.to(slug).emit('users', userList);
@@ -713,6 +714,24 @@ app.post('/api/social/invite-friend',rateLimit(8,60000),async(req,res)=>{
     await sf15Notify(dest[0],{type:'invite',title:'Convite para ouvir junto',message:(users.get(email)?.nome||'Um amigo')+' convidou você para '+room.name,roomSlug:slug});
     res.json({success:true});
   }catch(e){console.error('social invite:',e.message);res.status(503).json({error:'Convite não enviado'});}
+});
+
+// 53.0 — mensagens privadas, caixa de entrada e privacidade persistidos no Firestore.
+installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit });
+
+// Administração de denúncias 53.0 — protegida por requireAdmin já aplicado em /api/admin.
+app.get('/api/admin/chat-reports', async(req,res)=>{
+  try { const snap=await db.collection('chatReports53').orderBy('createdAt','desc').limit(100).get();
+    const items=[];snap.forEach(d=>items.push({id:d.id,...d.data()}));res.json(items);
+  } catch(e) { console.error('chat reports admin',e.message);res.status(503).json({error:'Denúncias indisponíveis'}); }
+});
+app.post('/api/admin/chat-reports/:id/resolve',rateLimit(40,60000),async(req,res)=>{
+  if(!/^[a-f0-9-]{36}$/i.test(req.params.id)||!['open','resolved'].includes(req.body?.status))return res.status(400).json({error:'Dados inválidos'});
+  try{ const ref=db.collection('chatReports53').doc(req.params.id),snap=await ref.get();if(!snap.exists)return res.status(404).json({error:'Denúncia não encontrada'});
+    await ref.set({status:req.body.status,reviewedAt:Date.now(),reviewedBy:req.adminEmail},{merge:true});
+    audit(req.adminEmail,'chat-report',req.params.id+' '+req.body.status);
+    res.json({success:true});
+  }catch(e){res.status(503).json({error:'Não foi possível atualizar denúncia'});}
 });
 
 // Fim das APIs sociais; nenhum dado pessoal é retornado ao cliente.
@@ -1269,7 +1288,7 @@ io.on('connection', (socket) => {
     io.to(currentRoom).emit('roomReaction', { emoji: data.emoji, name: String(socket.userName || '').slice(0,40) });
   });
 
-  socket.on('chat', ({ text }) => {
+  socket.on('chat', ({ text, replyTo }) => {
     try {
       if (!currentRoom || typeof text !== 'string' || !text.trim()) return;
       text = text.slice(0, 400);
@@ -1289,10 +1308,26 @@ io.on('connection', (socket) => {
       const parts = text.trim().split(' ');
       const command = parts[0].toLowerCase();
       if (command.startsWith('/')) { handleCommand(socket, command, parts.slice(1), room); return; }
-      const msg = { _id: Date.now().toString() + Math.random(), user: socket.userName, text: text.trim(), color: socket.userColor, isSystem: false, isAdmin: socket.isAdmin || false, role: roleOf(socket), avatar: socket.userAvatar || '👤', createdAt: new Date() };
+      // Respostas só referenciam mensagens válidas da própria sala; nada é aceito por confiança no cliente.
+      const refMsg = typeof replyTo==='string' && replyTo.length < 100 ? room.chatHistory.find(m=>m._id===replyTo&&!m.isSystem&&!m.isMusic) : null;
+      const msg = { _id: Date.now().toString() + Math.random(), user: socket.userName, userId: publicUserId(socket.userEmail), text: text.trim(), color: socket.userColor, isSystem: false, isAdmin: socket.isAdmin || false, role: roleOf(socket), avatar: socket.userAvatar || '👤', createdAt: new Date(), ...(refMsg ? { replyTo: { id:refMsg._id, user:refMsg.user, text:String(refMsg.text).slice(0,110) } } : {}) };
       room.chatHistory.push(msg);
       if (room.chatHistory.length > 300) room.chatHistory.shift();
       io.to(currentRoom).emit('chat', msg);
+      // Menções/repostas geram notificações para participantes da sala, não por mera coincidência de nickname fora dela.
+      const mentioned = new Set();
+      const mentionMatches = [...msg.text.matchAll(/@\{([^{}]{1,40})\}|@([\wÀ-ÿ]{1,40})/g)].slice(0,5);
+      for (const match of mentionMatches) mentioned.add(String(match[1]||match[2]).toLocaleLowerCase('pt-BR'));
+      if(refMsg) mentioned.add(String(refMsg.user||'').toLocaleLowerCase('pt-BR'));
+      let notices=0;
+      for(const so of io.sockets.sockets.values()){
+        if(notices>=3)break;
+        if(so.sfSocialRoom!==currentRoom || !so.userEmail || so.userEmail===socket.userEmail)continue;
+        if(!mentioned.has(String(so.userName||'').toLocaleLowerCase('pt-BR')))continue;
+        notices++;mentioned.delete(String(so.userName).toLocaleLowerCase('pt-BR'));
+        so.emit('sf53Mention',{from:socket.userName,text:msg.text.slice(0,140),messageId:msg._id,roomSlug:currentRoom});
+        sf15Notify(so.userEmail,{type:'mention',title:'Menção de '+socket.userName,message:msg.text.slice(0,120),roomSlug:currentRoom}).catch(e=>console.error('chat53 mention notify:',e.message));
+      }
     } catch (e) { console.error('Erro no chat:', e.message); }
   });
 

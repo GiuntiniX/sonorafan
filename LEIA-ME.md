@@ -1,29 +1,45 @@
-# SonoraFan 52.0 — UX, acessibilidade e votação refinada
+# SonoraFan 53.0 — Chat Social Completo
 
-**Base:** instalar sobre a versão 51.1 (a atualização 51.1 corrige o cabeçalho de Favoritas). Preserve os outros arquivos da plataforma, imagens, `gamification-45.js` e dados Firebase.
+**Base para instalação: versão 52.0** (com a gamificação da 45.0 e os demais arquivos anteriores preservados).
 
-## Arquivos alterados
+## Arquivos deste pacote
+
 | Arquivo | Ação |
 |---|---|
-| `server.js` | Substituir na raiz (é necessário reiniciar o Node.js) |
+| `server.js` | Substituir na raiz |
+| `chat-social-53.js` | Adicionar na raiz |
 | `public/index.html` | Substituir |
-| `public/sonorafan-ux-50.js` | Substituir (módulo de Design/UX da versão 50, preservando filtros e Club) |
-| `public/sonorafan-votos-ux-52.css` | Adicionar |
-| `tests/voting52.test.js` | Opcional: testes automatizados |
+| `public/sonorafan-chat-53.css` | Adicionar |
+| `public/sonorafan-chat-53.js` | Adicionar |
+| `tests/chat53.test.js` | Testes opcionais (não carregados em produção) |
 
-## Mudanças
-- **Modo Foco retirado:** removidos seus dois botões, painel explicativo, atalhos, persistência e tecla de atalho `F`. A sala volta a priorizar o modo social único, mantendo abas mobile, vídeo, fila e chat.
-- **Votação clara:** dois botões independentes com contagens reais, 👍 Apoiar e 👎 Pedir remoção (N/10). O saldo misturado foi eliminado; cada botão indica quando está selecionado.
-- **Desfazer/trocar voto:** servidor trata novo clique na opção selecionada como remoção do voto; trocar de opção altera o voto. Um usuário só pode escolher uma opção por música.
-- **Regras mantidas:** a votação negativa retira uma faixa futura após 10 votos 👎; a faixa atual é gerenciada pelo botão **Pular faixa** separado; votar positivo não reordena a fila automaticamente.
-- **XP preservado:** o servidor usa a base da v45 e mantém a proteção contra duplicidade dos XP de voto do Club (sem zerar pontos, medição ou missões).
-- **Acessibilidade:** links para pular ao conteúdo, foco de teclado visível, botões de voto com `aria-pressed` e nomes descritivos, feedback anunciado, alvo de toque maior e suporte a redução de movimento.
+**Não substituir nem remover:** `.env`, `package.json`, `gamification-45.js`, `room-settings.js`, imagens e arquivos CSS/JS anteriores que o `index.html` referencie.
+
+## Novas funções
+
+1. Clique no **nickname** de alguém que está na sala: **Mencionar** (já existente), **Mensagem privada**, **Seguir**, **Bloquear** e **Copiar nickname**.
+2. Chat da sala: **Responder mensagem**, **cinco reações por emoji** (toque para ativar/remover), menções com aviso pessoal e **Denunciar**.
+3. **Caixa de Entrada** no lobby e na sala, com busca de pessoas, conversas recentes, contagem de não lidas e histórico privado.
+4. Conversas privadas persistidas no **Firestore**, atualizadas via **Socket.IO** quando os usuários autenticam seus sockets; a leitura também funciona por HTTP quando o socket está indisponível.
+5. **Privacidade**: permitir mensagens de todos, apenas pessoas que você segue ou de ninguém; desligar notificações; bloqueio bidirecional para novas mensagens.
+6. **Contatos**: lista de pessoas seguidas com indicador apenas quando participam de salas públicas e permitem divulgar atividade.
+7. **Denúncias** registradas no Firestore e disponíveis ao admin na seção **Moderação** → **Denúncias do chat**.
 
 ## Instalação
-1. Faça backup de `server.js` e `public/index.html`, e da coleção `points` do Firestore.
-2. Extraia os arquivos preservando `public/` e `tests/`; mantenha `.env`, Firebase, `gamification-45.js`, as imagens antigas e os demais arquivos.
-3. Reinicie o Node.js e faça Ctrl+F5 no navegador. Teste com duas contas diferentes na mesma sala.
-4. Confirme 👍, 👎, troca e retirada de voto, que a música atual não recebe esses votos e que os XP antigos e o ranking do Club continuam corretos.
 
-## Limitação
-Os testes automatizados executam sem conexão real ao Firebase, Socket.IO ou YouTube. É necessário testar a sincronização com dois usuários no ambiente publicado antes de implantar em produção.
+1. Faça backup do código e do Firestore antes da atualização.
+2. Extraia o ZIP na raiz do repositório e substitua os arquivos indicados.
+3. Reinicie o Node.js para carregar `chat-social-53.js` junto com o novo `server.js`.
+4. Atualize o navegador com **Ctrl + F5**.
+5. Teste com duas contas: ambos em uma sala, menção pública, resposta, reação e mensagem privada. Teste bloqueio, privacidade, notificações e denúncia com uma conta administrativa.
+
+O Firebase Admin SDK deve estar configurado com credenciais válidas, pois esta versão cria automaticamente as coleções: `chatSettings53`, `chatConversations53` (com subcoleção `messages`) e `chatReports53`. A leitura de conversas e a autenticação são verificadas no servidor.
+
+## Segurança e limitações
+
+- Os dados são armazenados no Firestore; **não há criptografia ponta a ponta**. Não apresente o recurso como mensagens criptografadas entre os usuários.
+- Conversas privadas usam IDs derivados de contas autenticadas, não apenas apelidos; o servidor verifica acesso e bloqueios, limita requisições e não envia e-mails pessoais nas respostas das APIs.
+- Contadores de reações e respostas **públicas** pertencem ao histórico em memória da sala; não sobrevivem ao reinício do servidor. Mensagens **privadas** são persistentes.
+- O histórico privado é paginado com limite de 80 mensagens recentes por solicitação, mas esta versão não implementa ainda paginação completa, exportação ou exclusão definitiva do histórico. Defina política de retenção/eliminação antes de operar em grande escala.
+- As notificações de menção e DM usam o sistema social existente. É necessário permitir o tráfego de eventos Socket.IO no servidor publicado.
+- `tests/chat53.test.js` usa dados simulados e pode ser executado com `node tests/chat53.test.js`. O teste com múltiplas contas reais e regras publicadas ainda é obrigatório.
