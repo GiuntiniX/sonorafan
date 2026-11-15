@@ -2208,7 +2208,7 @@
         <button data-t="player" class="on" onclick="setTab('player')">▶ Player</button>
         <button data-t="chat" onclick="setTab('chat')">💬 Chat</button>
         <button type="button" onclick="window.sf53OpenInbox?.()">✉ Inbox</button>
-        <button class="sf34-add-mobile" type="button" onclick="window.sf34FindSong?.()" aria-label="Adicionar música">＋ Música</button>
+        <button class="sf34-add-mobile" type="button" onclick="window.sf76OpenMusic ? window.sf76OpenMusic('search') : window.sf34FindSong?.()" aria-label="Abrir músicas e favoritas">＋ Música</button>
         <button class="sf45-mobile-club" type="button" onclick="window.sf45OpenClub?.()" aria-label="Abrir SonoraFan Club">🏅 Club</button>
       </nav>
     </div>
@@ -4345,5 +4345,7 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-visual-74.css">
   <link rel="stylesheet" href="/sonorafan-fila-fanclub-75.css">
   <script defer src="/sonorafan-visual-74.js"></script>
+  <link rel="stylesheet" href="/sonorafan-mobile-music-76.css">
+  <script defer src="/sonorafan-mobile-music-76.js"></script>
 </body>
 </html>
