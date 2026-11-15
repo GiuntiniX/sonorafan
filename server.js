@@ -1597,13 +1597,21 @@ io.on('connection', (socket) => {
       if (index === roomData.currentIndex) { socket.emit('error', 'Não é possível votar na música atual'); return; }
       const votes = getRoomVotes(room);
       if (!votes[id]) votes[id] = { up: [], down: [] };
+      if (type !== 'up' && type !== 'down') return;
       const data = votes[id];
+      const alreadySelected = (type === 'up' ? data.up : data.down).includes(socket.userName);
       const upIndex = data.up.indexOf(socket.userName);
       if (upIndex > -1) data.up.splice(upIndex, 1);
       const downIndex = data.down.indexOf(socket.userName);
       if (downIndex > -1) data.down.splice(downIndex, 1);
-      if (type === 'up') { data.up.push(socket.userName); addPoints(socket.userEmail, 1, 'vote', room + ':' + id); roomData.totalVotesGiven = (roomData.totalVotesGiven || 0) + 1; }
-      else if (type === 'down') data.down.push(socket.userName);
+      // Clicking the currently selected option removes the vote; switching options is supported.
+      if (!alreadySelected && type === 'up') {
+        data.up.push(socket.userName);
+        addPoints(socket.userEmail, 1, 'vote', room + ':' + id);
+        roomData.totalVotesGiven = (roomData.totalVotesGiven || 0) + 1;
+      } else if (!alreadySelected && type === 'down') {
+        data.down.push(socket.userName);
+      }
       if (data.down.length >= DISLIKE_THRESHOLD) {
         const removed = roomData.queue.splice(index, 1)[0];
         delete votes[id];
