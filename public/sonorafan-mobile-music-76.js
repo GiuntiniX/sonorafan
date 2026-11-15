@@ -88,7 +88,7 @@
     event.preventDefault();event.stopPropagation();event.stopImmediatePropagation?.();
     if(text.length<2){status('Digite pelo menos duas letras para buscar.',true);return;}
     if(typeof handleSearchInput==='function')handleSearchInput(text);
-    status('Toque em um resultado abaixo para escolher a música.');
+    status('Escolha um resultado na janela de pesquisa.');
   }
   function takeRequestCard(){
     const card=$('sf10RequestCard');const host=$('sf76RequestHost');
@@ -106,6 +106,7 @@
     state.originalHolder=null;
   }
   function open(tab='search'){
+    if(tab==='search' && typeof window.sf77OpenSearch==='function'){window.sf77OpenSearch('');return;}
     if(!smallScreen()){
       if(typeof originalFindSong==='function')originalFindSong();
       return;
