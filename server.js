@@ -14,6 +14,7 @@ const { createGamification45 } = require('./gamification-45');
 const { installChat53 } = require('./chat-social-53');
 const { installPlatform63 } = require('./sonorafan-platform-63');
 const { installFavoriteGenres67 } = require('./favorite-genres-67');
+const { installFanClubs71 } = require('./fan-clubs-71');
 
 // ===== PROTEÇÃO GLOBAL PARA O SERVIDOR NUNCA CAIR =====
 process.on('uncaughtException', (err) => {
@@ -737,6 +738,8 @@ app.post('/api/social/invite-friend',rateLimit(8,60000),async(req,res)=>{
 
 // 53.0 — mensagens privadas, caixa de entrada e privacidade persistidos no Firestore.
 installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit });
+// Comunidades permanentes de fãs: membros e mural protegidos pela sessão.
+installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit });
 
 // Administração de denúncias 53.0 — protegida por requireAdmin já aplicado em /api/admin.
 app.get('/api/admin/chat-reports', async(req,res)=>{

@@ -1,0 +1,192 @@
+'use strict';
+// SonoraFan 71 — comunidades permanentes criadas por fãs.
+// O servidor decide acesso e moderação usando a sessão; o navegador nunca define papéis.
+const crypto = require('crypto');
+const THEMES = new Set(['vinyl','stage','cassette','waves']);
+const CLUBS = 'sonorafanFanClubs71';
+const clean = (value, max) => typeof value === 'string'
+  ? value.normalize('NFC').replace(/[\u0000-\u001f\u007f<>]/g,' ').replace(/\s+/g,' ').trim().slice(0,max)
+  : '';
+const unique = values => Array.from(new Set(Array.isArray(values) ? values.filter(x=>typeof x==='string') : []));
+
+function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit }) {
+  const refFor = id => db.collection(CLUBS).doc(id);
+  const identity = (req,res) => {
+    const email = sessionEmail(req);
+    if (!email) { res.status(401).json({error:'Entre na sua conta para participar da comunidade.'}); return null; }
+    const user=users.get(email);
+    if (user?.banned) {res.status(403).json({error:'Conta sem permissão para participar.'});return null;}
+    return {email,id:publicUserId(email),name:clean(user?.nome||'Fã SonoraFan',40)};
+  };
+  const error = (res,err) => {
+    if (err?.status) return res.status(err.status).json({error:err.message});
+    console.error('[Fan Clubs 71]',err?.message||err);
+    return res.status(503).json({error:'Não foi possível acessar os Fan Clubs agora.'});
+  };
+  const throwHttp = (status,message) => {const e=new Error(message);e.status=status;throw e;};
+  const validateId = id => typeof id==='string' && /^[a-f0-9-]{36}$/.test(id);
+  const record = (data, id) => ({
+    id: String(id || data.id), title: data.title, artist: data.artist, description:data.description,
+    rules:data.rules, theme:data.theme, ownerId:data.ownerId, ownerName:data.ownerName,
+    memberCount:unique(data.memberIds).length, roomCount:unique(data.roomSlugs).length,
+    createdAt:data.createdAt, isUnofficial:true
+  });
+  const overview=(data,id,me)=>({
+    ...record(data,id),
+    joined:unique(data.memberIds).includes(me.id),
+    owner:data.ownerId===me.id,
+    blocked:unique(data.blockedIds).includes(me.id)
+  });
+  async function readClub(id){
+    if (!validateId(id))throwHttp(400,'Fan Club inválido.');
+    const snap=await refFor(id).get();
+    if (!snap.exists)throwHttp(404,'Fan Club não encontrado.');
+    return {ref:snap.ref,data:snap.data()};
+  }
+  const ownerOrAdmin=(data,me)=>data.ownerId===me.id || adminEmails.has(me.email);
+  const member=(data,me)=>unique(data.memberIds).includes(me.id) || ownerOrAdmin(data,me);
+  function cleanRooms(data){
+    return unique(data.roomSlugs).map(slug=>rooms.get(slug)).filter(r=>r&&!r.isPrivate)
+      .map(r=>({slug:r.slug,name:r.name,listenerCount:Number(r.listenerCount)||0,
+        isPlaying:!!r.isPlaying,track:r.queue?.[r.currentIndex] ? {title:clean(r.queue[r.currentIndex].title,150),artist:clean(r.queue[r.currentIndex].artist,90)} : null}));
+  }
+  function clubEvents(data){
+    if(!socialEvents)return [];
+    const now=Date.now(),slugs=new Set(cleanRooms(data).map(r=>r.slug));
+    return [...socialEvents.values()].filter(e=>slugs.has(e.roomSlug)&&e.startAt>=now-3600000)
+      .sort((a,b)=>a.startAt-b.startAt).slice(0,5)
+      .map(e=>({id:e.id,title:clean(e.title,70),roomName:clean(e.roomName,80),startAt:e.startAt,
+        attendees:Array.isArray(e.attendees)?e.attendees.length:0}));
+  }
+  function memberView(id){
+    const person=[...users.entries()].find(([email])=>publicUserId(email)===id);
+    return {id,name:person?clean(person[1]?.nome||'Fã SonoraFan',40):'Membro',avatar:person?clean(person[1]?.avatar||'🎧',8):'🎧'};
+  }
+
+  app.get('/api/fan-clubs', rateLimit(45,60000), async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const q=clean(req.query.q,60).toLocaleLowerCase('pt-BR');
+    try {
+      const snap=await db.collection(CLUBS).orderBy('createdAt','desc').limit(150).get();
+      const list=snap.docs.map(d=>overview(d.data(),d.id,me))
+        .filter(c=>!q||`${c.artist} ${c.title} ${c.description}`.toLocaleLowerCase('pt-BR').includes(q))
+        .filter(c=>req.query.mine!=='true'||c.joined)
+        .slice(0,80);
+      res.json({clubs:list});
+    } catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs',rateLimit(5,3600000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const artist=clean(req.body?.artist,65),title=clean(req.body?.title,75),description=clean(req.body?.description,280),rules=clean(req.body?.rules,300);
+    const theme=THEMES.has(req.body?.theme)?req.body.theme:'vinyl';
+    if(artist.length<2||title.length<3) return res.status(400).json({error:'Informe artista e nome da comunidade.'});
+    try{
+      const owned=await db.collection(CLUBS).where('ownerId','==',me.id).limit(5).get();
+      if(owned.size>=5)throwHttp(409,'Você já administra 5 Fan Clubs.');
+      const id=crypto.randomUUID();
+      const data={id,artist,title,description,rules,theme,ownerId:me.id,ownerName:me.name,
+        memberIds:[me.id],blockedIds:[],roomSlugs:[],createdAt:Date.now(),updatedAt:Date.now()};
+      await refFor(id).create(data);
+      res.status(201).json({club:overview(data,id,me)});
+    }catch(e){error(res,e);}
+  });
+  app.get('/api/fan-clubs/:id',rateLimit(75,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{const {data}=await readClub(req.params.id);
+      res.json({club:{...overview(data,req.params.id,me),rooms:cleanRooms(data),events:clubEvents(data),
+        members:member(data,me)?unique(data.memberIds).slice(0,50).map(memberView):[],
+        blockedMembers:ownerOrAdmin(data,me)?unique(data.blockedIds).slice(0,50).map(memberView):[]}});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
+      await db.runTransaction(async tx=>{
+        const doc=await tx.get(ref);if(!doc.exists)throwHttp(404,'Fan Club não encontrado.');
+        const data=doc.data();if(unique(data.blockedIds).includes(me.id))throwHttp(403,'A participação nesta comunidade está restrita.');
+        const members=unique(data.memberIds);if(members.includes(me.id))return;
+        if(members.length>=300)throwHttp(409,'Esta comunidade atingiu o limite atual de membros.');
+        tx.update(ref,{memberIds:[...members,me.id],updatedAt:Date.now()});
+      });res.json({joined:true});
+    }catch(e){error(res,e);}
+  });
+  app.delete('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
+      await db.runTransaction(async tx=>{
+        const doc=await tx.get(ref);if(!doc.exists)throwHttp(404,'Fan Club não encontrado.');
+        const data=doc.data();if(data.ownerId===me.id)throwHttp(403,'O criador não pode sair sem transferir a comunidade.');
+        tx.update(ref,{memberIds:unique(data.memberIds).filter(id=>id!==me.id),updatedAt:Date.now()});
+      });res.json({joined:false});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/moderation',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const userId=String(req.body?.userId||''),action=req.body?.action;
+    if(!/^[a-f0-9]{24}$/.test(userId)||!['block','unblock'].includes(action))return res.status(400).json({error:'Ação inválida.'});
+    try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
+      await db.runTransaction(async tx=>{
+        const doc=await tx.get(ref);if(!doc.exists)throwHttp(404,'Fan Club não encontrado.');
+        const data=doc.data();if(!ownerOrAdmin(data,me))throwHttp(403,'Apenas a moderação pode alterar membros.');
+        if(userId===data.ownerId)throwHttp(403,'Não é possível bloquear o criador.');
+        const blocked=unique(data.blockedIds).filter(id=>id!==userId);
+        tx.update(ref,{blockedIds:action==='block'?[...blocked,userId]:blocked,
+          memberIds:action==='block'?unique(data.memberIds).filter(id=>id!==userId):unique(data.memberIds),updatedAt:Date.now()});
+      });res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  app.get('/api/fan-clubs/:id/posts',rateLimit(60,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para ler o mural.');
+      const snap=await ref.collection('posts').orderBy('createdAt','desc').limit(35).get();
+      res.json({posts:snap.docs.map(d=>({...d.data(),id:d.id,editable:d.data().authorId===me.id||ownerOrAdmin(data,me)}))});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/posts',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const text=clean(req.body?.text,600);
+    if(text.length<3)return res.status(400).json({error:'Escreva uma mensagem com pelo menos 3 caracteres.'});
+    try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para publicar.');
+      const doc=ref.collection('posts').doc();
+      const post={authorId:me.id,authorName:me.name,text,createdAt:Date.now()};
+      await doc.create(post);res.status(201).json({post:{...post,id:doc.id,editable:true}});
+    }catch(e){error(res,e);}
+  });
+  app.delete('/api/fan-clubs/:id/posts/:postId',rateLimit(20,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{const {ref,data}=await readClub(req.params.id);const postRef=ref.collection('posts').doc(req.params.postId);
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(postRef);if(!snap.exists)throwHttp(404,'Publicação não encontrada.');
+        if(snap.data().authorId!==me.id&&!ownerOrAdmin(data,me))throwHttp(403,'Sem permissão para moderar esta publicação.');
+        tx.delete(postRef);
+      });res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/rooms',rateLimit(15,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const slug=String(req.body?.slug||'');const room=rooms.get(slug);
+    if(!room||room.isPrivate)return res.status(404).json({error:'Escolha uma sala pública existente.'});
+    if(room.ownerEmail!==me.email&&!adminEmails.has(me.email))return res.status(403).json({error:'Você precisa administrar a sala para vinculá-la.'});
+    try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(ref);if(!snap.exists)throwHttp(404,'Fan Club não encontrado.');
+        const data=snap.data();if(!ownerOrAdmin(data,me))throwHttp(403,'Apenas o criador pode vincular salas.');
+        const slugs=unique(data.roomSlugs);if(slugs.includes(slug))return;
+        if(slugs.length>=3)throwHttp(409,'Limite de três salas por Fan Club.');
+        tx.update(ref,{roomSlugs:[...slugs,slug],updatedAt:Date.now()});
+      });res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  app.delete('/api/fan-clubs/:id/rooms/:slug',rateLimit(15,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(ref);if(!snap.exists)throwHttp(404,'Fan Club não encontrado.');
+        if(!ownerOrAdmin(snap.data(),me))throwHttp(403,'Sem permissão.');
+        tx.update(ref,{roomSlugs:unique(snap.data().roomSlugs).filter(x=>x!==req.params.slug),updatedAt:Date.now()});
+      });res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  return {CLUBS,clean,record};
+}
+module.exports={installFanClubs71,clean};
