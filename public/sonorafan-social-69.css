@@ -1,0 +1,92 @@
+/* SonoraFan 69 — Presença real de amigos e remoção das artes florais quebradas.
+   Mantém a identidade do festival, sem imagens com letras recortadas. */
+
+/* Neutraliza a arte floral legada — origens presentes nos módulos 33/34/37/38. */
+.sf5-community-top::before,
+.sf5-community-top::after,
+.sf5-community-layer .sf5-community-top::before,
+.sf5-community-layer .sf5-community-top::after,
+.sf35-create-hero::before,
+#signupModal .sf26-signup-side::before,
+#screen-room .sf34-queue .empty-state::before,
+.sf43-profile-flower,
+.sf43-profile-flower::before,
+.sf43-profile-flower::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
+
+.sf5-profile-hero,
+.sf5-community-layer .sf5-profile-hero {
+  background: linear-gradient(115deg, #392043 0%, #241331 59%, #160e26 100%) !important;
+}
+
+.sf5-community-top,
+.sf5-community-layer .sf5-community-top {
+  background: linear-gradient(108deg, #3d2148 0%, #261631 58%, #160e25 100%) !important;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Em vez das flores, apenas um grafismo musical vetorial e discreto. */
+.sf5-community-top::before,
+.sf5-community-layer .sf5-community-top::before {
+  content: '♫' !important;
+  display: block !important;
+  background: transparent !important;
+  color: rgba(245, 166, 105, .28);
+  position: absolute;
+  top: -22px;
+  right: 35px;
+  font: 800 125px/1 system-ui, sans-serif;
+  pointer-events: none;
+  transform: rotate(-12deg);
+  z-index: -1;
+}
+
+/* Nova faixa de status dos amigos */
+.sf5-community-shell .sf69-online-head,
+#screen-lobby .sf69-online-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  margin: 12px 0 4px;
+  border: 1px solid rgba(154, 230, 194, .17);
+  border-radius: 13px;
+  background: linear-gradient(105deg, rgba(18, 52, 45, .4), rgba(45, 25, 64, .22));
+}
+.sf69-online-head strong { font-size: 13px; color: #ddfff0; }
+.sf69-online-head small { color: #beb1cb; font-size: 11px; margin-left: 4px; }
+.sf69-online-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #32df93; box-shadow: 0 0 0 4px rgba(50,223,147,.12); }
+.sf69-friend-card { align-items: flex-start !important; flex-wrap: wrap; gap: 10px !important; min-height: 96px; }
+.sf69-friend-card .sf-person { min-width: 110px; padding-top: 5px; }
+.sf69-friend-card .sf-person small { white-space: normal; line-height: 1.4; }
+.sf69-status-online { color: #69f1b0 !important; }
+.sf69-status-away { color: #aa9db8 !important; }
+.sf69-friend-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 6px; width: 100%; }
+.sf5-community-shell .sf69-friend-actions button,
+#screen-lobby .sf69-friend-actions button { min-height: 33px; font-size: 11px; padding: 7px 10px; border-radius: 9px; white-space: nowrap; }
+.sf69-friend-actions .sf69-primary { background: linear-gradient(115deg, #7f35ce, #b657a5) !important; border-color: #c47ff6 !important; color: #fff !important; }
+.sf69-friend-actions .sf69-follow { opacity: .75; margin-left: auto; }
+.sf69-friend-actions button:focus-visible, .sf69-invite-dialog :focus-visible { outline: 3px solid #ffce83; outline-offset: 2px; }
+
+.sf69-invite-overlay { position: fixed; inset: 0; z-index: 12020; display: grid; place-items: center; padding: 16px; background: rgba(3, 2, 9, .78); }
+.sf69-invite-dialog { width: min(420px, 100%); padding: 22px; border: 1px solid #8b55b4; border-radius: 19px; background: linear-gradient(145deg, #351b49, #140d22); box-shadow: 0 24px 75px rgba(0,0,0,.45); color: #fff; }
+.sf69-invite-dialog h3 { font-size: 19px; margin: 0 0 8px; }
+.sf69-invite-dialog p { color: #dccde9; font-size: 13px; margin: 0 0 17px; }
+.sf69-invite-dialog select { display:block; width:100%; background: #251432; color: white; border: 1px solid #8354a9; padding: 12px; border-radius: 11px; font: inherit; }
+.sf69-invite-dialog option { background: #251432; color: #fff; }
+.sf69-invite-controls { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.sf69-invite-controls button { border-radius: 10px; min-height: 38px; padding: 9px 13px; background: #412656; border: 1px solid #78508e; color: #fff; font: 700 12px inherit; cursor: pointer; }
+.sf69-invite-controls button:last-child { background: linear-gradient(105deg,#8a40d2,#cb638f); border-color: #c383e4; }
+.sf69-invite-controls button:disabled { opacity:.55; cursor:not-allowed; }
+@media (max-width: 620px) {
+  .sf5-community-top::before, .sf5-community-layer .sf5-community-top::before { font-size: 70px; right: 5px; top: 0; opacity: .55; }
+  .sf69-online-head small { width: 100%; margin-left: 16px; }
+  .sf69-friend-card { align-items: center !important; }
+  .sf69-friend-actions { justify-content: start; }
+}
+@media (prefers-reduced-motion: reduce) { .sf69-friend-actions button { transition:none !important; } }
