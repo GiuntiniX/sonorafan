@@ -1,0 +1,56 @@
+/* SonoraFan 68.0 · O resumo "Rolando na sala" permanece disponível com menu aberto/recolhido.
+   O menu recolhido aumenta a largura central; sem este limite, o player 16:9 aumenta de
+   altura e empurra o resumo para fora da coluna com overflow:hidden herdada da v42. */
+@media (min-width: 1025px) {
+  body.sf64-room-sidebar-collapsed #screen-room .player-column.sf34-player-column {
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important; /* segurança para janelas com pouca altura */
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(186,112,220,.46) transparent;
+    align-self: stretch !important;
+    padding-bottom: 8px !important;
+  }
+  body.sf64-room-sidebar-collapsed #screen-room .player-column.sf34-player-column .player-section {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+  body.sf64-room-sidebar-collapsed #screen-room .player-column.sf34-player-column .player-frame {
+    /* 400px reservados para cabeçalhos, controles, faixa contextual e mini player. */
+    width: min(100%, max(520px, calc(177.7778dvh - 711.111px))) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: 16 / 9 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  body.sf64-room-sidebar-collapsed #screen-room .player-column.sf34-player-column #sf55Session {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+  body.sf64-room-sidebar-collapsed #screen-room #sf55SessionTracks {
+    min-width: 0;
+  }
+}
+/* Fallback para navegadores sem unidades dinâmicas de viewport. */
+@supports not (height: 100dvh) {
+  @media (min-width: 1025px) {
+    body.sf64-room-sidebar-collapsed #screen-room .player-column.sf34-player-column .player-frame {
+      width: min(100%, max(520px, calc(177.7778vh - 711.111px))) !important;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.sf64-room-sidebar-collapsed #screen-room .player-column { scroll-behavior: auto !important; }
+}
