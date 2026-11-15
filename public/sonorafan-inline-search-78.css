@@ -1,0 +1,63 @@
+/* SonoraFan 78 — lista preta compacta, flutuante, fora dos containers da sala. */
+.sf78-popover[hidden]{display:none!important}
+.sf78-popover{position:fixed!important;z-index:2147482000!important;box-sizing:border-box!important;
+ display:flex;flex-direction:column;min-height:0;overflow:hidden;
+ border-radius:14px;border:1px solid #3c3545;background:#0c0b10;
+ box-shadow:0 14px 46px rgba(0,0,0,.82),0 0 0 1px rgba(255,255,255,.03);
+ color:#f6f2f9;font-family:'Inter',system-ui,sans-serif;isolation:isolate}
+.sf78-popover *, .sf78-popover *::before{box-sizing:border-box}
+.sf78-topbar{display:flex;align-items:center;justify-content:space-between;gap:6px;flex:none;
+ padding:10px 11px;border-bottom:1px solid #28222f;background:#131019}
+.sf78-topbar>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.085em;
+ font-size:10px;font-weight:800;color:#d9cee0}
+.sf78-topbar>strong span{font-size:14px;color:#f399bc;margin-right:3px}
+.sf78-top-actions{display:flex;align-items:center;flex:none;gap:5px}
+.sf78-popover button{font-family:inherit;cursor:pointer}
+.sf78-extended{padding:6px 8px;min-height:28px;border-radius:7px;border:1px solid #493450;
+ background:#211626;color:#e9d3ec;font-size:10px;font-weight:750;white-space:nowrap}
+.sf78-extended:hover,.sf78-x:hover{background:#3a2542;color:white}
+.sf78-x{width:28px;height:28px;display:grid;place-items:center;padding:0;border:1px solid #35273b;
+ border-radius:7px;background:#1e1724;color:#cbbdd2;font-size:13px}
+.sf78-items{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+ scrollbar-color:#574365 transparent;padding:5px}
+.sf78-row{display:flex;align-items:center;gap:9px;width:100%;min-width:0;min-height:59px;
+ margin:0;padding:7px 8px;text-align:left;border:1px solid transparent;background:transparent;
+ border-radius:9px;color:#f7f3fa;cursor:pointer;transition:background .12s,border-color .12s}
+.sf78-row+.sf78-row{border-top:1px solid #242027}
+.sf78-row:hover,.sf78-row.is-active,.sf78-row:focus-visible{outline:none;background:#231b28;border-color:#63446b}
+.sf78-thumbnail{display:block;width:60px;height:42px;flex:0 0 60px;object-fit:cover;border-radius:6px;
+ background:#1b1521}
+.sf78-detail{display:block;flex:1;min-width:0}
+.sf78-detail strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+ overflow-wrap:anywhere;font-size:11.5px;line-height:1.35;font-weight:700;color:#fff}
+.sf78-detail small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ font-size:10.5px;margin-top:4px;color:#aaa0af}
+.sf78-choose{flex:none;padding:6px 8px;border:1px solid #55405a;border-radius:7px;
+ background:#302137;color:#f6d9f6;font-size:10px;font-weight:800}
+.sf78-row:hover .sf78-choose,.sf78-row.is-active .sf78-choose{background:#7d4591;border-color:#aa69b4;color:#fff}
+.sf78-bottom{flex:none;padding:8px 11px;border-top:1px solid #292430;color:#ada2b4;
+ background:#121016;font-size:10px;line-height:1.35}
+.sf78-message{display:flex;align-items:center;gap:9px;padding:14px 11px;color:#bcb1c5;
+ min-height:64px;text-align:left}
+.sf78-message span{font-size:17px;color:#dd9eca}
+.sf78-message p{font-size:11px;line-height:1.45;margin:0}
+#sf10RequestCard #sf78FullSearchBtn{display:inline-flex;gap:4px;align-items:center;
+ flex:none;border:0;background:transparent;color:#eab3e8;font-size:11px;font-weight:750;
+ padding:3px 4px;border-radius:6px;cursor:pointer;white-space:nowrap;font-family:inherit;
+ text-decoration:underline;text-underline-offset:2px}
+#sf10RequestCard #sf78FullSearchBtn:hover{color:#fff;background:rgba(159,84,168,.16)}
+#sf10RequestCard .sf78-help{display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:wrap;column-gap:8px;row-gap:5px}
+#sf10RequestCard .sf78-help-text{flex:1 1 180px;min-width:0}
+#sf10RequestCard #searchResults{display:none!important} /* evita dropdown legado duplicado */
+.sf78-popover button:focus-visible{outline:2px solid #f3b2d8;outline-offset:1px}
+@media(max-width:768px){
+ .sf78-popover{border-radius:12px}
+ .sf78-topbar{padding:8px 9px}
+ .sf78-thumbnail{width:54px;height:39px;flex-basis:54px}
+ .sf78-row{min-height:56px;padding:7px 6px;gap:8px}
+ .sf78-choose{font-size:10px;padding:6px}
+ .sf78-bottom{padding:7px 9px}
+ #sf10RequestCard #sf78FullSearchBtn{font-size:10.5px}
+}
+@media(prefers-reduced-motion:reduce){.sf78-popover *{transition:none!important}}

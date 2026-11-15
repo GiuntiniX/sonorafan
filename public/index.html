@@ -2192,7 +2192,7 @@
             <div class="cooldown-text hidden" id="cooldownText"></div>
           </div>
           </div>
-          <div class="sf10-request-help">Todo mundo é DJ. Sua escolha entra na fila compartilhada.</div>
+          <div class="sf10-request-help sf78-help"><span class="sf78-help-text">Todo mundo é DJ. Sua escolha entra na fila compartilhada.</span><button type="button" id="sf78FullSearchBtn" title="Abrir janela de busca completa" aria-label="Abrir janela de busca completa">↗ Busca completa</button></div>
         </section>
 
         <section class="sf5-listening-card" aria-label="Ouvintes da sala">
@@ -3603,6 +3603,11 @@ function openRoomCfg() {
     function handleSearchInput(value) {
       if (searchTimeout) clearTimeout(searchTimeout);
       const results = $('searchResults');
+      if (typeof window.sf78SearchFromField === 'function') {
+        window.sf78SearchFromField(value);
+        results.classList.remove('show');
+        return; // v78 controla a busca e não abre o dropdown antigo para URLs.
+      }
       if (window.sf77SearchFromField?.(value)) { results.classList.remove('show'); return; }
       if (!value || value.length < 2) { results.classList.remove('show'); return; }
       searchTimeout = setTimeout(async () => {
@@ -3706,7 +3711,8 @@ function openRoomCfg() {
 
     function addSong() {
       const url = $('songUrl').value.trim();
-      if (window.sf77SearchFromField?.(url)) return;
+      if (window.sf78SearchFromField?.(url)) return;
+      if (!window.sf78SearchFromField && window.sf77SearchFromField?.(url)) return;
       if (!url) return toast('Cole um link', 'error');
       const videoId = extractYouTubeId(url);
       if (!videoId) return toast('Link inválido', 'error');
@@ -4350,6 +4356,8 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-mobile-music-76.css?v=77">
   <script defer src="/sonorafan-mobile-music-76.js?v=77"></script>
   <link rel="stylesheet" href="/sonorafan-search-77.css?v=77">
-  <script defer src="/sonorafan-search-77.js?v=77"></script>
+  <script defer src="/sonorafan-search-77.js?v=78"></script>
+  <link rel="stylesheet" href="/sonorafan-inline-search-78.css?v=78">
+  <script defer src="/sonorafan-inline-search-78.js?v=78"></script>
 </body>
 </html>
