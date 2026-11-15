@@ -249,6 +249,42 @@
   }
   function endTour(mark=true){if(!state.tour)return;const t=state.tour;state.tour=null;tour.hidden=true;document.body.classList.remove('sf63-tour-active');$('sf63TourCard').style.transform='';if(mark)localStorage.setItem(tourKey(t.mode),'1');t.oldFocus?.focus?.();}
   function maybeTour(mode){if(!signedIn())return;if(!localStorage.getItem(tourKey(mode)))setTimeout(()=>startTour(mode,false),650);}
+
+  function setupRoomSidebar(){
+    const screen=$('screen-room');
+    const hideBtn=$('sf64RoomSidebarToggle');
+    const showBtn=$('sf64RoomSidebarShow');
+    if(!screen||!hideBtn||!showBtn)return;
+    const key='sf64_room_sidebar_collapsed';
+    const sync=()=>{
+      const collapsed=document.body.classList.contains('sf64-room-sidebar-collapsed');
+      hideBtn.setAttribute('aria-expanded', String(!collapsed));
+      showBtn.hidden=!collapsed;
+    };
+    const set=(collapsed)=>{
+      document.body.classList.toggle('sf64-room-sidebar-collapsed', !!collapsed);
+      try{ localStorage.setItem(key, collapsed?'1':'0'); }catch(e){}
+      sync();
+    };
+    hideBtn.addEventListener('click',()=>set(!document.body.classList.contains('sf64-room-sidebar-collapsed')));
+    showBtn.addEventListener('click',()=>set(false));
+    const mq=window.matchMedia('(max-width: 1024px)');
+    const restore=()=>{
+      if(mq.matches){
+        document.body.classList.remove('sf64-room-sidebar-collapsed');
+        showBtn.hidden=true;
+        hideBtn.setAttribute('aria-expanded','true');
+        return;
+      }
+      let collapsed=false;
+      try{ collapsed=localStorage.getItem(key)==='1'; }catch(e){}
+      document.body.classList.toggle('sf64-room-sidebar-collapsed', collapsed);
+      sync();
+    };
+    if(mq.addEventListener)mq.addEventListener('change',restore);else if(mq.addListener)mq.addListener(restore);
+    restore();
+  }
+
   function setupTour(){
     window.sf63StartTour=startTour;
     window.sf29StartTour=(mode)=>startTour(mode||activeMode(),true);
@@ -259,16 +295,11 @@
     $('sf63TourSkip')?.addEventListener('click',()=>endTour());
   }
   function init(){
-    if(!hub)return;wire();setupTour();lobbyActivity();
+    if(!hub)return;wire();setupTour();setupRoomSidebar();lobbyActivity();
     setTimeout(()=>{if($('screen-lobby')?.classList.contains('active'))sortRooms();},900);
     setInterval(()=>{if(state.tab==='battle'&&!hub.hidden)updateCountdown();},1000);
     window.sf63OpenHub=open;
     window.sf63RefreshRoomSort=sortRooms;
-    if(!signedIn() && !sessionStorage.getItem('sf63_landing_tour_done')){
-      // Landing tour stays optional to avoid interrupting the first visit.
-      const link=document.createElement('button');link.type='button';link.className='sf63-landing-tour-link';link.textContent='❔ Conheça o SonoraFan';link.addEventListener('click',()=>{sessionStorage.setItem('sf63_landing_tour_done','1');startTour('landing');});
-      document.querySelector('.hero-ctas')?.appendChild(link);
-    }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

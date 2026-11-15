@@ -176,3 +176,257 @@ body.sf63-tour-active { overflow:hidden !important; }
   .sf63-progress > span { transition:none; }
   #landingScreen { scroll-behavior:auto; }
 }
+
+/* ============================================================
+   SONORAFAN 64 — branding transparente, filtros premium e menu recolhível
+   ============================================================ */
+
+/* Landing sem tour. */
+#landingScreen .sf63-landing-tour-link { display:none !important; }
+
+/* Logos padronizados com fundo transparente. */
+.sf54-brand,
+.topnav-logo.sf54-brand-top,
+#loginScreen .sf54-brand-login,
+#screen-lobby .sf54-brand-lobby,
+#screen-room .sf54-brand-room,
+.sf12-admin-brand .sf54-brand,
+.sf54-brand-signup {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  padding: 0 !important;
+}
+
+.sf54-brand .sf54-brand-image {
+  display: block;
+  background: transparent !important;
+  filter: drop-shadow(0 10px 22px rgba(0,0,0,.24));
+}
+
+.topnav-logo.sf54-brand-top { width: 188px !important; }
+#landingScreen .sf54-brand-top .sf54-brand-image { max-height: 60px; }
+#loginScreen .sf54-brand-login { width: min(260px, 100%) !important; margin-bottom: 18px !important; }
+#screen-lobby .sf54-brand-lobby { width: min(186px, 100%) !important; }
+#screen-room .sf5-brand.sf54-brand-room { width: min(184px, 100%) !important; min-height: auto !important; }
+
+/* Botões de filtro e ordenação com a linguagem visual da plataforma. */
+.sf50-room-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px 16px;
+  margin: 0 0 10px;
+}
+
+.sf50-room-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px;
+  border-radius: 18px;
+  border: 1px solid rgba(194,126,255,.24);
+  background: linear-gradient(135deg, rgba(30,16,48,.92), rgba(19,12,31,.94));
+  box-shadow: 0 12px 26px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.sf50-filter {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #eadbf1;
+  font: 700 13px/1.1 inherit;
+  cursor: pointer;
+  transition: transform .2s var(--ui-ease), box-shadow .2s, background .2s, border-color .2s, color .2s;
+}
+
+.sf50-filter:hover {
+  transform: translateY(-1px);
+  background: rgba(163,79,168,.14);
+  border-color: rgba(201,150,255,.26);
+  color: #fff;
+}
+
+.sf50-filter.is-active,
+.sf50-filter[aria-pressed="true"] {
+  color: #fff;
+  border-color: rgba(255,193,125,.45);
+  background: linear-gradient(135deg, rgba(163,79,168,.95), rgba(124,58,237,.95));
+  box-shadow: 0 10px 22px rgba(124,58,237,.28), inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+.sf50-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6d6d;
+  box-shadow: 0 0 0 5px rgba(255,109,109,.16);
+}
+
+.sf50-room-hint {
+  margin-top: -2px;
+  margin-bottom: 12px;
+}
+
+.sf50-sort-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(194,126,255,.2);
+  background: linear-gradient(135deg, rgba(24,15,39,.94), rgba(16,10,26,.96));
+  color: #dcc6e8;
+  box-shadow: 0 10px 22px rgba(0,0,0,.16);
+}
+
+.sf50-sort-label span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: #f3dcb8;
+}
+
+.sf50-sort-label select {
+  min-height: 36px;
+  border-radius: 11px;
+  border: 1px solid rgba(194,126,255,.24);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  padding: 8px 10px;
+  font: 700 13px/1.1 inherit;
+}
+
+/* Ícones coloridos no menu lateral. */
+#screen-lobby .sf28-sidebar-nav button,
+#screen-room .sf5-navigation button {
+  display: flex;
+  align-items: center;
+  gap: 12px !important;
+}
+
+#screen-room .sf5-navigation button:first-letter { font-size: inherit !important; }
+
+.sf64-menu-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: linear-gradient(145deg, rgba(58,33,82,.92), rgba(33,18,51,.96));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 18px rgba(0,0,0,.18);
+  font-size: 17px;
+  line-height: 1;
+  transition: transform .2s var(--ui-ease), box-shadow .2s, background .2s;
+}
+
+#screen-lobby .sf28-sidebar-nav button:hover .sf64-menu-icon,
+#screen-room .sf5-navigation button:hover .sf64-menu-icon,
+#screen-lobby .sf28-sidebar-nav button.active .sf64-menu-icon,
+#screen-room .sf5-navigation .sf5-active .sf64-menu-icon {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 10px 22px rgba(0,0,0,.22);
+}
+
+.sf64-icon-discover { color: #ffb86b; background: linear-gradient(145deg, rgba(88,46,16,.95), rgba(50,28,15,.94)); }
+.sf64-icon-ranking { color: #ffd972; background: linear-gradient(145deg, rgba(84,53,12,.95), rgba(44,30,10,.95)); }
+.sf64-icon-club { color: #ffe496; background: linear-gradient(145deg, rgba(87,53,17,.95), rgba(53,33,14,.95)); }
+.sf64-icon-passport { color: #ffa6dc; background: linear-gradient(145deg, rgba(84,26,74,.95), rgba(53,19,55,.95)); }
+.sf64-icon-community { color: #7de8ff; background: linear-gradient(145deg, rgba(18,58,83,.95), rgba(16,33,54,.95)); }
+.sf64-icon-bell { color: #ffba6b; background: linear-gradient(145deg, rgba(83,46,20,.95), rgba(58,29,15,.95)); }
+.sf64-icon-profile { color: #8be2ff; background: linear-gradient(145deg, rgba(22,51,79,.95), rgba(18,30,57,.95)); }
+.sf64-icon-messages { color: #9ff7d2; background: linear-gradient(145deg, rgba(19,65,55,.95), rgba(14,39,36,.95)); }
+.sf64-icon-help { color: #e3c8ff; background: linear-gradient(145deg, rgba(70,39,91,.95), rgba(46,24,62,.95)); }
+.sf64-icon-admin { color: #ffc685; background: linear-gradient(145deg, rgba(89,47,18,.95), rgba(58,29,17,.95)); }
+.sf64-icon-logout { color: #ff9494; background: linear-gradient(145deg, rgba(88,31,31,.95), rgba(54,20,20,.95)); }
+.sf64-icon-room { color: #bba2ff; background: linear-gradient(145deg, rgba(56,33,92,.95), rgba(32,20,56,.95)); }
+.sf64-icon-invite { color: #8bddff; background: linear-gradient(145deg, rgba(21,62,80,.95), rgba(16,34,56,.95)); }
+.sf64-icon-favorites { color: #ff8ca7; background: linear-gradient(145deg, rgba(82,24,41,.95), rgba(50,17,28,.95)); }
+.sf64-icon-settings { color: #d8cbff; background: linear-gradient(145deg, rgba(54,42,83,.95), rgba(34,26,56,.95)); }
+
+/* Menu lateral recolhível na sala. */
+.sf64-room-menu-toggle,
+.sf64-room-menu-reopen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(194,126,255,.28);
+  background: linear-gradient(135deg, rgba(59,31,82,.95), rgba(31,17,49,.96));
+  color: #fff;
+  font: 700 13px/1 inherit;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
+  transition: transform .2s var(--ui-ease), box-shadow .2s, border-color .2s, opacity .2s;
+}
+
+.sf64-room-menu-toggle:hover,
+.sf64-room-menu-reopen:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255,193,125,.44);
+  box-shadow: 0 14px 28px rgba(0,0,0,.28);
+}
+
+@media (min-width: 1025px) {
+  #screen-room .app { transition: grid-template-columns .28s var(--ui-ease); }
+  #screen-room .sf5-sidebar {
+    transition: width .28s var(--ui-ease), padding .28s var(--ui-ease), opacity .2s ease, border-color .2s ease;
+    min-width: 0;
+  }
+  #screen-room .sf5-sidebar > * { transition: opacity .18s ease, transform .18s ease; }
+  body.sf64-room-sidebar-collapsed #screen-room .app { grid-template-columns: 0 minmax(0,1fr) !important; }
+  body.sf64-room-sidebar-collapsed #screen-room .sf5-sidebar {
+    width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    border-right-color: transparent !important;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  body.sf64-room-sidebar-collapsed #screen-room .sf5-sidebar > * {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  body.sf64-room-sidebar-collapsed #screen-room .premium-room-ambient { inset: 0 !important; }
+  #screen-room .sf64-room-menu-reopen {
+    position: fixed;
+    left: 16px;
+    top: 92px;
+    z-index: 35;
+    opacity: 0;
+    pointer-events: none;
+  }
+  body.sf64-room-sidebar-collapsed #screen-room .sf64-room-menu-reopen {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sf64-room-menu-toggle,
+  .sf64-room-menu-reopen { display: none !important; }
+}
+
+@media (max-width: 640px) {
+  .sf50-room-tools { gap: 10px; }
+  .sf50-room-filters,
+  .sf50-sort-label { width: 100%; }
+  .sf50-sort-label { justify-content: space-between; }
+  .sf50-sort-label select { flex: 1; }
+}

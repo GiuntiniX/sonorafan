@@ -7,9 +7,9 @@
   <meta name="description" content="Salas colaborativas de música: todo mundo adiciona músicas do YouTube e conversa em tempo real.">
   <meta property="og:type" content="website"><meta property="og:title" content="SonoraFan — Sua vibe, sua música">
   <meta property="og:description" content="Entre numa sala, adicione suas músicas e converse ao vivo com a galera.">
-  <meta property="og:image" content="/brand-54/sonorafan-logo.png"><meta name="theme-color" content="#7c3aed">
-  <link rel="manifest" href="/manifest.json"><link rel="icon" href="/brand-54/sonorafan-favicon-64.png" type="image/png">
-  <link rel="apple-touch-icon" href="/brand-54/sonorafan-icon-192.png">
+  <meta property="og:image" content="/brand-64/sonorafan-logo-transparent.png"><meta name="theme-color" content="#7c3aed">
+  <link rel="manifest" href="/manifest.json"><link rel="icon" href="/brand-64/sonorafan-favicon-64.png" type="image/png">
+  <link rel="apple-touch-icon" href="/brand-64/sonorafan-icon-192.png">
   <script src="/socket.io/socket.io.js"></script>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1390,7 +1390,7 @@
     </div>
 
     <nav class="topnav">
-      <div class="topnav-logo sf54-brand sf54-brand-top"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
+      <div class="topnav-logo sf54-brand sf54-brand-top"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
       <div class="topnav-actions">
         <button class="lang-btn active" data-lang="pt" onclick="setLanguage('pt')">PT</button>
         <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
@@ -1554,7 +1554,7 @@
         </div>
       </div>
       <div class="login-card sf26-login-card">
-        <div class="logo sf54-brand sf54-brand-login"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
+        <div class="logo sf54-brand sf54-brand-login"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
         <h1>Entre no SonoraFan</h1>
         <p data-i18n="login.sub">Entre com sua conta para acessar as salas.</p>
         <div class="login-error" id="loginError" data-i18n="login.error">Credenciais inválidas.</div>
@@ -1577,7 +1577,7 @@
   <div class="modal-overlay sf26-signup-overlay" id="signupModal">
     <div class="modal sf26-signup-shell">
       <div class="sf26-signup-side">
-        <div class="sf54-brand sf54-brand-signup"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
+        <div class="sf54-brand sf54-brand-signup"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
         <span class="sf26-auth-kicker">CRIAR CONTA</span>
         <h3>Seu convite para a melhor versão do SonoraFan</h3>
         <p>Crie sua conta e entre em uma experiência social de música com presença ao vivo, salas colaborativas e muita personalidade.</p>
@@ -1621,7 +1621,7 @@
   <div class="modal-overlay" id="adminPanel" role="dialog" aria-modal="true" aria-labelledby="sf12AdminTitle">
     <div class="modal admin-panel sf12-admin-shell">
       <aside class="sf12-admin-sidebar" aria-label="Navegação administrativa">
-        <div class="sf12-admin-brand sf54-brand-admin"><div class="sf54-brand"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div><small>ADMIN CONTROL CENTER</small></div>
+        <div class="sf12-admin-brand sf54-brand-admin"><div class="sf54-brand"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div><small>ADMIN CONTROL CENTER</small></div>
         <nav class="sf12-admin-nav" aria-label="Seções do painel">
           <button type="button" data-sf12-nav="overview" class="active">▦ <span>Visão geral</span></button>
           <button type="button" data-sf12-nav="users">♙ <span>Usuários</span></button>
@@ -1797,21 +1797,21 @@
     <div class="app sf28-lobby-app">
       <aside class="sf28-sidebar" aria-label="Navegação principal">
         <div class="sf28-sidebar-brand">
-          <h1 class="sf54-brand sf54-brand-lobby"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></h1>
+          <h1 class="sf54-brand sf54-brand-lobby"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></h1>
           <small>Música, comunidade e descoberta.</small>
         </div>
         <nav class="sf28-sidebar-nav">
-          <button type="button" class="active" aria-current="page">◈ <span>Descobrir salas</span></button>
-          <button type="button" onclick="openLeaderboard()">♛ <span>Ranking</span></button>
-          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry">🏅 <span>SonoraFan Club</span></button>
-          <button type="button" data-sf63-open="passport" class="sf63-menu-entry">🎟️ <span>Minha Jornada</span></button>
-          <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
-          <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()">🔔 <span>Notificações</span></button>
-          <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
-          <button type="button" class="sf53-nav-inbox" onclick="window.sf53OpenInbox?.()">✉ <span>Mensagens <b class="sf53-unread" hidden>0</b></span></button>
-          <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
-          <button type="button" onclick="toggleAdmin()" id="adminBtn" style="display:none;">🎛️ <span>Painel Admin</span></button>
-          <button type="button" onclick="doLogout()">⇥ <span>Sair</span></button>
+          <button type="button" class="active" aria-current="page"><span class="sf64-menu-icon sf64-icon-discover" aria-hidden="true">◈</span><span>Descobrir salas</span></button>
+          <button type="button" onclick="openLeaderboard()"><span class="sf64-menu-icon sf64-icon-ranking" aria-hidden="true">♛</span><span>Ranking</span></button>
+          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry"><span class="sf64-menu-icon sf64-icon-club" aria-hidden="true">🏅</span><span>SonoraFan Club</span></button>
+          <button type="button" data-sf63-open="passport" class="sf63-menu-entry"><span class="sf64-menu-icon sf64-icon-passport" aria-hidden="true">🎟️</span><span>Minha Jornada</span></button>
+          <button type="button" onclick="window.sf5OpenCommunity?.()"><span class="sf64-menu-icon sf64-icon-community" aria-hidden="true">💬</span><span>Comunidade</span></button>
+          <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()"><span class="sf64-menu-icon sf64-icon-bell" aria-hidden="true">🔔</span><span>Notificações</span></button>
+          <button type="button" onclick="window.sf5OpenProfile?.()"><span class="sf64-menu-icon sf64-icon-profile" aria-hidden="true">👤</span><span>Meu perfil</span></button>
+          <button type="button" class="sf53-nav-inbox" onclick="window.sf53OpenInbox?.()"><span class="sf64-menu-icon sf64-icon-messages" aria-hidden="true">✉️</span><span>Mensagens <b class="sf53-unread" hidden>0</b></span></button>
+          <button type="button" onclick="openTutorial(0)"><span class="sf64-menu-icon sf64-icon-help" aria-hidden="true">❔</span><span>Ajuda / Tour</span></button>
+          <button type="button" onclick="toggleAdmin()" id="adminBtn" style="display:none;"><span class="sf64-menu-icon sf64-icon-admin" aria-hidden="true">🎛️</span><span>Painel Admin</span></button>
+          <button type="button" onclick="doLogout()"><span class="sf64-menu-icon sf64-icon-logout" aria-hidden="true">⇥</span><span>Sair</span></button>
         </nav>
         <div class="sf33-sidebar-art" aria-hidden="true"><img src="/art-33/speakers.webp" loading="lazy" alt="" width="480" height="392"></div>
       </aside>
@@ -1955,7 +1955,7 @@
           <button class="action-btn hidden" id="cfgBtn" onclick="openRoomCfg()" title="Personalizar sala">⚙️</button>
         </div>
         <div class="header-right sf9-room-header-actions">
-
+          <button class="sf64-room-menu-toggle" id="sf64RoomSidebarToggle" type="button" aria-controls="sf64RoomSidebar" aria-expanded="true"><span aria-hidden="true">☰</span><span>Menu</span></button>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
 
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
@@ -1963,7 +1963,7 @@
       </div>
 
       <aside class="sf5-sidebar" aria-label="Menu da sala">
-        <div class="sf5-brand sf54-brand sf54-brand-room"><img src="/brand-54/sonorafan-logo.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
+        <div class="sf5-brand sf54-brand sf54-brand-room"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
         <nav class="sf5-navigation">
           <button class="sf5-active" type="button" onclick="setTab('player')">⌂ <span>Sala Atual</span></button>
           <button type="button" onclick="leaveRoom()">◈ <span>Descobrir salas</span></button>
