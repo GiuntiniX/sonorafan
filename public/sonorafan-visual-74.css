@@ -1,0 +1,200 @@
+/* SonoraFan 74.0 — consolidated presentation corrections after v73.
+   Only targets existing components. Playback, sockets and persistence remain unchanged. */
+:root { --sf74-ink:#fff3e8;--sf74-muted:#ccb6d5;--sf74-stroke:rgba(211,154,244,.24); }
+
+/* 1. Landing: remove obsolete scroll cue and the duplicated, unstyled injected strip. */
+#landingScreen .sf44-scroll-cue,
+#landingScreen .sf67-landing-strip {display:none!important;}
+#landingScreen .hero{min-width:0!important;align-items:center;gap:clamp(16px,3vw,52px);}
+#landingScreen .hero-text{min-width:0;max-width:660px;}
+#landingScreen .hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px;}
+#landingScreen .hero-ctas button{min-height:48px;padding:12px 19px;border-radius:13px;font-weight:800;box-shadow:0 10px 26px #05020a55;}
+#landingScreen .sf44-hero-benefits{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px;}
+#landingScreen .sf44-hero-benefits span{display:inline-flex;align-items:center;min-height:32px;padding:6px 11px;white-space:normal;font-weight:700;font-size:11px;border-radius:999px;border:1px solid rgba(219,171,242,.24);background:rgba(24,16,42,.78);color:#f3e4ff;}
+#landingScreen .sf74-home-highlights{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+ width:min(1240px,calc(100% - 48px));margin:0 auto 24px;position:relative;z-index:3;
+}
+#landingScreen .sf74-home-highlights article{
+ min-width:0;display:flex;align-items:center;gap:13px;padding:14px 17px;
+ border:1px solid rgba(218,153,235,.22);border-radius:18px;
+ background:linear-gradient(126deg,rgba(39,21,57,.96),rgba(16,12,30,.94));
+ box-shadow:0 16px 36px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.065);
+}
+#landingScreen .sf74-home-highlights article>span{display:grid;place-items:center;flex:0 0 43px;height:43px;border-radius:12px;background:linear-gradient(135deg,#9f44e0,#e06c79);color:#fff1df;font-size:23px;box-shadow:0 7px 18px rgba(167,69,207,.2);}
+#landingScreen .sf74-home-highlights article:nth-child(2)>span{background:linear-gradient(135deg,#6142b5,#2b92b4);}
+#landingScreen .sf74-home-highlights article:nth-child(3)>span{background:linear-gradient(135deg,#d85271,#ff935a);}
+#landingScreen .sf74-home-highlights article div{min-width:0;}
+#landingScreen .sf74-home-highlights strong{display:block;font-weight:820;font-size:14px;color:var(--sf74-ink);margin:0 0 4px;}
+#landingScreen .sf74-home-highlights p{font-size:12px;color:var(--sf74-muted);margin:0;line-height:1.45;}
+#landingScreen .sf26-live-marquee{margin-top:7px;}
+#landingScreen .landing-section{scroll-margin-top:90px;}
+
+/* 2. Desktop room: stable 3-column grid without content escaping a constrained viewport. */
+@media(min-width:1025px){
+  #screen-room .room-layout{min-width:0!important;min-height:0!important;overflow:hidden!important;gap:9px!important;padding:0 10px 8px!important;}
+  #screen-room .queue-column{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;overflow:hidden!important;height:100%!important;}
+  #screen-room .player-column.sf34-player-column{
+    height:100%!important;max-height:100%!important;min-height:0!important;min-width:0!important;
+    align-self:stretch!important;overflow-x:hidden!important;overflow-y:auto!important;
+    scrollbar-width:thin;scrollbar-color:#70448b transparent;overscroll-behavior:contain;
+    padding:0 0 10px!important;gap:8px!important;
+  }
+  #screen-room .player-column.sf34-player-column .player-section{overflow:visible!important;flex:0 0 auto!important;width:100%!important;}
+  #screen-room .player-column.sf34-player-column .player-frame{width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:16/9!important;flex:0 0 auto!important;}
+  body.sf64-room-sidebar-collapsed #screen-room .player-column.sf34-player-column{overflow-y:auto!important;}
+  body.sf64-room-sidebar-collapsed #screen-room .player-column.sf34-player-column .player-frame{width:100%!important;max-width:100%!important;height:auto!important;aspect-ratio:16/9!important;}
+  #screen-room .chat-column.sf34-chat{height:100%!important;min-height:0!important;overflow:hidden!important;}
+  #screen-room .sf5-bottom-row{display:contents!important;}
+}
+/* 3. Real queue: remove redundant summaries; ensure text does not spill into sibling cards. */
+#screen-room #sf67QueueStats,#screen-room #sf67ChatCompanion{display:none!important;}
+#screen-room .queue-column{isolation:isolate;}
+#screen-room .queue-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:6px!important;flex:0 0 auto;min-width:0;padding:11px 12px!important;}
+#screen-room .queue-header>span{flex:1;min-width:0;font-size:13px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#screen-room .queue-header .count{white-space:nowrap;font-size:11px!important;}
+#screen-room .premium-queue-summary{display:flex!important;gap:6px!important;align-items:center!important;justify-content:space-between!important;padding:7px 10px!important;min-height:0!important;flex:0 0 auto;}
+#screen-room .premium-queue-summary span{font-size:10px!important;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#screen-room .sf39-queue-insight{flex:0 0 auto!important;padding:7px 11px!important;max-height:64px!important;min-height:0!important;overflow:hidden!important;}
+#screen-room .sf39-queue-insight *{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+#screen-room .sf54-voting-guide{flex:0 0 auto!important;margin:4px 10px!important;padding:0!important;border:1px solid rgba(221,147,235,.17)!important;border-radius:10px!important;}
+#screen-room .sf54-voting-guide summary{display:flex!important;align-items:center;justify-content:space-between;gap:8px;min-height:33px;padding:7px 10px!important;font-size:10px!important;line-height:1.4!important;cursor:pointer;}
+#screen-room .sf54-voting-guide p{font-size:11px!important;line-height:1.5!important;margin:0!important;padding:6px 10px 10px!important;overflow-wrap:anywhere;}
+#screen-room .sf52-vote-status{flex:0 0 auto!important;margin:4px 10px!important;padding:0!important;font-size:11px!important;max-height:52px;overflow:auto;}
+#screen-room #queueList.queue-list{
+ min-width:0!important;flex:1 1 auto!important;height:auto!important;max-height:100%!important;
+ min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
+ scrollbar-width:thin;scrollbar-color:#8758a5 transparent;overscroll-behavior-y:contain;
+ padding:7px 9px 11px!important;box-sizing:border-box!important;
+}
+#screen-room #queueList .queue-item{min-width:0!important;max-width:100%!important;box-sizing:border-box;overflow:hidden!important;flex:0 0 auto!important;}
+#screen-room #queueList .queue-item .title,#screen-room #queueList .queue-item .artist,
+#screen-room #queueList .queue-item .info,#screen-room #queueList .queue-item .song-info{min-width:0!important;max-width:100%;overflow:hidden!important;text-overflow:ellipsis;}
+#screen-room #queueList .queue-item .title{overflow-wrap:anywhere;line-height:1.35!important;}
+#screen-room #queueList .queue-item button{flex-shrink:0;}
+#screen-room #queueList .sf56-next-space{min-height:0!important;flex:0 0 auto!important;padding:10px 10px 9px!important;gap:4px!important;margin:7px 0!important;}
+#screen-room #queueList .sf56-next-space .sf56-note{display:none!important;}
+#screen-room #queueList .sf56-next-space p{display:none!important;}
+#screen-room #queueList .sf56-next-space strong{font-size:11px!important;line-height:1.3!important;}
+#screen-room #queueList .sf56-next-space button{margin-top:3px!important;min-height:30px!important;}
+#screen-room .sf44-queue-idle-card{max-height:80px;overflow:hidden;flex:0 0 auto;}
+#screen-room #waitingQueueList{max-height:110px!important;}
+
+/* 4. Quiet chat: keep messages readable and the composer visible. */
+#screen-room .chat-column{min-width:0!important;display:flex!important;flex-direction:column!important;}
+#screen-room .premium-chat-heading{flex:0 0 auto!important;display:flex!important;align-items:center!important;flex-wrap:wrap;gap:8px!important;padding:10px 12px!important;min-height:48px!important;line-height:1.35!important;font-size:13px!important;}
+#screen-room .premium-chat-heading small{margin-left:auto;font-size:9px!important;opacity:.8;white-space:nowrap;}
+#screen-room .premium-chat-heading .sf53-inbox-shortcut{flex:0 0 auto!important;margin-left:0!important;min-height:30px!important;padding:6px 8px!important;font-size:10px!important;}
+#screen-room .premium-presence{flex:0 0 auto!important;max-height:46px;overflow:auto;padding:5px 10px!important;}
+#screen-room .users-panel{flex:0 0 auto!important;min-height:0!important;padding:5px 9px!important;}
+#screen-room .user-count{min-height:30px;gap:6px;padding:6px 10px!important;font-size:11px!important;}
+#screen-room .chat-panel{flex:1 1 auto!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+#screen-room .chat-messages{
+ flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:hidden!important;
+ background:linear-gradient(180deg,rgba(19,12,33,.94),rgba(16,11,30,.97))!important;
+}
+#screen-room .chat-messages-inner{height:100%!important;overflow-y:auto!important;overscroll-behavior:contain!important;padding:13px 12px!important;scrollbar-color:#74548b transparent;}
+#screen-room .msg{min-width:0!important;max-width:100%!important;overflow-wrap:anywhere;}
+#screen-room .msg-text{overflow-wrap:anywhere;word-break:break-word;line-height:1.5!important;}
+#screen-room .chat-input-bar{flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:6px!important;padding:8px 10px!important;min-width:0;}
+#screen-room #chatInput{flex:1 1 auto!important;width:1px!important;min-width:0!important;}
+#screen-room .chat-input-bar button{flex-shrink:0!important;}
+#screen-room #premiumReactionStage,.premium-reactions{display:none!important;}
+
+/* 5. A useful, small Fan Club door inside the room; secondary info stays condensed. */
+#screen-room #sf55Session{margin:0 10px!important;width:calc(100% - 20px)!important;min-width:0!important;padding:9px 11px!important;gap:6px!important;border-radius:13px!important;flex:0 0 auto!important;}
+#screen-room #sf55Session .sf55-session-head{min-height:20px!important;}
+#screen-room #sf55Session .sf55-session-tracks{gap:6px!important;}
+#screen-room #sf55Session .sf55-session-track{min-height:54px!important;padding:6px!important;}
+#screen-room #sf55Session .sf55-session-track img{width:36px!important;height:36px!important;flex-basis:36px!important;}
+#screen-room #sf55Session .sf55-session-add{min-height:27px!important;padding:5px 9px!important;}
+#screen-room .sf74-fanclub-card{
+ display:flex;align-items:center;gap:12px;min-width:0;margin:0 10px;padding:10px 12px;
+ background:linear-gradient(105deg,rgba(88,37,97,.47),rgba(31,18,54,.92));
+ border:1px solid rgba(236,159,220,.24);border-radius:13px;box-shadow:inset 0 1px rgba(255,255,255,.04);flex:0 0 auto;
+}
+#screen-room .sf74-fanclub-symbol{display:grid;place-items:center;flex:0 0 39px;height:39px;border-radius:11px;background:linear-gradient(135deg,#9134c8,#f27762);font-size:23px;color:white;box-shadow:0 5px 16px #ac43a548;}
+#screen-room .sf74-fanclub-copy{min-width:0;flex:1 1 auto;display:grid;gap:3px;}
+#screen-room .sf74-fanclub-copy strong{font-size:13px;color:#fff3e6;line-height:1.2;}
+#screen-room .sf74-fanclub-copy span{font-size:11px;color:#d4c2df;line-height:1.35;max-width:100%;}
+#screen-room .sf74-fanclub-card button{flex:0 0 auto;min-height:34px;padding:7px 11px;border-radius:10px;border:1px solid rgba(255,169,138,.42);background:linear-gradient(120deg,#7d39b9,#bb528e);color:#fff;font-weight:800;font-size:11px;cursor:pointer;}
+#screen-room #sf63RoomTools{margin:0 10px!important;min-width:0!important;width:calc(100% - 20px)!important;flex:0 0 auto!important;padding:8px 11px!important;gap:8px!important;}
+#screen-room #sf63RoomTools>span{font-size:10px!important;}
+#screen-room #sf63RoomTools button{font-size:10px!important;padding:7px 10px!important;min-height:30px!important;}
+
+/* 6. Profile: restore visual structure even if older theme sheets conflict. */
+#sf43ProfileModal .sf43-profile-shell{min-width:0!important;}
+#sf43ProfileModal .sf43-profile-body{min-width:0!important;overflow-x:hidden!important;}
+#sf43ProfileModal .sf50-profile-club{
+ display:grid!important;gap:12px!important;margin:16px 0!important;padding:17px 20px!important;
+ border-radius:18px!important;border:1px solid rgba(242,168,125,.3)!important;
+ background:radial-gradient(circle at 97% 8%,rgba(224,99,171,.22),transparent 44%),linear-gradient(117deg,#35193e,#21122d)!important;
+}
+#sf43ProfileModal .sf50-profile-club-top{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;min-width:0!important;}
+#sf43ProfileModal .sf50-profile-club-top>div:first-child{flex:1;min-width:0;display:grid!important;gap:4px!important;}
+#sf43ProfileModal .sf50-profile-club-top span{font-size:10px!important;letter-spacing:.13em!important;line-height:1.45!important;color:#ffbdcc!important;}
+#sf43ProfileModal .sf50-profile-club-top strong{font-size:clamp(17px,2vw,22px)!important;line-height:1.25!important;color:#fff8ef!important;overflow-wrap:anywhere;}
+#sf43ProfileModal .sf50-profile-club-top small{font-size:12px!important;color:#d7c3df!important;line-height:1.5!important;}
+#sf43ProfileModal .sf50-xp-score{flex:0 0 auto;display:grid!important;gap:3px!important;text-align:right!important;}
+#sf43ProfileModal .sf50-xp-score strong{font-size:clamp(20px,2.1vw,30px)!important;color:#ffc680!important;white-space:nowrap;}
+#sf43ProfileModal .sf50-xp-progress{height:7px!important;width:100%!important;overflow:hidden!important;background:#56325e!important;border-radius:999px!important;}
+#sf43ProfileModal .sf50-xp-progress span{height:100%!important;display:block!important;border-radius:inherit!important;}
+#sf43ProfileModal .sf50-profile-club-foot{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;}
+#sf43ProfileModal .sf50-profile-club-foot>span{flex:1 1 200px;font-size:12px!important;line-height:1.4!important;color:#d9c5e1!important;}
+#sf43ProfileModal .sf50-profile-club-foot>button{
+ flex:0 0 auto;min-height:36px!important;padding:8px 12px!important;border-radius:10px!important;
+ background:linear-gradient(120deg,#7f39c4,#b25d9f)!important;color:#fff!important;border:1px solid rgba(228,166,238,.35)!important;font:700 12px/1.2 inherit!important;cursor:pointer;
+}
+#sf43ProfileModal .sf43-section-head{display:flex!important;align-items:baseline!important;flex-wrap:wrap;gap:7px 12px;}
+#sf43ProfileModal .sf43-section-head strong{font-size:15px!important;line-height:1.3!important;}
+#sf43ProfileModal .sf43-section-head small{font-size:11px!important;line-height:1.4!important;}
+#sf43ProfileModal .sf43-profile-grid{gap:12px!important;min-width:0!important;}
+#sf43ProfileModal .sf43-profile-card{min-width:0!important;overflow:hidden;}
+#sf43ProfileModal .sf43-quick-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;}
+#sf43ProfileModal .sf43-quick-actions button{min-width:0!important;white-space:normal!important;text-align:center;font-size:11px!important;min-height:38px!important;}
+
+@media(max-width:1024px){
+ #screen-room .queue-column{min-width:0!important;overflow:hidden!important;}
+ #screen-room #queueList.queue-list{height:auto!important;max-height:370px!important;min-height:125px!important;overflow-y:auto!important;}
+ #screen-room .player-column.sf34-player-column{min-width:0!important;overflow-x:hidden!important;}
+ #screen-room .chat-column{min-width:0!important;}
+}
+@media(max-width:720px){
+ #landingScreen .hero{display:flex;flex-direction:column;gap:12px;}
+ #landingScreen .sf74-home-highlights{grid-template-columns:1fr;gap:8px;width:calc(100% - 28px);margin-bottom:14px;}
+ #landingScreen .sf74-home-highlights article{padding:11px 13px;gap:10px;border-radius:13px;}
+ #landingScreen .sf74-home-highlights article>span{flex-basis:36px;height:36px;font-size:19px;}
+ #landingScreen .sf74-home-highlights strong{font-size:13px;}
+ #landingScreen .sf74-home-highlights p{font-size:11px;}
+ #screen-room #sf55Session .sf55-session-tracks{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+ #screen-room .sf74-fanclub-card{gap:9px;margin:0 7px!important;padding:9px!important;}
+ #screen-room .sf74-fanclub-symbol{flex-basis:32px;height:32px;font-size:19px;}
+ #screen-room .sf74-fanclub-copy span{font-size:10px;}
+ #screen-room .sf74-fanclub-card button{padding:7px 8px;font-size:10px;}
+ #screen-room .premium-chat-heading{gap:6px!important;}
+ #screen-room .premium-chat-heading small{display:none!important;}
+ #sf43ProfileModal .sf43-quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+ #sf43ProfileModal .sf50-profile-club-top{align-items:flex-start!important;}
+ #sf43ProfileModal .sf50-profile-club{padding:14px 13px!important;margin:10px 0!important;}
+ #sf43ProfileModal .sf50-profile-club-foot{flex-direction:column!important;align-items:stretch!important;}
+ #sf43ProfileModal .sf50-profile-club-foot>button{width:100%;}
+}
+@media(prefers-reduced-motion:reduce){#screen-room .sf74-fanclub-card button{transition:none!important}}
+/* Artwork for the empty queue must not sit on top of real song cards. */
+#screen-room .queue-column:has(#queueList .queue-item) .sf44-queue-idle-card{display:none!important}
+#screen-room .queue-header>span{font-size:11px!important;letter-spacing:.01em!important;}
+@media(max-width:720px){
+ #screen-room .sf5-section-title.sf34-room-title{
+  display:flex!important;align-items:center!important;flex-wrap:nowrap!important;
+  gap:8px!important;min-height:64px!important;padding:8px 10px!important;
+ }
+ #screen-room .sf5-section-title.sf34-room-title>.sf5-room-dot{flex:0 0 32px!important;min-width:32px!important;width:32px!important;height:32px!important;}
+ #screen-room .sf5-section-title.sf34-room-title>div{display:flex!important;flex:1 1 0!important;flex-direction:column!important;gap:3px!important;min-width:0!important;}
+ #screen-room .sf5-section-title.sf34-room-title>div strong{display:block!important;line-height:1.2!important;font-size:14px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;min-width:0!important;max-width:100%!important;}
+ #screen-room .sf5-section-title.sf34-room-title>div small{display:block!important;font-size:10px!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important;}
+ #screen-room .sf5-section-title.sf34-room-title>.sf5-live-indicator{flex:0 0 auto!important;font-size:9px!important;padding:5px 7px!important;white-space:nowrap!important;}
+ #screen-room .sf5-section-title.sf34-room-title>.sf34-room-vibe,
+ #screen-room .sf5-section-title.sf34-room-title>.sf5-header-avatar,
+ #screen-room .sf5-section-title.sf34-room-title>.sf44-room-sparks,
+ #screen-room .sf5-section-title.sf34-room-title>.sf5-header-spacer{display:none!important;}
+}

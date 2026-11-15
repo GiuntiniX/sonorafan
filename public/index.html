@@ -1400,7 +1400,6 @@
       </div>
     </nav>
 
-    <div class="sf44-scroll-cue" aria-hidden="true">EXPLORE A VIBE <span>↓</span></div>
     <div class="landing-content" id="sf52LandingMain" tabindex="-1">
       <section class="hero">
         <div class="hero-text">
@@ -1426,6 +1425,12 @@
             <small id="sf63LandingActivity">Salas colaborativas, artistas e amizades musicais.</small>
           </div>
         </div>
+      </section>
+
+      <section class="sf74-home-highlights" aria-label="Descubra o SonoraFan">
+        <article><span aria-hidden="true">♫</span><div><strong>Escolha junto</strong><p>Salas colaborativas onde todo mundo é DJ.</p></div></article>
+        <article><span aria-hidden="true">♬</span><div><strong>Encontre sua galera</strong><p>Amigos, chat privado e encontros em tempo real.</p></div></article>
+        <article><span aria-hidden="true">✦</span><div><strong>Viva seus artistas</strong><p>Fan Clubs, eventos e descobertas musicais.</p></div></article>
       </section>
 
       <section class="sf26-live-marquee" aria-label="Explore o universo musical">
@@ -1533,7 +1538,7 @@
       </section>
 
       <footer class="landing-footer">
-        <span>Feito com ♥ pela comunidade SonoraFan</span>
+
       </footer>
     </div>
   </div>
@@ -2104,6 +2109,11 @@
               <div class="sf55-session-placeholder">A próxima descoberta musical começa aqui. Adicione uma música à playlist colaborativa.</div>
             </div>
             <button type="button" class="sf55-session-add" id="sf55SessionAdd" aria-label="Buscar música para adicionar à playlist">＋ Escolher música</button>
+          </section>
+          <section class="sf74-fanclub-card" aria-label="Fan Clubs do SonoraFan">
+            <span class="sf74-fanclub-symbol" aria-hidden="true">♬</span>
+            <div class="sf74-fanclub-copy"><strong>Fan Clubs</strong><span>Encontre fãs do seu artista, entre na comunidade e compartilhe salas.</span></div>
+            <button type="button" id="sf74OpenFanClubs" aria-label="Abrir Fan Clubs na Comunidade">Explorar <span aria-hidden="true">↗</span></button>
           </section>
           <div class="sf63-room-activity" id="sf63RoomTools" aria-label="Atividades musicais da sala">
             <span>✦ Participe da sessão</span>
@@ -2729,6 +2739,8 @@
     }
 
     function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+    // Some YouTube titles arrive already entity-encoded. Decode one level, then escape for HTML.
+    function sf74SongText(value) { return String(value ?? '').replace(/&amp;/gi, '&').replace(/&quot;/gi, '"').replace(/&#(?:0*39|x0*27);/gi, "'").replace(/&lt;/gi, '<').replace(/&gt;/gi, '>'); }
     function formatTime(d) { const date = new Date(d); return date.getHours().toString().padStart(2,'0') + ':' + date.getMinutes().toString().padStart(2,'0'); }
     function formatDuration(s) { if (!s || s <= 0) return '0:00'; const m = Math.floor(s/60); const sec = Math.floor(s%60); return m + ':' + sec.toString().padStart(2,'0'); }
     function showScreen(id) {
@@ -3156,7 +3168,7 @@
           const live = r.isPlaying ? '<div class="room-live-badge"><span class="live-dot"></span> AO VIVO</div>' : '';
           const playingIndicator = r.isPlaying ? `<div class="playing-indicator" aria-hidden="true"><span></span><span></span><span></span><span></span></div>` : '';
           const visual = trackThumb ? `<div class="sf36-room-visual sf37-room-media"><img src="${trackThumb}" alt="Capa da música atual na sala ${escapeHtml(r.name || '')}" loading="lazy" decoding="async"></div>` : '';
-          const nowPlaying = track ? `<div class="sf36-room-now sf37-room-now"><div class="sf36-room-now-copy"><small>${r.isPlaying ? '♫ Tocando agora' : '♫ Música selecionada'}</small><strong>${escapeHtml(track.title || 'Música')}</strong><span>${escapeHtml(track.artist || 'Escolha da comunidade')}</span></div></div>` : `<div class="sf36-room-idle sf37-room-idle">♫ Sala pronta para receber músicas</div>`;
+          const nowPlaying = track ? `<div class="sf36-room-now sf37-room-now"><div class="sf36-room-now-copy"><small>${r.isPlaying ? '♫ Tocando agora' : '♫ Música selecionada'}</small><strong>${escapeHtml(sf74SongText(track.title || 'Música'))}</strong><span>${escapeHtml(sf74SongText(track.artist || 'Escolha da comunidade'))}</span></div></div>` : `<div class="sf36-room-idle sf37-room-idle">♫ Sala pronta para receber músicas</div>`;
           card.innerHTML = `${live}<div class="room-listeners-badge">🎧 ${Math.max(0,Number(r.listenerCount)||0)}</div>${playingIndicator}${visual}
             <div class="room-card-body">
               <h3>${escapeHtml(r.emoji || '')} ${escapeHtml(r.name || 'Sala musical')}</h3>
@@ -3445,8 +3457,8 @@ function openRoomCfg() {
             try { sf9RestoreAudio(); player.playVideo(); sf9CheckAudio(expectedTrackId); } catch(e) {}
           }
         }, 500);
-        $('trackTitle').textContent = track.title || 'Música';
-        $('trackArtist').textContent = track.artist || 'Desconhecido';
+        $('trackTitle').textContent = sf74SongText(track.title || 'Música');
+        $('trackArtist').textContent = sf74SongText(track.artist || 'Desconhecido');
         $('trackDj').textContent = '👤 ' + (track.dj || '');
         $('trackCover').innerHTML = `<img src="https://img.youtube.com/vi/${track.id}/mqdefault.jpg" alt="" onerror="this.parentElement.textContent='🎵'">`;
         applyAlbumGlow(track.id);
@@ -3519,7 +3531,7 @@ function openRoomCfg() {
         const up = Array.isArray(votes.up) ? votes.up : [], down = Array.isArray(votes.down) ? votes.down : [];
         const upCount = up.length, downCount = down.length;
         const userVotedUp = up.includes(myName), userVotedDown = down.includes(myName);
-        const title = escapeHtml(track.title || 'Música');
+        const title = escapeHtml(sf74SongText(track.title || 'Música'));
         const safeId = typeof track.id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(track.id) ? track.id : '';
         const safeVoteId = escapeHtml(track.id || '');
         const thumbnail = safeId ? `<img src="https://img.youtube.com/vi/${safeId}/default.jpg" alt="" loading="lazy" onerror="this.style.display='none'">` : '♫';
@@ -3527,7 +3539,7 @@ function openRoomCfg() {
         const who = track.dj ? `<span class="sf39-added-by">por ${escapeHtml(String(track.dj).slice(0,40))}</span>` : '';
         const votesHtml = isCurrent ? '' : `<div class="queue-votes sf52-vote-controls" role="group" aria-label="Avaliar ${title}"><button type="button" class="vote-btn up sf52-vote-btn ${userVotedUp ? 'voted-up' : ''}" title="${userVotedUp ? 'Retirar apoio' : 'Apoiar música'}" aria-label="${userVotedUp ? 'Retirar apoio de' : 'Apoiar'} ${title}. ${upCount} votos positivos" aria-pressed="${userVotedUp}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'up')" data-id="${safeVoteId}" data-vote="up"><span aria-hidden="true">👍</span><span class="sf52-vote-num">${upCount}</span></button><button type="button" class="vote-btn down sf52-vote-btn ${userVotedDown ? 'voted-down' : ''}" title="${userVotedDown ? 'Retirar pedido de remoção' : 'Pedir remoção'}" aria-label="${userVotedDown ? 'Retirar pedido de remoção de' : 'Pedir remoção de'} ${title}. ${downCount} de 10 votos para retirar" aria-pressed="${userVotedDown}" onclick="event.stopPropagation();voteSong(this.dataset.id, 'down')" data-id="${safeVoteId}" data-vote="down"><span aria-hidden="true">👎</span><span class="sf52-vote-num">${downCount}<small>/10</small></span></button></div>`;
         const share = safeId ? `<button class="sf39-share-track" type="button" data-video="${safeId}" title="Copiar link do YouTube" aria-label="Copiar link de ${title}">↗</button>` : '';
-        div.innerHTML = `<span class="pos">${isCurrent ? '▶' : i + 1}</span><div class="thumb">${thumbnail}</div><div class="info"><div class="sf39-phase">${phase}</div><div class="title">${title}</div><div class="artist">${escapeHtml(track.artist || 'Desconhecido')}</div>${who}</div>${votesHtml}${share}`;
+        div.innerHTML = `<span class="pos">${isCurrent ? '▶' : i + 1}</span><div class="thumb">${thumbnail}</div><div class="info"><div class="sf39-phase">${phase}</div><div class="title">${title}</div><div class="artist">${escapeHtml(sf74SongText(track.artist || 'Desconhecido'))}</div>${who}</div>${votesHtml}${share}`;
         list.appendChild(div);
       });
     }
@@ -3536,7 +3548,7 @@ function openRoomCfg() {
       const label = $('waitingQueueLabel'); const list = $('waitingQueueList');
       if (!waitingQueue || waitingQueue.length === 0) { label.classList.add('hidden'); list.innerHTML = ''; return; }
       label.classList.remove('hidden');
-      list.innerHTML = waitingQueue.map((track, i) => `<div class="queue-item waiting"><span class="pos">${i + 1}</span><div class="thumb"><img src="https://img.youtube.com/vi/${track.id}/default.jpg"></div><div class="info"><div class="title">${escapeHtml(track.title)}</div><div class="artist">${escapeHtml(track.artist)}</div></div></div>`).join('');
+      list.innerHTML = waitingQueue.map((track, i) => `<div class="queue-item waiting"><span class="pos">${i + 1}</span><div class="thumb"><img src="https://img.youtube.com/vi/${track.id}/default.jpg"></div><div class="info"><div class="title">${escapeHtml(sf74SongText(track.title))}</div><div class="artist">${escapeHtml(sf74SongText(track.artist))}</div></div></div>`).join('');
     }
 
     function voteSkip() { if (!currentRoom) { toast('Entre em uma sala', 'error'); return; } socket.emit('voteSkip'); }
@@ -4330,5 +4342,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-discovery-70.js"></script>
   <script defer src="/sonorafan-community-71.js"></script>
   <link rel="stylesheet" href="/sonorafan-polish-72.css">
+  <link rel="stylesheet" href="/sonorafan-visual-74.css">
+  <script defer src="/sonorafan-visual-74.js"></script>
 </body>
 </html>

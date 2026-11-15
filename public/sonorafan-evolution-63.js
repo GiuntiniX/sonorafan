@@ -214,12 +214,10 @@ const TOUR={
   landing:[
     ['.topnav-logo','Bem-vindo ao SonoraFan','Essa é a entrada da comunidade musical. Você pode entrar ou criar uma conta no topo.'],
     ['.hero-text','Sua vibe, sua música','O SonoraFan reúne salas colaborativas onde todo mundo escolhe músicas.'],
-    ['.sf67-landing-strip','Entenda o fluxo em segundos','Aqui você vê como a experiência funciona: entrar, descobrir uma sala, colaborar na fila e conversar com a galera.'],
     ['.how-grid','Como funciona','São três passos: entrar, escolher uma sala e colaborar com a playlist.']
   ],
   lobby:[
     ['.sf33-banner','Bem-vindo ao novo lobby','A arte tem espírito de festival, mas as salas reais estão logo abaixo.'],
-    ['#sf67LobbySummary','Resumo do momento','Veja rapidamente quantas salas estão abertas, quantas estão tocando agora e o número total de ouvintes.'],
     ['#sf10RoomQuery','Encontre sua vibe','Busque uma sala ou filtre por gênero musical.'],
     ['.sf50-room-tools','Filtros e ordenação','Use os filtros para encontrar salas tocando agora ou mais alinhadas com a sua vibe.'],
     ['#roomGrid','Salas que estão tocando','Cada card mostra a sala, quem está ouvindo e, quando disponível, a capa da música atual.'],
@@ -230,10 +228,9 @@ const TOUR={
     ['#sf64RoomSidebarToggle','Menu flexível da sala','Use este botão no canto superior direito para recolher ou abrir o menu lateral quando quiser ganhar mais espaço na sala.'],
     ['#playerSection','Sua sala, sua música','Vídeo com volume, Favoritar e Pular. A reprodução permanece no YouTube.'],
     ['#sf10RequestCard','Todo mundo é DJ','Busque uma música no YouTube e confirme para entrar na fila colaborativa.'],
-    ['#sf67QueueStats','Resumo da fila','Veja a faixa atual, a próxima escolha da comunidade e o ritmo da fila sem precisar rolar a lista.'],
     ['#queueList','Fila e votação','Veja quem escolheu cada faixa. Apoiar e pedir remoção são votos diferentes.'],
-    ['#sf67ChatCompanion','Interação social','Use este painel para descobrir dicas rápidas: clicar no nick, abrir o privado e reabrir o tour.'],
     ['#chatMessages','Converse com a comunidade','Clique nos nicknames, responda mensagens e use a caixa de entrada privada.'],
+    ['#sf74OpenFanClubs','Fan Clubs','Explore comunidades criadas por fãs e encontre salas vinculadas a artistas.'],
     ['#sf63RoomTools','Jogos e descobertas','Abra a Batalha Musical, o desafio coletivo e o histórico da sala.'],
     ['.sf45-nav-entry','Pontos e conquistas','XP e medalhas continuam no SonoraFan Club, sem zerar seu histórico.']
   ]
@@ -422,15 +419,13 @@ function enhanceChatCompanion(){
 }
 
 function initEnhancements(){
-  enhanceLanding();
-  watchLobbySummary();
-  watchQueueSummary();
-  enhanceChatCompanion();
+  // Versão 74: cartões extras antigos removidos para não duplicar a fila, o chat e a home.
+  ['sf67QueueStats','sf67ChatCompanion','sf67LobbySummary'].forEach(id=>$(id)?.remove());
 }
 
   function init(){
     if(!hub)return;wire();setupTour();setupRoomSidebar();lobbyActivity();initEnhancements();
-    setTimeout(()=>{if($('screen-lobby')?.classList.contains('active'))sortRooms();updateLobbySummary();enhanceQueueSummary();enhanceChatCompanion();enhanceLanding();},900);
+    setTimeout(()=>{if($('screen-lobby')?.classList.contains('active'))sortRooms();},900);
     setInterval(()=>{if(state.tab==='battle'&&!hub.hidden)updateCountdown();},1000);
     window.sf63OpenHub=open;
     window.sf63RefreshRoomSort=sortRooms;

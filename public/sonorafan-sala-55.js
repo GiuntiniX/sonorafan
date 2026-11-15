@@ -4,8 +4,8 @@
   const byId=id=>document.getElementById(id);
   const youtubeId=id=>/^[a-zA-Z0-9_-]{11}$/.test(String(id||''))?id:null;
   const imageFor=id=>{const ok=youtubeId(id);return ok?`https://img.youtube.com/vi/${ok}/mqdefault.jpg`:null;};
-  const normalizedTitle=track=>String(track?.title||'Música sem título');
-  const displayDj=track=>track?.dj?`Por ${track.dj}`:String(track?.artist||'Escolhida pela comunidade');
+  const normalizedTitle=track=>String(track?.title||'Música sem título').replace(/&amp;/gi,'&').replace(/&quot;/gi,'\"').replace(/&#39;/gi,"'");
+  const displayDj=track=>track?.dj?`Por ${track.dj}`:String(track?.artist||'Escolhida pela comunidade').replace(/&amp;/gi,'&');
   let lastKey='';
 
   function makeTrack(track,phase,now){
