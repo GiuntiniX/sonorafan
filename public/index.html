@@ -780,7 +780,8 @@
     .player-section.has-glow::before { content: ''; position: absolute; inset: -40px; background: radial-gradient(circle at 50% 30%, var(--now-playing-glow) 0%, transparent 60%); opacity: .18; filter: blur(40px); z-index: -1; pointer-events: none; animation: glowBreathe 4s ease-in-out infinite alternate; }
     @keyframes glowBreathe { from { opacity: .12; transform: scale(0.98); } to { opacity: .22; transform: scale(1.02); } }
 
-    .add-song-area { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+    .add-song-area { position: relative; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; overflow: visible; }
+    .song-search-stack { position: relative; z-index: 30; overflow: visible; }
 
     .chat-column { border-left: 1px solid var(--border); display: flex; flex-direction: column; background: var(--glass); backdrop-filter: blur(12px); height: 100%; min-height: 0; overflow: hidden; }
     .users-panel { padding: 10px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: rgba(0,0,0,0.2); }
@@ -889,14 +890,53 @@
     .cooldown-text { font-size: 12px; color: var(--accent); text-align: center; padding: 6px; border-radius: 8px; background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.2); flex-shrink: 0; }
     .cooldown-text.hidden { display: none; }
 
-    .search-results { display: none; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; max-height: 200px; overflow-y: auto; flex-shrink: 0; }
-    .search-results.show { display: flex; }
-    .search-item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
-    .search-item:hover, .search-item.active { background: var(--bg-hover); box-shadow: inset 0 0 0 2px var(--accent2); }
-    .search-item img { width: 40px; height: 30px; border-radius: 4px; object-fit: cover; }
+    .search-results {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: calc(100% + 12px);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+      background: linear-gradient(180deg, rgba(16,16,26,0.98), rgba(10,10,18,0.98));
+      border: 1px solid rgba(124,58,237,0.35);
+      border-radius: 16px;
+      max-height: min(46vh, 340px);
+      overflow-y: auto;
+      flex-shrink: 0;
+      z-index: 60;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .search-results.show { display: flex; animation: searchOverlayIn .18s ease-out; }
+    .search-results::before {
+      content: 'Resultados do YouTube';
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 2px 6px 6px;
+    }
+    @keyframes searchOverlayIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .search-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; background: rgba(255,255,255,0.02); }
+    .search-item:hover, .search-item.active { background: rgba(255,255,255,0.06); border-color: rgba(124,58,237,0.45); box-shadow: inset 0 0 0 1px rgba(124,58,237,0.25); }
+    .search-item img { width: 56px; height: 42px; border-radius: 8px; object-fit: cover; background: var(--bg); }
     .search-item .info { flex: 1; min-width: 0; }
-    .search-item .info .title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .search-item .info .artist { font-size: 11px; color: var(--text-secondary); }
+    .search-item .info .title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+    .search-item .info .artist { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+    .search-item::after { content: 'Selecionar'; font-size: 11px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+    @media (max-width: 768px) {
+      .search-results { bottom: calc(100% + 10px); max-height: min(42vh, 280px); padding: 8px; }
+      .search-item { padding: 9px 10px; }
+      .search-item img { width: 48px; height: 36px; }
+      .search-item::after { display: none; }
+    }
 
     /* Empty state mini */
     .empty-state-mini { text-align: center; padding: 24px 16px; }
@@ -2171,11 +2211,13 @@
           <div class="sf10-request-top"><div class="sf10-request-icon">♫</div><div><strong>Escolha a próxima música</strong><small>Procure no YouTube ou cole um link</small></div></div>
           <div class="sf10-request-fields">
           <div class="add-song-area">
-            <div class="add-song">
-              <input type="text" id="songUrl" aria-label="Buscar música no YouTube ou colar link" placeholder="Buscar no YouTube ou colar link..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()">
-              <button id="addBtn" onclick="addSong()">Adicionar</button>
+            <div class="song-search-stack">
+              <div class="add-song">
+                <input type="text" id="songUrl" aria-label="Buscar música no YouTube ou colar link" placeholder="Buscar música ou colar link do YouTube..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()" autocomplete="off">
+                <button id="addBtn" onclick="addSong()">Adicionar</button>
+              </div>
+              <div class="search-results" id="searchResults" role="listbox" aria-label="Resultados da busca de músicas"></div>
             </div>
-            <div class="search-results" id="searchResults"></div>
             <div class="song-preview hidden" id="songPreview">
               <div class="song-preview-thumb" id="previewThumb">🎵</div>
               <div class="song-preview-info">
@@ -3600,23 +3642,33 @@ function openRoomCfg() {
       socket.emit('voteSong', { id, type, room: currentRoom });
     }
 
+    function closeSearchResults(clearItems = false) {
+      const results = $('searchResults');
+      if (!results) return;
+      results.classList.remove('show');
+      if (clearItems) results.innerHTML = '';
+    }
+
     function handleSearchInput(value) {
       if (searchTimeout) clearTimeout(searchTimeout);
       const results = $('searchResults');
-      if (!value || value.length < 2) { results.classList.remove('show'); return; }
+      const query = (value || '').trim();
+      if (!query || query.length < 2) { closeSearchResults(true); return; }
+      if (extractYouTubeId(query)) { closeSearchResults(true); return; }
       searchTimeout = setTimeout(async () => {
         try {
-          const r = await fetch(`/api/search-youtube?q=${encodeURIComponent(value)}`);
+          const r = await fetch(`/api/search-youtube?q=${encodeURIComponent(query)}`);
           const data = await r.json();
-          if (!r.ok || !data.items || data.items.length === 0) { results.innerHTML = '<div style="color:var(--text-muted);padding:10px;text-align:center;font-size:13px;">Nenhum resultado</div>'; results.classList.add('show'); return; }
+          if ($('songUrl').value.trim() !== query) return;
+          if (!r.ok || !data.items || data.items.length === 0) { results.innerHTML = '<div style="color:var(--text-muted);padding:12px;text-align:center;font-size:13px;">Nenhum resultado encontrado</div>'; results.classList.add('show'); return; }
           results.innerHTML = data.items.map(item => `<div class="search-item" data-id="${escapeHtml(item.id)}" data-title="${escapeHtml(item.title)}" data-artist="${escapeHtml(item.artist)}" onclick="selectSearchResult(this.dataset.id,this.dataset.title,this.dataset.artist)"><img src="${item.thumb}" alt=""><div class="info"><div class="title">${escapeHtml(item.title)}</div><div class="artist">${escapeHtml(item.artist)}</div></div></div>`).join('');
           results.classList.add('show');
-        } catch(e) { results.innerHTML = '<div style="color:var(--danger);padding:10px;text-align:center;font-size:13px;">Erro na busca</div>'; results.classList.add('show'); }
-      }, 500);
+        } catch(e) { results.innerHTML = '<div style="color:var(--danger);padding:12px;text-align:center;font-size:13px;">Erro ao buscar músicas</div>'; results.classList.add('show'); }
+      }, 350);
     }
 
     function selectSearchResult(id, title, artist) {
-      $('searchResults').classList.remove('show');
+      closeSearchResults(true);
       $('songUrl').value = id;
       fetch(`/api/video-info?id=${id}`).then(r => r.json()).then(data => {
         if (data.embeddable === false) { $('songUrl').value = ''; return toast('Vídeo não permite reprodução', 'error'); }
@@ -3705,9 +3757,16 @@ function openRoomCfg() {
 
     function addSong() {
       const url = $('songUrl').value.trim();
-      if (!url) return toast('Cole um link', 'error');
+      if (!url) return toast('Digite o nome da música ou cole um link', 'error');
       const videoId = extractYouTubeId(url);
-      if (!videoId) return toast('Link inválido', 'error');
+      if (!videoId) {
+        const results = $('searchResults');
+        if (results && results.classList.contains('show')) {
+          const choice = results.querySelector('.search-item.active') || results.querySelector('.search-item');
+          if (choice) { choice.click(); return; }
+        }
+        return toast('Escolha uma música da busca ou cole um link válido', 'error');
+      }
       if (songData && songData.id === videoId) confirmAdd();
       else previewSong();
     }
@@ -4163,12 +4222,13 @@ function openRoomCfg() {
           let idx = [...items].findIndex(i => i.classList.contains('active'));
           if (e.key === 'ArrowDown') { e.preventDefault(); idx = (idx + 1) % items.length; items.forEach((el, i) => el.classList.toggle('active', i === idx)); items[idx].scrollIntoView({ block: 'nearest' }); }
           else if (e.key === 'ArrowUp') { e.preventDefault(); idx = (idx - 1 + items.length) % items.length; items.forEach((el, i) => el.classList.toggle('active', i === idx)); items[idx].scrollIntoView({ block: 'nearest' }); }
-          else if (e.key === 'Enter' && idx >= 0) { e.preventDefault(); items[idx].click(); }
-          else if (e.key === 'Escape') { results.classList.remove('show'); }
+          else if (e.key === 'Enter') { e.preventDefault(); const target = idx >= 0 ? items[idx] : items[0]; if (target) target.click(); }
+          else if (e.key === 'Escape') { closeSearchResults(); }
         });
         document.addEventListener('click', (e) => {
           const results = document.getElementById('searchResults');
-          if (results && results.classList.contains('show') && !results.contains(e.target) && e.target !== songInput) results.classList.remove('show');
+          const stack = document.querySelector('.song-search-stack');
+          if (results && results.classList.contains('show') && stack && !stack.contains(e.target)) closeSearchResults();
         });
       }
     });
@@ -4347,129 +4407,5 @@ function openRoomCfg() {
   <script defer src="/sonorafan-visual-74.js"></script>
   <link rel="stylesheet" href="/sonorafan-mobile-music-76.css">
   <script defer src="/sonorafan-mobile-music-76.js"></script>
-
-  <!-- SONORAFAN · Ajuste 77: menus laterais sem rolagem vertical -->
-  <style id="sf77-menu-fit">
-    /* Somente os MENUS laterais: a lista de salas, a fila e o chat
-       continuam com rolagem própria para não perder conteúdo. */
-    #screen-lobby .sf28-sidebar,
-    #screen-room .sf5-sidebar {
-      box-sizing: border-box;
-      /* Preserva o display original (inclusive o drawer mobile fechado). */
-      flex-direction: column;
-      min-height: 0 !important;
-      max-height: 100dvh;
-      overflow-x: hidden !important;
-      overflow-y: hidden !important;
-      overscroll-behavior: contain;
-      scrollbar-width: none !important;
-      -ms-overflow-style: none;
-    }
-    #screen-lobby .sf28-sidebar::-webkit-scrollbar,
-    #screen-room .sf5-sidebar::-webkit-scrollbar,
-    #screen-lobby .sf28-sidebar-nav::-webkit-scrollbar,
-    #screen-room .sf5-navigation::-webkit-scrollbar {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
-    #screen-lobby .sf28-sidebar-brand,
-    #screen-room .sf5-brand {
-      flex: 0 0 auto;
-      min-height: 0;
-      margin-bottom: clamp(5px, 1vh, 12px);
-    }
-    #screen-lobby .sf28-sidebar-nav,
-    #screen-room .sf5-navigation {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: flex-start;
-      flex: 0 1 auto;
-      gap: clamp(1px, .35dvh, 5px) !important;
-      min-height: 0 !important;
-      max-height: 100%;
-      overflow: hidden !important;
-      scrollbar-width: none !important;
-    }
-    #screen-lobby .sf28-sidebar-nav > button,
-    #screen-room .sf5-navigation > button {
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      flex: 0 0 auto;
-      width: 100%;
-      min-width: 0;
-      min-height: 0 !important;
-      height: clamp(30px, 4.7dvh, 42px) !important;
-      padding: 0 11px !important;
-      margin-block: 0 !important;
-      line-height: 1.2;
-      white-space: nowrap;
-    }
-    #screen-lobby .sf28-sidebar-nav > button > span:last-child,
-    #screen-room .sf5-navigation > button > span:last-child {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    #screen-lobby .sf28-sidebar-nav .sf64-menu-icon,
-    #screen-room .sf5-navigation .sf64-menu-icon {
-      flex: 0 0 auto;
-    }
-    /* Ilustração é decorativa: não pode forçar um scroll no menu. */
-    #screen-lobby .sf33-sidebar-art,
-    #screen-room .sf33-room-nav-art {
-      flex: 0 1 auto;
-      min-height: 0 !important;
-      max-height: min(11dvh, 96px) !important;
-      overflow: hidden;
-      margin-top: auto;
-    }
-    #screen-lobby .sf33-sidebar-art img,
-    #screen-room .sf33-room-nav-art img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      max-height: 96px;
-      object-fit: contain;
-    }
-    @media (max-height: 790px) {
-      #screen-lobby .sf33-sidebar-art,
-      #screen-room .sf33-room-nav-art,
-      #screen-room .sf5-side-waves { display: none !important; }
-      #screen-lobby .sf28-sidebar,
-      #screen-room .sf5-sidebar { padding-top: 10px !important; padding-bottom: 10px !important; }
-    }
-    @media (max-height: 680px) {
-      #screen-lobby .sf28-sidebar-brand small { display: none !important; }
-      #screen-lobby .sf28-sidebar-brand,
-      #screen-room .sf5-brand { margin-bottom: 5px !important; }
-      #screen-lobby .sf28-sidebar-nav,
-      #screen-room .sf5-navigation { gap: 1px !important; }
-      #screen-lobby .sf28-sidebar-nav > button,
-      #screen-room .sf5-navigation > button {
-        height: clamp(27px, 5.1dvh, 34px) !important;
-        padding: 0 9px !important;
-        font-size: 12px;
-      }
-    }
-    @media (max-height: 490px) {
-      #screen-lobby .sf28-sidebar,
-      #screen-room .sf5-sidebar { padding-top: 4px !important; padding-bottom: 4px !important; }
-      #screen-lobby .sf28-sidebar-brand,
-      #screen-room .sf5-brand { display: none !important; }
-      #screen-lobby .sf28-sidebar-nav > button,
-      #screen-room .sf5-navigation > button {
-        height: 24px !important;
-        font-size: 11px;
-      }
-    }
-    /* Evita recortes por regras de versões anteriores sem alterar
-       os painéis modais nem a navegação principal de conteúdo. */
-    #screen-lobby .sf28-lobby-app,
-    #screen-room .app { min-height: 0; }
-  </style>
 </body>
 </html>
