@@ -1671,7 +1671,7 @@
           <section class="sf12-admin-view" data-sf12-view="users"><div class="sf12-toolbar"><label><span>Buscar usuário</span><input id="sf12UserSearch" type="search" placeholder="Nome ou e-mail..." autocomplete="off"></label><label><span>Status</span><select id="sf12UserStatus"><option value="all">Todos</option><option value="active">Ativos</option><option value="banned">Banidos</option><option value="mod">Moderadores</option></select></label><button type="button" id="sf12RefreshUsers">↻ Atualizar</button></div><div id="sf12UsersTable" class="sf12-data-list"></div></section>
           <section class="sf12-admin-view" data-sf12-view="rooms"><div class="sf12-toolbar"><label><span>Buscar sala</span><input id="sf12RoomSearch" type="search" placeholder="Nome, slug ou responsável..."></label><label><span>Visualizar</span><select id="sf12RoomStatus"><option value="all">Todas</option><option value="occupied">Com ouvintes</option><option value="private">Privadas</option><option value="locked">Chat travado</option></select></label><button type="button" id="sf12RefreshRooms">↻ Atualizar</button></div><div id="sf12RoomsTable" class="sf12-data-list"></div></section>
           <section class="sf12-admin-view" data-sf12-view="queues"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Filas compartilhadas</h3><p>Acompanhe a música atual e o tamanho de cada fila</p></div></div><div id="sf12QueuesList"></div></div></section>
-          <section class="sf12-admin-view" data-sf12-view="moderation"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Sanções ativas</h3><p>Silenciamentos e banimentos temporários registrados</p></div></div><div id="sf12ModerationList"></div></div></section>
+          <section class="sf12-admin-view" data-sf12-view="moderation"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Sanções ativas</h3><p>Silenciamentos e banimentos temporários registrados</p></div></div><div id="sf12ModerationList"></div></div><div class="sf12-card sf53-admin-card"><div class="sf12-card-head"><div><h3>Denúncias do chat</h3><p>Mensagens públicas e privadas denunciadas pelos participantes.</p></div><button type="button" id="sf53RefreshReports">↻ Atualizar</button></div><div id="sf53AdminReports" aria-live="polite"></div></div></section>
           <section class="sf12-admin-view" data-sf12-view="audit"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Histórico de ações</h3><p>Registro de operações administrativas</p></div><button type="button" id="sf12RefreshAudit">↻ Atualizar</button></div><div id="sf12AuditList"></div></div></section>
           <section class="sf12-admin-view" data-sf12-view="settings"><div class="sf12-card"><h3>Comunicação e manutenção</h3><p>Estas ações afetam a comunidade e exigem confirmação.</p><div class="sf12-settings-grid"><button type="button" data-sf12-action="broadcast">📣 Enviar comunicado</button><button type="button" data-sf12-action="export">⇩ Exportar informações</button><button type="button" data-sf12-action="clear-chats">⌫ Limpar todos os chats</button><button type="button" data-sf12-action="clear-rooms">⚠ Encerrar todas as salas criadas</button></div></div><div class="sf12-card"><h3>Política de acesso</h3><p>As APIs administrativas exigem uma sessão válida da conta <strong>admin@sonora.com</strong>. Donos de salas continuam gerenciando apenas suas próprias salas.</p></div></section>
         </div>
@@ -1830,6 +1830,7 @@
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()">🔔 <span>Notificações</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
+          <button type="button" class="sf53-nav-inbox" onclick="window.sf53OpenInbox?.()">✉ <span>Mensagens <b class="sf53-unread" hidden>0</b></span></button>
           <button type="button" onclick="openTutorial(0)">❔ <span>Ajuda / Tour</span></button>
           <button type="button" onclick="toggleAdmin()" id="adminBtn" style="display:none;">🎛️ <span>Painel Admin</span></button>
           <button type="button" onclick="doLogout()">⇥ <span>Sair</span></button>
@@ -1955,6 +1956,7 @@
           <button class="sf34-create-mobile" type="button" onclick="showCreateRoom()"><span aria-hidden="true">＋</span>Criar</button>
           <button type="button" onclick="window.sf5OpenCommunity?.()"><span aria-hidden="true">♧</span>Comunidade</button>
           <button type="button" onclick="window.sf5OpenProfile?.()"><span aria-hidden="true">◉</span>Perfil</button>
+          <button type="button" onclick="window.sf53OpenInbox?.()"><span aria-hidden="true">✉</span>Inbox</button>
         </nav>
       </main>
     </div>
@@ -1987,6 +1989,7 @@
           <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry">🏅 <span>SonoraFan Club</span></button>
           <button type="button" onclick="window.sf5OpenCommunity?.()">♧ <span>Comunidade</span></button>
           <button type="button" onclick="window.sf5OpenProfile?.()">◉ <span>Meu perfil</span></button>
+          <button type="button" class="sf53-nav-inbox" onclick="window.sf53OpenInbox?.()">✉ <span>Mensagens <b class="sf53-unread" hidden>0</b></span></button>
           <button type="button" class="sf29-side-invite" onclick="copyInviteLink()" title="Copiar link de convite">🔗 <span>Convidar amigos</span></button>
           <button type="button" onclick="toggleFavorites()">☆ <span>Favoritos</span></button>
           <button type="button" onclick="openRoomCfg()" id="sf5SettingsBtn">⚙ <span>Configurações</span></button>
@@ -2077,7 +2080,7 @@
 
         <div class="sf5-bottom-row">
         <div class="chat-column sf34-chat">
-          <div class="premium-chat-heading"><span class="premium-online-dot"></span> Chat da sala <small>✦ CONECTADOS</small></div>
+          <div class="premium-chat-heading sf53-chat-heading"><span class="premium-online-dot"></span> Chat da sala <small>✦ CONECTADOS</small><button type="button" class="sf53-inbox-shortcut" onclick="window.sf53OpenInbox?.()">✉ Privado <b class="sf53-unread" hidden>0</b></button></div>
           <div class="premium-presence" id="premiumPresence" aria-label="Pessoas ouvindo"><span class="premium-presence-empty">Entre na vibe com a galera</span></div>
           <div class="premium-reactions" aria-label="Reações rápidas"><span>Reagir à música</span><button type="button" onclick="premiumReact('🔥')" aria-label="Reagir com fogo">🔥</button><button type="button" onclick="premiumReact('❤️')" aria-label="Reagir com coração">❤️</button><button type="button" onclick="premiumReact('🎶')" aria-label="Reagir com nota musical">🎶</button><button type="button" onclick="premiumReact('🙌')" aria-label="Reagir com celebração">🙌</button><button type="button" onclick="premiumReact('⚡')" aria-label="Reagir com energia">⚡</button></div>
           <div id="premiumReactionStage" class="premium-reaction-stage" aria-hidden="true"></div>
@@ -2093,6 +2096,7 @@
               </button>
               <div class="chat-messages-inner" id="chatMessagesInner" role="log" aria-label="Mensagens da sala" aria-relevant="additions"></div>
             </div>
+            <div class="sf53-reply-preview" id="sf53ReplyPreview" hidden><div><small>Respondendo a <strong id="sf53ReplyName"></strong></small><span id="sf53ReplyText"></span></div><button type="button" aria-label="Cancelar resposta" onclick="window.sf53CancelReply?.()">✕</button></div>
             <div class="chat-input-bar">
               <div class="typing-indicator" id="typingIndicator"></div>
               <button class="emoji-btn" type="button" aria-label="Abrir seletor de emojis" aria-controls="emojiPanel" aria-expanded="false" onclick="toggleEmojis()">😀</button>
@@ -2161,6 +2165,7 @@
         <button data-t="queue" onclick="setTab('queue')">🎵 Fila</button>
         <button data-t="player" class="on" onclick="setTab('player')">▶ Player</button>
         <button data-t="chat" onclick="setTab('chat')">💬 Chat</button>
+        <button type="button" onclick="window.sf53OpenInbox?.()">✉ Inbox</button>
         <button class="sf34-add-mobile" type="button" onclick="window.sf34FindSong?.()" aria-label="Adicionar música">＋ Música</button>
         <button class="sf45-mobile-club" type="button" onclick="window.sf45OpenClub?.()" aria-label="Abrir SonoraFan Club">🏅 Club</button>
       </nav>
@@ -2375,7 +2380,41 @@
     <div class="sf51-user-menu-heading"><span class="sf51-user-menu-label">PARTICIPANTE</span><strong id="sf51SelectedNickname">—</strong></div>
     <button type="button" data-sf51-action="mention"><span aria-hidden="true">@</span> Mencionar no chat <small>Público</small></button>
     <button type="button" data-sf51-action="copy"><span aria-hidden="true">⧉</span> Copiar nickname</button>
+    <button type="button" data-sf53-nick="dm">✉ Enviar mensagem privada</button>
+    <button type="button" data-sf53-nick="follow">♡ Seguir participante</button>
+    <button type="button" data-sf53-nick="block">⛔ Bloquear participante</button>
     <p>As mensagens deste chat são visíveis para toda a sala.</p>
+  </div>
+  <div class="sf53-inbox-overlay" id="sf53Inbox" role="dialog" aria-modal="true" aria-labelledby="sf53InboxTitle" hidden>
+    <div class="sf53-inbox-panel">
+      <header class="sf53-inbox-head">
+        <div><span class="sf53-kicker">SONORAFAN SOCIAL</span><h2 id="sf53InboxTitle">✉ Mensagens</h2><p>Encontre seus amigos e continue a conversa fora da sala.</p></div>
+        <button type="button" class="sf53-close" aria-label="Fechar mensagens" onclick="window.sf53CloseInbox?.()">✕</button>
+      </header>
+      <div class="sf53-inbox-tabs" role="tablist" aria-label="Área de mensagens">
+        <button type="button" data-sf53-tab="inbox" class="is-active">Conversas</button>
+        <button type="button" data-sf53-tab="contacts">Pessoas</button>
+        <button type="button" data-sf53-tab="settings">Privacidade</button>
+      </div>
+      <div class="sf53-inbox-body">
+        <aside class="sf53-inbox-sidebar" id="sf53InboxSidebar">
+          <label for="sf53SearchPeople" class="sf53-search-label">Buscar pessoas</label>
+          <input type="search" id="sf53SearchPeople" placeholder="Nome ou nickname..." maxlength="40" autocomplete="off" aria-label="Buscar pessoas para conversar">
+          <div id="sf53SearchResults" class="sf53-people-results" aria-live="polite"></div>
+          <div id="sf53InboxList" class="sf53-thread-list" aria-label="Conversas recentes"></div>
+        </aside>
+        <main class="sf53-main">
+          <div id="sf53Welcome" class="sf53-welcome"><div aria-hidden="true">💌</div><strong>Boas conversas começam por aqui.</strong><p>Selecione alguém, converse em particular ou encontre pessoas da sua comunidade.</p></div>
+          <section id="sf53Conversation" class="sf53-conversation" aria-label="Conversa privada" hidden>
+            <header class="sf53-conversation-head"><button type="button" class="sf53-back" onclick="window.sf53Back?.()" aria-label="Voltar às conversas">←</button><div class="sf53-peer"><strong id="sf53PeerName">Participante</strong><small>Conversa privada · Somente vocês dois</small></div><button type="button" class="sf53-block-btn" id="sf53BlockPeer">Bloquear</button></header>
+            <div class="sf53-messages" id="sf53Messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+            <form id="sf53DmForm" class="sf53-dm-form"><label for="sf53DmText" class="sf53-sr-only">Sua mensagem privada</label><textarea id="sf53DmText" maxlength="700" rows="2" placeholder="Escreva uma mensagem privada..." required></textarea><button type="submit">Enviar</button></form>
+          </section>
+          <section id="sf53Settings" class="sf53-settings" hidden><h3>Privacidade das mensagens</h3><label for="sf53Policy">Quem pode falar com você?</label><select id="sf53Policy"><option value="everyone">Qualquer pessoa cadastrada</option><option value="following">Somente pessoas que eu sigo</option><option value="nobody">Não receber mensagens privadas</option></select><label class="sf53-toggle"><input type="checkbox" id="sf53PrivateNotices" checked> Receber notificações de mensagens</label><button type="button" id="sf53SaveSettings">Salvar preferências</button><p>Bloquear alguém impede novas mensagens nos dois sentidos. Denúncias são analisadas pela equipe de moderação.</p></section>
+        </main>
+      </div>
+      <div id="sf53Status" class="sf53-status" role="status" aria-live="polite"></div>
+    </div>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
@@ -3673,6 +3712,7 @@ function openRoomCfg() {
       div.className = 'msg';
       const msgId = msg._id || 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2,4);
       div.dataset.msgId = msgId;
+      if (msg.userId) div.dataset.sf53UserId = msg.userId;
       if (msg.isMusic) {
         div.classList.add('msg-music');
         div.innerHTML = `<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;width:100%;"><span style="font-size:14px;">🎵</span><span style="font-weight:700;color:var(--accent);font-size:12px;">${escapeHtml(msg.user)}</span><span style="color:var(--text-muted);font-size:11px;">adicionou</span></div><div class="music-info">${escapeHtml(msg.musicTitle || 'Música')} — ${escapeHtml(msg.musicArtist || 'Desconhecido')}</div>`;
@@ -3689,11 +3729,12 @@ function openRoomCfg() {
         div.innerHTML = `<div class="msg-content"><div class="msg-header"><button type="button" class="msg-user sf51-user-link" aria-label="Opções do participante"><span class="sf51-nick-label">${escapeHtml(msg.user)}</span>${({ admin: ' 🛡️', owner: ' 👑', mod: ' 🔧' })[msg.role] || ''}</button><span class="msg-time">${formatTime(msg.createdAt)}</span></div><span class="msg-text">${text}</span><div class="msg-actions"><button class="msg-like-btn ${liked ? 'liked' : ''}" onclick="likeMessage('${msgId}', this)">${liked ? '❤️' : '🤍'} <span class="msg-like-count">${count}</span></button></div></div>`;
       }
       container.appendChild(div);
+      window.sf53RenderMessage?.(div, msg);
 
       // Double-tap para curtir
       let _lastTap = 0;
       div.addEventListener('click', (e) => {
-        if (e.target.closest('.msg-like-btn') || e.target.closest('.sf51-user-link') || e.target.closest('a')) return;
+        if (e.target.closest('.msg-like-btn, .sf51-user-link, .sf53-reactions button, .sf53-reply-btn, .sf53-public-report, a')) return;
         const now = Date.now();
         if (now - _lastTap < 320 && !msg.isSystem && !msg.isMusic) {
           likeMessage(msgId);
@@ -3744,7 +3785,7 @@ function openRoomCfg() {
         }
       }
     }
-    function sendMessage() { const input = $('chatInput'); const text = input.value.trim(); if (!text) return; socket.emit('chat', { text: censorText(text) }); input.value = ''; clearTimeout(typingTimer); socket.emit('typingStop', { room: currentRoom }); }
+    function sendMessage() { const input = $('chatInput'); const text = input.value.trim(); if (!text) return; socket.emit('chat', { text: censorText(text), replyTo: window.sf53ReplyId || null }); input.value = ''; window.sf53CancelReply?.(); clearTimeout(typingTimer); socket.emit('typingStop', { room: currentRoom }); }
     function toggleEmojis() { const isOpen = $('emojiPanel').classList.toggle('show'); document.querySelector('.emoji-btn')?.setAttribute('aria-expanded', String(isOpen)); }
     function insertEmoji(e) { $('chatInput').value += e; $('chatInput').focus(); $('emojiPanel').classList.remove('show'); document.querySelector('.emoji-btn')?.setAttribute('aria-expanded', 'false'); }
 
@@ -3792,7 +3833,7 @@ function openRoomCfg() {
     setInterval(renderTypingIndicator, 1000);
     let roomUsers = [], amIMod = false;
     socket.on('isMod', v => { amIMod = !!v; });
-    socket.on('users', (users) => { roomUsers = users; $('userCount').textContent = users.length; if (window.premiumUsers) window.premiumUsers(users); if ($('usersPop').classList.contains('show')) renderUsersPop(); });
+    socket.on('users', (users) => { roomUsers = users; window.sf53RoomUsers = users; $('userCount').textContent = users.length; if (window.premiumUsers) window.premiumUsers(users); if ($('usersPop').classList.contains('show')) renderUsersPop(); });
     const ROLE_RANK = { admin: 3, owner: 2, mod: 1 }, ROLE_ICON = { admin: '🛡️', owner: '👑', mod: '🔧' };
     function renderUsersPop() {
       const me = roomUsers.find(u => u.name === myName), mine = me ? (ROLE_RANK[me.role] || 0) : (amIAdmin ? 2 : amIMod ? 1 : 0);
@@ -4218,5 +4259,7 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-social-51.css">
   <script defer src="/sonorafan-social-51.js"></script>
   <link rel="stylesheet" href="/sonorafan-votos-ux-52.css">
+  <link rel="stylesheet" href="/sonorafan-chat-53.css">
+  <script defer src="/sonorafan-chat-53.js"></script>
 </body>
 </html>
