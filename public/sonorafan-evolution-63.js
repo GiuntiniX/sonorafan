@@ -219,6 +219,7 @@
       ['.sf45-header-club','Seu SonoraFan Club','Acompanhe XP, níveis e medalhas. Você pode reabrir este guia em Ajuda / Tour.']
     ],
     room:[
+      ['#sf64RoomSidebarToggle','Menu flexível da sala','Use este botão no canto superior direito para recolher ou abrir o menu lateral quando quiser ganhar mais espaço na sala.'],
       ['#playerSection','Sua sala, sua música','Vídeo com volume, Favoritar e Pular. A reprodução permanece no YouTube.'],
       ['#sf10RequestCard','Todo mundo é DJ','Busque uma música no YouTube e confirme para entrar na fila colaborativa.'],
       ['#queueList','Fila e votação','Veja quem escolheu cada faixa. Apoiar e pedir remoção são votos diferentes.'],
@@ -252,28 +253,31 @@
 
   function setupRoomSidebar(){
     const screen=$('screen-room');
-    const hideBtn=$('sf64RoomSidebarToggle');
-    const showBtn=$('sf64RoomSidebarShow');
-    if(!screen||!hideBtn||!showBtn)return;
+    const toggleBtn=$('sf64RoomSidebarToggle');
+    const toggleLabel=$('sf64RoomSidebarToggleLabel');
+    if(!screen||!toggleBtn)return;
     const key='sf64_room_sidebar_collapsed';
     const sync=()=>{
       const collapsed=document.body.classList.contains('sf64-room-sidebar-collapsed');
-      hideBtn.setAttribute('aria-expanded', String(!collapsed));
-      showBtn.hidden=!collapsed;
+      toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+      toggleBtn.setAttribute('aria-label', collapsed ? 'Abrir menu lateral da sala' : 'Recolher menu lateral da sala');
+      if(toggleLabel) toggleLabel.textContent = collapsed ? 'Abrir menu' : 'Fechar menu';
+      toggleBtn.classList.toggle('is-collapsed', collapsed);
     };
     const set=(collapsed)=>{
       document.body.classList.toggle('sf64-room-sidebar-collapsed', !!collapsed);
       try{ localStorage.setItem(key, collapsed?'1':'0'); }catch(e){}
       sync();
     };
-    hideBtn.addEventListener('click',()=>set(!document.body.classList.contains('sf64-room-sidebar-collapsed')));
-    showBtn.addEventListener('click',()=>set(false));
+    toggleBtn.addEventListener('click',()=>set(!document.body.classList.contains('sf64-room-sidebar-collapsed')));
     const mq=window.matchMedia('(max-width: 1024px)');
     const restore=()=>{
       if(mq.matches){
         document.body.classList.remove('sf64-room-sidebar-collapsed');
-        showBtn.hidden=true;
-        hideBtn.setAttribute('aria-expanded','true');
+        if(toggleLabel) toggleLabel.textContent='Menu';
+        toggleBtn.classList.remove('is-collapsed');
+        toggleBtn.setAttribute('aria-expanded','true');
+        toggleBtn.setAttribute('aria-label', 'Menu da sala');
         return;
       }
       let collapsed=false;

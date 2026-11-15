@@ -307,6 +307,24 @@ body.sf63-tour-active { overflow:hidden !important; }
   font: 700 13px/1.1 inherit;
 }
 
+.sf50-sort-label select:focus-visible {
+  outline: 2px solid rgba(255,208,121,.9);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255,208,121,.16);
+}
+
+.sf50-sort-label select,
+.sf50-sort-label select option,
+.sf50-sort-label select optgroup {
+  color-scheme: dark;
+}
+
+.sf50-sort-label select option,
+.sf50-sort-label select optgroup {
+  color: #f7effb;
+  background: #241235;
+}
+
 /* Ícones coloridos no menu lateral. */
 #screen-lobby .sf28-sidebar-nav button,
 #screen-room .sf5-navigation button {
@@ -357,8 +375,7 @@ body.sf63-tour-active { overflow:hidden !important; }
 .sf64-icon-settings { color: #d8cbff; background: linear-gradient(145deg, rgba(54,42,83,.95), rgba(34,26,56,.95)); }
 
 /* Menu lateral recolhível na sala. */
-.sf64-room-menu-toggle,
-.sf64-room-menu-reopen {
+.sf64-room-menu-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -376,7 +393,7 @@ body.sf63-tour-active { overflow:hidden !important; }
 }
 
 .sf64-room-menu-toggle:hover,
-.sf64-room-menu-reopen:hover {
+.sf64-room-menu-toggle.is-collapsed {
   transform: translateY(-1px);
   border-color: rgba(255,193,125,.44);
   box-shadow: 0 14px 28px rgba(0,0,0,.28);
@@ -404,23 +421,14 @@ body.sf63-tour-active { overflow:hidden !important; }
     transform: translateX(-10px);
   }
   body.sf64-room-sidebar-collapsed #screen-room .premium-room-ambient { inset: 0 !important; }
-  #screen-room .sf64-room-menu-reopen {
-    position: fixed;
-    left: 16px;
-    top: 92px;
-    z-index: 35;
-    opacity: 0;
-    pointer-events: none;
-  }
-  body.sf64-room-sidebar-collapsed #screen-room .sf64-room-menu-reopen {
-    opacity: 1;
-    pointer-events: auto;
+  #screen-room .header-right .sf64-room-menu-toggle {
+    position: relative;
+    z-index: 36;
   }
 }
 
 @media (max-width: 1024px) {
-  .sf64-room-menu-toggle,
-  .sf64-room-menu-reopen { display: none !important; }
+  .sf64-room-menu-toggle { display: none !important; }
 }
 
 @media (max-width: 640px) {
@@ -430,3 +438,5 @@ body.sf63-tour-active { overflow:hidden !important; }
   .sf50-sort-label { justify-content: space-between; }
   .sf50-sort-label select { flex: 1; }
 }
+
+.sf64-room-menu-reopen{display:none !important;}
