@@ -614,7 +614,10 @@
 #favoritesModal .sf35-favorites-modal,#avatarModal .sf35-avatar-modal,#lbModal .sf35-ranking-modal,#roomCfgModal .sf35-settings-modal{background:linear-gradient(160deg,#24152f,#120c1e)!important;border:1px solid var(--sf35-edge)!important;border-radius:20px!important;box-shadow:0 25px 80px #0009!important;color:var(--sf35-cream)!important}
 #favoritesModal .sf35-favorites-modal{max-width:560px!important;padding:0 20px 22px!important;max-height:85dvh;overflow:auto}
 #favoritesModal .sf35-favorites-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:118px;margin:0 -20px 16px;padding:18px 20px;background:linear-gradient(100deg,#42204b,#20142c 82%);border-bottom:1px solid var(--sf35-edge);position:relative;overflow:hidden}
-#favoritesModal .sf35-favorites-hero::after{content:'';width:78px;height:90px;flex:0 0 78px;position:absolute;right:62px;top:14px;background:url('/art-33/flowers.webp') center/contain no-repeat;opacity:.6;pointer-events:none}
+/* v51.1: remove the cropped floral illustration containing unwanted source text. */
+#favoritesModal .sf35-favorites-hero::after{content:none!important;display:none!important}
+#favoritesModal .sf35-favorites-hero > div{min-width:0;flex:1 1 auto}
+#favoritesModal .sf35-favorites-hero > button{flex:0 0 36px;margin-left:auto}
 #favoritesModal .sf35-favorites-hero h3{font-size:23px!important;line-height:1.2;margin:0;color:var(--sf35-cream)}
 #favoritesModal .sf35-favorites-hero p{margin-top:5px;color:#e6cfe2;font-size:12px}
 #favoritesModal .sf35-favorites-hero button{z-index:1;position:relative;width:36px;height:36px;border-radius:12px;border:1px solid #e2bedc63;background:#21152e;color:#fff;cursor:pointer}
