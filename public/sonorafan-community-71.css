@@ -1,0 +1,112 @@
+/* SonoraFan 71 — Centro social compacto, identidade Indie Festival sem artes florais. */
+#sfSocialHub .sf71-social-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:linear-gradient(110deg,rgba(43,21,57,.92),rgba(25,15,38,.97));border:1px solid rgba(168,120,204,.16);border-radius:18px;padding:16px 18px;margin:0 0 16px}
+#sfSocialHub .sf71-social-head h3{margin:2px 0 4px;font-size:clamp(18px,2vw,23px);line-height:1.12}
+#sfSocialHub .sf71-social-head p{font-size:12px;margin:0;color:#bda9ce}
+#sfSocialHub .sf71-social-head .sf-eyebrow{font-size:10px;letter-spacing:.13em;color:#ffaf70}
+#sfSocialHub .sf71-social-tabs{display:flex;align-items:center;gap:5px;padding:5px;background:rgba(7,5,18,.46);border:1px solid rgba(191,127,233,.18);border-radius:15px;flex-shrink:0}
+#sfSocialHub .sf71-social-tabs button{border:1px solid transparent;border-radius:11px;padding:10px 14px;min-height:40px;background:transparent;color:#c9bad5;font-size:13px;font-weight:700;white-space:nowrap;transition:background .18s,color .18s,box-shadow .18s;cursor:pointer}
+#sfSocialHub .sf71-social-tabs button:hover{background:rgba(155,87,211,.16);color:#fff}
+#sfSocialHub .sf71-social-tabs button.active{background:linear-gradient(135deg,#7f35bc,#a856d4);color:#fff;border-color:rgba(235,180,255,.26);box-shadow:0 5px 18px rgba(154,74,213,.25)}
+#sfSocialHub .sf71-social-tabs button:focus-visible,#sfFanClubsPanel :focus-visible{outline:2px solid #ffc287;outline-offset:3px}
+#sfSocialHub .sf-hub-panel[hidden],#sfSocialHub #sfFanClubsPanel[hidden]{display:none!important}
+.sf5-community-layer .sf5-community-top{min-height:95px!important;padding:17px 21px!important}
+.sf5-community-layer .sf5-community-top h2{font-size:clamp(21px,3vw,28px)!important}
+.sf5-community-layer .sf5-community-top p{max-width:66ch;font-size:13px}
+.sf71-panel{padding:0 1px 12px;color:#f5edff}
+.sf71-club-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 14px}
+.sf71-club-toolbar strong{font-size:16px;line-height:1.2;color:#fdf1ff}
+.sf71-club-toolbar p{margin:4px 0 0;color:#bca9d0;font-size:12px}
+.sf71-action-primary{background:linear-gradient(115deg,#8d3dde,#de5997 66%,#fc9862);color:#fff!important;border:1px solid rgba(255,188,173,.16);padding:10px 15px;min-height:40px;border-radius:12px;font-weight:750;font-size:13px;cursor:pointer;box-shadow:0 8px 19px rgba(134,38,193,.17);white-space:nowrap}
+.sf71-action-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.sf71-club-search{display:flex;gap:9px;align-items:center;margin-bottom:7px}
+.sf71-club-search input{flex:1;min-width:90px;border:1px solid rgba(167,105,205,.27)!important;background:rgba(7,6,18,.62)!important;color:#fff!important;outline:none;border-radius:12px;padding:12px 13px;font-size:13px}
+.sf71-club-search button,.sf71-back,.sf71-detail-actions>button:not(.sf71-action-primary),.sf71-rooms-head button,.sf71-room-actions button,.sf71-post button,.sf71-member button{padding:9px 12px;border-radius:11px;border:1px solid rgba(163,110,198,.38);background:rgba(89,44,115,.34);color:#ebd5f7;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap}
+.sf71-club-search button[aria-pressed=true]{border-color:#dba3ff;color:#fff;background:linear-gradient(120deg,#5d2b90,#8142a0)}
+.sf71-club-status{min-height:18px;font-size:11px;color:#b6a2c7;margin:6px 0 11px}
+.sf71-club-status.is-error{color:#ffaaa9}
+.sf71-club-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sf71-club-card{display:flex;min-width:0;align-items:center;gap:12px;background:linear-gradient(145deg,rgba(46,27,59,.9),rgba(25,17,40,.98));border:1px solid rgba(166,117,199,.23);border-radius:16px;padding:12px;transition:border-color .2s,transform .2s}
+.sf71-club-card:hover{border-color:rgba(255,172,109,.46);transform:translateY(-1px)}
+.sf71-club-art{flex:none;width:78px;height:91px;display:grid;place-items:center;border-radius:12px;overflow:hidden;box-shadow:inset 0 0 20px rgba(6,5,19,.18)}
+.sf71-club-art span{font-size:46px;color:#ffe0a4;line-height:1;text-shadow:0 5px 19px rgba(9,5,17,.3)}
+.sf71-theme-vinyl{background:radial-gradient(circle at 70% 30%,#ffb66f 0 12%,transparent 13%),repeating-radial-gradient(circle at 48% 65%,#2d163c 0 7px,#a14bc3 8px 12px,#372047 13px 19px)}
+.sf71-theme-stage{background:radial-gradient(ellipse at 50% 120%,#fc9453,transparent 74%),linear-gradient(115deg,#30133f,#8c326f 60%,#32204d)}
+.sf71-theme-cassette{background:linear-gradient(145deg,#ff845d,#ffbb75 44%,#a348a8 45%,#3f2051)}
+.sf71-theme-waves{background:repeating-linear-gradient(140deg,#2a265f 0 15px,#6142a3 16px 23px,#0d6789 24px 31px)}
+.sf71-club-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.sf71-club-copy small{font-size:9px;letter-spacing:.1em;color:#e8abff;font-weight:800}
+.sf71-club-copy strong{font-size:14px;color:#fff;line-height:1.24}
+.sf71-club-copy>span{font-size:11px;color:#ffcc9d}
+.sf71-club-copy p{color:#b9a8ca;font-size:11px;line-height:1.4;margin:2px 0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.sf71-club-meta{display:flex;gap:8px;flex-wrap:wrap;color:#b4b4c5;font-size:10px}
+.sf71-club-meta span:last-child:not(:first-child){color:#b8f1cc}
+.sf71-club-card>button{align-self:center;flex:none;padding:8px 11px;border-radius:11px;background:rgba(136,62,193,.28);border:1px solid rgba(186,108,231,.27);color:#fff;font-weight:700;font-size:11px;cursor:pointer}
+.sf71-club-card>button:hover{background:rgba(136,62,193,.54)}
+.sf71-empty{padding:18px;border:1px dashed rgba(176,125,206,.23);border-radius:12px;background:rgba(38,23,50,.36);font-size:13px;color:#bca9cc;line-height:1.5;margin:0}
+.sf71-empty strong{color:#f6e7ff}
+.sf71-empty p{margin:4px 0 0}
+.sf71-club-detail{display:block;min-width:0}
+.sf71-back{margin:4px 0 12px}
+.sf71-detail-hero{position:relative;min-height:126px;display:flex;gap:15px;align-items:center;padding:22px;border-radius:17px;overflow:hidden;isolation:isolate}
+.sf71-detail-hero:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(9,7,21,.82),rgba(20,8,31,.20))}
+.sf71-detail-hero>div:last-child{position:relative;z-index:1}
+.sf71-detail-hero span{letter-spacing:.11em;color:#ffe7ae;font-size:10px;font-weight:800}
+.sf71-detail-hero h3{font-size:clamp(19px,3vw,29px);margin:5px 0;color:#fff}
+.sf71-detail-hero p{margin:0;font-size:13px;color:#f9d4ed}
+.sf71-detail-symbol{font-size:45px;color:#ffe2ae;flex:none}
+.sf71-detail-desc{margin:15px 0;font-size:14px;color:#d9c7e3}
+.sf71-rule{padding:11px 13px;background:rgba(85,49,103,.24);border-radius:12px;border:1px solid rgba(157,110,183,.20)}
+.sf71-rule strong{font-size:12px;color:#f9d6f2}
+.sf71-rule p{font-size:12px;margin:6px 0 0;color:#c6b0d0}
+.sf71-detail-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:14px 0}
+.sf71-owner{font-size:12px;color:#ffd89c;font-weight:750}
+.sf71-detail-columns{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(225px,.88fr);gap:14px;align-items:start}
+.sf71-feed,.sf71-room-list{min-width:0;background:linear-gradient(130deg,rgba(42,24,58,.80),rgba(19,14,31,.90));border:1px solid rgba(169,117,196,.18);padding:14px;border-radius:15px}
+.sf71-feed h4,.sf71-room-list h4{font-size:15px;color:#f2ddff;margin:0 0 13px}
+#sf71PostForm{display:flex;flex-direction:column;gap:8px;margin-bottom:13px}
+#sf71PostText{min-height:75px;resize:vertical;border:1px solid rgba(154,92,181,.25);border-radius:12px;background:#120e1c;color:#fff;padding:12px;font:inherit;font-size:13px}
+#sf71PostForm button{align-self:flex-end}
+.sf71-post{padding:12px 10px;border-top:1px solid rgba(153,102,186,.16)}
+.sf71-post-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.sf71-post-head strong{font-size:12px;color:#f1d1f9}
+.sf71-post-head time{font-size:10px;color:#a795b7}
+.sf71-post p{font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0;color:#eadfea}
+.sf71-post button{padding:5px 8px;color:#efb8cb;font-size:10px}
+.sf71-rooms-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.sf71-rooms-head h4{margin-bottom:0}
+.sf71-room{border-top:1px solid rgba(161,104,194,.20);display:flex;justify-content:space-between;gap:10px;padding:13px 0}
+.sf71-room>div:first-child{min-width:0;display:flex;flex-direction:column;gap:4px}
+.sf71-room strong{font-size:12px;color:#e8d4ef}
+.sf71-room small{font-size:11px;color:#b4a4c4}
+.sf71-room-actions{display:flex;align-items:center;gap:5px}
+.sf71-room-actions button{padding:7px 9px}
+.sf71-members{border-top:1px solid rgba(161,104,194,.20);padding-top:12px}
+.sf71-members summary{cursor:pointer;font-weight:750;font-size:12px;color:#dcc8ed}
+.sf71-members-list{padding-top:9px}
+.sf71-member{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(161,104,194,.12)}
+.sf71-member>strong{font-size:12px;flex:1}
+.sf71-member button{font-size:10px;padding:6px 7px}
+.sf71-modal-overlay{position:fixed;inset:0;background:rgba(9,5,17,.76);backdrop-filter:blur(8px);z-index:1300;display:grid;place-items:center;padding:16px}
+.sf71-modal{width:min(490px,calc(100vw - 28px));max-height:92dvh;overflow-y:auto;padding:22px;border-radius:19px;border:1px solid rgba(215,142,240,.25);background:linear-gradient(150deg,#291739,#160e24);box-shadow:0 20px 70px rgba(0,0,0,.45)}
+.sf71-modal header{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.sf71-modal header h3{font-size:21px;color:#fff;margin:0}
+.sf71-modal header button{border:none;border-radius:12px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;padding:9px 11px}
+.sf71-modal-form{display:flex;flex-direction:column;gap:13px;margin-top:15px}
+.sf71-modal-form>label{font-size:12px;font-weight:750;color:#ead7f6;display:flex;flex-direction:column;gap:6px}
+.sf71-modal-form input,.sf71-modal-form textarea,.sf71-modal-form select{background:#100b1b;border:1px solid rgba(158,95,188,.38);padding:11px 12px;border-radius:11px;min-height:40px;color:#fff;font:inherit;font-size:13px;resize:vertical}
+.sf71-modal-actions{display:flex;justify-content:flex-end;gap:9px;align-items:center}
+.sf71-cancel{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(176,126,212,.27);padding:10px 14px;border-radius:11px;cursor:pointer}
+.sf71-form-status{min-height:14px;font-size:12px;color:#ffb5ba;margin:0}
+.sf71-unofficial{font-size:11px;color:#b8a6c5}
+.sf71-sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media(max-width:850px){.sf71-club-grid{grid-template-columns:1fr}.sf71-detail-columns{grid-template-columns:1fr}.sf71-room-list{order:-1}}
+@media(max-width:560px){#sfSocialHub .sf71-social-head{padding:12px}#sfSocialHub .sf71-social-tabs{width:100%;justify-content:space-between}#sfSocialHub .sf71-social-tabs button{flex:1;padding:8px 5px;font-size:12px}.sf71-club-toolbar{align-items:start;flex-direction:column}.sf71-club-toolbar .sf71-action-primary{width:100%}.sf71-club-search button{font-size:11px}.sf71-club-card{padding:10px}.sf71-club-art{width:63px;height:88px}.sf71-club-art span{font-size:38px}.sf71-club-card>button{font-size:10px;max-width:76px;white-space:normal}.sf71-detail-hero{padding:16px}.sf71-detail-hero h3{font-size:21px}.sf71-feed,.sf71-room-list{padding:11px}}
+@media(prefers-reduced-motion:reduce){#sfSocialHub .sf71-social-tabs button,.sf71-club-card,.sf71-action-primary{transition:none!important;transform:none!important}}
+/* Não permitir que regras de grid/bloco sobreponham o atributo hidden. */
+.sf71-club-grid[hidden],.sf71-club-detail[hidden],#sf71Modal[hidden]{display:none!important}
+.sf71-club-events{border-top:1px solid rgba(161,104,194,.20);padding-top:13px;margin-top:8px}
+.sf71-club-events h4{font-size:13px;margin:0 0 8px;color:#f5ddff}
+.sf71-club-event{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid rgba(161,104,194,.12)}
+.sf71-club-event strong{font-size:12px}
+.sf71-club-event small{font-size:11px;color:#bfb0ca}
+.sf71-club-events button{width:100%;margin:9px 0 0;padding:8px 10px;border:1px solid #72458b;background:#472657;color:#f3e1fb;border-radius:10px;cursor:pointer;font-size:12px;font-weight:700}

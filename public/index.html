@@ -1945,8 +1945,22 @@
           <details class="sf32-community-drawer">
             <summary>✦ Comunidade e eventos <span>Amigos, encontros e novidades <b>⌄</b></span></summary>
             <section id="sfSocialHub" class="sf-social-hub" aria-label="Comunidade SonoraFan">
-              <div class="sf-hub-intro"><div><span class="sf-eyebrow">SONORAFAN COMMUNITY</span><h3>A música conecta a gente.</h3><p>Encontre sua galera e participe de sessões especiais.</p></div><div class="sf-hub-tabs"><button type="button" data-sf-tab="friends" class="active">👥 Amigos</button><button type="button" data-sf-tab="events">📅 Eventos</button></div></div>
+              <div class="sf-hub-intro sf71-social-head"><div><span class="sf-eyebrow">SONORAFAN · COMUNIDADE</span><h3>Encontre sua galera.</h3><p>Amigos conectados, Fan Clubs criados por fãs e eventos musicais.</p></div><div class="sf-hub-tabs sf71-social-tabs" role="tablist" aria-label="Áreas da Comunidade"><button type="button" data-sf-tab="friends" class="active" role="tab" aria-selected="true">👥 Amigos</button><button type="button" data-sf-tab="fanclubs" role="tab" aria-selected="false">🎸 Fan Clubs</button><button type="button" data-sf-tab="events" role="tab" aria-selected="false">📅 Eventos</button></div></div>
               <div id="sfFriendsPanel" class="sf-hub-panel"><div class="sf-search-row"><input id="sfFriendQuery" type="search" maxlength="40" placeholder="Buscar pessoas pelo nome" aria-label="Buscar pessoas pelo nome"><button id="sfFriendSearch" type="button">Buscar</button></div><div id="sfFriendsList" class="sf-social-results" aria-live="polite">Carregando comunidade...</div><div id="sfFriendSearchResults" class="sf-social-results" aria-live="polite"></div></div>
+              <section id="sfFanClubsPanel" class="sf-hub-panel sf71-panel" hidden aria-label="Fan Clubs de artistas">
+                <div class="sf71-club-toolbar">
+                  <div><strong>Encontre fãs do mesmo artista</strong><p>Comunidades permanentes, criadas e moderadas pelos próprios fãs.</p></div>
+                  <button type="button" class="sf71-action-primary" id="sf71CreateClub">＋ Criar Fan Club</button>
+                </div>
+                <div class="sf71-club-search">
+                  <label for="sf71ClubSearch" class="sf71-sr-only">Buscar Fan Clubs por artista ou nome</label>
+                  <input id="sf71ClubSearch" type="search" maxlength="60" autocomplete="off" placeholder="Buscar artista ou Fan Club…">
+                  <button type="button" id="sf71ClubMine" aria-pressed="false">Meus Fan Clubs</button>
+                </div>
+                <p class="sf71-club-status" id="sf71ClubStatus" aria-live="polite"></p>
+                <div id="sf71ClubList" class="sf71-club-grid" aria-live="polite"></div>
+                <section id="sf71ClubDetail" class="sf71-club-detail" hidden aria-label="Detalhes do Fan Club"></section>
+              </section>
               <div id="sfEventsPanel" class="sf-hub-panel" hidden><div class="sf-events-heading"><p>Encontros musicais agendados por quem cria as salas.</p><button id="sfNewEvent" type="button">+ Criar evento</button></div><div id="sfEventsList" class="sf-events-grid" aria-live="polite"></div></div>
             </section>
           </details>
@@ -4311,7 +4325,9 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-player-68.css">
 <link rel="stylesheet" href="/sonorafan-social-69.css">
   <link rel="stylesheet" href="/sonorafan-discovery-70.css">
+  <link rel="stylesheet" href="/sonorafan-community-71.css">
   <script defer src="/sonorafan-menu-favorites-67.js"></script>
   <script defer src="/sonorafan-discovery-70.js"></script>
+  <script defer src="/sonorafan-community-71.js"></script>
 </body>
 </html>

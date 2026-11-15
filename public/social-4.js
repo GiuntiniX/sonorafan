@@ -5,7 +5,15 @@ let following=[],events=[],eventController=null;const esc=s=>{const d=document.c
 const alertUser=(s,kind='success')=>{if(typeof toast==='function')toast(s,kind);else console.info(s);};
 async function api(url,options={}){const r=await fetch(url,{credentials:'include',...options});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error||'Erro ao conectar');return data;}
 const post=(url,body)=>api(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-function switchTab(tab){byId('sfFriendsPanel').hidden=tab!=='friends';byId('sfEventsPanel').hidden=tab!=='events';hub.querySelectorAll('[data-sf-tab]').forEach(b=>b.classList.toggle('active',b.dataset.sfTab===tab));if(tab==='events')loadEvents();else loadFollowing();}
+function switchTab(tab){
+ if(!['friends','fanclubs','events'].includes(tab))tab='friends';
+ byId('sfFriendsPanel').hidden=tab!=='friends';
+ byId('sfEventsPanel').hidden=tab!=='events';
+ const clubPanel=byId('sfFanClubsPanel');if(clubPanel)clubPanel.hidden=tab!=='fanclubs';
+ hub.querySelectorAll('[data-sf-tab]').forEach(b=>{const active=b.dataset.sfTab===tab;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active));});
+ if(tab==='events')loadEvents();else if(tab==='fanclubs')window.sf71LoadFanClubs?.();else loadFollowing();
+}
+window.sfSocialSwitchTab=switchTab;
 hub.querySelectorAll('[data-sf-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.sfTab)));
 const personCard=(p,subscribed)=>{
  const card=document.createElement('article');card.className='sf-social-card sf69-friend-card';
@@ -101,7 +109,7 @@ function openEventModal(){if(byId('sfEventOverlay'))return;
  modal.appendChild(form);overlay.appendChild(modal);overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});document.body.appendChild(overlay);
  api('/api/social/my-rooms').then(rs=>{roomSelect.replaceChildren();if(!rs.length){const o=document.createElement('option');o.textContent='Você não administra salas públicas';o.value='';roomSelect.appendChild(o);create.disabled=true;}rs.forEach(r=>{const o=document.createElement('option');o.value=r.slug;o.textContent=r.name;roomSelect.appendChild(o);});}).catch(e=>{alertUser(e.message,'error');create.disabled=true;});title.focus();}
 byId('sfNewEvent').addEventListener('click',openEventModal);
-window.sfSocialRefresh=()=>{if(byId('screen-lobby')?.classList.contains('active')){if(byId('sfEventsPanel').hidden)loadFollowing();else loadEvents();}};
+window.sfSocialRefresh=()=>{if(byId('screen-lobby')?.classList.contains('active')){if(!byId('sfFanClubsPanel')?.hidden)window.sf71LoadFanClubs?.();else if(byId('sfEventsPanel').hidden)loadFollowing();else loadEvents();}};
 // Atualiza a presença quando o painel social estiver visível; sem expor salas privadas.
 setInterval(()=>{const box=byId('sfFriendsPanel');if(box && !box.hidden && box.getClientRects().length && document.visibilityState==='visible')loadFollowing();},25000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden && !byId('sfFriendsPanel')?.hidden)loadFollowing();});

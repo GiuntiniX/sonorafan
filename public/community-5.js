@@ -20,8 +20,8 @@ function shell(title,subtitle){
  close.addEventListener('click',stop);layer.addEventListener('click',e=>{if(e.target===layer)stop()});document.addEventListener('keydown',onKey);close.focus();return scroller;
 }
 function community(){
- const slot=shell('Comunidade','Um lugar para encontrar sua galera, acompanhar amigos e combinar encontros musicais.');
- const stats=EL('div','sf5-community-insight');[['👥 Amigos','Veja quem está por perto'],['🎧 Juntos ao vivo','Encontre sessões públicas'],['📅 Eventos','Organize a próxima vibe']].forEach(([a,b])=>{const c=EL('div','sf5-insight');c.append(EL('strong','',a),EL('span','',b));stats.append(c)});slot.append(stats);
+ const slot=shell('Comunidade SonoraFan','Amigos online, Fan Clubs por artista e encontros musicais em um só lugar.');
+ // A navegação principal agora é a barra compacta de três abas dentro do hub.
  const hub=$('sfSocialHub');if(hub){hub.style.display='block';slot.append(hub);hub.querySelector('[data-sf-tab].active')?.click();const tabs=hub.querySelector('[data-sf-tab="friends"]');if(tabs&&$('sfFriendsPanel')?.hidden){tabs.click();}}
 }
 window.sf5OpenCommunity=community;
