@@ -1755,7 +1755,18 @@
         </div>
         <button type="button" onclick="closeFavorites()" aria-label="Fechar favoritos">✕</button>
       </header>
-      <div id="favoritesList"></div>
+      <section class="sf67-fav-tools" aria-label="Organizar músicas favoritas">
+        <div class="sf67-fav-headline"><div><strong>Organize do seu jeito</strong><small>Crie gêneros para suas músicas favoritas.</small></div><span id="sf67FavCount" class="sf67-count" aria-live="polite"></span></div>
+        <form id="sf67GenreForm" class="sf67-genre-form">
+          <label for="sf67GenreName">Criar gênero ou coleção</label>
+          <div class="sf67-inline"><input id="sf67GenreName" name="name" type="text" maxlength="28" autocomplete="off" placeholder="Ex.: Indie, Rock, MPB…" required><button type="submit">+ Criar</button></div>
+        </form>
+        <div id="sf67GenreFilters" class="sf67-genre-filters" role="group" aria-label="Filtrar favoritos por gênero"></div>
+        <div class="sf67-fav-searchrow"><label for="sf67FavSearch">Encontrar música</label><input id="sf67FavSearch" type="search" placeholder="Buscar por música ou artista…" autocomplete="off"></div>
+        <div id="sf67GenreManage" class="sf67-genre-manage" hidden></div>
+        <div id="sf67FavStatus" class="sf67-fav-status" role="status" aria-live="polite"></div>
+      </section>
+      <div id="favoritesList" class="sf67-fav-list"></div>
     </div>
   </div>
 
@@ -1879,13 +1890,22 @@
               <button type="button" class="sf50-filter" data-sf50-filter="live" aria-pressed="false"><span class="sf50-live-dot" aria-hidden="true"></span> Tocando agora</button>
               <button type="button" class="sf50-filter" data-sf50-filter="vibe" aria-pressed="false">✿ Para minha vibe</button>
             </div>
-            <label class="sf50-sort-label"><span>Ordenar</span>
-              <select id="sf50RoomOrder" aria-label="Ordenar salas">
+            <div class="sf50-sort-label sf65-sort" aria-label="Ordenar salas">
+              <span id="sf65SortLabel">Ordenar</span>
+              <select id="sf50RoomOrder" aria-label="Ordenar salas" class="sf65-native-sort" tabindex="-1" aria-hidden="true">
                 <option value="popular">Mais ouvintes</option>
                 <option value="active">Tocando primeiro</option>
                 <option value="name">Nome A–Z</option>
               </select>
-            </label>
+              <div class="sf65-sort-combobox">
+                <button type="button" class="sf65-sort-trigger" id="sf65SortTrigger" aria-haspopup="listbox" aria-controls="sf65SortList" aria-expanded="false" aria-labelledby="sf65SortLabel sf65SortValue"><span id="sf65SortValue">Mais ouvintes</span><span class="sf65-sort-chevron" aria-hidden="true">⌄</span></button>
+                <div class="sf65-sort-list" id="sf65SortList" role="listbox" aria-labelledby="sf65SortLabel" hidden>
+                  <button type="button" role="option" class="sf65-sort-option is-selected" data-sort="popular" aria-selected="true"><span aria-hidden="true">♛</span>Mais ouvintes</button>
+                  <button type="button" role="option" class="sf65-sort-option" data-sort="active" aria-selected="false"><span aria-hidden="true">♫</span>Tocando primeiro</button>
+                  <button type="button" role="option" class="sf65-sort-option" data-sort="name" aria-selected="false"><span aria-hidden="true">A–Z</span>Nome A–Z</button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="sf63-discover-bar" id="sf63DiscoverTools" aria-label="Descoberta e comunidade">
             <span>✦ Descubra música com pessoas da sua vibe</span>
@@ -3046,6 +3066,7 @@
     function toggleFavorites() { const m = $('favoritesModal'); m.classList.toggle('active'); if (m.classList.contains('active')) renderFavorites(); }
     function closeFavorites() { $('favoritesModal').classList.remove('active'); }
     function renderFavorites() {
+      if (typeof window.sf67RenderFavorites === 'function') return window.sf67RenderFavorites();
       const c = $('favoritesList');
       if (!myFavorites || !myFavorites.length) { c.innerHTML = '<div style="color:var(--text-muted);font-size:14px;text-align:center;padding:20px;">Nenhum favorito ainda. ⭐</div>'; return; }
       c.innerHTML = myFavorites.map(f => `<div class="favorite-item"><div class="info"><div class="title">${escapeHtml(f.title || 'Música')}</div><div class="artist">${escapeHtml(f.artist || 'Desconhecido')}</div></div><div class="actions"><button class="add" onclick="addFavoriteToQueue('${f.id}')">➕</button><button class="remove" onclick="removeFavorite('${f.id}')">🗑️</button></div></div>`).join('');
@@ -4287,5 +4308,9 @@ function openRoomCfg() {
   <script defer src="/sonorafan-fila-56.js"></script>
   <link rel="stylesheet" href="/sonorafan-evolution-63.css">
   <script defer src="/sonorafan-evolution-63.js"></script>
+  <link rel="stylesheet" href="/sonorafan-ui-65.css">
+  <script defer src="/sonorafan-ui-65.js"></script>
+  <link rel="stylesheet" href="/sonorafan-menu-favorites-67.css">
+  <script defer src="/sonorafan-menu-favorites-67.js"></script>
 </body>
 </html>
