@@ -1409,7 +1409,7 @@
             <button class="btn-hero-secondary" onclick="showLogin()" data-i18n="hero.cta1b">🎤 Entrar na sala</button>
             <button class="btn-hero-primary btn-shake" onclick="openSignup()" data-i18n="hero.cta2b">✍️ Criar conta grátis</button>
           </div>
-          <div class="social-proof sf44-hero-benefits" aria-label="Destaques da plataforma">
+          <div class="social-proof sf44-hero-benefits sf50-hero-benefits" aria-label="Destaques da plataforma">
             <span>♬ Playlist colaborativa</span><span>✦ Salas ao vivo</span><span>♥ Música e comunidade</span>
           </div>
         </div>
@@ -1892,6 +1892,21 @@
             </div>
           </div>
           <div class="sf32-room-counter sf39-room-counter" aria-live="polite"><strong id="sf10RoomsHeading">Salas para você</strong><div class="sf39-lobby-meta"><span class="sf39-room-pulse" id="sf39RoomPulse" role="status">Atualizando salas…</span><span id="sf10RoomsCount">Carregando...</span></div></div>
+          <div class="sf50-room-tools" aria-label="Organizar salas">
+            <div class="sf50-room-filters" role="group" aria-label="Filtro de salas">
+              <button type="button" class="sf50-filter is-active" data-sf50-filter="all" aria-pressed="true">Todas</button>
+              <button type="button" class="sf50-filter" data-sf50-filter="live" aria-pressed="false"><span class="sf50-live-dot" aria-hidden="true"></span> Tocando agora</button>
+              <button type="button" class="sf50-filter" data-sf50-filter="vibe" aria-pressed="false">✿ Para minha vibe</button>
+            </div>
+            <label class="sf50-sort-label"><span>Ordenar</span>
+              <select id="sf50RoomOrder" aria-label="Ordenar salas">
+                <option value="popular">Mais ouvintes</option>
+                <option value="active">Tocando primeiro</option>
+                <option value="name">Nome A–Z</option>
+              </select>
+            </label>
+          </div>
+          <p id="sf50RoomHint" class="sf50-room-hint" role="status" aria-live="polite"></p>
           <div class="room-grid" id="roomGrid">
             <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
           </div>
@@ -1980,7 +1995,7 @@
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
-        <div class="sf5-section-title sf34-room-title"><span class="sf44-room-sparks" aria-hidden="true">✳ ♫ ✦</span><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
+        <div class="sf5-section-title sf34-room-title"><span class="sf44-room-sparks" aria-hidden="true">✳ ♫ ✦</span><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span><button type="button" class="sf50-focus-toggle" id="sf50FocusToggle" aria-pressed="false" aria-label="Ativar modo foco" onclick="window.sf50ToggleFocus?.()"><span aria-hidden="true">◉</span> Modo foco</button></div>
         <div class="queue-column sf33-queue-column sf34-queue">
           <div class="queue-header">
             <span>♫ &nbsp;Fila colaborativa</span>
@@ -1995,11 +2010,13 @@
           <div class="sf44-queue-idle-card" id="sf44QueueIdle" aria-hidden="true"><img src="/art-44/vinyl-card.webp" alt="" loading="lazy" decoding="async" width="960" height="467"><span>✿ O próximo som pode ser seu.</span></div>
           <div id="waitingQueueLabel" class="waiting-queue-label hidden">⏳ Fila de espera:</div>
           <div class="queue-list" id="waitingQueueList" style="max-height:120px;overflow-y:auto;padding:4px 12px 12px;border-top:1px solid var(--border);"></div>
-          <details class="sf11-about-drawer"><summary>ⓘ Sobre esta sala <span>Ver detalhes ▾</span></summary><section class="sf5-about-card" aria-label="Sobre a sala"><div class="sf5-card-heading">ⓘ &nbsp; Sobre a Sala <button type="button" onclick="copyInviteLink()" title="Compartilhar sala">↗</button></div><div class="sf5-about-body"><div class="sf5-about-art">♫</div><div><strong id="sf5AboutName">Sala musical</strong><p id="sf5AboutDescription">Aqui a música nunca para. Venha curtir com a galera!</p><small id="sf5AboutTag">#SonoraFan &nbsp; #AoVivo</small></div></div><div class="sf5-about-stats"><span>♙ <b id="sf5StatsListeners">0</b><small>Ouvintes</small></span><span>♫ <b id="sf5StatsTracks">0</b><small>Na fila</small></span><span>◷ <b>LIVE</b><small>Agora</small></span></div></section></details>
+
 
         </div>
 
         <div class="player-column sf34-player-column">
+          <div class="sf50-focus-intro" aria-live="polite"><span>✳ MODO FOCO</span><strong>É você e a música.</strong><small>Assista com mais espaço. A playlist colaborativa continua funcionando para todos.</small></div>
+          <button type="button" class="sf50-mobile-focus" id="sf50MobileFocus" aria-pressed="false" aria-label="Ativar modo foco" onclick="window.sf50ToggleFocus?.()">◉ Modo foco</button>
           <div class="sf5-hero-badge">♫ &nbsp; AGORA TOCANDO</div>
           <div class="premium-room-meta"><span class="premium-live-dot"></span><span id="premiumRoomMood">Ambiente compartilhado</span><span id="premiumRoomListeners">0 ouvintes conectados</span></div>
           <div class="premium-eyebrow"><span class="premium-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><strong>Sua sessão musical</strong><small>Uma experiência compartilhada, em tempo real</small></div><span class="premium-session-pill">SONORAFAN LIVE</span></div>
@@ -2046,6 +2063,12 @@
             </div>
           </div>
 
+          <div class="sf50-focus-dock" id="sf50FocusDock" aria-label="Atalhos do modo foco">
+            <button type="button" onclick="window.sf50GoSocial?.('queue')">♫ Ver fila</button>
+            <button type="button" onclick="window.sf50GoSocial?.('chat')">☏ Conversar</button>
+            <button type="button" onclick="window.sf50GoSocial?.('song')">＋ Adicionar música</button>
+            <button type="button" class="sf50-focus-exit" onclick="window.sf50ToggleFocus?.(false)">⊞ Modo social</button>
+          </div>
           <div class="next-track" id="nextTrack" style="display:none;">
             <span class="label">A seguir</span>
             <div class="thumb" id="nextThumb"></div>
@@ -2306,6 +2329,11 @@
             </div>
           </section>
 
+          <section class="sf50-profile-club" aria-label="Seu progresso no SonoraFan Club">
+            <div class="sf50-profile-club-top"><div><span>✦ SEU SONORAFAN CLUB</span><strong id="sf50ProfileLevel">Sua jornada musical</strong><small id="sf50ProfileMessage">Carregando seu progresso real...</small></div><div class="sf50-xp-score"><strong id="sf50ProfileXp">—</strong><small>XP acumulado</small></div></div>
+            <div class="sf50-xp-progress" role="progressbar" aria-label="Progresso do próximo nível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="sf50ProfileBar"></span></div>
+            <div class="sf50-profile-club-foot"><span id="sf50ProfileMissions">Missões e medalhas do Club</span><button type="button" onclick="window.sf43CloseProfile?.(); window.sf45OpenClub?.();">Abrir SonoraFan Club ↗</button></div>
+          </section>
           <section class="sf43-profile-grid">
             <article class="sf43-profile-card">
               <div class="sf43-section-head"><strong>Resumo</strong><small>Seu momento dentro da plataforma</small></div>
@@ -2343,6 +2371,14 @@
     </div>
   </div>
 
+  <div class="sf50-status" id="sf50Status" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="sf51UserMenu" class="sf51-user-menu" role="dialog" aria-label="Ações com participante" aria-hidden="true" hidden>
+    <div class="sf51-user-menu-heading"><span class="sf51-user-menu-label">PARTICIPANTE</span><strong id="sf51SelectedNickname">—</strong></div>
+    <button type="button" data-sf51-action="mention"><span aria-hidden="true">@</span> Mencionar no chat <small>Público</small></button>
+    <button type="button" data-sf51-action="copy"><span aria-hidden="true">⧉</span> Copiar nickname</button>
+    <p>As mensagens deste chat são visíveis para toda a sala.</p>
+  </div>
   <div class="toast" id="toast"></div>
 
   <div class="footer">
@@ -3009,9 +3045,12 @@
         const roomsData = await r.json();
         sf39UpdateRoomPulse(roomsData);
         if (!roomsData.length) { window.sf41UpdateRooms?.([]); grid.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Nenhuma sala ainda. Crie a primeira!</p></div>'; return; }
-        roomsData.sort((a,b) => b.listenerCount - a.listenerCount);
+        const sf50DisplayRooms = window.sf50PrepareRooms ? window.sf50PrepareRooms(roomsData) : roomsData.sort((a,b) => b.listenerCount - a.listenerCount);
         grid.innerHTML = '';
-        roomsData.forEach(r => {
+        if (!sf50DisplayRooms.length) {
+          grid.innerHTML = '<div class="sf50-rooms-empty"><span>♫</span><strong>Não encontramos salas neste filtro.</strong><p>Tente outro estilo ou veja todas as salas disponíveis.</p><button type="button" onclick="window.sf50ResetFilters?.()">Ver todas</button></div>';
+        }
+        sf50DisplayRooms.forEach(r => {
           const card = document.createElement('div');
           card.className = 'room-card sf37-room-card' + (r.isPlaying ? ' live' : '');
           const track = r.currentTrack;
@@ -3063,6 +3102,7 @@
         });
         window.sf10DecorateRooms?.(roomsData);
         window.sf41UpdateRooms?.(roomsData);
+        window.sf50AfterRooms?.(roomsData, sf50DisplayRooms);
       } catch(e) { sf39UpdateRoomPulse(null); window.sf41UpdateRooms?.(null); grid.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Erro ao carregar salas.</p></div>'; }
     }
     function showCreateRoom() {
@@ -3635,18 +3675,18 @@ function openRoomCfg() {
       } else {
         const h = userHue(msg.user);
         div.style.setProperty('--h', h);
-        let text = escapeHtml(msg.text).replace(/@(\w+)/g, '<span style="color:var(--accent);font-weight:700;">@$1</span>');
+        let text = escapeHtml(msg.text).replace(/@\{([^{}]{1,64})\}|@([\wÀ-ÿ]{1,40})/g, (hit) => `<span class="sf51-mention">${hit}</span>`);
         const likeData = messageLikesSync[msgId] || { likes: 0, users: [] };
         const liked = likeData.users.includes(myName);
         const count = likeData.likes || 0;
-        div.innerHTML = `<div class="msg-content"><div class="msg-header"><span class="msg-user">${escapeHtml(msg.user)}${({ admin: ' 🛡️', owner: ' 👑', mod: ' 🔧' })[msg.role] || ''}</span><span class="msg-time">${formatTime(msg.createdAt)}</span></div><span class="msg-text">${text}</span><div class="msg-actions"><button class="msg-like-btn ${liked ? 'liked' : ''}" onclick="likeMessage('${msgId}', this)">${liked ? '❤️' : '🤍'} <span class="msg-like-count">${count}</span></button></div></div>`;
+        div.innerHTML = `<div class="msg-content"><div class="msg-header"><button type="button" class="msg-user sf51-user-link" aria-label="Opções do participante"><span class="sf51-nick-label">${escapeHtml(msg.user)}</span>${({ admin: ' 🛡️', owner: ' 👑', mod: ' 🔧' })[msg.role] || ''}</button><span class="msg-time">${formatTime(msg.createdAt)}</span></div><span class="msg-text">${text}</span><div class="msg-actions"><button class="msg-like-btn ${liked ? 'liked' : ''}" onclick="likeMessage('${msgId}', this)">${liked ? '❤️' : '🤍'} <span class="msg-like-count">${count}</span></button></div></div>`;
       }
       container.appendChild(div);
 
       // Double-tap para curtir
       let _lastTap = 0;
       div.addEventListener('click', (e) => {
-        if (e.target.closest('.msg-like-btn') || e.target.closest('a')) return;
+        if (e.target.closest('.msg-like-btn') || e.target.closest('.sf51-user-link') || e.target.closest('a')) return;
         const now = Date.now();
         if (now - _lastTap < 320 && !msg.isSystem && !msg.isMusic) {
           likeMessage(msgId);
@@ -4150,5 +4190,9 @@ function openRoomCfg() {
   <script defer src="/sonorafan-experience-44.js"></script>
   <link rel="stylesheet" href="/sonorafan-club-45.css">
   <script defer src="/sonorafan-club-45.js"></script>
+  <link rel="stylesheet" href="/sonorafan-ux-50.css">
+  <script defer src="/sonorafan-ux-50.js"></script>
+  <link rel="stylesheet" href="/sonorafan-social-51.css">
+  <script defer src="/sonorafan-social-51.js"></script>
 </body>
 </html>

@@ -1,0 +1,103 @@
+/* SonoraFan 51.0 — chat contextual e remoção visual do painel Sobre esta sala */
+#screen-room .sf11-about-drawer,
+#screen-room .sf5-about-card { display: none !important; }
+#screen-room .sf51-user-link {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 2px 3px;
+  margin: -2px -3px;
+  font: inherit;
+  font-weight: 750;
+  font-size: 12px;
+  color: hsl(var(--h, 260) 80% 72%);
+  line-height: 1.45;
+  text-align: left;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#screen-room .sf51-user-link:hover,
+#screen-room .sf51-user-link:focus-visible,
+#screen-room .sf51-clickable-nick:hover,
+#screen-room .sf51-clickable-nick:focus-visible {
+  color: #ffe1a8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  outline: none;
+}
+#screen-room .sf51-user-link:focus-visible,
+#screen-room .sf51-clickable-nick:focus-visible {
+  box-shadow: 0 0 0 2px #b87bff;
+}
+#screen-room .sf51-clickable-nick { cursor: pointer; border-radius: 5px; }
+#screen-room .sf51-mention {
+  color: #f3b3ff;
+  background: rgba(174, 75, 245, 0.15);
+  border-radius: 4px;
+  padding: 0 3px;
+  font-weight: 750;
+}
+.sf51-user-menu[hidden] { display: none !important; }
+.sf51-user-menu {
+  position: fixed;
+  z-index: 350;
+  box-sizing: border-box;
+  background: linear-gradient(145deg, #271535, #170d23);
+  border: 1px solid rgba(226, 173, 255, 0.27);
+  border-radius: 17px;
+  padding: 10px;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: calc(100vw - 24px);
+}
+.sf51-user-menu-heading { display: flex; flex-direction: column; gap: 3px; padding: 8px 10px 10px; border-bottom: 1px solid rgba(255,255,255,.10); margin-bottom: 6px; }
+.sf51-user-menu-label { font-size: 10px; color: #cda8e9; letter-spacing: .16em; font-weight: 800; }
+.sf51-user-menu-heading strong { font-size: 16px; overflow-wrap: anywhere; }
+.sf51-user-menu > button {
+  font: inherit;
+  color: #f9efff;
+  width: 100%;
+  min-height: 41px;
+  background: transparent;
+  border: 0;
+  border-radius: 11px;
+  padding: 9px 11px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.sf51-user-menu > button:hover,
+.sf51-user-menu > button:focus-visible { background: rgba(178,87,255,0.2); outline: 2px solid transparent; }
+.sf51-user-menu > button span { font-weight: 800; color: #ffac72; font-size: 16px; width: 18px; text-align: center; }
+.sf51-user-menu > button small { margin-left: auto; font-size: 10px; color: #b9a2c6; }
+.sf51-user-menu > p { margin: 8px 10px 5px; font-size: 11px; color: #c9b7d5; line-height: 1.4; }
+.sf51-feedback {
+  position: fixed;
+  z-index: 370;
+  bottom: 88px;
+  left: 50%;
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  pointer-events: none;
+  background: #301e42;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 1px solid #764c97;
+  box-shadow: 0 12px 32px rgba(0,0,0,.3);
+  transition: opacity .15s ease, transform .15s ease;
+  max-width: min(460px, calc(100vw - 24px));
+  text-align: center;
+  font-size: 12px;
+}
+.sf51-feedback.is-visible { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { .sf51-feedback { transition: none; } }
