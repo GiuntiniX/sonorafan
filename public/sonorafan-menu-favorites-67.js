@@ -35,12 +35,13 @@
     return `<article class="sf67-fav-track" data-sf67-id="${escape(id)}">
       <img src="https://img.youtube.com/vi/${encodeURIComponent(id)}/mqdefault.jpg" alt="" loading="lazy" decoding="async">
       <div class="sf67-track-info"><strong title="${escape(item.title||'Música')}">${escape(item.title||'Música')}</strong><small>${escape(item.artist||'Artista')}</small>
-      <label class="sf67-assign"><span>Gênero</span><select class="sf67-track-genre" aria-label="Gênero de ${escape(item.title||'Música')}">${choices.map(g=>`<option value="${escape(g.id)}" ${current===g.id?'selected':''}>${escape(g.name)}</option>`).join('')}</select></label></div>
+      ${state.filter==='all'?`<label class="sf67-assign"><span>Gênero</span><select class="sf67-track-genre" aria-label="Gênero de ${escape(item.title||'Música')}">${choices.map(g=>`<option value="${escape(g.id)}" ${current===g.id?'selected':''}>${escape(g.name)}</option>`).join('')}</select></label>`:''}</div>
       <div class="sf67-track-actions"><button type="button" data-sf67-action="queue" title="Adicionar à fila" aria-label="Adicionar ${escape(item.title||'Música')} à fila">＋</button><button type="button" class="sf67-delete-track" data-sf67-action="remove" title="Remover dos favoritos" aria-label="Remover ${escape(item.title||'Música')} dos favoritos">×</button></div>
     </article>`;
   }
   function draw(){
     const box=$('favoritesList'),chips=$('sf67GenreFilters'),management=$('sf67GenreManage');if(!box||!chips||!management)return;
+    box.dataset.sf72Filtered=String(state.filter!=='all');
     if(!state.loaded){if(state.loading)box.innerHTML='<p class="sf67-empty">Carregando suas coleções…</p>';else box.innerHTML='<p class="sf67-empty">Não foi possível carregar as coleções. Abra novamente para tentar.</p>';return;}
     const tracks=favorites();
     const known=new Set(state.genres.map(g=>g.id));
@@ -106,36 +107,17 @@
       else if(btn.dataset.sf67Action==='remove'){if(!confirm('Remover esta música dos favoritos?'))return;if(typeof removeFavorite==='function')removeFavorite(id);}
     });
   }
-  function setupMenus(){
-    const configs=[
-      {nav:document.querySelector('#screen-lobby .sf28-sidebar-nav'),main:[/descobrir salas/i,/comunidade/i,/mensagens/i,/meu perfil/i,/sonorafan club/i]},
-      {nav:document.querySelector('#screen-room .sf5-navigation'),main:[/sala atual/i,/descobrir salas/i,/favoritos/i,/comunidade/i,/mensagens/i,/convidar amigos/i]}
-    ];
-    for(const {nav,main} of configs){
+  function restoreCompactMenus(){
+    for(const nav of [document.querySelector('#screen-lobby .sf28-sidebar-nav'),document.querySelector('#screen-room .sf5-navigation')]){
       if(!nav)continue;
-      const more=document.createElement('button');more.type='button';more.className='sf67-more-toggle';more.innerHTML='<span class="sf67-more-symbol" aria-hidden="true">⋯</span><span>Mais opções</span><span class="sf67-chevron" aria-hidden="true">⌄</span>';
-      more.setAttribute('aria-expanded','false');more.setAttribute('aria-label','Mostrar mais opções do menu');more.style.order='2';
-      nav.append(more);
-      const classify=()=>{
-        Array.from(nav.children).forEach(child=>{
-          if(!child.matches('button')||child===more)return;
-          const label=child.textContent.replace(/\d+$/, '').trim();
-          const primary=main.some(rx=>rx.test(label));
-          child.classList.toggle('sf67-nav-extra',!primary);
-          child.classList.toggle('sf67-nav-primary',primary);
-          child.style.order=primary?'1':'3';
-        });
-      };
-      classify();
-      const observer=new MutationObserver(mutations=>{if(mutations.some(m=>m.addedNodes.length))classify();});
-      observer.observe(nav,{childList:true});
-      more.addEventListener('click',()=>{
-        const expanded=!nav.classList.contains('sf67-more-open');nav.classList.toggle('sf67-more-open',expanded);
-        more.setAttribute('aria-expanded',String(expanded));more.setAttribute('aria-label',expanded?'Ocultar opções adicionais do menu':'Mostrar mais opções do menu');
-        more.querySelector('span:nth-child(2)').textContent=expanded?'Menos opções':'Mais opções';
+      nav.classList.remove('sf67-more-open');
+      nav.querySelectorAll('.sf67-more-toggle').forEach(button=>button.remove());
+      nav.querySelectorAll('.sf67-nav-extra,.sf67-nav-primary').forEach(button=>{
+        button.classList.remove('sf67-nav-extra','sf67-nav-primary');
+        button.style.removeProperty('order');
       });
     }
   }
-  function init(){setupMenus();setupFavorites();window.sf67RenderFavorites=render;}
+  function init(){restoreCompactMenus();setupFavorites();window.sf67RenderFavorites=render;}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

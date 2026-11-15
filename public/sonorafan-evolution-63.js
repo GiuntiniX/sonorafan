@@ -13,8 +13,13 @@
   const signedIn=()=>typeof currentUser!=='undefined' && !!currentUser;
   const notify=(message,bad=false)=>{ const node=$('sf63Toast');if(!node){if(typeof toast==='function')toast(message,bad?'error':'success');return;}node.textContent=message;node.classList.add('show');clearTimeout(node._timer);node._timer=setTimeout(()=>node.classList.remove('show'),2800);};
   async function api(path,opts={}){
-    const r=await fetch(path,{credentials:'include',...opts,headers:{...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}});
-    const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Serviço temporariamente indisponível');return data;
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),10000);
+    try{
+      const r=await fetch(path,{credentials:'include',...opts,signal:controller.signal,headers:{...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}});
+      const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Serviço temporariamente indisponível');return data;
+    }catch(error){if(error?.name==='AbortError')throw new Error('A consulta demorou demais. Tente novamente.');throw error;}
+    finally{clearTimeout(timeout);}
   }
   const post=(path,data)=>api(path,{method:'POST',body:JSON.stringify(data||{})});
   const requireRoom=()=>{const slug=currentSlug();if(!slug)notify('Entre em uma sala para participar.',true);return slug;};
@@ -204,31 +209,36 @@
       post('/api/platform63/preferences',{styles:selected}).then(()=>{state.me=null;}).catch(()=>{});
     }});
   }
-  const TOUR={
-    landing:[
-      ['.topnav-logo','Bem-vindo ao SonoraFan','Essa é a entrada da comunidade musical. Você pode entrar ou criar uma conta no topo.'],
-      ['.hero-text','Sua vibe, sua música','O SonoraFan reúne salas colaborativas onde todo mundo escolhe músicas.'],
-      ['.hero-ctas','Comece por aqui','Use Entrar ou Criar conta. Depois, o lobby ajuda você a descobrir salas ao vivo.'],
-      ['.how-grid','Como funciona','São três passos: entrar, escolher uma sala e colaborar com a playlist.']
-    ],
-    lobby:[
-      ['.sf33-banner','Bem-vindo ao novo lobby','A arte tem espírito de festival, mas as salas reais estão logo abaixo.'],
-      ['#sf10RoomQuery','Encontre sua vibe','Busque uma sala ou filtre por gênero musical.'],
-      ['#roomGrid','Salas que estão tocando','Cada card mostra a sala, quem está ouvindo e, quando disponível, a capa da música atual.'],
-      ['#sf63DiscoverTools','Descubra outras experiências','Busque músicas, consulte o Passaporte Musical e encontre amigos.'],
-      ['.sf45-header-club','Seu SonoraFan Club','Acompanhe XP, níveis e medalhas. Você pode reabrir este guia em Ajuda / Tour.']
-    ],
-    room:[
-      ['#sf64RoomSidebarToggle','Menu flexível da sala','Use este botão no canto superior direito para recolher ou abrir o menu lateral quando quiser ganhar mais espaço na sala.'],
-      ['#playerSection','Sua sala, sua música','Vídeo com volume, Favoritar e Pular. A reprodução permanece no YouTube.'],
-      ['#sf10RequestCard','Todo mundo é DJ','Busque uma música no YouTube e confirme para entrar na fila colaborativa.'],
-      ['#queueList','Fila e votação','Veja quem escolheu cada faixa. Apoiar e pedir remoção são votos diferentes.'],
-      ['#chatMessages','Converse com a comunidade','Clique nos nicknames, responda mensagens e use a caixa de entrada privada.'],
-      ['#sf63RoomTools','Jogos e descobertas','Abra a Batalha Musical, o desafio coletivo e o histórico da sala.'],
-      ['.sf45-nav-entry','Pontos e conquistas','XP e medalhas continuam no SonoraFan Club, sem zerar seu histórico.']
-    ]
-  };
-  function tourKey(mode){const user=typeof currentUser!=='undefined'?currentUser?.email:'visitante';return 'sf63_tour_v63_'+mode+'_'+user;}
+  
+const TOUR={
+  landing:[
+    ['.topnav-logo','Bem-vindo ao SonoraFan','Essa é a entrada da comunidade musical. Você pode entrar ou criar uma conta no topo.'],
+    ['.hero-text','Sua vibe, sua música','O SonoraFan reúne salas colaborativas onde todo mundo escolhe músicas.'],
+    ['.sf67-landing-strip','Entenda o fluxo em segundos','Aqui você vê como a experiência funciona: entrar, descobrir uma sala, colaborar na fila e conversar com a galera.'],
+    ['.how-grid','Como funciona','São três passos: entrar, escolher uma sala e colaborar com a playlist.']
+  ],
+  lobby:[
+    ['.sf33-banner','Bem-vindo ao novo lobby','A arte tem espírito de festival, mas as salas reais estão logo abaixo.'],
+    ['#sf67LobbySummary','Resumo do momento','Veja rapidamente quantas salas estão abertas, quantas estão tocando agora e o número total de ouvintes.'],
+    ['#sf10RoomQuery','Encontre sua vibe','Busque uma sala ou filtre por gênero musical.'],
+    ['.sf50-room-tools','Filtros e ordenação','Use os filtros para encontrar salas tocando agora ou mais alinhadas com a sua vibe.'],
+    ['#roomGrid','Salas que estão tocando','Cada card mostra a sala, quem está ouvindo e, quando disponível, a capa da música atual.'],
+    ['#sf63DiscoverTools','Descubra outras experiências','Busque músicas, consulte o Passaporte Musical e encontre amigos. A área Comunidade agora reúne Amigos, Fan Clubs e Eventos.'],
+    ['.sf45-header-club','Seu SonoraFan Club','Acompanhe XP, níveis e medalhas. Você pode reabrir este guia em Ajuda / Tour.']
+  ],
+  room:[
+    ['#sf64RoomSidebarToggle','Menu flexível da sala','Use este botão no canto superior direito para recolher ou abrir o menu lateral quando quiser ganhar mais espaço na sala.'],
+    ['#playerSection','Sua sala, sua música','Vídeo com volume, Favoritar e Pular. A reprodução permanece no YouTube.'],
+    ['#sf10RequestCard','Todo mundo é DJ','Busque uma música no YouTube e confirme para entrar na fila colaborativa.'],
+    ['#sf67QueueStats','Resumo da fila','Veja a faixa atual, a próxima escolha da comunidade e o ritmo da fila sem precisar rolar a lista.'],
+    ['#queueList','Fila e votação','Veja quem escolheu cada faixa. Apoiar e pedir remoção são votos diferentes.'],
+    ['#sf67ChatCompanion','Interação social','Use este painel para descobrir dicas rápidas: clicar no nick, abrir o privado e reabrir o tour.'],
+    ['#chatMessages','Converse com a comunidade','Clique nos nicknames, responda mensagens e use a caixa de entrada privada.'],
+    ['#sf63RoomTools','Jogos e descobertas','Abra a Batalha Musical, o desafio coletivo e o histórico da sala.'],
+    ['.sf45-nav-entry','Pontos e conquistas','XP e medalhas continuam no SonoraFan Club, sem zerar seu histórico.']
+  ]
+};
+function tourKey(mode){const user=typeof currentUser!=='undefined'?currentUser?.email:'visitante';return 'sf63_tour_v67_'+mode+'_'+user;}
   function activeMode(){return $('screen-room')?.classList.contains('active')?'room':$('screen-lobby')?.classList.contains('active')?'lobby':'landing';}
   function startTour(mode=activeMode(),force=true){
     if(!tour)return;endTour(false);if(!TOUR[mode])mode=activeMode();if(!force&&localStorage.getItem(tourKey(mode)))return;
@@ -298,9 +308,129 @@
     $('sf63TourPrevious')?.addEventListener('click',()=>{if(!state.tour)return;state.tour.index=Math.max(0,state.tour.index-1);showTour();});
     $('sf63TourSkip')?.addEventListener('click',()=>endTour());
   }
+
+function enhanceLanding(){
+  const landing=$('landingScreen');
+  if(!landing || landing.dataset.sf67Landing==='1') return;
+  const hero=landing.querySelector('.hero');
+  if(!hero) return;
+  const strip=document.createElement('section');
+  strip.className='sf67-landing-strip';
+  strip.innerHTML=`<article class="sf67-mini-card"><strong>🎧 Salas colaborativas</strong><p>Entre em uma sala pública ou privada e compartilhe o controle da playlist.</p></article>
+    <article class="sf67-mini-card"><strong>🎶 Fila viva</strong><p>Todo mundo pode adicionar músicas, apoiar favoritas e decidir o que toca a seguir.</p></article>
+    <article class="sf67-mini-card"><strong>💬 Comunidade + privado</strong><p>Converse na sala, responda pessoas e abra mensagens privadas quando quiser.</p></article>
+    <div class="sf67-landing-actions"><button type="button" class="sf67-jump-btn" data-sf67-jump="how">Ver como funciona</button><button type="button" class="sf67-jump-btn is-ghost" data-sf67-jump="features">Ver recursos</button></div>`;
+  hero.insertAdjacentElement('afterend', strip);
+  strip.addEventListener('click', e=>{
+    const btn=e.target.closest('[data-sf67-jump]'); if(!btn) return;
+    const target = btn.dataset.sf67Jump==='features' ? landing.querySelector('.feature-grid, .feature-section, .landing-section:nth-of-type(2)') : landing.querySelector('.how-grid, .landing-section');
+    target?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto':'smooth', block:'start'});
+  });
+  landing.dataset.sf67Landing='1';
+}
+
+function ensureLobbySummary(){
+  const tools=document.querySelector('#screen-lobby .sf50-room-tools');
+  if(!tools) return null;
+  let box=$('sf67LobbySummary');
+  if(!box){
+    box=document.createElement('section');
+    box.id='sf67LobbySummary';
+    box.className='sf67-lobby-summary';
+    tools.insertAdjacentElement('afterend',box);
+  }
+  return box;
+}
+
+function updateLobbySummary(){
+  const box=ensureLobbySummary();
+  const grid=$('roomGrid');
+  if(!box || !grid) return;
+  const cards=$$('.room-card',grid);
+  const parseNum=(text)=>{ const m=String(text||'').match(/(\d+)/); return m?Number(m[1]):0; };
+  const total=cards.length;
+  const live=cards.filter(c=>c.classList.contains('live')).length;
+  const listeners=cards.reduce((sum,card)=> sum + parseNum(card.querySelector('.listeners')?.textContent || card.querySelector('.room-listeners-badge')?.textContent),0);
+  const withTrack=cards.filter(c=>c.dataset.hasTrack==='1').length;
+  const vibe = total ? (live ? 'Tem salas ao vivo para entrar agora.' : 'Explore por estilo e descubra sua próxima sala.') : 'As próximas salas aparecerão aqui.';
+  box.innerHTML=`<article class="sf67-summary-card"><small>Salas abertas</small><strong>${total}</strong><span>${total===1?'1 opção pronta para receber você':'Opções colaborativas para explorar'}</span></article>
+    <article class="sf67-summary-card"><small>Tocando agora</small><strong>${live}</strong><span>${live===0?'Nenhuma sala ao vivo no momento':(withTrack+' com música destacada')}</span></article>
+    <article class="sf67-summary-card"><small>Ouvintes conectados</small><strong>${listeners}</strong><span>${vibe}</span></article>`;
+}
+
+function watchLobbySummary(){
+  const grid=$('roomGrid');
+  if(!grid || grid.dataset.sf67Observed==='1') return;
+  updateLobbySummary();
+  const mo=new MutationObserver(()=>updateLobbySummary());
+  mo.observe(grid,{childList:true,subtree:true});
+  grid.dataset.sf67Observed='1';
+}
+
+function enhanceQueueSummary(){
+  const list=$('queueList');
+  if(!list) return;
+  let box=$('sf67QueueStats');
+  if(!box){
+    box=document.createElement('section');
+    box.id='sf67QueueStats';
+    box.className='sf67-queue-stats';
+    list.insertAdjacentElement('beforebegin',box);
+  }
+  const readTitle=(selector,fallback)=>list.querySelector(selector)?.textContent?.trim() || fallback;
+  const items=$$('.queue-item',list).filter(el=>!el.classList.contains('waiting'));
+  const current=readTitle('.queue-item.current .title','Aguardando faixa');
+  const next=readTitle('.queue-item.sf39-next .title', items[1]?.querySelector('.title')?.textContent?.trim() || 'Escolha a próxima música');
+  const total=items.length;
+  const status = total>=4 ? 'Fila aquecida' : total>=2 ? 'Boa sequência em andamento' : total===1 ? 'Ainda cabe mais uma escolha' : 'Hora de começar a sessão';
+  box.innerHTML=`<div class="sf67-queue-chip"><small>Tocando agora</small><strong>${esc(current)}</strong></div>
+    <div class="sf67-queue-chip"><small>A seguir</small><strong>${esc(next)}</strong></div>
+    <div class="sf67-queue-chip"><small>Clima da fila</small><strong>${status}</strong><span>${total} ${total===1?'faixa listada':'faixas listadas'}</span></div>`;
+}
+
+function watchQueueSummary(){
+  const list=$('queueList');
+  if(!list || list.dataset.sf67Observed==='1') return;
+  enhanceQueueSummary();
+  const mo=new MutationObserver(()=>enhanceQueueSummary());
+  mo.observe(list,{childList:true,subtree:true});
+  list.dataset.sf67Observed='1';
+}
+
+function enhanceChatCompanion(){
+  const column=document.querySelector('#screen-room .chat-column');
+  const heading=column?.querySelector('.premium-chat-heading');
+  if(!column || !heading) return;
+  if($('sf67ChatCompanion')) return;
+  const dismissed=localStorage.getItem('sf67_chat_companion_hidden')==='1';
+  const panel=document.createElement('section');
+  panel.id='sf67ChatCompanion';
+  panel.className='sf67-chat-companion';
+  panel.hidden=dismissed;
+  panel.innerHTML=`<div class="sf67-chat-companion-head"><div><small>INTERAÇÃO RÁPIDA</small><strong>Converse melhor com a galera</strong></div><button type="button" class="sf67-chat-dismiss" aria-label="Ocultar painel de ajuda">✕</button></div>
+    <div class="sf67-chat-pills"><span class="sf67-chat-pill">Clique no nick para responder ou abrir ações</span><span class="sf67-chat-pill">Use @nome para chamar alguém no chat</span><span class="sf67-chat-pill">Abra o Privado para continuar a conversa fora da sala</span></div>
+    <div class="sf67-chat-actions"><button type="button" data-sf67-chat="private">Abrir Privado</button><button type="button" data-sf67-chat="tour">Tour da sala</button><button type="button" data-sf67-chat="music">Adicionar música</button></div>`;
+  heading.insertAdjacentElement('afterend',panel);
+  panel.addEventListener('click',e=>{
+    if(e.target.closest('.sf67-chat-dismiss')){ panel.hidden=true; localStorage.setItem('sf67_chat_companion_hidden','1'); return; }
+    const btn=e.target.closest('[data-sf67-chat]'); if(!btn) return;
+    const action=btn.dataset.sf67Chat;
+    if(action==='private') window.sf53OpenInbox?.();
+    if(action==='tour') window.sf29StartTour?.('room');
+    if(action==='music') document.querySelector('[data-sf63-open="music"]')?.click();
+  });
+}
+
+function initEnhancements(){
+  enhanceLanding();
+  watchLobbySummary();
+  watchQueueSummary();
+  enhanceChatCompanion();
+}
+
   function init(){
-    if(!hub)return;wire();setupTour();setupRoomSidebar();lobbyActivity();
-    setTimeout(()=>{if($('screen-lobby')?.classList.contains('active'))sortRooms();},900);
+    if(!hub)return;wire();setupTour();setupRoomSidebar();lobbyActivity();initEnhancements();
+    setTimeout(()=>{if($('screen-lobby')?.classList.contains('active'))sortRooms();updateLobbySummary();enhanceQueueSummary();enhanceChatCompanion();enhanceLanding();},900);
     setInterval(()=>{if(state.tab==='battle'&&!hub.hidden)updateCountdown();},1000);
     window.sf63OpenHub=open;
     window.sf63RefreshRoomSort=sortRooms;

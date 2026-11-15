@@ -24,22 +24,22 @@
   const pickerState = {
     open: false,
     track: null,
-    genres: []
+    genres: [],busy:false,previousFocus:null
   };
 
-  function api(url, options={}) {
-    return fetch(url, {
-      credentials: 'include',
-      ...options,
-      headers: {
-        ...(options.body ? {'Content-Type': 'application/json'} : {}),
-        ...(options.headers || {})
-      }
-    }).then(async response => {
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || 'Não foi possível concluir a ação.');
+  async function api(url, options={}) {
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),12000);
+    try{
+      const response=await fetch(url,{
+        credentials:'include',...options,signal:controller.signal,
+        headers:{...(options.body?{'Content-Type':'application/json'}:{}),...(options.headers||{})}
+      });
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.error||'Não foi possível concluir a ação.');
       return data;
-    });
+    }catch(error){if(error?.name==='AbortError')throw new Error('Sem resposta do servidor. Tente novamente.');throw error;}
+    finally{clearTimeout(timer);}
   }
 
   function roomHaystack(room) {
@@ -161,6 +161,8 @@
     overlay.hidden = true;
     pickerState.open = false;
     pickerState.track = null;
+    pickerState.previousFocus?.focus?.();
+    pickerState.previousFocus=null;
   }
 
   function ensurePicker() {
@@ -190,6 +192,7 @@
             <input type="text" id="sf70NewGenreName" maxlength="28" placeholder="Ex.: Rock nacional, Chill, Clássicos">
           </label>
           <small class="sf70-help">Você pode usar um gênero pronto, criar uma categoria própria ou deixar a música sem classificação.</small>
+          <p id="sf70FavoriteError" class="sf70-error" role="alert" aria-live="polite"></p>
         </div>
         <div class="sf70-favorite-actions">
           <button type="button" class="sf70-secondary" id="sf70FavoriteCancel">Cancelar</button>
@@ -209,6 +212,16 @@
       if (custom) $('sf70NewGenreName')?.focus();
     });
     $('sf70FavoriteSave')?.addEventListener('click', saveFavoriteFromPicker);
+    document.addEventListener('keydown',event=>{
+      if(!pickerState.open)return;
+      const dialog=overlay.querySelector('.sf70-favorite-dialog');
+      if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();removeTransientPicker();return;}
+      if(event.key!=='Tab')return;
+      const focusable=[...dialog.querySelectorAll('button:not([disabled]),input:not([disabled]):not([hidden]),select:not([disabled])')].filter(el=>el.getClientRects().length);
+      if(!focusable.length)return;
+      if(event.shiftKey&&document.activeElement===focusable[0]){event.preventDefault();focusable.at(-1).focus();}
+      else if(!event.shiftKey&&document.activeElement===focusable.at(-1)){event.preventDefault();focusable[0].focus();}
+    },true);
   }
 
   async function loadPickerGenres() {
@@ -233,6 +246,8 @@
       : 'Adicione a música aos favoritos e já defina onde ela deve aparecer.';
     titleNode.textContent = existing ? 'Organizar favorita' : 'Salvar música';
     saveButton.textContent = existing ? 'Salvar classificação' : 'Salvar favorita';
+    saveButton.disabled=false;
+    const message=$('sf70FavoriteError');if(message)message.textContent='';
 
     const options = [
       '<option value="">Sem classificação</option>',
@@ -253,6 +268,7 @@
   async function openFavoritePicker(track) {
     if (!track?.id) return;
     pickerState.track = track;
+    pickerState.previousFocus=document.activeElement;
     const existing = findFavorite(track.id);
     await loadPickerGenres();
     renderPicker(track, existing);
@@ -277,8 +293,11 @@
   }
 
   async function saveFavoriteFromPicker() {
-    const track = pickerState.track;
-    if (!track?.id) return;
+    const track=pickerState.track;
+    if(!track?.id||pickerState.busy)return;
+    pickerState.busy=true;
+    const saveBtn=$('sf70FavoriteSave');if(saveBtn)saveBtn.disabled=true;
+    const errorNode=$('sf70FavoriteError');if(errorNode)errorNode.textContent='';
     try {
       const genreId = await resolveGenreChoice();
       let favorite = findFavorite(track.id);
@@ -288,6 +307,7 @@
           body: JSON.stringify({ videoId: track.id, title: track.title, artist: track.artist })
         });
         favorite = { id: track.id, title: track.title, artist: track.artist, genreId: '' };
+        upsertFavoriteLocal(favorite); // already persisted even if classifying subsequently fails
       }
       if (genreId !== (favorite?.genreId || '')) {
         await api(`/api/favorites/${encodeURIComponent(track.id)}/genre`, {
@@ -302,8 +322,10 @@
       refreshMusicHubCards();
       toastify(genreId ? '⭐ Música favorita e classificada.' : '⭐ Música favorita.');
     } catch (error) {
-      toastify(error.message || 'Não foi possível salvar a favorita.', true);
-    }
+      const message=error.message||'Não foi possível salvar a favorita.';
+      if(errorNode)errorNode.textContent=message;
+      toastify(message,true);
+    } finally {pickerState.busy=false;if(saveBtn)saveBtn.disabled=false;}
   }
 
   function genreName(genreId) {
@@ -336,7 +358,7 @@
       badge.className = 'sf70-genre-badge';
       info.appendChild(badge);
     }
-    badge.textContent = label;
+    if (badge.textContent !== label) badge.textContent = label;
   }
 
   function refreshMusicHubCards() {
@@ -345,7 +367,8 @@
     if (!hub || hub.hidden || !musicForm) return;
 
     const intro = document.querySelector('#sf63HubBody .sf63-intro p');
-    if (intro) intro.textContent = 'Pesquise no YouTube, favorite direto da lista e organize por gênero ou categoria criada por você.';
+    const description = 'Pesquise no YouTube, favorite direto da lista e organize por gênero ou categoria criada por você.';
+    if (intro && intro.textContent !== description) intro.textContent = description;
 
     $$('#sf63MusicResults .sf63-track').forEach(card => {
       const track = parseTrackFromCard(card);
@@ -353,7 +376,8 @@
       const button = card.querySelector('[data-sf63-action^="song:"]');
       const favorite = findFavorite(track.id);
       if (button) {
-        button.textContent = favorite ? '✓ Organizar' : '♡ Favoritar';
+        const label = favorite ? '✓ Organizar' : '♡ Favoritar';
+        if (button.textContent !== label) button.textContent = label;
         button.classList.add('sf70-favorite-trigger');
       }
     });
@@ -365,7 +389,8 @@
       const favorite = findFavorite(track.id);
       decorateFavoriteCard(card, favorite);
       if (button) {
-        button.textContent = (typeof currentRoom !== 'undefined' && currentRoom) ? '＋ Na fila' : '⚙ Organizar';
+        const label = (typeof currentRoom !== 'undefined' && currentRoom) ? '＋ Na fila' : '⚙ Organizar';
+        if (button.textContent !== label) button.textContent = label;
         button.classList.add('sf70-queue-trigger');
       }
     });
@@ -404,7 +429,12 @@
   function installMusicHubObserver() {
     const target = $('sf63HubBody');
     if (!target) return;
-    const observer = new MutationObserver(() => refreshMusicHubCards());
+    let scheduled=false;
+    const observer = new MutationObserver(() => {
+      if(scheduled)return;
+      scheduled=true;
+      requestAnimationFrame(() => { scheduled=false;refreshMusicHubCards(); });
+    });
     observer.observe(target, { childList: true, subtree: true });
     refreshMusicHubCards();
   }

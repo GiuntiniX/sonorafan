@@ -1,0 +1,39 @@
+/* SonoraFan 72 — legibilidade, navegação compacta e busca sem travamentos. */
+#screen-room .sf5-navigation,#screen-lobby .sf28-sidebar-nav{gap:3px!important}
+#screen-room .sf5-navigation>button,#screen-lobby .sf28-sidebar-nav>button{
+  min-height:35px!important;padding:5px 9px!important;border-radius:11px!important;
+  font-weight:660!important;transition:background-color .18s,border-color .18s!important;
+}
+#screen-room .sf5-navigation>button.sf67-nav-extra,#screen-lobby .sf28-sidebar-nav>button.sf67-nav-extra{display:flex!important}
+#screen-room .sf5-navigation>button.sf67-more-toggle,#screen-lobby .sf28-sidebar-nav>button.sf67-more-toggle{display:none!important}
+#screen-room .sf5-navigation>button .sf64-menu-icon,#screen-lobby .sf28-sidebar-nav>button .sf64-menu-icon{
+  width:25px!important;height:25px!important;min-width:25px!important;min-height:25px!important;
+  border-radius:8px!important;font-size:13px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 0 8px rgba(168,95,211,.12)!important;
+}
+#screen-room .sf5-navigation>button:hover .sf64-menu-icon,#screen-lobby .sf28-sidebar-nav>button:hover .sf64-menu-icon{
+  box-shadow:0 0 13px rgba(199,117,243,.28)!important;
+}
+#favoritesModal .sf67-track-info strong{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#favoritesModal .sf67-track-info{gap:4px}
+#favoritesModal .sf67-fav-section{margin-bottom:11px}
+#favoritesModal .sf67-fav-track{min-height:65px}
+/* Visibility of the dropdown only when All categories are being organized. */
+#favoritesModal .sf67-fav-list[data-sf72-filtered="true"] .sf67-assign{display:none!important}
+.sf70-favorite-picker[hidden],.sf63-overlay[hidden],#sf71Modal[hidden]{display:none!important}
+.sf63-hub-body{min-height:100px}
+.sf63-muted[role="status"]{color:#d5bddf;line-height:1.6}
+#sf63MusicResults .sf63-track button:focus-visible,#sf63FavoritesList .sf63-track button:focus-visible{
+  outline:2px solid #ffce9f;outline-offset:3px;
+}
+#sf71ClubDetail .sf72-live-label{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:750;color:#9ee8bc}
+#sf71ClubDetail .sf72-live-label::before{content:'';width:7px;height:7px;border-radius:50%;background:#3fd187;box-shadow:0 0 0 4px rgba(63,209,135,.12)}
+#sf71ClubDetail .sf72-live-note{font-size:11px;color:#b6a5c5;margin:0}
+#sf71ClubStatus.sf72-new-posts{color:#a5ebc3}
+#sfSocialHub [data-sf-tab]{min-height:38px}
+@media(prefers-reduced-motion:reduce){#screen-room .sf5-navigation>button,#screen-lobby .sf28-sidebar-nav>button{transition:none!important}}
+/* O seletor de gênero deve ficar ACIMA da janela Descobrir músicas (z-index:10050). */
+#sf70FavoritePicker{z-index:10110!important}
+
+.sf70-error{min-height:16px;margin:0;color:#ffbfc5;font-size:12px;line-height:1.45}
+#sf70FavoriteSave:disabled{opacity:.55;cursor:wait}

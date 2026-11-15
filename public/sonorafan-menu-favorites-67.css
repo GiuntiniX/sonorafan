@@ -26,22 +26,11 @@
 }
 #screen-room .sf5-navigation > button > span:last-child,
 #screen-lobby .sf28-sidebar-nav > button > span:last-child {font-size:12px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;}
-#screen-room .sf5-navigation > button.sf67-nav-extra,
-#screen-lobby .sf28-sidebar-nav > button.sf67-nav-extra { display:none!important; }
-#screen-room .sf5-navigation.sf67-more-open > button.sf67-nav-extra,
-#screen-lobby .sf28-sidebar-nav.sf67-more-open > button.sf67-nav-extra {display:flex!important;}
+/* Menu compacto: nenhuma função oculta, sem "Mais opções". */
 #screen-room .sf5-navigation > button.sf67-more-toggle,
-#screen-lobby .sf28-sidebar-nav > button.sf67-more-toggle {
-  display:flex!important;justify-content:flex-start!important;
-  border:1px dashed rgba(189,141,225,.26)!important;
-  background:rgba(117,58,155,.075)!important;color:#d8bae8!important;
-  min-height:36px!important;margin-top:6px!important;
-}
-#screen-room .sf5-navigation > button.sf67-more-toggle:hover,
-#screen-lobby .sf28-sidebar-nav > button.sf67-more-toggle:hover {background:rgba(157,77,199,.19)!important;color:white!important;border-color:rgba(255,168,230,.45)!important;}
-.sf67-more-symbol{width:24px;min-width:24px;text-align:center;font-size:20px;color:#ffbe85;line-height:1;}
-.sf67-chevron{margin-left:auto;transition:transform .2s;font-size:16px;}
-.sf67-more-open .sf67-chevron{transform:rotate(180deg);}
+#screen-lobby .sf28-sidebar-nav > button.sf67-more-toggle{display:none!important;}
+#screen-room .sf5-navigation > button.sf67-nav-extra,
+#screen-lobby .sf28-sidebar-nav > button.sf67-nav-extra{display:flex!important;}
 #screen-room .sf5-sidebar,#screen-lobby .sf28-sidebar {scrollbar-width:thin;scrollbar-color:rgba(173,106,212,.35) transparent;}
 @media(min-width:1025px){
  #screen-room .sf5-sidebar{padding:12px 9px!important;overflow-y:auto!important;}
