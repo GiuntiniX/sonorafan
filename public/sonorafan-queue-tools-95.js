@@ -58,13 +58,6 @@
       });
       mini.querySelector('button')?.before(btn);syncCompact();
     }
-    const toolbar=$('sf82QueueToolbar');
-    if(toolbar&&!$('sf95DiscoverShortcut')){
-      const btn=document.createElement('button');btn.id='sf95DiscoverShortcut';
-      btn.type='button';btn.textContent='✦ Descobrir';btn.title='Abrir sugestões musicais';
-      btn.addEventListener('click',()=>window.sf95OpenHub?.('discover'));
-      toolbar.append(btn);
-    }
   }
   function syncCompact(){
     $('screen-room')?.classList.toggle('sf95-compact-video',compact);
