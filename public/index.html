@@ -3551,9 +3551,15 @@ function openRoomCfg() {
     // v119: redimensiona também o player INTERNO do YouTube, não só o CSS.
     // setSize é um método de layout da IFrame API; não busca, pausa ou troca a faixa.
     let sf119LastAppliedPlayerSize = '';
+    let sf119SizedIframe = null;
     function sf119ResizeYoutube(width, height) {
       const stage = document.querySelector('#screen-room .player-frame');
       if (!stage || !player || typeof player.setSize !== 'function') return;
+      const activeIframe = player.getIframe?.() || document.getElementById('youtube-player');
+      if (sf119SizedIframe !== activeIframe) {
+        sf119SizedIframe = activeIframe;
+        sf119LastAppliedPlayerSize = '';
+      }
       const w = Math.round(Number(width) || Math.max(stage.clientWidth, stage.clientHeight * 16 / 9));
       const h = Math.round(Number(height) || w * 9 / 16);
       if (!Number.isFinite(w) || !Number.isFinite(h) || w < 100 || h < 55) return;
