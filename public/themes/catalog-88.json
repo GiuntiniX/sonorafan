@@ -1,0 +1,156 @@
+[
+  {
+    "id": "indie",
+    "name": "Indie / Festival",
+    "description": "Festival noturno, estrelas, guitarras e flores",
+    "primary": "#c256e7",
+    "secondary": "#fb8074",
+    "bg": "#170e27",
+    "text": "#f2d9ff",
+    "emoji": "🎪",
+    "art": "/themes/indie.svg"
+  },
+  {
+    "id": "metal",
+    "name": "Heavy Metal",
+    "description": "Caveiras, fogo, correntes e jaquetas de patches",
+    "primary": "#ed3a39",
+    "secondary": "#ff9035",
+    "bg": "#130b0c",
+    "text": "#ffe4d8",
+    "emoji": "🤘",
+    "art": "/themes/metal.svg"
+  },
+  {
+    "id": "emo",
+    "name": "Emo",
+    "description": "Preto e branco, corações partidos, dados e desenhos",
+    "primary": "#ef54a5",
+    "secondary": "#f3e6ec",
+    "bg": "#101014",
+    "text": "#f7f3f5",
+    "emoji": "🖤",
+    "art": "/themes/emo.svg"
+  },
+  {
+    "id": "mpb",
+    "name": "MPB",
+    "description": "Violão, flores tropicais e brasilidade",
+    "primary": "#efb34f",
+    "secondary": "#7aca88",
+    "bg": "#182d23",
+    "text": "#fff5d8",
+    "emoji": "🌺",
+    "art": "/themes/mpb.svg"
+  },
+  {
+    "id": "eletronica",
+    "name": "Eletrônica",
+    "description": "DJ, synthwave, lasers e neon",
+    "primary": "#15d7f8",
+    "secondary": "#b34dff",
+    "bg": "#0c1027",
+    "text": "#eafaff",
+    "emoji": "🪩",
+    "art": "/themes/eletronica.svg"
+  },
+  {
+    "id": "rock",
+    "name": "Rock Clássico",
+    "description": "Guitarras elétricas, raios e amplificadores",
+    "primary": "#f04b42",
+    "secondary": "#edbb57",
+    "bg": "#1f1213",
+    "text": "#fff1dd",
+    "emoji": "🎸",
+    "art": "/themes/rock.svg"
+  },
+  {
+    "id": "pop",
+    "name": "Pop",
+    "description": "Estrelas, brilho, formas vibrantes e glamour",
+    "primary": "#f264d7",
+    "secondary": "#ffb654",
+    "bg": "#271127",
+    "text": "#fff0fc",
+    "emoji": "✨",
+    "art": "/themes/pop.svg"
+  },
+  {
+    "id": "rap",
+    "name": "Rap / Hip-Hop",
+    "description": "Microfones, grafite, coroas e cidade",
+    "primary": "#f8a434",
+    "secondary": "#ec6667",
+    "bg": "#1c1721",
+    "text": "#ffedcc",
+    "emoji": "🎤",
+    "art": "/themes/rap.svg"
+  },
+  {
+    "id": "funk",
+    "name": "Funk",
+    "description": "Graves, caixas de som, luzes e festa",
+    "primary": "#ff4ba9",
+    "secondary": "#27d3d4",
+    "bg": "#1a1030",
+    "text": "#fff3fa",
+    "emoji": "🔊",
+    "art": "/themes/funk.svg"
+  },
+  {
+    "id": "pagode",
+    "name": "Pagode / Samba",
+    "description": "Pandeiro, roda de amigos e samba",
+    "primary": "#f5bb55",
+    "secondary": "#52ca9c",
+    "bg": "#122b27",
+    "text": "#fff4dc",
+    "emoji": "🥁",
+    "art": "/themes/pagode.svg"
+  },
+  {
+    "id": "sertanejo",
+    "name": "Sertanejo",
+    "description": "Chapéu, violão, estrada e pôr do sol",
+    "primary": "#ee9850",
+    "secondary": "#deb96c",
+    "bg": "#342019",
+    "text": "#fff1db",
+    "emoji": "🤠",
+    "art": "/themes/sertanejo.svg"
+  },
+  {
+    "id": "reggae",
+    "name": "Reggae",
+    "description": "Vinil, raízes, leão e pôr do sol",
+    "primary": "#e7c742",
+    "secondary": "#48b875",
+    "bg": "#14271f",
+    "text": "#ffefc8",
+    "emoji": "🌴",
+    "art": "/themes/reggae.svg"
+  },
+  {
+    "id": "jazz",
+    "name": "Jazz / Blues",
+    "description": "Saxofone, neon, clubes e noite azul",
+    "primary": "#d4ad72",
+    "secondary": "#7ba2cf",
+    "bg": "#131c2b",
+    "text": "#fff2d8",
+    "emoji": "🎷",
+    "art": "/themes/jazz.svg"
+  },
+  {
+    "id": "forro",
+    "name": "Forró",
+    "description": "Sanfona, bandeirinhas e festa junina",
+    "primary": "#ed8b4c",
+    "secondary": "#efca6a",
+    "bg": "#322019",
+    "text": "#fff1cb",
+    "emoji": "🪗",
+    "art": "/themes/forro.svg"
+  }
+]
