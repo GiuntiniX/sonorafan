@@ -325,6 +325,67 @@
 #screen-lobby .sf107-style:hover,#screen-lobby .sf107-style.selected{
   border-color:#ffb987;box-shadow:inset 0 0 0 1px #ffb98788
 }
+/* Fan Clubs 107.4 — browsable gallery and native create action, zero duplicated forms. */
+#screen-lobby .sf107-clubs-header{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  row-gap:9px;column-gap:12px
+}
+#screen-lobby .sf107-clubs-actions{
+  display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;
+  gap:7px;min-width:0
+}
+#screen-lobby .sf107-clubs-actions button{
+  border:1px solid transparent;border-radius:9px;min-height:34px;
+  padding:7px 10px;white-space:nowrap;
+  font-size:11px;font-weight:800;color:#efd1e7;background:rgba(93,43,83,.3)
+}
+#screen-lobby .sf107-clubs-actions button:hover{
+  border-color:rgba(243,181,213,.62);color:#fff
+}
+#screen-lobby .sf107-clubs-actions button.sf107-club-create{
+  background:linear-gradient(112deg,#e18a76,#d15396);
+  border:1px solid rgba(255,177,177,.42);
+  color:#24101d;font-size:11px;
+  box-shadow:0 4px 14px rgba(214,75,122,.16)
+}
+#screen-lobby .sf107-clubs-actions button.sf107-club-create:hover{
+  background:linear-gradient(112deg,#ffae79,#ef6a9c);
+  color:#20101a
+}
+#screen-lobby .sf107-clubs-actions button[hidden]{display:none!important}
+#screen-lobby .sf107-club-grid>.sf107-club-state{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:center;
+  gap:12px;flex-wrap:wrap;min-height:83px;padding:15px;
+  border:1px dashed rgba(194,116,164,.38);border-radius:12px;
+  background:rgba(58,24,52,.35);color:#e8cde1;
+  font-size:12px;line-height:1.45;text-align:center
+}
+#screen-lobby .sf107-club-state strong{color:#fff;font-size:13px}
+#screen-lobby .sf107-club-state span{color:#ceadc6}
+#screen-lobby .sf107-club-state button{
+  min-height:34px;padding:7px 12px;
+  border:1px solid #bd759f;border-radius:9px;background:#4d2a52;
+  color:#ffe9ef;font-size:11px;font-weight:800
+}
+#screen-lobby .sf107-club-empty{
+  justify-content:flex-start!important;text-align:left!important
+}
+#screen-lobby .sf107-club-empty .sf107-club-empty-icon{
+  display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;
+  border-radius:12px;background:#603454;color:#ffb18d;font-size:24px
+}
+#screen-lobby .sf107-club-empty>div{min-width:0;flex:1 1 200px}
+#screen-lobby .sf107-club-empty small{display:block;font-size:11px;color:#ceb3c9;margin-top:4px}
+#screen-lobby .sf107-club-empty button{background:#934771;color:#fff}
+#screen-lobby .sf107-club{min-width:0}
+#screen-lobby .sf107-club strong{font-size:12px!important}
+#screen-lobby .sf107-club small{font-size:10px!important}
+@media(max-width:700px){
+  #screen-lobby .sf107-clubs-header{align-items:flex-start}
+  #screen-lobby .sf107-clubs-actions{justify-content:flex-start;width:100%;gap:5px}
+  #screen-lobby .sf107-clubs-actions button{min-height:32px;padding:6px 9px;font-size:10px}
+  #screen-lobby .sf107-club-grid>.sf107-club-state{min-height:100px}
+}
 /* Fan club card visuals use real stored club covers where present. */
 #screen-lobby .sf107-club-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
 #screen-lobby .sf107-club{
