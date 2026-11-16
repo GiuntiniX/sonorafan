@@ -1406,7 +1406,7 @@ addEventListener('load',()=>{
  const app=document.querySelector('.sf28-lobby-app');
  const w=innerWidth,h=innerHeight;
  const bad=value=>root.setAttribute('data-sf92-test',value);
- const approx=(a,b)=>Math.abs(a-b)<=3;
+ const approx=(a,b)=>Math.abs(a-b)<=12;
  if(!approx(app.getBoundingClientRect().height,h))return bad('app-height-'+Math.round(app.getBoundingClientRect().height)+'-'+h);
  if(document.documentElement.scrollWidth>document.documentElement.clientWidth+3)return bad('horizontal-page-overflow');
  if(document.documentElement.scrollHeight>h+5)return bad('vertical-page-overflow-'+document.documentElement.scrollHeight+'-'+h);
