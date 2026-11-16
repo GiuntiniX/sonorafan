@@ -1438,7 +1438,7 @@
   <link rel="stylesheet" href="/sonorafan-community-110.css?v=110.1">
   <link rel="stylesheet" href="/sonorafan-profile-108.css?v=108.1">
   <link rel="stylesheet" href="/sonorafan-profile-library-112.css?v=112.2">
-<link rel="stylesheet" href="/sonorafan-room-redesign-113.css?v=116">
+<link rel="stylesheet" href="/sonorafan-room-redesign-113.css?v=117">
 </head>
 <body>
   <!-- ===== LANDING PAGE ===== -->
@@ -2187,20 +2187,31 @@
 
               </div>
             </div>
-            <div class="progress-section">
-              <div class="progress-bar" role="progressbar" aria-label="Progresso da música"><div class="progress-fill" id="progressFill"></div></div>
-              <div class="progress-time"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
-              <div class="volume-control">
-                <span class="vol-icon" id="volIcon">🔊</span>
-                <input type="range" aria-label="Volume" id="volumeSlider" min="0" max="100" value="80" oninput="setVolume(this.value)">
-                <span id="volumeValue" style="font-size:11px;color:var(--text-muted);min-width:28px;text-align:right;">80%</span>
+            <div class="progress-section sf117-player-controls" aria-label="Progresso e volume da música">
+              <div class="sf117-progress-wrap">
+                <div class="progress-bar sf117-progress-track" id="sf117ProgressTrack" role="progressbar" aria-label="Progresso da música" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Aguardando música">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-time sf117-progress-times">
+                  <span id="currentTime">0:00</span>
+                  <span class="sf117-remaining" id="sf117Remaining" aria-live="off">Aguardando música</span>
+                  <span id="totalTime">0:00</span>
+                </div>
               </div>
-              <div class="sf30-player-actions" aria-label="Ações da música atual">
-                <button onclick="favoriteCurrent()" id="favCurrentBtn" type="button" title="Adicionar a favoritos">♡ <span>Favoritar</span></button>
-                <button onclick="voteSkip()" id="skipBtn" type="button" title="Votação para pular a música que está tocando" aria-label="Votar para pular a música atual">⏭ <span>Pular faixa</span></button>
-                <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;" type="button">🗑 <span>Remover</span></button>
+              <div class="sf117-control-row">
+                <div class="volume-control" aria-label="Volume da sua reprodução">
+                  <button class="sf117-volume-toggle" id="sf117VolumeToggle" type="button" title="Silenciar áudio" aria-label="Silenciar áudio" aria-pressed="false">
+                    <span class="vol-icon" id="volIcon" aria-hidden="true">🔊</span>
+                  </button>
+                  <input type="range" aria-label="Volume" id="volumeSlider" min="0" max="100" value="80" oninput="setVolume(this.value)">
+                  <output id="volumeValue" for="volumeSlider" aria-label="Volume atual">80%</output>
+                </div>
+                <div class="sf30-player-actions" aria-label="Ações da música atual">
+                  <button onclick="favoriteCurrent()" id="favCurrentBtn" type="button" title="Adicionar a favoritos">♡ <span>Favoritar</span></button>
+                  <button onclick="voteSkip()" id="skipBtn" type="button" title="Votação para pular a música que está tocando" aria-label="Votar para pular a música atual">⏭ <span>Pular faixa</span></button>
+                  <button onclick="adminRemoveCurrentSong()" id="adminRemoveBtn" style="display:none;" type="button">🗑 <span>Remover</span></button>
+                </div>
               </div>
-
             </div>
           </div>
           <div class="next-track" id="nextTrack" style="display:none;">
@@ -4566,6 +4577,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-community-110.js?v=110.1"></script>
   <script defer src="/sonorafan-profile-108.js?v=108.1"></script>
   <script defer src="/sonorafan-profile-library-112.js?v=112.2"></script>
-<script defer src="/sonorafan-room-redesign-113.js?v=116"></script>
+<script defer src="/sonorafan-room-redesign-113.js?v=117"></script>
 </body>
 </html>
