@@ -41,7 +41,7 @@ module.exports = function installExperience95({ app, db, rooms, users, sessionEm
         id: YOUTUBE_ID.test(v.id || '') ? v.id : '',
         title: clean(v.title, 100), artist: clean(v.artist, 80), at: Number(v.at) || 0
       })),
-      genres: (users.get(email)?.musicGenres || []).filter(g => typeof g === 'string').slice(0,8),
+      genres: (Array.isArray(users.get(email)?.musicGenres) ? users.get(email).musicGenres : []).filter(g => typeof g === 'string').slice(0,8),
       pinnedRooms: pinned.map(slug => rooms.get(slug)).filter(r => visibleRoom(r,email))
         .map(r => ({ slug:r.slug, name:clean(r.name, 55), listenerCount:r.listenerCount, isPlaying:!!r.isPlaying, isPrivate:!!r.isPrivate }))
     };
