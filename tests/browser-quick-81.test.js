@@ -107,3 +107,22 @@ test('room themes work on creation, shared room updates and personal overrides (
  }
  throw lastError;
 });
+
+test('Convidar amigos matches menu sizing, order and click action (Chromium)',{
+ skip:chrome||process.env.CI==='true'?false:'Chrome/Chromium not installed'
+},async()=>{
+ assert.ok(chrome,'Chrome/Chromium required in CI');
+ let lastError=null;
+ for(let attempt=0;attempt<2;attempt++){
+  try{
+   const output=await runChrome('menu-align-89.html');
+   const match=output.match(/data-sf89-test="([^"]+)"/);
+   assert.equal(match?.[1],'ok',output.slice(-1800));
+   return;
+  }catch(error){
+   lastError=error;
+   if(!/Chrome test timeout|Chrome exit/.test(String(error?.message)))break;
+  }
+ }
+ throw lastError;
+});
