@@ -306,6 +306,13 @@
             <div id="sf107Notices"></div></section>
         </aside>
       </div>
+      <nav class="sf107-mobile-nav" aria-label="Navegação rápida do Lobby no celular">
+        <button type="button" data-sf107="top">⌂ <span>Início</span></button>
+        <button type="button" data-sf107="scroll">♫ <span>Salas</span></button>
+        <button type="button" data-sf107="create" class="sf107-mobile-create">＋ <span>Criar</span></button>
+        <button type="button" data-sf107="community">♧ <span>Comunidade</span></button>
+        <button type="button" data-sf107="profile">◉ <span>Perfil</span></button>
+      </nav>
       <div class="sf107-invite" id="sf107Invite" hidden>
         <form id="sf107InviteForm"><label for="sf107InviteCode">Código ou link de convite</label>
           <input type="text" id="sf107InviteCode" placeholder="Cole o código da sala" required autocomplete="off">
