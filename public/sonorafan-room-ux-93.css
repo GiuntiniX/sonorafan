@@ -1,0 +1,202 @@
+/* SonoraFan 93 — refinamento da sala, fila, busca e mobile. */
+#screen-room .sf53-chat-heading {
+  display:flex!important;align-items:center!important;gap:8px!important;
+  flex-wrap:nowrap!important;min-width:0!important;
+}
+#screen-room .sf53-chat-heading .sf53-inbox-shortcut{
+  flex:0 0 auto!important;margin-left:auto!important;
+  white-space:nowrap!important;
+}
+/* Fila: leitura rápida, próxima música destacada e autoria sempre legível. */
+#screen-room .sf34-queue #queueList{scrollbar-width:thin;overscroll-behavior:contain}
+#screen-room .sf34-queue #queueList .queue-item{
+  padding:7px 7px!important;gap:7px!important;
+  min-height:53px!important;margin:2px 4px!important;
+  box-sizing:border-box!important;
+}
+#screen-room .sf34-queue #queueList .queue-item .thumb{
+  width:39px!important;height:39px!important;flex:0 0 39px!important;
+  overflow:hidden!important;
+}
+#screen-room .sf34-queue #queueList .queue-item .thumb img{
+  width:100%!important;height:100%!important;object-fit:cover!important;
+}
+#screen-room .sf34-queue #queueList .queue-item .info{min-width:0!important;flex:1 1 0!important}
+#screen-room .sf34-queue #queueList .queue-item .title{
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  overflow:hidden;overflow-wrap:anywhere;line-height:1.28!important;
+}
+#screen-room .sf34-queue #queueList .queue-item .artist{
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#screen-room .sf34-queue #queueList .queue-item .sf39-added-by{
+  display:block!important;margin-top:2px!important;
+  color:#e0add8!important;font-size:10px!important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#screen-room .sf34-queue #queueList .queue-item.sf39-next{
+  background:linear-gradient(98deg,rgba(159,76,188,.26),rgba(34,21,47,.9))!important;
+  border-color:rgba(237,176,232,.6)!important;
+  box-shadow:inset 3px 0 #ef9dcc!important;
+}
+#screen-room .sf34-queue #queueList .queue-item.sf39-next .sf39-phase{
+  color:#ffc1df!important;font-weight:850!important;letter-spacing:.055em;
+}
+#screen-room .sf34-queue #queueList .queue-item .queue-votes{
+  flex:0 0 auto!important;
+}
+#screen-room .sf34-queue #queueList .queue-item button:focus-visible{
+  outline:2px solid #f9badb;outline-offset:2px;
+}
+/* Busca rápida: popup preto, resultado selecionável e confirmação já existente no v81. */
+.sf78-popover .sf78-extended{display:none!important}
+.sf78-popover .sf78-topbar{padding:9px 10px!important}
+.sf78-popover .sf78-items{scrollbar-width:thin}
+.sf78-popover .sf78-choose{
+  color:#fff!important;border-color:#815489!important;
+  background:#613373!important;
+}
+.sf78-popover .sf81-submit{background:#8950aa!important}
+.sf78-popover .sf81-submit:disabled{opacity:.45!important}
+.sf78-popover .sf78-bottom{font-size:10px!important;padding:6px 9px!important}
+/* Ouvintes: expansível e acionável sem grandes blocos no celular. */
+#screen-room .sf93-listener-toggle{
+  margin-left:auto;padding:5px 8px;min-height:30px;
+  font:750 10px/1.1 'Inter',system-ui,sans-serif;
+  border-radius:9px;border:1px solid rgba(220,164,240,.35);
+  color:#f8d8ff;background:rgba(133,70,154,.24);cursor:pointer;
+}
+#screen-room .sf93-listener-toggle[hidden]{display:none!important}
+#screen-room .sf93-presence-more{
+  flex:none;white-space:nowrap;min-height:28px;padding:5px 8px;
+  border-radius:999px;border:1px solid rgba(221,167,244,.36);
+  background:#3d2450;color:#fff;font-size:11px;font-weight:750;
+}
+#screen-room .sf93-presence-more:focus-visible,
+#screen-room .sf93-listener-toggle:focus-visible{
+  outline:2px solid #ffc4e5;outline-offset:2px;
+}
+@media(max-width:768px){
+  /* Barra de navegação sempre ao alcance; mini-player acima da barra. */
+  #screen-room{--sf93-tabs-height:calc(64px + env(safe-area-inset-bottom,0px))}
+  #screen-room .app{padding-bottom:var(--sf93-tabs-height)!important}
+  #screen-room #mTabs{
+    position:fixed!important;left:0!important;right:0!important;bottom:0!important;
+    top:auto!important;width:100%!important;max-width:100%!important;
+    z-index:90!important;box-sizing:border-box!important;
+    min-height:var(--sf93-tabs-height)!important;
+    padding:5px 5px calc(5px + env(safe-area-inset-bottom,0px))!important;
+    background:rgba(22,13,34,.97)!important;
+    box-shadow:0 -8px 24px rgba(0,0,0,.42)!important;
+  }
+  #screen-room #mTabs button{min-width:0!important;min-height:44px!important;touch-action:manipulation}
+  #screen-room .premium-mini-player{
+    position:fixed!important;left:0!important;right:0!important;
+    bottom:var(--sf93-tabs-height)!important;
+    z-index:89!important;width:100%!important;box-sizing:border-box!important;
+  }
+  #screen-room .room-layout{
+    padding-bottom:calc(74px + var(--sf93-tabs-height))!important;
+    scroll-padding-bottom:calc(74px + var(--sf93-tabs-height));
+  }
+  body[data-tab="chat"] #screen-room .premium-mini-player{display:none!important}
+  body[data-tab="chat"] #screen-room .room-layout{
+    padding-bottom:calc(14px + var(--sf93-tabs-height))!important;
+    scroll-padding-bottom:calc(14px + var(--sf93-tabs-height));
+  }
+  /* Input permanece na base do painel de conversa, com histórico rolável. */
+  body[data-tab="chat"] #screen-room .sf34-chat.chat-column{
+    display:flex!important;flex-direction:column!important;
+    height:calc(100dvh - 180px)!important;min-height:240px!important;
+    max-height:none!important;overflow:hidden!important;
+  }
+  #screen-room .sf34-chat .chat-panel{
+    display:flex!important;flex-direction:column!important;flex:1 1 auto!important;
+    min-height:0!important;overflow:hidden!important;
+  }
+  #screen-room .sf34-chat .chat-messages{
+    flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;
+  }
+  #screen-room .sf34-chat .chat-input-bar{
+    position:sticky!important;bottom:0!important;z-index:5!important;
+    flex:0 0 auto!important;min-height:54px!important;
+    padding:7px 8px calc(7px + env(safe-area-inset-bottom,0px))!important;
+    background:#21152f!important;box-shadow:0 -5px 16px #09050f70;
+  }
+  #screen-room .sf34-chat .chat-input-bar input{
+    min-width:0!important;flex:1 1 0!important;font-size:16px!important;
+  }
+  #screen-room .sf34-chat .premium-chat-heading{
+    flex-wrap:nowrap!important;gap:6px!important;
+    min-height:41px!important;padding:7px 9px!important;
+  }
+  #screen-room .sf34-chat .premium-chat-heading .sf53-inbox-shortcut{
+    padding:7px 9px!important;min-height:30px!important;font-size:10px!important;
+  }
+  #screen-room .sf34-chat .premium-presence{
+    flex-wrap:nowrap!important;min-height:0!important;max-height:38px!important;
+    padding:4px 7px!important;gap:4px!important;overflow:hidden!important;
+  }
+  #screen-room .premium-presence.sf93-presence-collapsed>:nth-child(n+4):not(.sf93-presence-more){
+    display:none!important;
+  }
+  #screen-room .premium-presence.sf93-presence-expanded{
+    max-height:114px!important;overflow-y:auto!important;flex-wrap:wrap!important;
+  }
+  #screen-room .sf5-listening-card{
+    min-height:0!important;padding:8px 10px!important;margin:7px 0!important;
+  }
+  #screen-room .sf5-listening-card .sf5-card-heading{
+    display:flex!important;align-items:center!important;flex-wrap:wrap;
+    gap:6px!important;min-height:30px!important;margin:0!important;
+  }
+  #screen-room .sf5-listening-card #sf5ListenersBody{
+    padding-top:5px!important;max-height:116px!important;overflow-y:auto!important;
+    gap:4px!important;
+  }
+  #screen-room #sf5ListenersBody.sf93-listeners-collapsed>:nth-child(n+4){
+    display:none!important;
+  }
+  #screen-room #sf5ListenersBody.sf93-listeners-collapsed{
+    max-height:68px!important;overflow:hidden!important;
+  }
+  #screen-room #sf5ListenersBody.sf93-listeners-expanded{
+    max-height:min(34dvh,260px)!important;overflow-y:auto!important;
+  }
+  #screen-room #sf5ListenersBody .sf43-listener-item{
+    flex:1 1 auto!important;min-height:26px!important;max-width:100%!important;
+    padding:4px 7px!important;
+  }
+  /* Fila mobile: quantidade útil sem cards altos ou texto cortado. */
+  #screen-room .sf34-queue #queueList .queue-item{
+    padding:6px!important;margin:2px 3px!important;min-height:52px!important;
+  }
+  #screen-room .sf34-queue #queueList .queue-item .thumb{
+    width:36px!important;height:36px!important;flex-basis:36px!important;
+  }
+  #screen-room .sf34-queue .queue-list{min-height:0!important;overflow-y:auto!important}
+  /* Durante a digitação, reservar o espaço do teclado ao chat. */
+  body.sf93-keyboard-open #screen-room #mTabs,
+  body.sf93-keyboard-open #screen-room .premium-mini-player{display:none!important}
+  body.sf93-keyboard-open #screen-room .app{padding-bottom:0!important}
+  body.sf93-keyboard-open #screen-room .room-layout{
+    padding-bottom:0!important;scroll-padding-bottom:8px!important;
+  }
+  body.sf93-keyboard-open[data-tab="chat"] #screen-room .sf34-chat.chat-column{
+    height:max(205px,calc(var(--sf93-visible-height,100dvh) - 115px))!important;
+    min-height:205px!important;
+  }
+  body.sf93-keyboard-open #screen-room .chat-input-bar{
+    padding-bottom:8px!important;
+  }
+  .sf78-popover{max-width:calc(100vw - 20px)!important}
+}
+@media(max-width:365px){
+  #screen-room #mTabs{gap:2px!important}
+  #screen-room #mTabs button{font-size:9px!important;padding:6px 1px!important}
+  #screen-room .sf34-chat .premium-chat-heading{font-size:11px!important}
+  #screen-room .sf34-chat .premium-chat-heading .sf53-inbox-shortcut{padding:5px 6px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #screen-room .sf34-queue #queueList .queue-item{transition:none!important}
+}
