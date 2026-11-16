@@ -190,14 +190,18 @@
     box.scrollTo({top:Math.max(0,box.scrollTop+target.getBoundingClientRect().top-box.getBoundingClientRect().top-15),behavior:'smooth'});
   }
   function community(tab){
-    if(typeof window.sf5OpenCommunity==='function'){
-      window.sf5OpenCommunity();
-      if(tab)setTimeout(()=>document.querySelector('#sfSocialHub [data-sf-tab="'+tab+'"]')?.click(),80);
-    }else{
-      const drawer=document.querySelector('#screen-lobby .sf32-community-drawer');
-      if(drawer){drawer.classList.add('sf107-expose');drawer.open=true;
-        if(tab)drawer.querySelector('[data-sf-tab="'+tab+'"]')?.click();drawer.scrollIntoView({block:'start'});}
+    // Keep the original friends/events/Fan Club hub accessible even though its
+    // old lobby presentation is hidden. Never duplicate the feature content.
+    const drawer=document.querySelector('#screen-lobby .sf32-community-drawer');
+    if(drawer){
+      drawer.classList.add('sf107-expose');
+      drawer.open=true;
+      const select=()=>drawer.querySelector('[data-sf-tab="'+tab+'"]')?.click();
+      if(tab){select();window.sfSocialSwitchTab?.(tab);}
+      drawer.scrollIntoView({behavior:'smooth',block:'start'});
     }
+    // Open associated community surface when the legacy helper exists.
+    if(typeof window.sf5OpenCommunity==='function')window.sf5OpenCommunity();
   }
   function action(name){
     switch(name){
