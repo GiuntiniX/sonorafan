@@ -365,3 +365,35 @@
   padding-bottom:8px!important;
  }
 }
+
+/* SonoraFan 114.1 — compatibilidade com estado legado de menu lateral recolhido.
+   O seletor body.sf64-room-sidebar-collapsed #screen-room .app do v65 usa
+   specificity maior (inclui body), deixando a primeira faixa do grid com 0px.
+   A nova sala deve usar sempre uma única coluna de largura integral. */
+body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app,
+body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows:68px minmax(0,1fr)!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+}
+body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > .header,
+body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > .room-layout{
+ grid-column:1/-1!important;
+ min-width:0!important;
+ width:100%!important;
+}
+#screen-room.sf113-room #sf64RoomSidebarShow,
+body.sf64-room-sidebar-collapsed #screen-room.sf113-room #sf64RoomSidebarShow{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+@media(max-width:768px){
+ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app,
+ body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app{
+  grid-template-rows:56px minmax(0,1fr) auto!important;
+ }
+}
