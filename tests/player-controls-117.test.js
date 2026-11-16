@@ -19,8 +19,8 @@ test('volume, time remaining and progress remain wired to the existing player ID
   assert.match(html,/id="sf117VolumeToggle"[^>]*aria-pressed="false"/);
   assert.match(html,/id="volumeSlider"[^>]*oninput="setVolume\(this.value\)"/);
   assert.match(html,/id="sf117ProgressTrack"[^>]*role="progressbar"/);
-  assert.match(html,/sonorafan-room-redesign-113\.css\?v=117/);
-  assert.match(html,/sonorafan-room-redesign-113\.js\?v=117/);
+  assert.match(html,/sonorafan-room-redesign-113\.css\?v=118/);
+  assert.match(html,/sonorafan-room-redesign-113\.js\?v=118/);
 });
 
 test('timeline visible in room themes, including end-of-track emphasis',()=>{
@@ -36,7 +36,7 @@ test('timeline visible in room themes, including end-of-track emphasis',()=>{
 
 test('video zoom uses same YouTube embed and preserves original streaming controls',()=>{
   assert.match(patch,/data-sf113-view="video"\] \.player-frame iframe/);
-  assert.match(patch,/scale\(var\(--sf117-video-zoom,1\.06\)\)/);
+  assert.match(css,/--sf118-video-width/);\n  assert.match(css,/--sf118-video-height/);\n  assert.match(js,/const fullWidth = Math.ceil\(Math.max\(width, height \* videoRatio\)\)/);
   assert.match(js,/new ResizeObserver\(fitVideoStage\)/);
   assert.match(js,/window\.setVolume\(next\)/);
   assert.doesNotMatch(js,/\b(?:pauseVideo|playVideo|loadVideoById|socket\.emit)\s*\(/);
