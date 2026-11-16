@@ -1645,8 +1645,12 @@ io.on('connection', (socket) => {
       if (!room || !room.isPlaying) return;
       const activeId = room.queue[room.currentIndex]?.id;
       const reportedId = payload && typeof payload.videoId === 'string' ? payload.videoId : null;
-      // Eventos atrasados de uma música anterior não podem avançar a atual.
-      if (reportedId && reportedId !== activeId) return;
+      // Não aceite pedidos sem identificação da faixa nem eventos de músicas anteriores.
+      if (!reportedId || reportedId !== activeId) return;
+      // O fim em UM player com erro não deve pular a faixa para todos os outros ouvintes.
+      // O timer do servidor ainda avança naturalmente ao alcançar a duração.
+      const duration = Number(room.queue[room.currentIndex]?.duration) || 180;
+      if (room.listenerCount > 1 && !socket.isAdmin && getPosition(room) < duration - 7) return;
       advanceQueue(currentRoom);
     } catch (e) { console.error('Erro no videoEnded:', e.message); }
   });
