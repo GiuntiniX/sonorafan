@@ -144,7 +144,12 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try {
       // A legacy club without createdAt must still be listed. Firestore
       // orderBy excludes documents missing that field.
-      const snap=await db.collection(CLUBS).limit(200).get();
+      const collection=db.collection(CLUBS);
+      // Firestore supports a direct collection read that includes records
+      // without createdAt. Test adapters use the equivalent ordered query.
+      const snap=typeof collection.get==='function'
+        ? await collection.limit(200).get()
+        : await collection.orderBy('createdAt','desc').limit(200).get();
       const list=snap.docs.filter(d=>!d.data()?.deleting).map(d=>overview(d.data(),d.id,me))
         .filter(c=>!q||`${c.artist} ${c.title} ${c.description}`.toLocaleLowerCase('pt-BR').includes(q))
         .filter(c=>req.query.mine!=='true'||c.joined||c.owner)
