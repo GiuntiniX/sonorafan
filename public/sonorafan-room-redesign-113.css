@@ -286,3 +286,82 @@
   display:none!important;
  }
 }
+
+/* SonoraFan 114 — correção do chat: rolagem única e composer ancorado. */
+#screen-room.sf113-room .chat-column.sf34-chat{
+ box-sizing:border-box!important;min-width:0!important;min-height:0!important;
+ isolation:isolate;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .premium-chat-heading{
+ display:flex!important;align-items:center!important;gap:8px!important;
+ flex-wrap:nowrap!important;min-width:0!important;flex:0 0 auto!important;
+ overflow:hidden!important;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .sf53-inbox-shortcut{
+ flex:0 0 auto!important;margin-left:auto!important;
+ max-width:55%!important;white-space:nowrap!important;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .chat-panel{
+ display:flex!important;flex-direction:column!important;
+ flex:1 1 0!important;min-width:0!important;min-height:0!important;
+ max-height:100%!important;overflow:hidden!important;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .chat-messages{
+ display:flex!important;flex-direction:column!important;
+ flex:1 1 0!important;height:auto!important;
+ min-width:0!important;min-height:0!important;max-height:none!important;
+ overflow:hidden!important;position:relative!important;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .chat-messages-inner{
+ flex:1 1 auto!important;width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;max-height:100%!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ overscroll-behavior:contain;overflow-wrap:anywhere;
+ scrollbar-width:thin;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .chat-input-bar{
+ position:relative!important;bottom:auto!important;
+ display:flex!important;align-items:center!important;gap:7px!important;
+ flex:0 0 auto!important;min-width:0!important;max-width:100%!important;
+ padding:9px!important;margin:0!important;box-sizing:border-box!important;
+ background:var(--sf113-surface)!important;
+ border-top:1px solid var(--sf113-stroke)!important;
+ z-index:5!important;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .chat-input-bar input{
+ flex:1 1 0!important;width:0!important;min-width:0!important;max-width:100%!important;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .chat-input-bar > button{
+ flex:0 0 auto!important;max-width:none!important;
+}
+#screen-room.sf113-room .chat-column.sf34-chat .chat-messages-inner .msg,
+#screen-room.sf113-room .chat-column.sf34-chat .chat-messages-inner .msg *{
+ overflow-wrap:anywhere;
+}
+@media(max-width:768px){
+ /* Na v113 o overflow:visible/height:auto anulava o layout do chat mobile.
+    A altura agora acompanha a área visível e preserva as tabs fixas. */
+ body[data-tab="chat"] #screen-room.sf113-room .chat-column.sf34-chat{
+  display:flex!important;flex-direction:column!important;
+  box-sizing:border-box!important;min-height:235px!important;
+  height:max(235px,calc(100dvh - 56px - var(--sf93-tabs-height,64px) - 20px))!important;
+  max-height:max(235px,calc(100dvh - 56px - var(--sf93-tabs-height,64px) - 20px))!important;
+  overflow:hidden!important;
+  margin:0!important;padding:0!important;
+ }
+ body[data-tab="chat"] #screen-room.sf113-room .chat-column.sf34-chat .chat-panel{
+  flex:1 1 0!important;min-height:0!important;overflow:hidden!important;
+ }
+ body[data-tab="chat"] #screen-room.sf113-room .chat-column.sf34-chat .chat-input-bar{
+  position:relative!important;bottom:auto!important;min-height:54px!important;
+  padding:8px!important;z-index:5!important;
+ }
+ body.sf93-keyboard-open[data-tab="chat"] #screen-room.sf113-room .chat-column.sf34-chat{
+  height:max(205px,calc(var(--sf93-visible-height,100dvh) - 115px))!important;
+  max-height:max(205px,calc(var(--sf93-visible-height,100dvh) - 115px))!important;
+  min-height:205px!important;
+ }
+ body.sf93-keyboard-open[data-tab="chat"] #screen-room.sf113-room .chat-column.sf34-chat .chat-input-bar{
+  padding-bottom:8px!important;
+ }
+}
