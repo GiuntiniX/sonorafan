@@ -55,7 +55,7 @@
 #screen-room[data-room-theme] .sf5-section-title,
 #screen-room[data-room-theme] .queue-header,
 #screen-room[data-room-theme] .premium-chat-heading{
- background:linear-gradient(90deg,color-mix(in srgb,var(--sf88-panel) 92%,black),color-mix(in srgb,var(--sf88-panel) 62%,transparent)),var(--sf88-art) center/cover no-repeat!important;
+ background:linear-gradient(90deg,color-mix(in srgb,var(--sf88-panel) 76%,black),color-mix(in srgb,var(--sf88-panel) 40%,transparent)),var(--sf88-art) center/cover no-repeat!important;
  border-bottom-color:var(--sf88-primary)!important
 }
 #screen-room[data-room-theme] .sf34-chat{
@@ -63,7 +63,7 @@
  border-color:color-mix(in srgb,var(--sf88-primary) 45%,#191221)!important;
 }
 #screen-room[data-room-theme] .sf34-chat .chat-messages{
- background-image:linear-gradient(180deg,color-mix(in srgb,var(--sf88-panel) 88%,transparent),color-mix(in srgb,var(--sf88-panel) 80%,transparent)),var(--sf88-art)!important;
+ background-image:linear-gradient(180deg,color-mix(in srgb,var(--sf88-panel) 75%,transparent),color-mix(in srgb,var(--sf88-panel) 68%,transparent)),var(--sf88-art)!important;
  background-size:cover!important;background-position:center center!important;
 }
 #screen-room[data-room-theme] .chat-input-bar,

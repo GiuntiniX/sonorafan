@@ -208,7 +208,7 @@
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
    .then(items=>{
      if(!Array.isArray(items)||items.length===0)return;
-     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&(t.id==='geral' ? t.art==='/art-44/vinyl-room.webp' : t.art==='/themes/'+t.id+'.svg'));
+     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&(t.id==='geral' ? t.art==='/art-44/vinyl-room.webp' : t.art==='/themes/illustrations/'+t.id+'.webp'));
      if(!valid.length)return;
      themes=valid;byId=new Map(themes.map(x=>[x.id,x]));
      createChoice=safe(createChoice);editChoice=safe(editChoice);

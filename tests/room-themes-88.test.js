@@ -14,14 +14,14 @@ test('original Geral plus 14 illustrated room themes have safe asset paths',()=>
    assert.ok(!ids.has(t.id),'Duplicate theme '+t.id);
    ids.add(t.id);
    for(const color of ['primary','secondary','bg','text'])assert.match(t[color],/^#[a-f0-9]{6}$/i);
-   assert.equal(t.art,t.id==='geral'?'/art-44/vinyl-room.webp':'/themes/'+t.id+'.svg');
+   assert.equal(t.art,t.id==='geral'?'/art-44/vinyl-room.webp':'/themes/illustrations/'+t.id+'.webp');
    const file='public'+t.art;
    assert.ok(fs.existsSync(path.join(root,file)),file);
    if(t.id!=='geral'){
-     const art=content(file);
-     assert.match(art,/<svg /);
-     assert.match(art,/viewBox="0 0 1200 600"/);
-     assert.ok(art.length>1100, 'SVG missing artwork '+t.id);
+     const picture=fs.readFileSync(path.join(root,file));
+     assert.equal(picture.subarray(0,4).toString('ascii'),'RIFF','Invalid WEBP header for '+t.id);
+     assert.equal(picture.subarray(8,12).toString('ascii'),'WEBP','Invalid WEBP asset for '+t.id);
+     assert.ok(picture.length>15000,'Artwork appears incomplete for '+t.id);
    }
  }
  for(const id of ['metal','emo','mpb','eletronica','indie','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro'])assert.ok(ids.has(id));
@@ -67,4 +67,14 @@ test('Geral returns exact original styling without visual overrides',()=>{
  const srv=content('server.js');
  assert.match(srv,/normalizeRoomTheme88 = id => ROOM_THEME_IDS_88\.has\(id\) \? id : 'geral'/);
  assert.match(srv,/roomTheme: 'geral'/);
+});
+
+test('original genre mockups are used as illustrated WebP covers instead of simplified SVGs',()=>{
+ const app=content('public/sonorafan-room-themes-88.js');
+ assert.match(app,/t\.art==='\/themes\/illustrations\/'\+t\.id\+'\.webp'/);
+ for(const id of ['metal','emo','mpb','eletronica']) {
+   const t=catalog.find(x=>x.id===id);
+   assert.ok(t.art.endsWith('.webp'),id);
+   assert.ok(fs.statSync(path.join(root,'public'+t.art)).size>70000,id+' should keep high detail');
+ }
 });

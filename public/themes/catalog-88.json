@@ -19,7 +19,7 @@
     "bg": "#170e27",
     "text": "#f2d9ff",
     "emoji": "🎪",
-    "art": "/themes/indie.svg"
+    "art": "/themes/illustrations/indie.webp"
   },
   {
     "id": "metal",
@@ -30,7 +30,7 @@
     "bg": "#130b0c",
     "text": "#ffe4d8",
     "emoji": "🤘",
-    "art": "/themes/metal.svg"
+    "art": "/themes/illustrations/metal.webp"
   },
   {
     "id": "emo",
@@ -41,7 +41,7 @@
     "bg": "#101014",
     "text": "#f7f3f5",
     "emoji": "🖤",
-    "art": "/themes/emo.svg"
+    "art": "/themes/illustrations/emo.webp"
   },
   {
     "id": "mpb",
@@ -52,7 +52,7 @@
     "bg": "#182d23",
     "text": "#fff5d8",
     "emoji": "🌺",
-    "art": "/themes/mpb.svg"
+    "art": "/themes/illustrations/mpb.webp"
   },
   {
     "id": "eletronica",
@@ -63,7 +63,7 @@
     "bg": "#0c1027",
     "text": "#eafaff",
     "emoji": "🪩",
-    "art": "/themes/eletronica.svg"
+    "art": "/themes/illustrations/eletronica.webp"
   },
   {
     "id": "rock",
@@ -74,7 +74,7 @@
     "bg": "#1f1213",
     "text": "#fff1dd",
     "emoji": "🎸",
-    "art": "/themes/rock.svg"
+    "art": "/themes/illustrations/rock.webp"
   },
   {
     "id": "pop",
@@ -85,7 +85,7 @@
     "bg": "#271127",
     "text": "#fff0fc",
     "emoji": "✨",
-    "art": "/themes/pop.svg"
+    "art": "/themes/illustrations/pop.webp"
   },
   {
     "id": "rap",
@@ -96,7 +96,7 @@
     "bg": "#1c1721",
     "text": "#ffedcc",
     "emoji": "🎤",
-    "art": "/themes/rap.svg"
+    "art": "/themes/illustrations/rap.webp"
   },
   {
     "id": "funk",
@@ -107,7 +107,7 @@
     "bg": "#1a1030",
     "text": "#fff3fa",
     "emoji": "🔊",
-    "art": "/themes/funk.svg"
+    "art": "/themes/illustrations/funk.webp"
   },
   {
     "id": "pagode",
@@ -118,7 +118,7 @@
     "bg": "#122b27",
     "text": "#fff4dc",
     "emoji": "🥁",
-    "art": "/themes/pagode.svg"
+    "art": "/themes/illustrations/pagode.webp"
   },
   {
     "id": "sertanejo",
@@ -129,7 +129,7 @@
     "bg": "#342019",
     "text": "#fff1db",
     "emoji": "🤠",
-    "art": "/themes/sertanejo.svg"
+    "art": "/themes/illustrations/sertanejo.webp"
   },
   {
     "id": "reggae",
@@ -140,7 +140,7 @@
     "bg": "#14271f",
     "text": "#ffefc8",
     "emoji": "🌴",
-    "art": "/themes/reggae.svg"
+    "art": "/themes/illustrations/reggae.webp"
   },
   {
     "id": "jazz",
@@ -151,7 +151,7 @@
     "bg": "#131c2b",
     "text": "#fff2d8",
     "emoji": "🎷",
-    "art": "/themes/jazz.svg"
+    "art": "/themes/illustrations/jazz.webp"
   },
   {
     "id": "forro",
@@ -162,6 +162,6 @@
     "bg": "#322019",
     "text": "#fff1cb",
     "emoji": "🪗",
-    "art": "/themes/forro.svg"
+    "art": "/themes/illustrations/forro.webp"
   }
 ]
