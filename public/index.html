@@ -2170,7 +2170,7 @@
 
         <div class="sf5-bottom-row">
         <div class="chat-column sf34-chat">
-          <div class="premium-chat-heading sf53-chat-heading"><span class="premium-online-dot"></span> Chat da sala <small>✦ CONECTADOS</small><button type="button" class="sf53-inbox-shortcut" onclick="window.sf53OpenInbox?.()">✉ Privado <b class="sf53-unread" hidden>0</b></button></div>
+          <div class="premium-chat-heading sf53-chat-heading"><span class="premium-online-dot"></span> Chat da sala <small>✦ CONECTADOS</small><button type="button" id="sf88ChatThemeButton" class="sf88-chat-switch" aria-haspopup="dialog" title="Escolher cores e imagens do chat" onclick="window.sf88OpenRoomPicker?.()">🎨 Tema</button><button type="button" class="sf53-inbox-shortcut" onclick="window.sf53OpenInbox?.()">✉ Privado <b class="sf53-unread" hidden>0</b></button></div>
           <div class="premium-presence" id="premiumPresence" aria-label="Pessoas ouvindo"><span class="premium-presence-empty">Entre na vibe com a galera</span></div>
           <div id="premiumReactionStage" class="premium-reaction-stage" aria-hidden="true" hidden></div>
           <div class="users-panel">
@@ -2273,7 +2273,7 @@
       </header>
       <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Tipo da sala</span></div>
       <div class="sf10-step-one"><label for="newRoomName">Como sua sala vai se chamar?</label><input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40"><p>O nome será mostrado para quem encontrar sua sala.</p></div>
-      <div class="sf10-step-two"><div id="createCfg" class="cfg"></div><div id="sf88CreateTheme" aria-label="Tema visual da nova sala"></div></div>
+      <div class="sf10-step-two"><div id="sf88CreateTheme" aria-label="Tema visual da nova sala"></div><div id="createCfg" class="cfg"></div></div>
       <div class="sf17-create-hint">
         <strong>Playlist colaborativa para todos</strong>
         <span>Todos os participantes podem adicionar músicas. Personalize a sala e escolha se aceita faixas comuns, vídeos longos ou lives.</span>
@@ -2358,7 +2358,7 @@
     <div class="modal sf35-settings-modal" style="max-width:520px;max-height:88vh;overflow:auto;">
       <span class="sf35-kicker">✦ PERSONALIZE SEU ESPAÇO</span>
       <h3>⚙️ Personalizar sala</h3>
-      <div id="editCfg" class="cfg"></div><div id="sf88EditTheme" aria-label="Alterar tema visual da sala"></div>
+      <div id="sf88EditTheme" aria-label="Alterar tema visual da sala"></div><div id="editCfg" class="cfg"></div>
       <div class="modal-actions"><button class="btn-secondary" onclick="$('roomCfgModal').classList.remove('active')">Cancelar</button><button class="btn-primary" onclick="saveRoomCfg()">Salvar</button></div>
     </div>
   </div>
