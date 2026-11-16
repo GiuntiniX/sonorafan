@@ -452,6 +452,11 @@
  function init(){
    applyLook();eventsBinding();
    window.sf100RenderStudio=(host)=>{render(host);refresh();};
+   window.sf100OpenMixtape=id=>{
+     if(!safeId(id))return;
+     state.section='mixtapes';window.sf95OpenHub?.('studio');
+     setTimeout(()=>openMix(id),0);
+   };
    window.sf100HandlePlayerError=playerError;
    window.sf100OnPlayback=(reason)=>{
      if(reason==='playing'&&Date.now()-state.lastAutoSync>12000)requestSync(false);
