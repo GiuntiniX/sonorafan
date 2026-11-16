@@ -340,8 +340,8 @@
     switch(name){
       case 'create':return window.showCreateRoom?.();
       case 'random':return window.joinRandomRoom?.();
-      case 'favorites':return window.sf95OpenHub?.('rooms');
-      case 'library':return window.sf95OpenHub?.('dna');
+      case 'favorites':return window.sf112OpenProfile?.('library') || window.sf95OpenHub?.('rooms');
+      case 'library':return window.sf112OpenProfile?.('library') || window.sf95OpenHub?.('dna');
       case 'clubs':return openClubs();
       case 'clubs-toggle':state.clubsExpanded=!state.clubsExpanded;renderClubs();return;
       case 'clubs-retry':state.lastClubs=0;return pullClubs(true);
@@ -354,7 +354,7 @@
       case 'community':return community('friends');
       case 'events':return community('events');
       case 'notices':return window.sf15OpenNotifications?.();
-      case 'profile':return window.sf5OpenProfile?.();
+      case 'profile':return window.sf112OpenProfile?.('profile') || window.sf5OpenProfile?.();
       case 'account':return window.sf92OpenAccount?.();
       case 'ranking':return window.openLeaderboard?.();
       case 'journey':return document.querySelector('[data-sf63-open="passport"]')?.click();
@@ -468,7 +468,7 @@
         <button type="button" class="active" data-sf107="top">⌂ Lobby</button>
         <button type="button" data-sf107="scroll">♫ Salas</button>
         <button type="button" data-sf107="community">♧ Comunidades</button>
-        <button type="button" data-sf107="library">▣ Biblioteca</button>
+        
       </nav>
       <div class="sf107-top-actions">
         <label class="sf107-search">⌕ <input type="search" id="sf107Search" placeholder="Buscar salas, estilos ou artistas" aria-label="Buscar salas" autocomplete="off"></label>
@@ -478,7 +478,7 @@
           <div class="sf107-more-list">
             <button type="button" data-sf107="ranking">♛ Ranking</button>
             <button type="button" data-sf107="journey">✦ Minha Jornada</button>
-            <button type="button" data-sf107="favorites">♡ Favoritas</button>
+            <button type="button" data-sf107="library">▣ Minha Biblioteca</button>
             <button type="button" data-sf107="account">⚙ Conta e segurança</button>
             <button type="button" data-sf107="help">? Ajuda / Tour</button>
             <button type="button" data-sf107="admin" id="sf107Admin" hidden>⚙ Administração</button>
