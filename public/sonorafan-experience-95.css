@@ -106,6 +106,7 @@
 .sf95-recap-number span{font-size:12px;font-weight:700;color:#d7c4df;display:block;margin-top:9px}
 .sf95-recap-data{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0}
 .sf95-recap-data>div{min-width:0}
+.sf95-recap-data .sf95-supported-song{grid-column:1/-1;min-width:0;padding-top:3px;border-top:1px solid rgba(242,180,230,.17)}
 .sf95-recap-data small{display:block;font-size:9px;color:#eebbd4;letter-spacing:.06em}
 .sf95-recap-data strong{display:block;font-size:14px;line-height:1.3;margin-top:5px;overflow-wrap:anywhere}
 .sf95-recap-end{font-size:12px;color:#efc5e2}
