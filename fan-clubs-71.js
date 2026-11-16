@@ -142,10 +142,14 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     const q=clean(req.query.q,60).toLocaleLowerCase('pt-BR');
     try {
-      const snap=await db.collection(CLUBS).orderBy('createdAt','desc').limit(150).get();
+      // A legacy club without createdAt must still be listed. Firestore
+      // orderBy excludes documents missing that field.
+      const snap=await db.collection(CLUBS).limit(200).get();
       const list=snap.docs.filter(d=>!d.data()?.deleting).map(d=>overview(d.data(),d.id,me))
         .filter(c=>!q||`${c.artist} ${c.title} ${c.description}`.toLocaleLowerCase('pt-BR').includes(q))
-        .filter(c=>req.query.mine!=='true'||c.joined)
+        .filter(c=>req.query.mine!=='true'||c.joined||c.owner)
+        .sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)||
+          String(a.title||'').localeCompare(String(b.title||''),'pt-BR'))
         .slice(0,80);
       res.json({clubs:list});
     } catch(e){error(res,e);}
