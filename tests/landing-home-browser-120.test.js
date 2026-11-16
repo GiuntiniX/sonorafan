@@ -43,7 +43,7 @@ window.addEventListener('load',()=>{
    cards:feature.length,
    navRemoved:!all('.sf121-nav-links,.sf121-search-button').length,
    howRemoved: !all('.sf120-how-link').length,
-   clickSignup:registrationButtons.length===9 && signups===registrationButtons.length,
+   clickSignup:registrationButtons.length===8 && signups===registrationButtons.length,
    clickLogin:logins===1,
    loginVisible: (()=>{const b=$('.sf122-login-button');const x=r(b);return x.width>30&&x.height>30&&x.right<=innerWidth+3;})(),
    signupVisible:(()=>{const x=r($('.sf122-auth-actions .sf122-signup-pulse'));return x.width>90&&x.height>30&&x.right<=innerWidth+3;})(),
