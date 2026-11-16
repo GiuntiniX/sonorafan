@@ -6,7 +6,7 @@ const VIDEO=/^[A-Za-z0-9_-]{11}$/;
 const UUID=/^[a-f0-9-]{36}$/i;
 const txt=(x,max=100)=>String(x??'').replace(/[<>\x00-\x1f]/g,' ').replace(/\s+/g,' ').trim().slice(0,max);
 const prune=(x,n=30)=>Array.isArray(x)?x.slice(0,n):[];
-function createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLimit,adminEmails,getPosition,getFollowing,publicActivity}) {
+function createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLimit,adminEmails,getPosition,getFollowing,publicActivity,youtubeApiKey=''}) {
  const now=()=>Date.now();
  const col=db.collection('sf100Mixtapes'), preferences=db.collection('sf100Preferences');
  const prefRef=email=>preferences.doc(publicUserId(email));
@@ -20,14 +20,14 @@ function createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLi
    updatedAt:m.updatedAt,createdAt:m.createdAt,trackCount:m.tracks.length,
    collaborative:!!m.collaborative,shared:!!m.shared,tracks:m.tracks.map(song),ownerName:m.ownerName});
  const quality={startedAt:now(),events:0,totals:{},byDevice:{},recent:[]};
- const failures=new Map(),lastTelemetry=new Map();
+ const failures=new Map(),pendingRecovery=new Set();
  const record=(event,device='unknown',slug='')=>{
    const allowed=['player-error','audio-blocked','sync-drift','search-failed','recovery','video-unavailable'];
    if(!allowed.includes(event))return;
    quality.events++;quality.totals[event]=(quality.totals[event]||0)+1;
    const d=['mobile','desktop','tablet'].includes(device)?device:'unknown';
    quality.byDevice[d]=(quality.byDevice[d]||0)+1;
-   quality.recent.unshift({event,device:d,at:now(),room:slug&&!rooms.get(slug)?.isPrivate?slug:null});
+   quality.recent.unshift({event,device:d,at:now(),room:slug&&rooms.has(slug)&&!rooms.get(slug)?.isPrivate?slug:null});
    quality.recent.length=Math.min(quality.recent.length,90);
  };
  const getPref=async email=>{const d=await prefRef(email).get();return {match:!!d.data()?.match,alerts:!!d.data()?.alerts};};
@@ -199,26 +199,47 @@ function createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLi
        videoId:current?.id||null,position:Math.max(0,Math.round(getPosition(room)*10)/10),
        playing:!!room.isPlaying});
    });
-   socket.on('sf100:playbackFailure',(data={},ack)=>{
+   socket.on('sf100:playbackFailure',async(data={},ack)=>{
      const slug=currentRoom(),room=rooms.get(slug);
      if(!room||!socket.userEmail||!socket.rooms.has(slug))return;
      const videoId=String(data.id||''),code=Number(data.code);
-     const current=room.queue[room.currentIndex];
-     if(current?.id!==videoId||![100,101,150].includes(code))return;
+     if(room.queue[room.currentIndex]?.id!==videoId||![100,101,150].includes(code))return;
      const key=slug+':'+videoId,entries=failures.get(key)||new Map();
-     const last=entries.get(socket.userEmail)||0;
-     if(now()-last<50000)return;
+     if(now()-(entries.get(socket.userEmail)||0)<50000)return;
      entries.set(socket.userEmail,now());failures.set(key,entries);
      record('video-unavailable',data.device,slug);
-     // Only the host can bypass corroboration. When 2+ distinct listeners
-     // report the same impossible video, safely skip if >=60% of the room.
      const total=Math.max(1,room.listenerCount);
-     const validated=entries.size>=2&&entries.size>=Math.ceil(total*.6);
-     if(socket.isAdmin||validated){
-       const advanced=advanceQueue(slug);
-       if(advanced){failures.delete(key);record('recovery',data.device,slug);}
+     // A single listener is never trusted to remove another user's track.
+     // The server confirms its restricted/removed status with YouTube first.
+     let soloVerified=false;
+     if(total===1&&!socket.isAdmin&&youtubeApiKey){
+       try{
+         const url='https://www.googleapis.com/youtube/v3/videos?part=status&id='+
+           encodeURIComponent(videoId)+'&key='+encodeURIComponent(youtubeApiKey);
+         const response=await fetch(url,{signal:AbortSignal.timeout(6500)});
+         if(response.ok){
+           const payload=await response.json();
+           const entry=Array.isArray(payload.items)?payload.items[0]:null;
+           soloVerified=!entry||entry.status?.embeddable===false||
+             entry.status?.privacyStatus==='private';
+         }
+       }catch(e){/* A falha de verificação não autoriza remover música. */}
      }
-     if(typeof ack==='function')ack({ok:true,reports:entries.size,needed:Math.max(2,Math.ceil(total*.6))});
+     const corroborated=entries.size>=2&&entries.size>=Math.ceil(total*.6);
+     const authorized=!!socket.isAdmin||corroborated||soloVerified;
+     const advanceCurrent=()=>{
+       const live=rooms.get(slug);
+       if(live?.queue[live.currentIndex]?.id!==videoId)return false;
+       if(!advanceQueue(slug))return false;
+       failures.delete(key);record('recovery',data.device,slug);return true;
+     };
+     if(authorized&&!advanceCurrent()&&!pendingRecovery.has(key)){
+       pendingRecovery.add(key);
+       const timer=setTimeout(()=>{pendingRecovery.delete(key);advanceCurrent();},12000);
+       timer.unref?.();
+     }
+     if(typeof ack==='function')ack({ok:true,reports:entries.size,
+       needed:Math.max(2,Math.ceil(total*.6)),authorized});
    });
  }
  async function deleteUserData(email){
