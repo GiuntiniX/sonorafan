@@ -1442,6 +1442,7 @@
   <link rel="stylesheet" href="/sonorafan-home-120.css?v=120">
   <link rel="stylesheet" href="/sonorafan-home-121.css?v=121.1">
   <link rel="stylesheet" href="/sonorafan-home-122.css?v=122">
+  <link rel="stylesheet" href="/sonorafan-auth-123.css?v=123">
 </head>
 <body>
 
@@ -1584,82 +1585,114 @@
     </main>
   </div>
 
-  <!-- ===== LOGIN ===== -->
-  <div class="login-screen" id="loginScreen">
-    <div class="sf26-auth-shell">
-      <div class="sf26-auth-showcase">
-        <span class="sf26-auth-kicker">SONORAFAN EXPERIENCE</span>
-        <h2>A música vira encontro.<br>O encontro vira comunidade.</h2>
-        <p>Entre em salas ao vivo, descubra pessoas com a sua vibe e transforme qualquer play em uma experiência social.</p>
-        <div class="sf26-auth-pills"><span>Ao vivo</span><span>Colaborativo</span><span>Sem delay</span></div>
-        <div class="sf26-auth-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="sf26-auth-mini-room">
-          <div class="sf26-auth-mini-top"><strong>Sala em destaque</strong><span>🔴 Agora</span></div>
-          <div class="sf26-auth-track"><b>Midnight Pulse</b><small>The Weeknd • curadoria da comunidade</small></div>
-          <div class="sf26-auth-avatars"><span>🎧</span><span>🎤</span><span>🎸</span><span>🎹</span><em>+124 ouvintes</em></div>
+
+  <!-- ===== SONORAFAN 123 • LOGIN DA REFERÊNCIA ===== -->
+  <div class="login-screen sf123-login-screen" id="loginScreen" role="dialog" aria-modal="true" aria-labelledby="sf123LoginHeading">
+    <div class="sf123-login-layout">
+      <section class="sf123-login-form" aria-label="Acesso à plataforma">
+        <div class="sf123-brand sf54-brand sf54-brand-login">
+          <img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image">
         </div>
-      </div>
-      <div class="login-card sf26-login-card">
-        <div class="logo sf54-brand sf54-brand-login"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
-        <h1>Entre no SonoraFan</h1>
-        <p data-i18n="login.sub">Entre com sua conta para acessar as salas.</p>
-        <div class="login-error" id="loginError" data-i18n="login.error">Credenciais inválidas.</div>
-        <input type="email" id="loginEmail" placeholder="E-mail" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
-        <input type="password" id="loginPassword" placeholder="Senha" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
-        <button id="loginBtn" onclick="doLogin()" data-i18n="login.btn">Entrar no palco</button>
-        <div class="sf26-auth-divider"><span>Seu palco começa agora</span></div>
-        <ul class="sf26-auth-benefits">
-          <li>🎵 Fila colaborativa em tempo real</li>
-          <li>💬 Chat ao vivo com a comunidade</li>
-          <li>⚡ Salas com identidade própria</li>
-        </ul>
-        <p style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Ao entrar você concorda com os <a href="#" onclick="openLegal('terms');return false;">Termos de Uso</a> e a <a href="#" onclick="openLegal('priv');return false;">Política de Privacidade</a>.</p>
-        <div class="login-switch"><span data-i18n="login.switch">Não tem conta?</span> <a onclick="openSignup()" data-i18n="login.signup">Cadastre-se</a></div>
+        <span class="sf123-kicker sf123-login-kicker">BEM-VINDO(A) DE VOLTA</span>
+        <h1 id="sf123LoginHeading">Entre na sua conta<br>e viva a música juntos.</h1>
+        <p class="sf123-login-intro">Acesse suas salas, playlists, fan clubs e toda a sua experiência musical no SonoraFan.</p>
+
+        <div class="login-error" id="loginError" role="alert" aria-live="polite">Credenciais inválidas.</div>
+        <label for="loginEmail" class="sf123-sr-only">Seu e-mail</label>
+        <div class="sf123-auth-field">
+          <span class="sf123-field-icon" aria-hidden="true">✉</span>
+          <input type="email" id="loginEmail" placeholder="Seu e-mail" autocomplete="email" inputmode="email" data-i18n-placeholder="login.email" onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <label for="loginPassword" class="sf123-sr-only">Sua senha</label>
+        <div class="sf123-auth-field">
+          <span class="sf123-field-icon" aria-hidden="true">♙</span>
+          <input type="password" id="loginPassword" placeholder="Sua senha" autocomplete="current-password" data-i18n-placeholder="login.password" onkeydown="if(event.key==='Enter') doLogin()">
+          <button class="sf123-eye" type="button" aria-label="Mostrar senha" aria-pressed="false" onclick="sf123TogglePassword('loginPassword',this)">◉</button>
+        </div>
+        <div class="sf123-login-options">
+          <label class="sf123-remember"><input type="checkbox" id="sf123RememberLogin" checked> Lembrar de mim</label>
+          <button type="button" class="sf123-forgot" onclick="sf123ResetPassword()">Esqueci minha senha</button>
+        </div>
+        <button type="button" id="loginBtn" onclick="doLogin()">▷&nbsp; Entrar</button>
+        <div class="sf123-auth-divider"><span>Ainda não tem uma conta?</span></div>
+        <button class="sf123-switch-signup" type="button" onclick="openSignup()">♙&nbsp; Criar conta grátis <span aria-hidden="true">→</span></button>
+        <button class="sf123-back-home" type="button" onclick="sf123BackHome()">← Voltar à página inicial</button>
+      </section>
+      <div class="sf123-login-art" aria-hidden="true">
+        <img src="/art-123/login-festival.webp" alt="" decoding="async" width="710" height="717">
       </div>
     </div>
   </div>
 
-  <!-- ===== SIGNUP ===== -->
-  <div class="modal-overlay sf26-signup-overlay" id="signupModal">
-    <div class="modal sf26-signup-shell">
-      <div class="sf26-signup-side">
-        <div class="sf54-brand sf54-brand-signup"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
-        <span class="sf26-auth-kicker">CRIAR CONTA</span>
-        <h3>Seu convite para a melhor versão do SonoraFan</h3>
-        <p>Crie sua conta e entre em uma experiência social de música com presença ao vivo, salas colaborativas e muita personalidade.</p>
-        <div class="sf26-signup-cards">
-          <article><strong>🎵 Salas colaborativas</strong><span>Todo mundo ajuda a construir a trilha sonora.</span></article>
-          <article><strong>💬 Comunidade real</strong><span>Converse, descubra gente nova e compartilhe a sua vibe.</span></article>
-          <article><strong>✨ Visual premium</strong><span>Uma plataforma feita para impressionar desde o primeiro acesso.</span></article>
+  <!-- ===== SONORAFAN 123 • CADASTRO DA REFERÊNCIA ===== -->
+  <div class="modal-overlay sf26-signup-overlay sf123-signup-screen" id="signupModal" role="dialog" aria-modal="true" aria-labelledby="sf123SignupHeading">
+    <div class="modal sf26-signup-shell sf123-signup-layout">
+      <section class="sf26-signup-side sf123-signup-intro" aria-label="Bem-vindo à comunidade">
+        <div class="sf123-brand sf54-brand sf54-brand-signup">
+          <img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image">
         </div>
-      </div>
-      <div class="sf26-signup-form">
-        <h3 data-i18n="signup.title">🎵 Criar conta</h3>
-        <label class="form-label" data-i18n="signup.name">Nome <span class="required">*</span></label>
-        <input type="text" id="signupNome" placeholder="Seu nome" maxlength="60" data-i18n-placeholder="signup.namePlaceholder">
-        <label class="form-label" data-i18n="signup.email">E-mail <span class="required">*</span></label>
-        <input type="email" id="signupEmail" placeholder="voce@email.com" maxlength="120" data-i18n-placeholder="signup.emailPlaceholder">
-        <label class="form-label" data-i18n="signup.password">Senha <span class="required">*</span> <span class="hint">(mínimo 6 caracteres)</span></label>
-        <input type="password" id="signupPassword" placeholder="Crie uma senha" maxlength="30" data-i18n-placeholder="signup.passwordPlaceholder">
-        <label class="form-label" data-i18n="signup.style">Estilo musical <span class="required">*</span></label>
-        <div class="chip-group" id="signupStyles">
-          <div class="chip" data-style="sertanejo" onclick="toggleChip(this)">Sertanejo</div>
-          <div class="chip" data-style="funk" onclick="toggleChip(this)">Funk</div>
-          <div class="chip" data-style="pagode" onclick="toggleChip(this)">Pagode/Samba</div>
-          <div class="chip" data-style="mpb" onclick="toggleChip(this)">MPB</div>
-          <div class="chip" data-style="rock" onclick="toggleChip(this)">Rock</div>
-          <div class="chip" data-style="pop" onclick="toggleChip(this)">Pop</div>
-          <div class="chip" data-style="eletronica" onclick="toggleChip(this)">Eletrônica</div>
-          <div class="chip" data-style="hiphop" onclick="toggleChip(this)">Hip Hop/Rap</div>
-          <div class="chip" data-style="forro" onclick="toggleChip(this)">Forró</div>
-          <div class="chip" data-style="gospel" onclick="toggleChip(this)">Gospel</div>
-          <div class="chip" data-style="indie" onclick="toggleChip(this)">Indie</div>
+        <h2>Entre para a<br>comunidade que<br>vive a música<br>junto.</h2>
+        <p>Crie sua conta, personalize sua experiência e conecte-se com outros fãs em tempo real.</p>
+        <div class="sf123-intro-benefits">
+          <div><span class="sf123-orange" aria-hidden="true">▣</span><span><strong>Salas Colaborativas</strong><small>Ouça, assista e crie salas temáticas.</small></span></div>
+          <div><span class="sf123-lime" aria-hidden="true">♫</span><span><strong>Fila Compartilhada</strong><small>Monte playlists com a galera.</small></span></div>
+          <div><span class="sf123-pink" aria-hidden="true">♧</span><span><strong>Fan Clubs</strong><small>Conecte-se com fãs do seu artista favorito.</small></span></div>
+          <div><span class="sf123-yellow" aria-hidden="true">ϟ</span><span><strong>Experiências em Tempo Real</strong><small>Viva a música com outras pessoas.</small></span></div>
         </div>
-        <div class="modal-actions">
-          <button class="btn-secondary" onclick="closeSignup()" data-i18n="signup.cancel">Cancelar</button>
-          <button class="btn-primary" onclick="submitSignup()" data-i18n="signup.submit">Criar conta 🎶</button>
+        <div class="sf123-signup-crowd" aria-hidden="true"></div>
+      </section>
+      <section class="sf26-signup-form sf123-signup-form" aria-label="Formulário de cadastro">
+        <div class="sf123-signup-heading">
+          <span class="sf123-kicker">CRIAR CONTA NO SONORAFAN</span>
+          <h2 id="sf123SignupHeading">Junte-se ao SonoraFan</h2>
+          <p>É grátis, rápido e você já pode começar a viver a música de um novo jeito.</p>
         </div>
-      </div>
+        <div class="sf123-form-grid">
+          <div class="sf123-form-group">
+            <label class="form-label" for="signupNome">Nome</label>
+            <div class="sf123-auth-field"><span class="sf123-field-icon" aria-hidden="true">♙</span><input type="text" id="signupNome" placeholder="Seu nome" autocomplete="name" maxlength="60" data-i18n-placeholder="signup.namePlaceholder" required></div>
+          </div>
+          <div class="sf123-form-group">
+            <label class="form-label" for="signupUsername">Username</label>
+            <div class="sf123-auth-field"><span class="sf123-field-icon" aria-hidden="true">@</span><input type="text" id="signupUsername" placeholder="seuusername" autocomplete="username" maxlength="24" minlength="3" autocapitalize="none" spellcheck="false" required></div>
+          </div>
+          <div class="sf123-form-group sf123-form-wide">
+            <label class="form-label" for="signupEmail">E-mail</label>
+            <div class="sf123-auth-field"><span class="sf123-field-icon" aria-hidden="true">✉</span><input type="email" id="signupEmail" placeholder="seuemail@exemplo.com" autocomplete="email" maxlength="120" data-i18n-placeholder="signup.emailPlaceholder" required></div>
+          </div>
+          <div class="sf123-form-group">
+            <label class="form-label" for="signupPassword">Senha</label>
+            <div class="sf123-auth-field"><span class="sf123-field-icon" aria-hidden="true">♙</span><input type="password" id="signupPassword" placeholder="Crie uma senha" autocomplete="new-password" maxlength="30" minlength="6" data-i18n-placeholder="signup.passwordPlaceholder" required><button class="sf123-eye" type="button" aria-label="Mostrar senha" aria-pressed="false" onclick="sf123TogglePassword('signupPassword',this)">◉</button></div>
+          </div>
+          <div class="sf123-form-group">
+            <label class="form-label" for="signupConfirm">Confirmar senha</label>
+            <div class="sf123-auth-field"><span class="sf123-field-icon" aria-hidden="true">♙</span><input type="password" id="signupConfirm" placeholder="Repita a senha" autocomplete="new-password" maxlength="30" minlength="6" required><button class="sf123-eye" type="button" aria-label="Mostrar confirmação de senha" aria-pressed="false" onclick="sf123TogglePassword('signupConfirm',this)">◉</button></div>
+          </div>
+        </div>
+        <div class="sf123-genres" role="group" aria-label="Escolha os gêneros musicais">
+          <h3 class="sf123-genres-title">SEUS GÊNEROS MUSICAIS</h3>
+          <p>Selecione os estilos que você mais curte (você pode alterar depois).</p>
+          <div class="chip-group" id="signupStyles">
+            <button type="button" class="chip" aria-pressed="false" data-style="rock" onclick="toggleChip(this)">🎸 Rock</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="pop" onclick="toggleChip(this)">🎧 Pop</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="mpb" onclick="toggleChip(this)">🎤 MPB</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="indie" onclick="toggleChip(this)">🎵 Indie</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="eletronica" onclick="toggleChip(this)">🎹 Eletrônica</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="sertanejo" onclick="toggleChip(this)">🤠 Sertanejo</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="funk" onclick="toggleChip(this)">🎶 Funk</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="pagode" onclick="toggleChip(this)">🥁 Pagode</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="hiphop" onclick="toggleChip(this)">🎙 Rap / Hip-Hop</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="forro" onclick="toggleChip(this)">🪗 Forró</button>
+            <button type="button" class="chip" aria-pressed="false" data-style="gospel" onclick="toggleChip(this)">✦ Gospel</button>
+          </div>
+        </div>
+        <label class="sf123-consent"><input type="checkbox" id="sf123SignupConsent" required><span>Li e concordo com os <button type="button" onclick="openLegal('terms')">Termos de Uso</button> e a <button type="button" onclick="openLegal('priv')">Política de Privacidade</button>.</span></label>
+        <div class="modal-actions sf123-signup-actions">
+          <button class="btn-primary sf123-submit-signup" type="button" onclick="submitSignup()">♙&nbsp; Criar conta grátis <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="sf123-signup-switch">Já tem uma conta? <button type="button" onclick="sf123GoLogin()">Fazer login</button></div>
+        <button class="sf123-back-home" type="button" onclick="closeSignup()">← Voltar à página inicial</button>
+      </section>
     </div>
   </div>
 
