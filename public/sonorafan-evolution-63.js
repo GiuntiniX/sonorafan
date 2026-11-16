@@ -51,7 +51,7 @@
   async function renderMusic(){
     const favorites=await api('/api/favorites').catch(()=>[]);
     const entries=Array.isArray(favorites)?favorites:[];
-    body.innerHTML=`<div class="sf63-intro"><strong>Busque sem sair da sala</strong><p>Pesquise no YouTube, recupere uma favorita ou abra a prévia antes de adicionar à fila.</p></div>
+    body.innerHTML=`<div class="sf63-intro"><strong>Busque sem sair da sala</strong><p>Pesquise no YouTube, escolha a música e adicione diretamente à fila da sala. Favoritar é opcional.</p></div>
       <form class="sf63-music-search" id="sf63MusicForm"><label for="sf63SongSearch">Música, artista ou link</label><div><input id="sf63SongSearch" value="${esc(state.searchQuery)}" placeholder="Ex.: Arctic Monkeys, rock alternativo…" autocomplete="off" maxlength="120"><button type="submit">Buscar</button></div></form>
       <div class="sf63-results" id="sf63MusicResults" role="status"></div>
       <div class="sf63-section-heading"><strong>Minhas favoritas</strong><span>${entries.length} salvas</span></div>
@@ -62,7 +62,7 @@
     if(state.searchQuery) await musicSearch(state.searchQuery);
   }
   function trackCard(t,action){const id=String(t.id||t.videoId||'');if(!validId(id))return '';
-    return `<article class="sf63-track"><img src="https://img.youtube.com/vi/${id}/mqdefault.jpg" alt="" loading="lazy"><div><strong>${esc(t.title||'Música')}</strong><small>${esc(t.artist||'Artista')}</small></div>${btn('＋ Prévia','song:'+id,'aria-label="Preparar música para adicionar"')}</article>`;
+    return `<article class="sf63-track"><img src="https://img.youtube.com/vi/${id}/mqdefault.jpg" alt="" loading="lazy"><div><strong>${esc(t.title||'Música')}</strong><small>${esc(t.artist||'Artista')}</small></div>${btn('＋ Adicionar à fila','song:'+id,'aria-label="Adicionar música à fila da sala"')}</article>`;
   }
   async function musicSearch(q){
     const query=String(q||'').trim();if(query.length<2){$('sf63MusicResults').innerHTML='<p class="sf63-empty">Digite pelo menos duas letras ou cole o link no campo da sala.</p>';return;}
@@ -72,16 +72,56 @@
       state.searchResults=items;container.innerHTML=`<div class="sf63-section-heading"><strong>Resultados no YouTube</strong><span>${items.length} encontrados</span></div>${items.length?items.map(t=>trackCard(t,'song:'+t.id)).join(''):'<p class="sf63-empty">Nenhuma música encontrada. Tente outro termo.</p>'}`;
     }catch(e){container.innerHTML=`<p class="sf63-empty" role="alert">${esc(e.message)}</p>`;}
   }
-  function chooseSong(id){
-    if(!requireRoom())return;if(!validId(id))return;
+  async function chooseSong(id){
+    if(!requireRoom() || !validId(id))return;
+    if(state.songSending)return;
+    if(typeof window.sf80QueueSong !== 'function'){notify('Atualize a página para adicionar músicas.',true);return;}
     const found=state.searchResults.find(t=>t.id===id) || (state.favorites||[]).find(t=>t.id===id);
-    remember(id);close();
-    const el=$('songUrl');if(el)el.value=id;
-    const reqCard=$('sf10RequestCard');if(reqCard){reqCard.scrollIntoView({behavior:'smooth',block:'center'});}
-    if(found && typeof selectSearchResult==='function') selectSearchResult(id,found.title||'Música',found.artist||'Artista');
-    else if(typeof previewSong==='function')previewSong();
-    setTimeout(()=>{document.querySelector('.song-preview-confirm')?.focus();},350);
-    notify('Prévia pronta: confirme a música para adicionar à fila.');
+    if(!found){notify('Música não encontrada. Faça uma nova busca.',true);return;}
+    const form=$('sf63MusicForm');
+    let message=$('sf63QueueFeedback');
+    if(!message&&form){
+      message=document.createElement('p');
+      message.id='sf63QueueFeedback';
+      message.className='sf63-queue-feedback';
+      message.setAttribute('role','status');
+      message.setAttribute('aria-live','polite');
+      form.insertAdjacentElement('afterend',message);
+    }
+    const inform=(msg,isError=false)=>{
+      if(message){message.textContent=msg;message.classList.toggle('is-error',isError);}
+      if(isError)notify(msg,true);
+    };
+    const buttons=$$('#sf63HubBody [data-sf63-action^="song:"]');
+    const changed=buttons.map(button=>({button,oldDisabled:button.disabled,oldText:button.textContent}));
+    state.songSending=true;
+    changed.forEach(({button})=>{button.disabled=true;if(button.dataset.sf63Action==='song:'+id)button.textContent='⏳ Enviando…';});
+    inform('Verificando vídeo e preparando a inclusão na fila…');
+    try{
+      let metadata={};
+      try{metadata=await api('/api/video-info?id='+encode(id));}
+      catch(_){/* A sala valida a faixa mesmo sem metadados completos. */}
+      if(metadata?.embeddable===false)throw new Error('Este vídeo não permite reprodução na sala.');
+      const duration=Number(metadata?.duration);
+      const track={
+        id, title:String(metadata?.title||found.title||'Música'),
+        artist:String(metadata?.artist||found.artist||'Artista'),
+        duration:Number.isFinite(duration)&&duration>0?Math.floor(duration):null
+      };
+      inform('Enviando "'+track.title.slice(0,65)+'" para a fila…');
+      const result=await window.sf80QueueSong(track);
+      try{remember(id);}catch(_){}
+      inform(result?.placement==='waiting'?'✓ Música adicionada à fila de espera!':'✓ Música adicionada à fila colaborativa!');
+      notify('🎵 Música adicionada! Abra a fila para acompanhar.');
+      // A atualização do roomState deve renderizar a fila mesmo antes de carregar o player.
+    }catch(error){
+      inform(error?.message||'Não foi possível adicionar a música.',true);
+    }finally{
+      state.songSending=false;
+      changed.forEach(({button,oldDisabled,oldText})=>{
+        if(button.isConnected){button.disabled=oldDisabled;button.textContent=oldText;}
+      });
+    }
   }
   async function mySnapshot(force=false){if(!state.me||force)state.me=await api('/api/platform63/me');return state.me;}
   async function renderPassport(){
@@ -175,7 +215,7 @@
       const act=e.target.closest('[data-sf63-action]');if(!act)return;
       const value=act.dataset.sf63Action;try{
         if(value==='refresh')switchTab(state.tab);
-        if(value.startsWith('song:'))chooseSong(value.slice(5));
+        if(value.startsWith('song:'))await chooseSong(value.slice(5));
         if(value==='save-prefs')await savePrefs();
         if(value==='club'){close();window.sf45OpenClub?.();}
         if(value==='start-battle')await battleStart();
