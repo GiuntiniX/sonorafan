@@ -156,7 +156,8 @@
      Array.isArray(state.events)&&state.events.length?`<div class="sf100-events">${state.events.slice(0,20).map(e=>`<article class="sf100-event">
       <div class="sf100-event-icon">♫</div><div><strong>${esc(e.title)}</strong>
       <small>${esc(e.roomName)} · ${date(e.startAt)} · ${esc(names[e.theme]||'Indie')} · ${e.durationMinutes||90} min</small>
-      <span>${Math.max(0,e.attendees||0)} confirmados</span></div>
+      <span>${Math.max(0,e.attendees||0)} confirmados · <time class="sf100-countdown" data-start="${Number(e.startAt)}" aria-label="Contagem regressiva da sessão"></time></span></div>
+      <button type="button" data-sf100-action="event-enter" data-slug="${esc(e.roomSlug)}">Entrar</button>
       <button type="button" data-sf100-action="rsvp" data-id="${esc(e.id)}" data-going="${e.going?'false':'true'}">${e.going?'✓ Confirmado':'Participar'}</button>
       </article>`).join('')}</div>`:htmlMsg('Nenhuma sessão agendada','Seja o primeiro a reunir a comunidade em um evento musical.')}
     `;
@@ -363,6 +364,11 @@
        return notice('Mixtape publicada no mural do Fan Club.');
      }
      if(act==='follow'){await post('/api/social/follow',{id,follow:true});return notice('Você está seguindo esse ouvinte.');}
+     if(act==='event-enter'){
+       const target=button.dataset.slug;
+       if(!target||typeof joinRoom!=='function')return notice('Abra a sala pelo lobby.',true);
+       q('#sf95Overlay [data-sf95-close]')?.click();joinRoom(target);return;
+     }
      if(act==='rsvp'){await post('/api/social/events/'+encodeURIComponent(id)+'/rsvp',{going:button.dataset.going==='true'});return refresh();}
      if(act==='browser-alerts')return browserPermission();
      if(act==='check-alerts')return checkAlerts(true);
@@ -427,6 +433,10 @@
    window.addEventListener('visibilitychange',()=>{if(!document.hidden)requestSync(false);});
    setInterval(()=>{if(!document.hidden&&roomActive()&&Date.now()-state.lastAutoSync>30000)requestSync(false);},30000);
    setInterval(()=>{if(!document.hidden&&state.prefs.alerts)checkAlerts();},90000);
+   setInterval(()=>{document.querySelectorAll('#sf100Section .sf100-countdown').forEach(el=>{
+     const seconds=Math.round((Number(el.dataset.start)-Date.now())/1000);
+     el.textContent=seconds<=0?'Sessão iniciada':seconds<3600?`Começa em ${Math.ceil(seconds/60)} min`:`Começa em ${Math.floor(seconds/3600)}h ${Math.ceil((seconds%3600)/60)}min`;
+   });},30000);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
