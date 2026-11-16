@@ -102,7 +102,7 @@
       row.classList.toggle('sf95-row-hidden',filterOpen&&!matched);
       if(matched)visible++;
       let remove=row.querySelector('.sf95-remove-track');
-      const canRemove=own(song)&&i>index;
+      const canRemove=filterOpen&&mode==='mine'&&own(song)&&i>index;
       if(!canRemove&&remove)remove.remove();
       if(canRemove&&!remove){
         const holder=row.querySelector('.queue-votes');
