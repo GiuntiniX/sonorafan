@@ -325,7 +325,7 @@
       <div class="sf107-top-actions">
         <label class="sf107-search">⌕ <input type="search" id="sf107Search" placeholder="Buscar salas, estilos ou artistas" aria-label="Buscar salas" autocomplete="off"></label>
         <button type="button" aria-label="Notificações" title="Notificações" data-sf107="notices">♢</button>
-        <button type="button" class="sf107-profile" data-sf107="profile">◉ <span>Perfil</span></button>
+        <button type="button" class="sf107-profile" data-sf107="profile"><span class="sf107-profile-avatar" id="sf107ProfileAvatar">◉</span><span id="sf107ProfileLabel">Perfil</span></button>
         <details class="sf107-more"><summary>☰ <span>Mais</span></summary>
           <div class="sf107-more-list">
             <button type="button" data-sf107="ranking">♛ Ranking</button>
@@ -369,12 +369,34 @@
     const skip=app().querySelector('.sf52-skip-link');
     if(skip){skip.href='#sf107Popular';skip.textContent='Ir para salas populares';}
   }
+  function syncProfile(){
+    const label=$('sf107ProfileLabel'),avatar=$('sf107ProfileAvatar');
+    const originalName=$('userDisplayName'),originalAvatar=$('userAvatar');
+    if(label && originalName){
+      const name=String(originalName.textContent||'').trim();
+      label.textContent=name && name!=='Usuário'?name.slice(0,22):'Perfil';
+    }
+    if(avatar && originalAvatar){
+      const image=originalAvatar.querySelector('img');
+      if(image?.src){
+        let current=avatar.querySelector('img');
+        if(!current){avatar.replaceChildren();current=document.createElement('img');current.alt='';avatar.append(current);}
+        if(current.src!==image.src)current.src=image.src;
+      }else if(!avatar.querySelector('img')){
+        avatar.textContent=String(originalAvatar.textContent||'◉').trim().slice(0,3)||'◉';
+      }
+    }
+  }
   function init(){
     build();if(!$('sf107Dashboard'))return;
     const orig=window.sf41UpdateRooms;
     if(typeof orig==='function'&&!orig.sf107){
       const wrapper=function(rooms){const result=orig.apply(this,arguments);updateRooms(rooms);return result;};
       wrapper.sf107=true;window.sf41UpdateRooms=wrapper;
+    }
+    syncProfile();
+    for(const el of [$('userDisplayName'),$('userAvatar')]){
+      if(el)new MutationObserver(syncProfile).observe(el,{childList:true,subtree:true,characterData:true});
     }
     const socketClient=typeof socket!=='undefined'?socket:null;
     socketClient?.on('roomState',r=>{if(r?.slug)remember(r.slug);});
