@@ -405,6 +405,12 @@
   }
   function init(){
     build();if(!$('sf107Dashboard'))return;
+    // Keep the legacy community panel only while the user is actively using it.
+    // Closing it must not leave another obsolete section below the new lobby.
+    const legacyCommunity=document.querySelector('#screen-lobby .sf32-community-drawer');
+    legacyCommunity?.addEventListener('toggle',()=>{
+      if(!legacyCommunity.open)legacyCommunity.classList.remove('sf107-expose');
+    });
     const orig=window.sf41UpdateRooms;
     if(typeof orig==='function'&&!orig.sf107){
       const wrapper=function(rooms){const result=orig.apply(this,arguments);updateRooms(rooms);return result;};
