@@ -1430,6 +1430,7 @@
   <link rel="stylesheet" href="/sonorafan-room-ux-93.css?v=93">
   <link rel="stylesheet" href="/sonorafan-notebook-94.css?v=94.2">
   <link rel="stylesheet" href="/sonorafan-experience-95.css?v=99.1">
+  <link rel="stylesheet" href="/sonorafan-studio-100.css?v=105">
 </head>
 <body>
   <!-- ===== LANDING PAGE ===== -->
@@ -3480,6 +3481,7 @@ function openRoomCfg() {
           onReady: () => {
             sf9RestoreAudio();
             if (currentRoomData) syncPlayer(currentRoomData);
+            window.sf100OnPlayback?.('ready');
           },
           onStateChange: (e) => {
             if (e.data === YT.PlayerState.PLAYING) {
@@ -3489,6 +3491,7 @@ function openRoomCfg() {
               if (crossfadeInterval) { clearInterval(crossfadeInterval); crossfadeInterval = null; }
               $('bufferingOverlay').classList.remove('show'); $('soundGate').classList.remove('show');
               setSpectrum(true);
+              window.sf100OnPlayback?.('playing');
             }
             if (e.data === YT.PlayerState.PAUSED) {
               setSpectrum(false);
@@ -3507,19 +3510,21 @@ function openRoomCfg() {
               if (sf13ActiveTrack(id)) socket.emit('videoEnded', { videoId: id });
             }
           },
-          onError: () => {
+          onError: (event) => {
             const failedId = currentTrackId;
             setSpectrum(false);
             if (!sf13ActiveTrack(failedId)) return;
-            toast('Falha de reprodução neste dispositivo. Tente ativar o som ou reconectar à sala.', 'error');
-            if (sf13ErrorTimer) clearTimeout(sf13ErrorTimer);
-            sf13ErrorTimer = setTimeout(() => {
-              if (sf13ActiveTrack(failedId)) socket.emit('videoEnded', { videoId: failedId });
-            }, 2000);
+            window.sf100HandlePlayerError?.(event, failedId);
+            // Erros YouTube não devem pular a fila sem consenso/autorização.
+            // O novo serviço pode avançar após confirmação de indisponibilidade.
+            toast('Este vídeo não pôde tocar. Use Sincronizar no Estúdio ou aguarde a recuperação da sala.', 'error');
           }
         }
       });
     }
+
+    // Exposição somente de leitura da instância de reprodução para sincronização.
+    window.sf100PlayerSnapshot = () => ({ player, currentTrackId, currentRoomData });
 
     function syncPlayer(state) {
       $('roomTitle').textContent = (state.isPrivate ? '🔒 ' : '') + (state.emoji ? state.emoji + ' ' : '') + state.name; $('roomTitle').title = state.description || '';
@@ -4477,6 +4482,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-lobby-account-92.js?v=92"></script>
   <script defer src="/sonorafan-room-ux-93.js?v=93"></script>
   <script defer src="/sonorafan-queue-tools-95.js?v=99.1"></script>
-  <script defer src="/sonorafan-universe-95.js?v=99.1"></script>
+  <script defer src="/sonorafan-universe-95.js?v=100"></script>
+  <script defer src="/sonorafan-studio-100.js?v=105"></script>
 </body>
 </html>
