@@ -11,7 +11,7 @@ function finish(value){document.documentElement.setAttribute('data-sf89-test',va
 addEventListener('load',()=>{
  const nav=document.querySelector('#screen-room .sf5-navigation');
  const buttons=[...nav.querySelectorAll('button')];
- const texts=buttons.map(x=>x.textContent.trim());
+ const texts=buttons.map(x=>x.querySelector('span:last-child')?.textContent.trim());
  if(texts.join('|')!=='Comunidade|Mensagens|Convidar amigos|Meu perfil')return finish('wrong-order');
  const normal=buttons[1],invite=buttons[2];
  const st=getComputedStyle(normal),si=getComputedStyle(invite);
