@@ -67,6 +67,8 @@
      else if(state.section==='match'){
        state.prefs=await api('/api/studio100/preferences');
        state.matches=state.prefs.match&&roomSlug()?(await api('/api/studio100/match/'+encodeURIComponent(roomSlug()))).people||[]:[];
+       const clubs=await api('/api/fan-clubs').catch(()=>({clubs:[]}));
+       state.clubs=Array.isArray(clubs.clubs)?clubs.clubs.sort((a,b)=>(b.memberCount||0)-(a.memberCount||0)).slice(0,3):[];
      }else if(state.section==='events')state.events=await api('/api/social/events');
      else if(state.section==='alerts')state.prefs=await api('/api/studio100/preferences');
      else if(state.section==='quality'){state.quality=await api('/api/admin/studio100/quality');state.qualityDenied=false;}
@@ -135,6 +137,7 @@
        <button type="button" data-sf100-action="follow" data-id="${esc(p.userId)}">Seguir</button>
      </article>`).join('')}</div>`:
        htmlMsg('Nenhum Match disponível','Pode ser que outras pessoas ainda não tenham ativado essa opção.')}
+     <div class="sf100-club-highlights"><h5>Fan Clubs em destaque</h5><div class="sf100-club-cards">${state.clubs.map(c=>`<article class="sf100-club"><div><strong>${esc(c.title)}</strong><small>${esc(c.artist)} · ${c.memberCount||0} membros</small></div><button type="button" data-sf100-action="club-open" data-id="${esc(c.id)}">Abrir</button></article>`).join('')||'<small>Explore comunidades de seus artistas na aba Comunidade.</small>'}</div></div>
      <p class="sf100-fineprint">Compatibilidade experimental: sobreposição de gêneros declarados e artistas das últimas contribuições registradas. Não é um diagnóstico de personalidade.</p>`;
  }
  function updateCountdown(){
@@ -305,6 +308,24 @@
    grad.addColorStop(0,palette==='aurora'?'#092c42':'#48223d');
    grad.addColorStop(.5,'#151329');grad.addColorStop(1,palette==='aurora'?'#07111b':'#160b17');
    c.fillStyle=grad;c.fillRect(0,0,1080,1920);
+   // Artwork only when YouTube's thumbnail supports CORS; always keep a safe
+   // original graphic fallback so the PNG download remains available.
+   c.fillStyle='#393654';c.fillRect(90,850,900,475);
+   c.fillStyle='rgba(119,222,207,.28)';c.beginPath();c.arc(820,1000,170,0,Math.PI*2);c.fill();
+   const cover=new Image();cover.crossOrigin='anonymous';
+   const loaded=await new Promise(resolve=>{
+     const timer=setTimeout(()=>resolve(false),1800);
+     cover.onload=()=>{clearTimeout(timer);resolve(true);};
+     cover.onerror=()=>{clearTimeout(timer);resolve(false);};
+     cover.src='https://img.youtube.com/vi/'+encodeURIComponent(track.id)+'/hqdefault.jpg';
+   });
+   if(loaded&&cover.naturalWidth){
+     const sourceRatio=cover.naturalWidth/cover.naturalHeight,targetRatio=900/475;
+     let sx=0,sy=0,sw=cover.naturalWidth,sh=cover.naturalHeight;
+     if(sourceRatio>targetRatio){sw=cover.naturalHeight*targetRatio;sx=(cover.naturalWidth-sw)/2;}
+     else{sh=cover.naturalWidth/targetRatio;sy=(cover.naturalHeight-sh)/2;}
+     c.drawImage(cover,sx,sy,sw,sh,90,850,900,475);
+   }
    c.fillStyle='#ffbd91';c.fillRect(90,140,145,8);
    const write=(v,y,size,color)=>{
      c.font=`bold ${size}px sans-serif`;c.fillStyle=color;let t=String(v||'');
@@ -363,6 +384,12 @@
        return openMix(state.selected.id);
      }
      if(act==='mix-club')return openClubPicker();
+     if(act==='club-open'){
+       q('#sf95Overlay [data-sf95-close]')?.click();
+       window.sf5OpenCommunity?.();
+       window.sf71OpenFanClub?.(id);
+       return;
+     }
      if(act==='club-post'){
        if(!state.selected?.shared)return notice('Primeiro compartilhe a mixtape.',true);
        const club=$('sf100ClubSelect')?.value;
@@ -428,6 +455,11 @@
    window.sf100HandlePlayerError=playerError;
    window.sf100OnPlayback=(reason)=>{
      if(reason==='playing'&&Date.now()-state.lastAutoSync>12000)requestSync(false);
+     if(reason==='playing')setTimeout(()=>{
+       if(q('#soundGate')?.classList.contains('show')&&Date.now()-state.lastAutoReport>60000){
+         state.lastAutoReport=Date.now();telemetry('audio-blocked');
+       }
+     },1500);
    };
    socketClient()?.on('roomState',data=>{state.room=data;});
    socketClient()?.on('isAdmin',isAdmin=>{state.admin=!!isAdmin;});
