@@ -1,0 +1,176 @@
+/* SonoraFan 111 — clean lobby notification badge + social notification inbox.
+   Scoped to existing components, never affecting player or other dialogs. */
+#screen-lobby #sf107NoticeButton.sf111-lobby-bell{
+  position:relative;display:grid;place-items:center;flex:0 0 39px;
+  min-width:39px!important;width:39px!important;height:39px!important;padding:7px!important;
+  color:#ffe9f3!important;font-size:19px!important;
+  border:1px solid rgba(224,132,184,.46)!important;
+  border-radius:50%!important;background:#502550a8!important;
+}
+#screen-lobby #sf107NoticeButton.sf111-lobby-bell:hover{
+  border-color:#ffc29c!important;background:#693367!important
+}
+#screen-lobby #sf107NoticeButton .sf111-count{
+  position:absolute;top:-6px;right:-6px;display:grid;place-items:center;
+  min-width:19px;height:19px;padding:0 4px;border-radius:99px;
+  border:2px solid #26102d;background:#fc7193;color:#231020;
+  font:900 10px/1 system-ui,sans-serif;box-shadow:0 3px 9px #0007
+}
+#screen-lobby #sf107NoticeButton .sf111-count[hidden]{display:none!important}
+#screen-lobby .sf107-notice.sf111-lobby-notice{
+  gap:9px;align-items:center;min-height:62px;padding:9px 3px;
+  border-radius:8px;cursor:pointer
+}
+#screen-lobby .sf111-lobby-notice>span:first-child{
+  width:33px;height:33px;flex-basis:33px;
+  color:#ffa4c2;background:#652d58
+}
+#screen-lobby .sf111-lobby-notice>span:nth-child(2){min-width:0;flex:1 1 0}
+#screen-lobby .sf111-lobby-notice .sf111-lobby-kind{
+  margin:0 0 4px;font-size:9px!important;font-weight:850!important;
+  color:#f6a5c2!important;text-transform:uppercase;letter-spacing:.04em
+}
+#screen-lobby .sf111-lobby-notice strong{
+  font-size:11px;line-height:1.24;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+#screen-lobby .sf111-lobby-notice small:not(.sf111-lobby-kind){
+  max-width:100%;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+#screen-lobby #sf107NoticesTitleCount:not([hidden]){color:#e4a9cf;font-size:10px;margin-top:4px}
+.sf111-overlay{z-index:140000!important}
+.sf111-panel{
+  width:min(462px,100vw)!important;max-width:100%!important;
+  background:radial-gradient(ellipse at 20% 4%,rgba(104,34,100,.4),transparent 42%),
+    linear-gradient(165deg,#2c163a,#160d24 75%)!important;
+  border-left:1px solid rgba(239,145,196,.49)!important;color:#fcedf4!important;
+  box-shadow:-18px 0 70px #040108b5!important
+}
+.sf111-panel *, .sf111-panel *::before,.sf111-panel *::after{box-sizing:border-box}
+.sf111-panel button{font-family:inherit;touch-action:manipulation}
+.sf111-panel button:focus-visible{outline:2px solid #ffc3a2;outline-offset:3px}
+.sf111-panel .sf111-head{
+  align-items:flex-start!important;min-height:117px!important;
+  padding:23px 20px 16px!important;
+  border-bottom:1px solid rgba(216,112,183,.27)!important;
+  background:linear-gradient(110deg,#40163e 0%,rgba(65,22,63,.82) 56%,rgba(31,12,43,.68) 100%),
+    url('/art-41/festival-noite.webp') center 47%/cover no-repeat
+}
+.sf111-panel .sf111-heading{min-width:0;max-width:calc(100% - 44px)}
+.sf111-panel .sf111-heading small{
+  display:block;font-size:9px;font-weight:900;letter-spacing:.13em;color:#ffbfdb;margin-bottom:6px
+}
+.sf111-panel .sf111-heading h2{margin:0;font-size:clamp(22px,2.4vw,27px);line-height:1.2;font-weight:900;color:#fff}
+.sf111-panel .sf111-heading p{margin:5px 0 0;font-size:11px;line-height:1.4;color:#e4c5df;font-weight:450}
+.sf111-panel .sf15-close{
+  width:33px;height:33px;padding:0!important;flex:0 0 33px;
+  border-radius:50%!important;background:#361937c7!important;
+  color:#fff!important;border:1px solid #ca87b1!important
+}
+.sf111-panel .sf111-toolbar{
+  padding:13px 16px 11px!important;display:grid;gap:11px;
+  background:#27142de5;border-bottom:1px solid #6f3e6677!important
+}
+.sf111-panel .sf111-filters{
+  display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:1px 0
+}
+.sf111-panel .sf111-filters::-webkit-scrollbar{display:none}
+.sf111-panel .sf111-filter{
+  flex:0 0 auto;min-height:34px;padding:7px 10px;
+  border:1px solid #88547f;border-radius:999px;
+  background:#422349;color:#eed1e7;
+  font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer
+}
+.sf111-panel .sf111-filter.active{
+  background:linear-gradient(110deg,#be4b84,#873b77);
+  border-color:#e7a0b8;color:#fff
+}
+.sf111-panel .sf111-bar-actions{display:flex;align-items:center;justify-content:space-between;gap:9px}
+.sf111-panel .sf111-mark-all{
+  border:0;background:none;color:#e3bbdb;
+  padding:7px 3px;font-size:10px;font-weight:750;cursor:pointer
+}
+.sf111-panel .sf111-mark-all:hover{color:#ffbfc1}
+.sf111-panel .sf111-mark-all:disabled{opacity:.42;cursor:default}
+.sf111-panel .sf15-invite{
+  min-height:34px!important;padding:8px 11px!important;
+  background:#55295b!important;border:1px solid #a96e9a!important;
+  color:#ffe2f4!important;border-radius:999px!important;font-size:11px!important
+}
+.sf111-panel .sf111-content{
+  min-height:0;overflow-x:hidden;overflow-y:auto;
+  padding:14px 16px 22px!important;scrollbar-width:thin;
+  scrollbar-color:#b36390 #2d1837
+}
+.sf111-panel .sf111-item{
+  margin:0 0 9px!important;padding:12px!important;
+  background:linear-gradient(120deg,rgba(69,33,72,.8),rgba(40,24,52,.91))!important;
+  border:1px solid #85527d!important;border-radius:13px!important;
+  min-width:0;
+}
+.sf111-panel .sf111-item.sf15-unread{
+  border-color:#d96f9e!important;
+  box-shadow:inset 3px 0 0 #fa8b9f;background:linear-gradient(120deg,#673054bd,#392347ec)!important
+}
+.sf111-panel .sf111-item-head{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.sf111-panel .sf111-type-icon{
+  flex:0 0 35px;display:grid;place-items:center;width:35px;height:35px;
+  border-radius:11px;background:#65466b;color:#ffd1e7;font-size:17px;font-weight:800
+}
+.sf111-panel .sf111-type-icon.sf111-type-message{background:#733057;color:#ffbbd3}
+.sf111-panel .sf111-type-icon.sf111-type-mention{background:#5c3a81;color:#e9c9ff}
+.sf111-panel .sf111-type-icon.sf111-type-event{background:#6c4b38;color:#ffcf94}
+.sf111-panel .sf111-item-info{flex:1 1 0;min-width:0}
+.sf111-panel .sf111-type-name{display:block;font-size:9px;font-weight:850;color:#faafcb;margin-bottom:4px}
+.sf111-panel .sf111-item-info>strong{
+  font-size:12px!important;line-height:1.35;white-space:normal;
+  color:#fff!important;font-weight:850
+}
+.sf111-panel .sf111-item-info>p{
+  margin:5px 0!important;color:#d6bfd1!important;line-height:1.48!important;
+  font-size:11px!important;overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden
+}
+.sf111-panel .sf111-item-meta{
+  flex:0 0 auto;display:flex;align-items:center;flex-direction:column;gap:7px
+}
+.sf111-panel .sf111-item-meta>small{font-size:9px;color:#bfa8bb;white-space:nowrap}
+.sf111-panel .sf111-unread-dot{width:8px;height:8px;border-radius:50%;background:#ff708f}
+.sf111-panel .sf111-item-actions{
+  margin:11px 0 0 45px!important;display:flex;align-items:center;gap:7px;flex-wrap:wrap
+}
+.sf111-panel .sf111-item-actions button{
+  padding:7px 10px;min-height:29px;font-size:10px!important;
+  border-radius:999px;cursor:pointer
+}
+.sf111-panel .sf111-item-actions .sf111-primary{
+  background:linear-gradient(110deg,#ffa377,#eb6c9b)!important;border:0!important;
+  color:#291021!important;font-weight:900
+}
+.sf111-panel .sf111-item-actions .sf111-mark{
+  border:1px solid #8b5887!important;background:transparent!important;color:#d1b5cb!important
+}
+.sf111-panel .sf111-empty{
+  margin:14px 0;padding:25px 16px;border:1px dashed #764a74;
+  border-radius:12px;color:#d9bfd8;background:#3c21413d;
+  line-height:1.6;font-size:12px;text-align:center
+}
+.sf111-panel .sf15-form select{
+  color:#fff!important;background:#281731!important;
+  border:1px solid #87577c!important
+}
+.sf111-panel .sf15-send{
+  background:linear-gradient(115deg,#ffb27d,#eb74a0)!important;color:#270f21!important
+}
+.sf111-panel .sf15-back{background:#4e2856!important;color:#fce7f1!important}
+@media(max-width:600px){
+ .sf111-panel{width:100vw!important;height:100dvh!important;max-height:100dvh!important}
+ .sf111-panel .sf111-head{min-height:100px!important;padding:17px 14px 14px!important}
+ .sf111-panel .sf111-toolbar{padding:10px 11px!important;gap:8px}
+ .sf111-panel .sf111-content{padding:10px 10px calc(20px + env(safe-area-inset-bottom,0px))!important}
+ .sf111-panel .sf111-filter{font-size:10px;padding:7px 9px}
+ .sf111-panel .sf111-item{padding:10px!important}
+ .sf111-panel .sf111-item-actions{margin-left:0!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .sf111-panel *{animation:none!important;transition:none!important}
+}
