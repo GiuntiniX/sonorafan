@@ -18,9 +18,9 @@ test('approved mockup has centered functional nav, big lime signup and no how CT
  for(const label of ['Início','Salas','Comunidade','Experiências']) assert.ok(landing.includes('>'+label+'<'),label);
  assert.match(landing,/class="sf121-search-button"[^>]*onclick="showLogin\(\)"/);
  assert.match(landing,/id="sf120HeroTitle"/);
- assert.match(landing,/class="sf121-hero-signup"/);
+ assert.match(landing,/class="btn-hero-primary sf120-signup sf121-hero-signup"/);
  assert.doesNotMatch(landing,/Ver como funciona|id="sf120How"/);
- assert.match(html,/sonorafan-home-121\.css\?v=121/);
+ assert.match(html,/sonorafan-home-121\.css\?v=121\.1/);
 });
 
 test('features and login/signup actions are preserved',()=>{
@@ -35,9 +35,11 @@ test('features and login/signup actions are preserved',()=>{
 test('preview clearly marked as mockup; existing local assets are used',()=>{
  assert.match(landing,/Prévia ilustrativa/);
  assert.match(landing,/sf121-room-preview/);
- assert.match(landing,/src="\/art-44\/festival-stage.webp"/);
+ assert.match(landing,/src="\/art-121\/preview-guitar.webp"/);
  assert.match(landing,/src="\/brand-64\/sonorafan-logo-transparent.png"/);
  assert.match(landing,/src="\/avatars-108\/rock.svg"/);
+ assert.match(landing,/src="\/art-121\/highlight-singer.webp"/);
+ assert.match(landing,/src="\/art-121\/discover-headphones.webp"/);
 });
 
 test('approved near-black background and neon features, responsive layout',()=>{
