@@ -1,0 +1,135 @@
+/* SonoraFan 106 — move room controls visually and semantically into footer.
+   Small screens keep the ORIGINAL header controls (mobile mini-player may disappear
+   while chatting or while the keyboard is open). */
+#screen-room #sf106RoomTools[hidden] { display:none!important; }
+@media (min-width:1025px) {
+  #screen-room .header.sf106-header-clean .sf9-room-header-actions {
+    display:none!important;
+  }
+  #screen-room .header.sf106-header-clean .header-left {
+    flex:1 1 auto!important;min-width:0!important;max-width:100%!important;
+    display:flex!important;align-items:center!important;gap:9px!important;
+  }
+  #screen-room .header.sf106-header-clean #roomTitle {
+    flex:1 1 0!important;min-width:0!important;max-width:100%!important;
+    white-space:nowrap!important;overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  #screen-room.sf106-footer-tools #premiumMiniPlayer {
+    display:flex!important;align-items:center!important;flex-wrap:nowrap!important;
+    gap:clamp(5px,.65vw,11px)!important;
+    min-width:0!important;max-width:100%!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    padding-inline:clamp(8px,.85vw,15px)!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .premium-mini-cover {
+    flex:0 0 40px!important;width:40px!important;height:40px!important;
+    min-width:0!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .premium-mini-text {
+    flex:1 1 150px!important;min-width:0!important;max-width:100%!important;
+    overflow:hidden!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .premium-mini-text strong,
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .premium-mini-text span {
+    display:block!important;max-width:100%!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .sf106-room-tools {
+    display:flex!important;align-items:center!important;justify-content:flex-end!important;
+    flex:0 0 auto!important;gap:5px!important;
+    min-width:0!important;max-width:min(52%,490px)!important;
+    margin-left:auto!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .sf106-room-tools > button {
+    position:relative!important;flex:0 0 auto!important;
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:35px!important;width:auto!important;height:35px!important;
+    min-height:35px!important;padding:5px 9px!important;
+    border-radius:10px!important;border:1px solid rgba(179,131,214,.42)!important;
+    background:rgba(79,45,104,.4)!important;color:#f4e3ff!important;
+    box-shadow:none!important;font:750 11px/1.15 Inter,system-ui,sans-serif!important;
+    white-space:nowrap!important;cursor:pointer;
+  }
+  /* Preserve existing hidden/authorized state of room configuration. */
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .sf106-room-tools > button.hidden {
+    display:none!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .sf106-room-tools > button:hover {
+    border-color:rgba(233,178,247,.8)!important;
+    background:rgba(109,60,139,.68)!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .sf106-room-tools > button:focus-visible {
+    outline:2px solid #ffcfa8!important;outline-offset:2px!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #sf88RoomThemeButton {
+    gap:5px!important;max-width:165px!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #sf88RoomThemeButton strong {
+    display:inline-block;max-width:118px;min-width:0;
+    font-size:10px!important;overflow:hidden;white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #sf64RoomSidebarToggle {
+    gap:6px!important;max-width:154px!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #sf64RoomSidebarToggle span {
+    min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #cfgBtn,
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #adminBtnRoom {
+    width:35px!important;max-width:35px!important;padding:4px!important;
+    font-size:16px!important;
+  }
+  /* Admin badge is a status, not another command. */
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .sf106-room-tools #adminBadge {
+    flex:0 0 auto!important;margin:0!important;
+    font-size:10px!important;white-space:nowrap!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .premium-mini-live {
+    flex:0 0 auto!important;margin:0 3px 0 5px!important;
+    white-space:nowrap!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer > button {
+    flex:0 0 auto!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer > .premium-mini-progress {
+    pointer-events:none!important;
+  }
+}
+@media (min-width:1025px) and (max-width:1449px) {
+  /* Notebook widths: icons and tooltips, no secondary verbose labels. */
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .sf106-room-tools {
+    max-width:215px!important;gap:4px!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .sf106-room-tools > button {
+    width:33px!important;min-width:33px!important;
+    height:33px!important;min-height:33px!important;
+    padding:4px!important;font-size:15px!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #sf88RoomThemeButton strong,
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #sf64RoomSidebarToggleLabel,
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #adminBadge {
+    display:none!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #sf88RoomThemeButton,
+  #screen-room.sf106-footer-tools #premiumMiniPlayer #sf64RoomSidebarToggle {
+    width:33px!important;min-width:33px!important;max-width:33px!important;
+    font-size:15px!important;
+  }
+  #screen-room.sf106-footer-tools #premiumMiniPlayer .premium-mini-live {
+    font-size:10px!important;margin-left:2px!important;
+  }
+}
+@media (max-width:1024px) {
+  /* Original elements are restored to the header. Do not hide them because
+     some mobile tabs intentionally hide the mini-player itself. */
+  #screen-room .sf9-room-header-actions { visibility:visible; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #screen-room .sf106-room-tools > button {transition:none!important;}
+}
