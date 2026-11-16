@@ -24,5 +24,11 @@ jobs:
           node --check public/sonorafan-pwa-83.js
           node --check public/admin-control-12.js
           node --check youtube-utils-81.js
+          node --check sonorafan-studio-100.js
+          node --check sonorafan-experience-95.js
+          node --check public/sonorafan-universe-95.js
+          node --check public/sonorafan-queue-tools-95.js
+          node --check public/sonorafan-studio-100.js
+          node --check public/sonorafan-community-71.js
       - name: Run regression tests
         run: npm test
