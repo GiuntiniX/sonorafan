@@ -1,0 +1,60 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>SonoraFan room themes regression</title>
+<script>
+window.sf88test={status:'pending',updates:[],errors:[]};
+window.socket={connected:true,emit:function(name,value){window.sf88test.updates.push({name,value});}};
+window.toast=function(){};
+window.fetch=async function(url){
+ if(url!=='/themes/catalog-88.json')throw Error('Unexpected fetch '+url);
+ return {ok:true,json:async()=>[
+  {id:'indie',name:'Indie / Festival',description:'Festival',primary:'#c256e7',secondary:'#fb8074',bg:'#170e27',text:'#f2d9ff',emoji:'🎪',art:'/themes/indie.svg'},
+  {id:'metal',name:'Heavy Metal',description:'Metal',primary:'#ed3a39',secondary:'#ff9035',bg:'#130b0c',text:'#ffe4d8',emoji:'🤘',art:'/themes/metal.svg'},
+  {id:'emo',name:'Emo',description:'Emo',primary:'#ef54a5',secondary:'#f3e6ec',bg:'#101014',text:'#f7f3f5',emoji:'🖤',art:'/themes/emo.svg'}]};
+};
+window.addEventListener('error',e=>window.sf88test.errors.push(e.message));
+window.addEventListener('load',()=>setTimeout(()=>{
+ try{
+  window.sf88ResetCreateTheme();
+  if(window.sf88GetCreateTheme()!=='indie')throw Error('default');
+  document.querySelector('#sf88CreateTheme button').click();
+  document.querySelector('#sf88ThemeCards [data-theme="emo"]').click();
+  document.getElementById('sf88ThemeShared').click();
+  if(window.sf88GetCreateTheme()!=='emo')throw Error('create selector');
+  window.sf88BeginRoom('test-room');
+  window.sf88RoomState({slug:'test-room',roomTheme:'metal'});
+  if(document.getElementById('screen-room').dataset.roomTheme!=='metal')throw Error('shared render');
+  window.sf88Permission(false);
+  document.getElementById('sf88RoomThemeButton').click();
+  if(document.getElementById('sf88ThemeShared').hidden!==true)throw Error('participant shared control');
+  document.querySelector('#sf88ThemeCards [data-theme="emo"]').click();
+  document.getElementById('sf88ThemePersonal').click();
+  if(document.getElementById('screen-room').dataset.roomTheme!=='emo')throw Error('personal rendering');
+  window.sf88BeginRoom('test-room');
+  window.sf88RoomState({slug:'test-room',roomTheme:'metal'});
+  if(document.getElementById('screen-room').dataset.roomTheme!=='emo')throw Error('personal persistence');
+  window.sf88Permission(true);
+  document.getElementById('sf88RoomThemeButton').click();
+  document.querySelector('#sf88ThemeCards [data-theme="indie"]').click();
+  document.getElementById('sf88ThemeShared').click();
+  const sent=window.sf88test.updates.find(x=>x.name==='updateRoomSettings');
+  if(sent?.value?.roomTheme!=='indie')throw Error('shared event');
+  window.sf88RoomState({slug:'test-room',roomTheme:'indie'});
+  if(document.getElementById('screen-room').dataset.roomTheme!=='indie')throw Error('shared update');
+  window.sf88LeaveRoom();
+  if(document.getElementById('screen-room').hasAttribute('data-room-theme'))throw Error('cleanup');
+  finish('ok');
+ }catch(e){finish('failed-'+e.message);}
+},250));
+function finish(s){document.documentElement.setAttribute('data-sf88-test',s);}
+</script>
+<script defer src="../../public/sonorafan-room-themes-88.js"></script>
+</head><body>
+<div id="screen-room"><button type="button" id="sf88RoomThemeButton"><strong id="sf88ThemeName"></strong></button>
+<div id="sf33EmptyPlayerArt"></div><div id="sf44QueueIdle"></div></div>
+<div id="sf88CreateTheme"></div><div id="sf88EditTheme"></div>
+<div id="sf88ThemeOverlay" hidden role="dialog" aria-modal="true">
+<div id="sf88ThemeModalTitle"></div><button type="button" id="sf88ThemeClose"></button>
+<div id="sf88ThemeCards"></div>
+<img id="sf88ThemePreviewArt" src="../../public/themes/indie.svg"><p id="sf88ThemePreviewCopy"></p><p id="sf88ThemeCaption"></p>
+<button id="sf88ThemePersonal"></button><button id="sf88ThemeShared"></button><button id="sf88ThemeReset"></button>
+</div>
+</body></html>

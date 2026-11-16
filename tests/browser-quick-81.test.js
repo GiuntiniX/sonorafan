@@ -88,3 +88,22 @@ test('discovery panel chooses music for queue and keeps favorite separate (Chrom
  }
  throw lastError;
 });
+
+test('room themes work on creation, shared room updates and personal overrides (Chromium)',{
+ skip:chrome||process.env.CI==='true'?false:'Chrome/Chromium not installed'
+},async()=>{
+ assert.ok(chrome,'Chrome/Chromium required in CI');
+ let lastError=null;
+ for(let attempt=0;attempt<2;attempt++){
+   try{
+     const output=await runChrome('theme-picker-88.html');
+     const match=output.match(/data-sf88-test="([^"]+)"/);
+     assert.equal(match?.[1],'ok',output.slice(-2200));
+     return;
+   }catch(error){
+     lastError=error;
+     if(!/Chrome test timeout|Chrome exit/.test(String(error?.message)))break;
+   }
+ }
+ throw lastError;
+});
