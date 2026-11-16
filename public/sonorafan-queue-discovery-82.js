@@ -27,6 +27,8 @@
    button.dataset.query=query;
    button.setAttribute('aria-label',query?'Descobrir mais músicas relacionadas a '+query:'Explorar músicas');
    button.title=query?'Buscar mais de '+query:'Explore músicas';
+   const fanButton=$('sf82FindFans');
+   if(fanButton)fanButton.dataset.artist=artist;
  }
  function init(){
    const host=document.querySelector('#screen-room .queue-column');
@@ -39,7 +41,18 @@
       if(button.disabled)return;
       if(typeof window.sf77OpenSearch==='function')window.sf77OpenSearch(button.dataset.query||'');
    });
-   bar.append(details,button);
+   const fans=document.createElement('button');
+   fans.id='sf82FindFans';fans.type='button';fans.textContent='♧ Fan Clubs';
+   fans.setAttribute('aria-label','Encontrar Fan Clubs do artista que está tocando');
+   fans.addEventListener('click',()=>{
+      window.sf74OpenFanClubs?.();
+      const field=$('sf71ClubSearch');
+      if(field&&fans.dataset.artist){
+        field.value=fans.dataset.artist;
+        field.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+   });
+   bar.append(details,button,fans);
    const target=$('sf39QueueInsight');
    if(target)target.insertAdjacentElement('afterend',bar);else host.prepend(bar);
    if(typeof socket!=='undefined'&&socket?.on)socket.on('roomState',render);
