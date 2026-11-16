@@ -238,11 +238,24 @@
   }
   function renderNotices(){
     const host=$('sf107Notices');if(!host)return;
-    host.innerHTML=state.notices.length?state.notices.slice(0,3).map(n=>`<button type="button" class="sf107-notice" data-sf107="notices">
-      <span aria-hidden="true">${n.type==='event'?'▦':n.type==='follow'?'♧':'★'}</span>
-      <span><strong>${esc(n.title||'Novidade na comunidade')}</strong><small>${esc(n.message||'')}</small></span>
-      ${n.read?'':'<i class="sf107-dot" aria-label="Não lida"></i>'}
-      </button>`).join(''):'<p class="sf107-muted">Suas novidades aparecerão aqui.</p>';
+    const notices=state.notices||[];
+    const unread=notices.filter(n=>!n.read).length;
+    const countEl=$('sf107NoticesTitleCount');
+    if(countEl){countEl.textContent=unread?unread+' nova'+(unread===1?'':'s'):'';countEl.hidden=!unread;}
+    host.innerHTML=notices.length?notices.slice(0,4).map(n=>{
+      const icon=n.type==='message'?'✉':n.type==='mention'?'@':
+        n.type==='event'?'▦':n.type==='follow'?'♧':'✦';
+      const label=n.type==='message'?'Mensagem privada':
+        n.type==='mention'?'Menção ou resposta':'Comunidade';
+      return `<button type="button" class="sf107-notice sf111-lobby-notice" data-sf111-notice="${esc(n.id)}"
+        aria-label="${esc(n.title||label)}. ${n.read?'Lida':'Não lida'}. Abrir">
+        <span aria-hidden="true">${icon}</span>
+        <span><small class="sf111-lobby-kind">${label}</small>
+          <strong>${esc(n.title||label)}</strong>
+          <small>${esc(n.message||'')}</small></span>
+        ${n.read?'':'<i class="sf107-dot" aria-label="Não lida"></i>'}
+      </button>`;
+    }).join(''):'<p class="sf107-muted">Nenhuma novidade no momento. Mensagens privadas e menções aparecerão aqui.</p>';
   }
   function renderAll(){renderFeatured();renderRecent();renderRooms();}
   function updateRooms(list){
@@ -336,7 +349,7 @@
       }
       case 'community':return community('friends');
       case 'events':return community('events');
-      case 'notices':return document.querySelector('.sf15-lobby-bell')?.click();
+      case 'notices':return window.sf15OpenNotifications?.();
       case 'profile':return window.sf5OpenProfile?.();
       case 'account':return window.sf92OpenAccount?.();
       case 'ranking':return window.openLeaderboard?.();
@@ -361,6 +374,8 @@
     renderRooms();
   }
   function handleClick(e){
+    const targetNotice=e.target.closest('[data-sf111-notice]');
+    if(targetNotice){window.sf15OpenNotification?.(targetNotice.dataset.sf111Notice);return;}
     const room=e.target.closest('[data-sf107-room]');
     if(room)return go(room.dataset.sf107Room);
     const club=e.target.closest('[data-sf107-club]');
@@ -453,7 +468,7 @@
       </nav>
       <div class="sf107-top-actions">
         <label class="sf107-search">⌕ <input type="search" id="sf107Search" placeholder="Buscar salas, estilos ou artistas" aria-label="Buscar salas" autocomplete="off"></label>
-        <button type="button" aria-label="Notificações" title="Notificações" data-sf107="notices">♢</button>
+        <button type="button" id="sf107NoticeButton" class="sf111-lobby-bell" aria-label="Notificações" title="Notificações" data-sf107="notices">🔔 <span class="sf111-count" aria-hidden="true" hidden>0</span></button>
         <button type="button" class="sf107-profile" data-sf107="profile"><span class="sf107-profile-avatar" id="sf107ProfileAvatar">◉</span><span id="sf107ProfileLabel">Perfil</span></button>
         <details class="sf107-more"><summary>☰ <span>Mais</span></summary>
           <div class="sf107-more-list">
@@ -533,6 +548,10 @@
     for(const el of [$('userDisplayName'),$('userAvatar')]){
       if(el)new MutationObserver(syncProfile).observe(el,{childList:true,subtree:true,characterData:true});
     }
+    document.addEventListener('sf111:updated',e=>{
+      if(!Array.isArray(e.detail?.alerts))return;
+      state.notices=e.detail.alerts;renderNotices();
+    });
     const socketClient=typeof socket!=='undefined'?socket:null;
     socketClient?.on('roomState',r=>{if(r?.slug)remember(r.slug);});
     const poll=()=>{
