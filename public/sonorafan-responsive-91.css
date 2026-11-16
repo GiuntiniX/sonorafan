@@ -33,110 +33,186 @@
 #screen-room .sf34-request .add-song { min-width:0; max-width:100%; }
 #screen-room .sf34-request .add-song input { min-width:0; max-width:100%; }
 
-/* 1300px+: três painéis independentes — fila | player | chat.
-   Cada painel se dimensiona pela área disponível em vez de impor 500px ao player. */
-@media (min-width:1300px) {
+/* O notebook não deve transformar o chat em uma terceira linha.
+ * Em janelas com 900px ou mais de LARGURA CSS, mostrar as três áreas no
+ * mesmo nível, independentemente do zoom do navegador ou do DPI do Windows.
+ * Nos layouts estreitos, reduzir a navegação e o espaço decorativo, não o chat.
+ */
+@media (min-width:1025px) {
   #screen-room .app {
     display:grid!important;
-    grid-template-columns:clamp(180px,14.3vw,214px) minmax(0,1fr)!important;
-    grid-template-rows:clamp(48px,7dvh,58px) minmax(0,1fr) clamp(54px,8dvh,72px)!important;
-    min-height:0!important;
-    max-height:100dvh!important;
-    overflow:hidden!important;
+    grid-template-columns:clamp(150px,13vw,214px) minmax(0,1fr)!important;
+    grid-template-rows:clamp(47px,7dvh,58px) minmax(0,1fr) clamp(52px,8dvh,72px)!important;
+    min-width:0!important;min-height:0!important;height:100%!important;
+    max-height:100dvh!important;overflow:hidden!important;
   }
   #screen-room .room-layout {
-    display:grid!important;
-    grid-column:2!important;
-    grid-row:2!important;
-    grid-template-columns:minmax(195px,.82fr) minmax(0,1.92fr) minmax(240px,.98fr)!important;
-    grid-template-rows:clamp(44px,6.8dvh,56px) minmax(0,1fr) minmax(124px,24%)!important;
-    gap:clamp(6px,.6vw,10px)!important;
-    padding:0 clamp(7px,.65vw,12px) clamp(7px,.65vw,12px)!important;
-    min-width:0!important;
-    min-height:0!important;
-    height:100%!important;
-    max-height:100%!important;
-    overflow:hidden!important;
-  }
-  #screen-room .sf5-section-title { grid-column:1/-1!important;grid-row:1!important;min-width:0!important; }
-  #screen-room .sf5-bottom-row { display:contents!important; }
-  #screen-room .sf34-queue { grid-column:1!important;grid-row:2!important;height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important; }
-  #screen-room .sf34-request { grid-column:1!important;grid-row:3!important;min-height:0!important;height:100%!important;max-height:100%!important;overflow-y:auto!important; }
-  #screen-room .sf34-player-column {
-    grid-column:2!important;grid-row:2/4!important;
+    display:grid!important;grid-column:2!important;grid-row:2!important;
+    grid-template-columns:minmax(177px,.82fr) minmax(0,1.82fr) minmax(204px,.99fr)!important;
+    grid-template-rows:clamp(42px,6.8dvh,55px) minmax(0,1fr) minmax(106px,22%)!important;
+    gap:clamp(5px,.55vw,9px)!important;
+    padding:0 clamp(6px,.6vw,11px) clamp(6px,.6vw,11px)!important;
+    width:100%!important;max-width:100%!important;
     height:100%!important;max-height:100%!important;
-    align-self:stretch!important;justify-content:flex-start!important;
-    overflow-x:hidden!important;overflow-y:auto!important;min-height:0!important;
+    min-width:0!important;min-height:0!important;overflow:hidden!important;
+    align-content:stretch!important;
+  }
+}
+/* 900–1024px: esconder o menu lateral como já faz o tablet e usar toda a
+   largura útil para manter o chat e a fila ao lado do player. */
+@media (min-width:900px) and (max-width:1024px) {
+  #screen-room .app {
+    display:flex!important;flex-direction:column!important;
+    min-width:0!important;min-height:0!important;height:100%!important;
+    max-height:100dvh!important;overflow:hidden!important;
+  }
+  #screen-room .room-layout {
+    display:grid!important;flex:1 1 auto!important;
+    grid-template-columns:minmax(165px,.84fr) minmax(0,1.85fr) minmax(190px,1.02fr)!important;
+    grid-template-rows:clamp(42px,6.8dvh,52px) minmax(0,1fr) minmax(104px,22%)!important;
+    gap:7px!important;padding:0 7px 7px!important;
+    width:100%!important;max-width:100%!important;
+    height:auto!important;max-height:100%!important;
+    min-width:0!important;min-height:0!important;overflow:hidden!important;
+    align-content:stretch!important;
+  }
+  #screen-room .sf5-sidebar { display:none!important; }
+}
+/* A estrutura interna vale tanto para notebooks como para desktops. */
+@media (min-width:900px) {
+  #screen-room .sf5-section-title {
+    display:flex!important;grid-column:1/-1!important;grid-row:1!important;
+    min-width:0!important;overflow:hidden!important;
+  }
+  #screen-room .sf5-bottom-row { display:contents!important; }
+  #screen-room .queue-column.sf34-queue {
+    display:flex!important;flex-direction:column!important;
+    grid-column:1!important;grid-row:2!important;
+    width:100%!important;height:100%!important;
+    min-width:0!important;min-height:0!important;
+    max-height:100%!important;overflow:hidden!important;
+  }
+  #screen-room .sf10-request-card.sf34-request {
+    display:flex!important;flex-direction:column!important;
+    grid-column:1!important;grid-row:3!important;
+    width:100%!important;height:100%!important;
+    min-width:0!important;min-height:0!important;max-height:100%!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
     scrollbar-width:thin;
   }
-  #screen-room .sf34-chat { grid-column:3!important;grid-row:2/4!important;height:100%!important;max-height:100%!important;min-height:0!important;overflow:hidden!important; }
-  #screen-room .sf34-player-column .player-section {
-    height:auto!important;max-height:none!important;min-height:0!important;
-    flex:0 0 auto!important;overflow:visible!important;
+  #screen-room .player-column.sf34-player-column {
+    display:flex!important;flex-direction:column!important;
+    grid-column:2!important;grid-row:2/4!important;
+    align-self:stretch!important;justify-content:flex-start!important;
+    width:100%!important;height:100%!important;
+    min-width:0!important;min-height:0!important;
+    max-height:100%!important;max-width:100%!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    scrollbar-width:thin;
   }
-  #screen-room .sf34-player-column .player-frame {
-    height:auto!important;max-height:none!important;min-height:0!important;
-    flex:0 0 auto!important;
+  #screen-room .player-column.sf34-player-column .player-section {
+    flex:0 0 auto!important;height:auto!important;
+    max-height:none!important;min-height:0!important;
+    overflow:visible!important;justify-content:flex-start!important;
   }
-  #screen-room .sf34-player-column .sf55-session { flex:0 0 auto!important; }
+  #screen-room .player-column.sf34-player-column .player-frame {
+    flex:0 0 auto!important;aspect-ratio:16/9!important;
+    width:100%!important;height:auto!important;
+    max-height:none!important;max-width:100%!important;
+    min-height:0!important;
+  }
+  #screen-room .sf34-chat.chat-column {
+    display:flex!important;flex-direction:column!important;
+    grid-column:3!important;grid-row:2/4!important;
+    width:100%!important;height:100%!important;max-height:100%!important;
+    min-width:0!important;min-height:0!important;overflow:hidden!important;
+  }
+  #screen-room .sf34-chat .chat-panel,
+  #screen-room .sf34-chat .chat-messages {
+    min-width:0!important;min-height:0!important;
+    flex:1 1 auto!important;
+  }
+  #screen-room .sf34-chat .chat-input-bar {
+    display:flex!important;align-items:center!important;
+    flex:0 0 auto!important;min-width:0!important;
+    gap:5px!important;padding:7px!important;
+  }
+  #screen-room .sf34-chat .chat-input-bar input {
+    width:100%!important;min-width:0!important;flex:1 1 0!important;
+  }
+  #screen-room .sf34-chat .chat-input-bar > button {
+    flex:0 0 auto!important;min-width:0!important;
+    padding:7px 8px!important;
+  }
+  #screen-room .sf34-chat .premium-chat-heading {
+    display:flex!important;align-items:center!important;
+    flex-wrap:wrap!important;gap:5px!important;
+    min-height:0!important;padding:7px 8px!important;
+    font-size:clamp(10px,.95vw,13px)!important;
+  }
+  #screen-room .sf34-chat .sf88-chat-switch { margin-left:0!important; }
+  #screen-room .sf34-chat .premium-chat-heading small { display:none!important; }
+  #screen-room .sf34-queue .queue-header {
+    min-width:0!important;gap:5px!important;
+    padding:8px 9px!important;
+  }
+  #screen-room .sf34-queue .queue-header > span:first-child {
+    min-width:0!important;flex:1 1 auto!important;
+    font-size:clamp(10px,.95vw,13px)!important;
+    line-height:1.2!important;letter-spacing:0!important;
+    text-overflow:ellipsis!important;overflow:hidden!important;white-space:nowrap!important;
+  }
+  #screen-room .sf34-queue .queue-header .count { font-size:10px!important;white-space:nowrap!important; }
+  #screen-room .sf34-room-title .sf34-room-vibe { display:none!important; }
+  #screen-room .sf5-listening-card,
+  #screen-room .sf5-hero-badge { display:none!important; }
 }
-
-/* Notebooks de 1025–1299px ou navegador com zoom:
-   duas colunas e chat abaixo, sem encolher o vídeo nem cortar botões. */
-@media (min-width:1025px) and (max-width:1299px) {
+/* 900–1199px: menu menor para entregar os pixels ao chat; sem texto lateral
+   sobre a área de vídeo e sem exigência artificial de 380/420px para o player. */
+@media (min-width:1025px) and (max-width:1199px) {
   #screen-room .app {
-    display:grid!important;
-    grid-template-columns:clamp(168px,15vw,190px) minmax(0,1fr)!important;
-    grid-template-rows:clamp(48px,7dvh,58px) minmax(0,1fr) clamp(54px,8dvh,72px)!important;
-    min-height:0!important;max-height:100dvh!important;overflow:hidden!important;
+    grid-template-columns:148px minmax(0,1fr)!important;
+  }
+  #screen-room #sf64RoomSidebar { padding-left:5px!important;padding-right:5px!important; }
+  #screen-room #sf64RoomSidebar .sf5-navigation > button,
+  #screen-room #sf64RoomSidebar .sf5-navigation > button.sf29-side-invite {
+    padding-inline:5px!important;gap:5px!important;font-size:11px!important;
+  }
+  #screen-room #sf64RoomSidebar .sf5-navigation > button .sf64-menu-icon {
+    width:23px!important;height:23px!important;min-width:23px!important;min-height:23px!important;
   }
   #screen-room .room-layout {
-    display:grid!important;
-    grid-column:2!important;grid-row:2!important;
-    grid-template-columns:minmax(205px,.78fr) minmax(0,1.65fr)!important;
-    grid-template-rows:50px minmax(385px,1fr) minmax(210px,.52fr)!important;
-    gap:8px!important;padding:0 8px 10px!important;
-    min-width:0!important;min-height:0!important;
-    height:100%!important;max-height:100%!important;
-    align-content:start!important;
-    overflow-x:hidden!important;overflow-y:auto!important;
-    overscroll-behavior:contain;
+    grid-template-columns:minmax(166px,.86fr) minmax(0,1.75fr) minmax(185px,.99fr)!important;
   }
-  #screen-room .sf5-section-title { grid-column:1/-1!important;grid-row:1!important;min-width:0!important; }
-  #screen-room .sf5-bottom-row { display:contents!important; }
-  #screen-room .sf34-queue { grid-column:1!important;grid-row:2!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important; }
-  #screen-room .sf34-request { grid-column:1!important;grid-row:3!important;height:100%!important;min-height:0!important;overflow-y:auto!important; }
-  #screen-room .sf34-player-column {
-    grid-column:2!important;grid-row:2!important;
-    height:100%!important;max-height:100%!important;
-    align-self:stretch!important;overflow-y:auto!important;overflow-x:hidden!important;
-    justify-content:flex-start!important;min-height:0!important;
-  }
-  #screen-room .sf34-player-column .player-section { height:auto!important;max-height:none!important;flex:0 0 auto!important;overflow:visible!important; }
-  #screen-room .sf34-player-column .player-frame { max-height:none!important;height:auto!important; }
-  #screen-room .sf34-chat { grid-column:2!important;grid-row:3!important;min-height:0!important;height:100%!important;overflow:hidden!important; }
-  #screen-room .sf34-chat .chat-messages { min-height:0!important; }
-  #screen-room .sf33-room-nav-art { display:none!important; }
 }
-
-/* Tablet / zoom alto: a sala não deve herdar a grade rígida de desktop. */
-@media (min-width:769px) and (max-width:1024px) {
+@media (min-width:900px) and (max-width:1199px) {
+  #screen-room .sf34-queue .premium-queue-summary {gap:3px!important;font-size:10px!important;}
+  #screen-room .sf34-queue .queue-header {padding:6px!important;}
+  #screen-room .sf34-request {padding:8px!important;gap:5px!important;}
+  #screen-room .sf34-chat .chat-input-bar > button:last-of-type {padding:7px!important;font-size:11px!important;}
+  #screen-room .sf34-chat .sf88-chat-switch {font-size:10px!important;padding:5px!important;}
+  #screen-room .sf34-chat .sf53-inbox-shortcut {font-size:10px!important;padding:5px!important;}
+}
+/* Apenas telas abaixo de 900px entram na grade de duas colunas.
+   Com alto zoom, a rolagem vertical fica no conteúdo, sem perder o chat. */
+@media (min-width:769px) and (max-width:899px) {
   #screen-room .app { display:flex!important;flex-direction:column!important;min-height:0!important;max-height:100dvh!important;overflow:hidden!important; }
   #screen-room .room-layout {
-    display:grid!important;grid-template-columns:minmax(0,1.14fr) minmax(0,.86fr)!important;
-    grid-template-rows:48px minmax(360px,auto) minmax(225px,auto)!important;
-    align-content:start!important;gap:9px!important;padding:8px!important;
+    display:grid!important;flex:1 1 auto!important;
+    grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)!important;
+    grid-template-rows:46px minmax(360px,auto) minmax(230px,auto)!important;
+    align-content:start!important;gap:8px!important;padding:8px!important;
     min-width:0!important;min-height:0!important;max-height:100%!important;
     overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;
   }
-  #screen-room .sf5-section-title { display:flex!important;grid-column:1/-1!important;grid-row:1!important;min-width:0!important; }
-  #screen-room .sf5-bottom-row { display:contents!important; }
-  #screen-room .sf34-player-column { display:flex!important;grid-column:1!important;grid-row:2!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important; }
-  #screen-room .sf34-queue { display:flex!important;grid-column:2!important;grid-row:2!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important; }
-  #screen-room .sf34-request { display:flex!important;grid-column:1!important;grid-row:3!important;height:auto!important;min-height:0!important; }
-  #screen-room .sf34-chat { display:flex!important;grid-column:2!important;grid-row:3!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important; }
-  #screen-room .player-frame { width:100%!important;max-height:none!important;height:auto!important; }
-  #screen-room .sf34-room-vibe { display:none!important; }
+  #screen-room .sf5-section-title {display:flex!important;grid-column:1/-1!important;grid-row:1!important;min-width:0!important;}
+  #screen-room .sf5-bottom-row {display:contents!important;}
+  #screen-room .player-column.sf34-player-column {grid-column:1!important;grid-row:2!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;}
+  #screen-room .queue-column.sf34-queue {grid-column:2!important;grid-row:2!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important;}
+  #screen-room .sf10-request-card.sf34-request {grid-column:1!important;grid-row:3!important;height:auto!important;min-height:0!important;}
+  #screen-room .sf34-chat.chat-column {grid-column:2!important;grid-row:3!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important;}
+  #screen-room .player-column.sf34-player-column .player-frame {width:100%!important;max-height:none!important;height:auto!important;}
+  #screen-room .sf34-room-vibe {display:none!important;}
 }
 
 /* Mobile: manter as abas existentes, mas impedir larguras internas de
