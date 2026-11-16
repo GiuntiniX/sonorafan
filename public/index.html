@@ -2280,7 +2280,19 @@
         <img src="/art-33/poster-indie.webp" alt="" width="160" height="160" loading="lazy" decoding="async">
       </header>
       <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Tipo da sala</span></div>
-      <div class="sf10-step-one"><label for="newRoomName">Como sua sala vai se chamar?</label><input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40"><p>O nome será mostrado para quem encontrar sua sala.</p></div>
+      <div class="sf10-step-one">
+        <label for="newRoomName">Como sua sala vai se chamar?</label>
+        <input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40">
+        <p>O nome será mostrado para quem encontrar sua sala.</p>
+        <fieldset class="sf109-genre-fieldset" id="sf109GenrePicker">
+          <legend>♫ Qual é o gênero musical da sala? <b>Obrigatório</b></legend>
+          <p>Esse gênero define em qual categoria sua sala será encontrada no Lobby.</p>
+          <div class="sf109-genre-grid" role="radiogroup" aria-label="Gênero musical da sala">
+            <label class="sf109-genre-option"><input type="radio" name="sf109RoomGenre" value="indie"><span><i aria-hidden="true">✿</i><strong>Indie</strong></span></label><label class="sf109-genre-option"><input type="radio" name="sf109RoomGenre" value="rock"><span><i aria-hidden="true">♬</i><strong>Rock</strong></span></label><label class="sf109-genre-option"><input type="radio" name="sf109RoomGenre" value="pop"><span><i aria-hidden="true">✦</i><strong>Pop</strong></span></label><label class="sf109-genre-option"><input type="radio" name="sf109RoomGenre" value="mpb"><span><i aria-hidden="true">☼</i><strong>MPB</strong></span></label><label class="sf109-genre-option"><input type="radio" name="sf109RoomGenre" value="eletronica"><span><i aria-hidden="true">▥</i><strong>Eletrônica</strong></span></label><label class="sf109-genre-option"><input type="radio" name="sf109RoomGenre" value="alternativo"><span><i aria-hidden="true">◇</i><strong>Alternativo</strong></span></label><label class="sf109-genre-option"><input type="radio" name="sf109RoomGenre" value="festival"><span><i aria-hidden="true">♛</i><strong>Festivais</strong></span></label>
+          </div>
+          <small id="sf109GenreError" role="alert" hidden>Escolha um gênero para continuar.</small>
+        </fieldset>
+      </div>
       <div class="sf10-step-two"><div id="sf88CreateTheme" aria-label="Tema visual da nova sala"></div><div id="createCfg" class="cfg"></div></div>
       <div class="sf17-create-hint">
         <strong>Playlist colaborativa para todos</strong>
@@ -3315,6 +3327,8 @@
       if (opts) opts.style.display = (currentUser && currentUser.email === 'admin@sonora.com') ? 'block' : 'none';
       $('createRoomModal').classList.add('active');
       window.sf10WizardReset?.();
+      $('sf109GenrePicker')?.querySelectorAll('input[name="sf109RoomGenre"]').forEach(r=>r.checked=false);
+      const genreError=$('sf109GenreError');if(genreError)genreError.hidden=true;
       window.sf88ResetCreateTheme?.();
     }
     function closeCreateRoom() { $('createRoomModal').classList.remove('active'); }
@@ -3387,8 +3401,17 @@ function openRoomCfg() {
     async function createRoom() {
       const name = $('newRoomName').value.trim();
       if (!name) return toast('Digite um nome', 'error');
+      const genre = document.querySelector('#sf109GenrePicker input[name="sf109RoomGenre"]:checked')?.value;
+      const genreError=$('sf109GenreError');
+      if (!genre) {
+        if(genreError)genreError.hidden=false;
+        $('sf109GenrePicker')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+        document.querySelector('#sf109GenrePicker input[name="sf109RoomGenre"]')?.focus();
+        return toast('Selecione o gênero musical da sala.', 'error');
+      }
+      if(genreError)genreError.hidden=true;
       try {
-        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, ...readCfg('c'), roomTheme: window.sf88GetCreateTheme?.()||'indie' }) });
+        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, genre, adminName: myName, ...readCfg('c'), roomTheme: window.sf88GetCreateTheme?.()||'indie' }) });
         const d = await r.json();
         if (d.slug) { closeCreateRoom(); joinRoom(d.slug); } else toast(d.error || 'Erro', 'error');
       } catch(e) { toast('Erro ao criar sala', 'error'); }
