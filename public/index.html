@@ -1422,6 +1422,7 @@
   <link rel="stylesheet" href="/sonorafan-queue-discovery-82.css?v=82">
   <link rel="stylesheet" href="/sonorafan-pwa-83.css?v=83">
   <link rel="stylesheet" href="/sonorafan-layout-fix-87.css?v=87">
+  <link rel="stylesheet" href="/sonorafan-room-themes-88.css?v=88">
 </head>
 <body>
   <!-- ===== LANDING PAGE ===== -->
@@ -2039,6 +2040,7 @@
           <button class="action-btn hidden" id="cfgBtn" onclick="openRoomCfg()" title="Personalizar sala">⚙️</button>
         </div>
         <div class="header-right sf9-room-header-actions">
+          <button class="sf88-theme-switch" id="sf88RoomThemeButton" type="button" title="Escolher o tema visual da sala" aria-haspopup="dialog">🎨 <strong id="sf88ThemeName">Indie / Festival</strong></button>
           <button class="sf64-room-menu-toggle" id="sf64RoomSidebarToggle" type="button" aria-controls="sf64RoomSidebar" aria-expanded="true" aria-label="Recolher menu lateral da sala"><span aria-hidden="true">☰</span><span id="sf64RoomSidebarToggleLabel">Menu</span></button>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
 
@@ -2271,7 +2273,7 @@
       </header>
       <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Tipo da sala</span></div>
       <div class="sf10-step-one"><label for="newRoomName">Como sua sala vai se chamar?</label><input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40"><p>O nome será mostrado para quem encontrar sua sala.</p></div>
-      <div class="sf10-step-two"><div id="createCfg" class="cfg"></div></div>
+      <div class="sf10-step-two"><div id="createCfg" class="cfg"></div><div id="sf88CreateTheme" aria-label="Tema visual da nova sala"></div></div>
       <div class="sf17-create-hint">
         <strong>Playlist colaborativa para todos</strong>
         <span>Todos os participantes podem adicionar músicas. Personalize a sala e escolha se aceita faixas comuns, vídeos longos ou lives.</span>
@@ -2293,6 +2295,27 @@
     </div>
   </div>
 
+  <!-- TEMAS MUSICAIS DAS SALAS -->
+  <div id="sf88ThemeOverlay" class="sf88-overlay" role="dialog" aria-modal="true" aria-labelledby="sf88ThemeModalTitle" hidden>
+    <div class="sf88-modal">
+      <header class="sf88-modal-head">
+        <div><h2 id="sf88ThemeModalTitle">Escolha sua atmosfera</h2><p>Ilustrações e paletas para chat, fila e player. O som continua igual.</p></div>
+        <button type="button" class="sf88-close" id="sf88ThemeClose" aria-label="Fechar temas">✕</button>
+      </header>
+      <div id="sf88ThemeCards" class="sf88-theme-grid" role="listbox" aria-label="Temas musicais"></div>
+      <div class="sf88-footer">
+        <div class="sf88-preview">
+          <img id="sf88ThemePreviewArt" src="/themes/indie.svg" alt="" width="110" height="58">
+          <div><strong>✦ Prévia do tema</strong><p id="sf88ThemePreviewCopy">Indie / Festival</p><p id="sf88ThemeCaption">Muda a aparência da sala, não a música ou o chat.</p></div>
+        </div>
+        <div class="sf88-actions">
+          <button id="sf88ThemeReset" class="sf88-reset" type="button" hidden>Seguir tema da sala</button>
+          <button id="sf88ThemePersonal" type="button">Aplicar só para mim</button>
+          <button id="sf88ThemeShared" class="sf88-apply" type="button">✓ Aplicar para todos</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- TERMOS E PRIVACIDADE (TEXTO COMPLETO RESTAURADO) -->
   <div class="modal-overlay" id="legalModal" onclick="if(event.target===this)closeLegal()">
     <div class="modal legal-modal">
@@ -2335,7 +2358,7 @@
     <div class="modal sf35-settings-modal" style="max-width:520px;max-height:88vh;overflow:auto;">
       <span class="sf35-kicker">✦ PERSONALIZE SEU ESPAÇO</span>
       <h3>⚙️ Personalizar sala</h3>
-      <div id="editCfg" class="cfg"></div>
+      <div id="editCfg" class="cfg"></div><div id="sf88EditTheme" aria-label="Alterar tema visual da sala"></div>
       <div class="modal-actions"><button class="btn-secondary" onclick="$('roomCfgModal').classList.remove('active')">Cancelar</button><button class="btn-primary" onclick="saveRoomCfg()">Salvar</button></div>
     </div>
   </div>
@@ -3216,6 +3239,7 @@
           card.innerHTML = `${live}<div class="room-listeners-badge">🎧 ${Math.max(0,Number(r.listenerCount)||0)}</div>${playingIndicator}${visual}
             <div class="room-card-body">
               <h3>${escapeHtml(r.emoji || '')} ${escapeHtml(r.name || 'Sala musical')}</h3>
+              <div class="sf88-room-card-theme">🎨 ${escapeHtml(window.sf88ThemeLabel?.(r.roomTheme)||'Indie / Festival')}</div>
               ${r.description ? `<div class="np">${escapeHtml(r.description)}</div>` : ''}
               <div class="meta">
                 <span class="listeners">👥 ${Math.max(0,Number(r.listenerCount)||0)} ouvintes</span>
@@ -3253,6 +3277,7 @@
       if (opts) opts.style.display = (currentUser && currentUser.email === 'admin@sonora.com') ? 'block' : 'none';
       $('createRoomModal').classList.add('active');
       window.sf10WizardReset?.();
+      window.sf88ResetCreateTheme?.();
     }
     function closeCreateRoom() { $('createRoomModal').classList.remove('active'); }
 
@@ -3295,10 +3320,11 @@ function readCfg(k) {
 function cfgPick(boxId, k, key, val) { const boolKeys = ['isPrivate', 'allowLong', 'allowLive']; renderCfg(boxId, k, Object.assign({}, cfgState[k], readCfg(k), { [key]: boolKeys.includes(key) ? !!val : val })); }
 function openRoomCfg() {
       const d = currentRoomData || {};
+      window.sf88OpenEditor?.(d.roomTheme);
       renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
       $('roomCfgModal').classList.add('active');
     }
-    function saveRoomCfg() { socket.emit('updateRoomSettings', readCfg('e')); $('roomCfgModal').classList.remove('active'); toast('Sala atualizada!', 'success'); }
+    function saveRoomCfg() { const cfg=readCfg('e'); cfg.roomTheme=window.sf88GetEditTheme?.()||currentRoomData?.roomTheme||'indie'; socket.emit('updateRoomSettings', cfg); $('roomCfgModal').classList.remove('active'); toast('Sala atualizada!', 'success'); }
     async function emitJoin(slug) {
       let token;
       try { const r = await fetch('/api/socket-token', { credentials: 'include' }); if (r.ok) token = (await r.json()).token; } catch (e) {}
@@ -3324,7 +3350,7 @@ function openRoomCfg() {
       const name = $('newRoomName').value.trim();
       if (!name) return toast('Digite um nome', 'error');
       try {
-        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, ...readCfg('c') }) });
+        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, adminName: myName, ...readCfg('c'), roomTheme: window.sf88GetCreateTheme?.()||'indie' }) });
         const d = await r.json();
         if (d.slug) { closeCreateRoom(); joinRoom(d.slug); } else toast(d.error || 'Erro', 'error');
       } catch(e) { toast('Erro ao criar sala', 'error'); }
@@ -3337,6 +3363,7 @@ function openRoomCfg() {
       _joinExtra = Object.assign({ slug }, extra || {});
       if (!currentUser) { pendingRoomAfterLogin = slug; toast('Faça login primeiro', 'error'); showLogin(); return; }
       currentRoom = slug; _joinedSlug = slug;
+      window.sf88BeginRoom?.(slug);
       emitJoin(slug);
       showScreen('room');
       setTab('player'); setTimeout(maybeRoomTour, 1200);
@@ -3350,6 +3377,7 @@ function openRoomCfg() {
       _joinedSlug = null; _joinExtra = {};
       if (currentRoom) socket.emit('leaveRoom');
       currentRoom = null; currentRoomData = null;
+      window.sf88LeaveRoom?.();
       if (player && player.stopVideo) player.stopVideo();
       setSpectrum(false); applyAlbumGlow(null);
       if (window.premiumReset) window.premiumReset();
@@ -3928,6 +3956,7 @@ function openRoomCfg() {
       if (next !== prev) { sf13CancelTrackTimers(); currentTrackId = null; }
       if (window.premiumRoomState) window.premiumRoomState(state);
       currentRoomData = state;
+      window.sf88RoomState?.(state);
       syncPlayer(state);
     });
     socket.on('queueEmpty', () => {
@@ -4003,7 +4032,7 @@ function openRoomCfg() {
     });
     socket.on('votesState', (votesData) => { queueVotes = votesData || {}; if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex); });
     socket.on('error', (msg) => toast(msg, 'error'));
-    socket.on('isAdmin', (isAdmin) => { amIAdmin = !!isAdmin || currentUser?.email === 'admin@sonora.com'; $('cfgBtn').classList.toggle('hidden', !amIAdmin); checkAdmin(); });
+    socket.on('isAdmin', (isAdmin) => { amIAdmin = !!isAdmin || currentUser?.email === 'admin@sonora.com'; window.sf88Permission?.(amIAdmin); $('cfgBtn').classList.toggle('hidden', !amIAdmin); checkAdmin(); });
     socket.on('kicked', (msg) => { alert(msg); leaveRoom(); });
     socket.on('banned', (msg) => { alert(msg); leaveRoom(); });
     socket.on('chatCleared', () => { const container = document.getElementById('chatMessagesInner'); if (container) { container.innerHTML = ''; const div = document.createElement('div'); div.className = 'msg msg-system'; div.innerHTML = '<span class="msg-text">🧹 Chat limpo</span>'; container.appendChild(div); } toast('Chat limpo!', 'success'); });
@@ -4419,5 +4448,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-queue-discovery-82.js?v=82"></script>
   
   <script defer src="/sonorafan-pwa-83.js?v=83"></script>
+  <script defer src="/sonorafan-room-themes-88.js?v=88"></script>
 </body>
 </html>
