@@ -213,9 +213,9 @@
   function favList(){
     const host=$('sf112Favorites');if(!host)return;
     const filtered=state.data.favorites.filter(t=>yt(t.id) &&
-      (!state.genre|| (state.genre==='__none__'?!t.genreId:t.genreId===state.genre))&&
+      (!state.genre|| (state.genre==='__none__'?!state.data.genres.some(g=>g.id===t.genreId):t.genreId===state.genre))&&
       matches(t.title,t.artist));
-    const limit=state.expanded.favorites?120:6;
+    const limit=state.expanded.favorites?filtered.length:6;
     host.innerHTML=filtered.length?filtered.slice(0,limit).map(songCard).join(''):
       empty(state.genre||state.query?'Nenhuma música neste filtro':'Ainda não há músicas curtidas',
       state.genre||state.query?'Experimente outro estilo ou termo de busca.':'Favorite músicas nas salas para encontrá-las aqui.',
@@ -231,7 +231,8 @@
   }
   function genreTile(g,i){
     const fallback=genres.find(([key])=>fold(g.name).includes(key))?.[2] || art[i%art.length];
-    const count=state.data.favorites.filter(t=>g.id==='__none__'?!t.genreId:t.genreId===g.id).length;
+    const known=new Set(state.data.genres.map(x=>x.id));
+    const count=state.data.favorites.filter(t=>g.id==='__none__'?!known.has(t.genreId):t.genreId===g.id).length;
     const selected=state.genre===g.id;
     return `<button type="button" class="sf112-genre${selected?' on':''}" data-sf112="genre" data-id="${esc(g.id)}"
       aria-pressed="${selected}" style="--sf112-genre-image:url('${fallback}')">
@@ -240,7 +241,8 @@
   function genreList(){
     const host=$('sf112Genres');if(!host)return;
     const filtered=state.data.genres.filter(g=>matches(g.name));
-    const missing=state.data.favorites.filter(t=>!t.genreId).length;
+    const known=new Set(state.data.genres.map(g=>g.id));
+    const missing=state.data.favorites.filter(t=>!known.has(t.genreId)).length;
     const tiles=filtered.slice(0,8).map(genreTile);
     if(missing&&!state.query)tiles.push(genreTile({id:'__none__',name:'Sem categoria'},8));
     host.innerHTML=tiles.length?tiles.join(''):
@@ -369,7 +371,12 @@
       if(!slug(id)){say('Sala indisponível.',true);return;}
       close();if(typeof joinRoom==='function')joinRoom(id);return;
     }
-    if(cmd==='goto-lobby')return close();
+    if(cmd==='goto-lobby'){
+      close();
+      if(typeof currentRoom!=='undefined'&&currentRoom&&typeof leaveRoom==='function')leaveRoom();
+      else if(typeof showScreen==='function')showScreen('lobby');
+      return;
+    }
   }
   function init(){
     build();
