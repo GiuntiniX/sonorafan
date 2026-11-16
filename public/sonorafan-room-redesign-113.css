@@ -1011,3 +1011,15 @@ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app{
   flex:1 1 170px!important;max-width:none!important;
  }
 }
+
+
+/* SonoraFan 118.1 — não criar região rolável no palco (iframe em modo cover). */
+#screen-room.sf113-room .player-column.sf34-player-column > #playerSection,
+#screen-room.sf113-room .player-column.sf34-player-column > #playerSection > .player-frame{
+ overflow:clip!important;
+}
+@media(min-width:769px){
+ #screen-room.sf113-room .player-column.sf34-player-column{
+  overflow:clip!important;
+ }
+}
