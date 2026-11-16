@@ -20,6 +20,24 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 - 🌐 **3 idiomas** — PT, EN e ES
 - 🎧 **Fila de espera** — quando a sala lota (20 ouvintes), você entra automaticamente quando abrir vaga
 
+## ✦ Estúdio SonoraFan — evolução 100–105
+
+As experiências avançadas ficam em **Meu universo musical → Estúdio**, sem novos painéis permanentes na sala.
+
+- **Sincronização e recuperação**: compara o tempo de reprodução com a sala em intervalos moderados, corrige atrasos no player quando autorizado e registra erros de vídeo. Vídeos restritos só avançam automaticamente após confirmação de vários ouvintes, pelo responsável, ou por verificação do YouTube em sala com apenas uma pessoa.
+- **Mixtapes colaborativas**: salve a fila de uma sala pública, acrescente faixas da fila enquanto participa, compartilhe por link e publique no mural de Fan Clubs. Criador controla compartilhamento e exclusão.
+- **Match musical**: opt-in por conta, disponível apenas entre pessoas presentes na mesma sala pública que aceitaram participar. Comparação de gêneros declarados e artistas adicionados, sem inferir características pessoais.
+- **Sessões temáticas**: extensão dos eventos existentes, com estilo, duração, contagem regressiva, inscrições e acesso à sala. Apenas o responsável pela sala agenda.
+- **Avisos inteligentes**: opt-in, checagem enquanto a aplicação está aberta, permissão do navegador solicitada pela pessoa; nunca expõe atividade em salas privadas.
+- **Cartão social**: imagem PNG para divulgar a música atual e a sala, com arte da capa do YouTube quando autorizada pelo navegador e fallback gráfico.
+- **Layouts Ouvir e Interagir**: redistribuição de espaço entre player, fila e chat, preservando o funcionamento em notebook e mobile.
+- **Paletas Aurora e Festival**: opcionais, com respeito aos temas personalizados das salas.
+- **Central de qualidade**: diagnóstico agregado de falhas, sincronização, busca e disponibilidade, com acesso administrativo validado pelo servidor e sem armazenar identidade nos eventos.
+
+**Dados e privacidade:** mixtapes são privadas até o criador ativar o link; Match e avisos são desativados por padrão; dados pessoais novos são excluídos com a conta. Métricas de qualidade ficam em memória desde o último início do servidor, e recomendações dependem da API do YouTube.
+
+**Testes:** `npm test` executa os testes de permissões, filas, mixtapes, privacidade e integrações. O workflow verifica a sintaxe dos módulos. Para a implantação, confirme o deploy no Render e teste reprodução, notificações e autorização de mídia em navegador e celular reais.
+
 ## 🚀 Tecnologias
 
 - **Frontend:** HTML5, CSS3, JavaScript (vanilla), YouTube IFrame Player API
