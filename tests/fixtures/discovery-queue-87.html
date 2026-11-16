@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SonoraFan discover to queue</title>
+<script>
+window.sf87={queued:0,favorited:0,errors:[]};
+window.currentRoom='sala-rock';
+window.currentUser={email:'teste@example.com',nome:'Teste'};
+window.currentRoomData={queue:[],waitingQueue:[],maxDuration:600};
+window.sf80QueueSong=async(track)=>{
+  window.sf87.queued++;
+  window.sf87.track=track;
+  return {placement:'queue'};
+};
+window.toast=()=>{};
+window.fetch=async url=>{
+ const s=String(url);
+ if(s.startsWith('/api/favorites'))return {ok:true,json:async()=>[]};
+ if(s.startsWith('/api/search-youtube'))return {ok:true,json:async()=>({items:[{id:'abcdefghijk',title:'Iron Maiden - Run',artist:'Iron Maiden'}]})};
+ if(s.startsWith('/api/video-info'))return {ok:true,json:async()=>({duration:240,embeddable:true,title:'Iron Maiden - Run',artist:'Iron Maiden'})};
+ if(s.startsWith('/api/favorite-genres'))return {ok:true,json:async()=>({genres:[]})};
+ throw new Error('Request unexpected: '+s);
+};
+window.addEventListener('error',e=>window.sf87.errors.push(e.message));
+window.addEventListener('load',()=>{
+ const open=document.querySelector('[data-sf63-open="music"]');
+ open.click();
+ setTimeout(()=>{
+  const input=document.getElementById('sf63SongSearch');
+  if(!input)return finish('fail-form');
+  input.value='iron maiden';
+  document.getElementById('sf63MusicForm').requestSubmit();
+  setTimeout(()=>{
+   const add=document.querySelector('#sf63MusicResults [data-sf63-action^="song:"]');
+   const fav=document.querySelector('#sf63MusicResults [data-sf70-favorite]');
+   if(!add||!fav)return finish('fail-results-or-second-action');
+   if(!add.textContent.includes('Adicionar')||!fav.textContent.includes('Favoritar'))return finish('fail-action-label');
+   add.click();
+   setTimeout(()=>{
+    const status=document.getElementById('sf63QueueFeedback');
+    if(window.sf87.queued!==1||!status?.textContent.includes('adicionada')||window.sf87.favorited!==0)return finish('fail-queue-vs-favorite');
+    if(document.getElementById('sf63Hub').hidden)return finish('fail-panel-closed');
+    fav.click();
+    setTimeout(()=>{
+     const picker=document.getElementById('sf70FavoritePicker');
+     if(!picker||picker.hidden)return finish('fail-separate-favorite');
+     finish(window.sf87.errors.length?'fail-js-errors':'ok');
+    },200);
+   },170);
+  },240);
+ },100);
+});
+function finish(value){document.documentElement.setAttribute('data-sf87-test',value);}
+</script>
+<script defer src="../../public/sonorafan-evolution-63.js"></script>
+<script defer src="../../public/sonorafan-discovery-70.js"></script>
+</head><body>
+<div id="screen-room" class="active"></div>
+<button type="button" id="launch" data-sf63-open="music">Descobrir música</button>
+<div id="sf63Hub" hidden>
+  <section class="sf63-hub">
+    <h2 id="sf63HubTitle">Descoberta</h2>
+    <button id="sf63HubClose">Fechar</button>
+    <nav class="sf63-tabs"><button data-sf63-tab="music">Músicas</button></nav>
+    <main id="sf63HubBody"></main>
+    <button id="sf63HubDismiss">Fechar</button>
+  </section>
+</div>
+</body></html>
