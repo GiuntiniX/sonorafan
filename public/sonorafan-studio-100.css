@@ -190,3 +190,19 @@
 @media(prefers-reduced-motion:reduce){
  #sf95Overlay .sf100-shell *{transition:none!important;animation:none!important}
 }
+/* Fan Clubs em destaque, sempre dentro do painel secundário. */
+#sf95Overlay .sf100-club-highlights{margin-top:15px;padding:12px;border-radius:12px;border:1px solid #5a5076;background:#231e35}
+#sf95Overlay .sf100-club-highlights h5{margin:0 0 9px;font:800 11px system-ui;color:#bcf1de}
+#sf95Overlay .sf100-club-cards{display:grid;gap:7px}
+#sf95Overlay .sf100-club{display:flex;align-items:center;gap:10px;padding:7px 8px;border:1px solid #4c435f;border-radius:9px;background:#191a2b;min-width:0}
+#sf95Overlay .sf100-club>div{min-width:0;flex:1 1 0}
+#sf95Overlay .sf100-club strong,#sf95Overlay .sf100-club small{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#sf95Overlay .sf100-club strong{font-size:12px}
+#sf95Overlay .sf100-club small{color:#c5b6d1;font-size:10px;margin-top:3px}
+#sf95Overlay .sf100-club button{flex:none}
+#sf95Overlay .sf100-countdown{font-style:normal;color:#b7f3dd}
+.sf71-post [data-sf71-mix]{
+  min-height:31px;margin:5px 0 0;padding:6px 10px;
+  border:1px solid #a46dbe;border-radius:8px;
+  background:#4a3260;color:#fff;cursor:pointer;font:750 11px system-ui
+}
