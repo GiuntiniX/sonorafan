@@ -19,8 +19,8 @@ test('volume, time remaining and progress remain wired to the existing player ID
   assert.match(html,/id="sf117VolumeToggle"[^>]*aria-pressed="false"/);
   assert.match(html,/id="volumeSlider"[^>]*oninput="setVolume\(this.value\)"/);
   assert.match(html,/id="sf117ProgressTrack"[^>]*role="progressbar"/);
-  assert.match(html,/sonorafan-room-redesign-113\.css\?v=118/);
-  assert.match(html,/sonorafan-room-redesign-113\.js\?v=118/);
+  assert.match(html,/sonorafan-room-redesign-113\.css\?v=119/);
+  assert.match(html,/sonorafan-room-redesign-113\.js\?v=119/);
 });
 
 test('timeline visible in room themes, including end-of-track emphasis',()=>{
