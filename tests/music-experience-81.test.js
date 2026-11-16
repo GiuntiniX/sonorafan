@@ -41,3 +41,9 @@ test('PWA and queue discovery assets referenced after original application',()=>
   const html=read('public/index.html');
   assert.match(html,/sonorafan-queue-discovery-82\.js/);
 });
+
+test('single listener cannot skip shared room by reporting an early video end',()=>{
+ const code=read('server.js');
+ assert.match(code,/if \(!reportedId \|\| reportedId !== activeId\) return/);
+ assert.match(code,/room\.listenerCount > 1 && !socket\.isAdmin && getPosition\(room\) < duration - 7/);
+});
