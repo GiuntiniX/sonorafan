@@ -155,6 +155,7 @@
      state.mine=false;$('sf71ClubMine')?.setAttribute('aria-pressed','false');
      await loadClubs();
      window.sf107RefreshFanClubs?.();
+     document.dispatchEvent(new CustomEvent('sf71:created',{detail:{id:result.id}}));
      if(document.getElementById('screen-lobby')?.classList.contains('active')
        && typeof window.sf107OpenFanClub==='function'){
        window.sf107OpenFanClub(result.id);
