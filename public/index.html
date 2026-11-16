@@ -2173,7 +2173,7 @@
           <div class="add-song-area">
             <div class="add-song">
               <input type="text" id="songUrl" aria-label="Buscar música no YouTube ou colar link" placeholder="Buscar no YouTube ou colar link..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter') addSong()">
-              <button id="addBtn" onclick="addSong()">Adicionar</button>
+              <button id="addBtn" type="button" onclick="addSong()">Adicionar</button>
             </div>
             <div class="search-results" id="searchResults"></div>
             <div class="song-preview hidden" id="songPreview">
@@ -2184,9 +2184,9 @@
                 <div class="song-preview-status" id="previewStatus"></div>
               </div>
               <div class="song-preview-actions" id="previewActions">
-                <button class="song-preview-confirm" onclick="confirmAdd()">✓</button>
-                <button class="song-preview-fav" onclick="favPreview()">⭐</button>
-                <button class="song-preview-cancel" onclick="clearPreview()">✕</button>
+                <button class="song-preview-confirm" type="button" onclick="confirmAdd()" aria-label="Adicionar música selecionada à fila">✓ Adicionar à fila</button>
+                <button class="song-preview-fav" type="button" onclick="favPreview()" aria-label="Favoritar música selecionada">⭐ Favoritar</button>
+                <button class="song-preview-cancel" type="button" onclick="clearPreview()" aria-label="Cancelar seleção">✕</button>
               </div>
             </div>
             <div class="cooldown-text hidden" id="cooldownText"></div>
@@ -3694,20 +3694,24 @@ function openRoomCfg() {
     }
 
     function clearPreview() { $('songPreview').classList.add('hidden'); songData = null; }
-    function confirmAdd() {
-      if (!songData || !songData.id) return toast('Nenhuma música', 'error');
-      const lim = roomLimit(); const liveOk = currentRoomData && currentRoomData.allowLive;
-      if (!liveOk && songData.duration && songData.duration > lim) return toast(`⛔ Vídeo muito longo!`, 'error');
-      const now = Date.now();
-      if (now - lastAddTime < COOLDOWN) { const wait = Math.ceil((COOLDOWN - (now - lastAddTime)) / 1000); return toast(`Aguarde ${wait}s`, 'error'); }
+    async function confirmAdd() {
+      if (!songData || !songData.id) return toast('Selecione uma música', 'error');
+      if (typeof window.sf80QueueSong !== 'function') return toast('Atualize a página para adicionar músicas', 'error');
+      const chosen = { ...songData };
       const btn = document.querySelector('.song-preview-confirm');
-      if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
-      socket.emit('addSong', { id: songData.id, title: songData.title || 'Música', artist: songData.artist || 'Desconhecido', duration: songData.duration || null });
-      lastAddTime = Date.now(); $('songUrl').value = ''; clearPreview(); startCooldown();
-      toast('🎵 Adicionada!', 'success');
-      setTimeout(() => { if (btn) { btn.disabled = false; btn.textContent = '✓ Adicionar'; } }, 1200);
+      if (btn?.disabled) return;
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando…'; }
+      try {
+        await window.sf80QueueSong(chosen);
+        $('songUrl').value = '';
+        clearPreview();
+        toast('🎵 Música adicionada à fila!', 'success');
+      } catch (err) {
+        toast(err?.message || 'Não foi possível adicionar a música', 'error');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '✓ Adicionar à fila'; }
+      }
     }
-
     function addSong() {
       const url = $('songUrl').value.trim();
       if (window.sf78SearchFromField?.(url)) return;
@@ -4352,11 +4356,12 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-visual-74.css">
   <link rel="stylesheet" href="/sonorafan-fila-fanclub-75.css">
   <script defer src="/sonorafan-visual-74.js"></script>
-  <link rel="stylesheet" href="/sonorafan-mobile-music-76.css?v=77">
-  <script defer src="/sonorafan-mobile-music-76.js?v=77"></script>
-  <link rel="stylesheet" href="/sonorafan-search-77.css?v=77">
-  <script defer src="/sonorafan-search-77.js?v=78"></script>
+  <script defer src="/sonorafan-queue-80.js?v=80"></script>
+  <link rel="stylesheet" href="/sonorafan-mobile-music-76.css?v=80">
+  <script defer src="/sonorafan-mobile-music-76.js?v=80"></script>
+  <link rel="stylesheet" href="/sonorafan-search-77.css?v=80">
+  <script defer src="/sonorafan-search-77.js?v=80"></script>
   <link rel="stylesheet" href="/sonorafan-inline-search-78.css?v=78">
-  <script defer src="/sonorafan-inline-search-78.js?v=78"></script>
+  <script defer src="/sonorafan-inline-search-78.js?v=80"></script>
 </body>
 </html>
