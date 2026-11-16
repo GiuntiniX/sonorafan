@@ -367,19 +367,30 @@
     if (!hub || hub.hidden || !musicForm) return;
 
     const intro = document.querySelector('#sf63HubBody .sf63-intro p');
-    const description = 'Pesquise no YouTube, favorite direto da lista e organize por gênero ou categoria criada por você.';
+    const description = 'Escolha uma música para colocar na fila. Favoritar é uma ação separada e opcional.';
     if (intro && intro.textContent !== description) intro.textContent = description;
 
     $$('#sf63MusicResults .sf63-track').forEach(card => {
       const track = parseTrackFromCard(card);
       if (!track) return;
       const button = card.querySelector('[data-sf63-action^="song:"]');
-      const favorite = findFavorite(track.id);
       if (button) {
-        const label = favorite ? '✓ Organizar' : '♡ Favoritar';
-        if (button.textContent !== label) button.textContent = label;
-        button.classList.add('sf70-favorite-trigger');
+        button.textContent = '＋ Adicionar à fila';
+        button.classList.remove('sf70-favorite-trigger');
+        button.classList.add('sf70-queue-trigger');
+        button.setAttribute('aria-label', 'Adicionar ' + track.title + ' à fila da sala');
       }
+      let save = card.querySelector('[data-sf70-favorite]');
+      if (!save) {
+        save = document.createElement('button');
+        save.type = 'button';
+        save.dataset.sf70Favorite = track.id;
+        save.className = 'sf70-favorite-trigger';
+        card.appendChild(save);
+      }
+      const favorite = findFavorite(track.id);
+      save.textContent = favorite ? '✓ Organizar' : '♡ Favoritar';
+      save.setAttribute('aria-label', favorite ? 'Organizar favorita ' + track.title : 'Favoritar ' + track.title);
     });
 
     $$('#sf63FavoritesList .sf63-track').forEach(card => {
@@ -397,31 +408,18 @@
   }
 
   function interceptMusicHubActions() {
+    // Apenas o botão secundário de favoritos é interceptado.
+    // O botão principal [data-sf63-action="song:..."] deve chegar
+    // ao módulo 63, que confirma o envio para a fila compartilhada.
     document.addEventListener('click', event => {
-      const trigger = event.target.closest('.sf63-track [data-sf63-action^="song:"]');
+      const trigger = event.target.closest('#sf63MusicResults [data-sf70-favorite]');
       if (!trigger) return;
-      const hubBody = $('sf63HubBody');
-      if (!hubBody || !hubBody.contains(trigger)) return;
-      if (!$('sf63MusicForm')) return;
-
       const card = trigger.closest('.sf63-track');
       const track = parseTrackFromCard(card);
       if (!track) return;
-
-      const inFavoritesList = !!trigger.closest('#sf63FavoritesList');
       event.preventDefault();
       event.stopPropagation();
-      if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-
-      if (inFavoritesList) {
-        if (typeof currentRoom !== 'undefined' && currentRoom && typeof addFavoriteToQueue === 'function') {
-          addFavoriteToQueue(track.id);
-          return;
-        }
-        openFavoritePicker(track);
-        return;
-      }
-
+      event.stopImmediatePropagation?.();
       openFavoritePicker(track);
     }, true);
   }
