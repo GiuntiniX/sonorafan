@@ -108,6 +108,13 @@
      <img src="/avatars-108/${id}.svg" alt="Personagem ilustrado ${label}" loading="lazy">
      <span>${esc(label)}</span></button>`).join('');
   }
+  const genreList=$('sf43StyleChips');
+  genreList?.addEventListener('click',event=>{
+   const btn=event.target.closest('.sf43-style-chip');if(!btn)return;
+   const selected=btn.classList.contains('is-on');
+   if(!selected&&selectedGenres().length>=6){message('Escolha no máximo seis estilos.',true);return;}
+   btn.classList.toggle('is-on',!selected);btn.setAttribute('aria-pressed',String(!selected));
+  });
   document.querySelector('#sf43ProfileAvatar')?.setAttribute('aria-label','Seu avatar');
   $('sf108MoreAvatars')?.addEventListener('click',()=>{
    state.avatarExpanded=!state.avatarExpanded;
@@ -253,21 +260,20 @@
    chips.innerHTML=styles.map(name=>`<button type="button" data-style="${esc(name)}"
      class="sf43-style-chip${p.musicGenres?.includes(name)?' is-on':''}" aria-pressed="${!!p.musicGenres?.includes(name)}">${esc(name)}</button>`).join('');
   }
-  chips?.addEventListener('click',event=>{
-   const btn=event.target.closest('.sf43-style-chip');if(!btn)return;
-   const on=btn.classList.contains('is-on');
-   if(!on&&selectedGenres().length>=6){message('Escolha no máximo seis estilos.',true);return;}
-   btn.classList.toggle('is-on',!on);btn.setAttribute('aria-pressed',String(!on));
-  },{once:false});
+
  }
  function renderBadges(){
   const host=$('sf108Badges');if(!host)return;
-  const b=typeof myBadges!=='undefined'&&Array.isArray(myBadges)?myBadges:[];
-  const xp=Number(typeof myPoints!=='undefined'?myPoints:0)||0;
-  const list=[['♬','Explorador',xp>=5],['♨','Vibe ativa',xp>=25],
-    ['♧','Colaborador',xp>=50],['★','Destaque',xp>=100]].map(([icon,label,on])=>
-    `<div class="sf108-badge${on?' earned':''}"><b>${icon}</b><span>${label}</span></div>`).join('');
-  host.innerHTML=list+'<small class="sf108-fineprint">Marcos ilustrativos por XP; confira as medalhas oficiais no SonoraFan Club.</small>';
+  const badges=typeof myBadges!=='undefined'&&Array.isArray(myBadges)?myBadges:[];
+  if(!badges.length){
+   host.innerHTML='<div class="sf108-empty">Suas medalhas oficiais aparecerão aqui quando forem conquistadas. Acompanhe as missões no SonoraFan Club.</div>';
+   return;
+  }
+  const icons=['♬','♨','♧','★'];
+  host.innerHTML=badges.slice(0,4).map((b,i)=>{
+   const name=typeof b==='string'?b:String(b?.name||b?.title||b?.label||'Medalha');
+   return `<div class="sf108-badge earned"><b>${icons[i%4]}</b><span>${esc(name)}</span></div>`;
+  }).join('')+'<small class="sf108-fineprint">Medalhas obtidas na plataforma.</small>';
  }
  function renderMoment(){
   const host=$('sf108NowPlaying');if(!host)return;
@@ -336,10 +342,21 @@
   const headerAvatar=$('userAvatar');
   if(headerAvatar){
    headerAvatar.addEventListener('click',event=>{
-    if(!active()){event.stopPropagation();event.preventDefault();window.sf5OpenProfile?.();focusStudio();}
+    if(!active()){event.stopImmediatePropagation();event.preventDefault();window.sf5OpenProfile?.();focusStudio();}
    },true);
   }
   window.sf108AvatarRefresh=()=>api('/api/profile108/avatar').then(v=>{state.avatar=v;syncAvatar();});
+  // Refresh signed-in avatar when the login header becomes available.
+  const displayName=$('userDisplayName');
+  if(displayName&&typeof MutationObserver!=='undefined'){
+   let last='';
+   new MutationObserver(()=>{
+     const name=String(displayName.textContent||'').trim();
+     if(name&&name!=='Usuário'&&name!==last){
+       last=name;window.sf108AvatarRefresh?.().catch(()=>{});
+     }
+   }).observe(displayName,{childList:true,characterData:true,subtree:true});
+  }
   document.addEventListener('sf71:created',()=>{if(active())api('/api/fan-clubs?mine=true').then(v=>{state.clubs=v.clubs||[];renderClubs();}).catch(()=>{});});
   if(active())load();
  }
