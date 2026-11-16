@@ -340,8 +340,8 @@
     switch(name){
       case 'create':return window.showCreateRoom?.();
       case 'random':return window.joinRandomRoom?.();
-      case 'favorites':return window.sf112OpenProfile?.('library') || window.sf95OpenHub?.('rooms');
-      case 'library':return window.sf112OpenProfile?.('library') || window.sf95OpenHub?.('dna');
+      case 'favorites':return typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('library'):window.sf95OpenHub?.('rooms');
+      case 'library':return typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('library'):window.sf95OpenHub?.('dna');
       case 'clubs':return openClubs();
       case 'clubs-toggle':state.clubsExpanded=!state.clubsExpanded;renderClubs();return;
       case 'clubs-retry':state.lastClubs=0;return pullClubs(true);
@@ -354,7 +354,7 @@
       case 'community':return community('friends');
       case 'events':return community('events');
       case 'notices':return window.sf15OpenNotifications?.();
-      case 'profile':return window.sf112OpenProfile?.('profile') || window.sf5OpenProfile?.();
+      case 'profile':return typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('profile'):window.sf5OpenProfile?.();
       case 'account':return window.sf92OpenAccount?.();
       case 'ranking':return window.openLeaderboard?.();
       case 'journey':return document.querySelector('[data-sf63-open="passport"]')?.click();
