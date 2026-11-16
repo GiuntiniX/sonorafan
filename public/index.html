@@ -3418,13 +3418,15 @@ function openRoomCfg() {
       $('roomTitle').textContent = (state.isPrivate ? '🔒 ' : '') + (state.emoji ? state.emoji + ' ' : '') + state.name; $('roomTitle').title = state.description || '';
       document.documentElement.style.setProperty('--room-accent', state.color || '#7c3aed');
       currentRoomData = state;
-      if (!player || !player.loadVideoById) return;
+      // A fila e o chat devem atualizar mesmo com o player YouTube ainda
+      // carregando (comum no mobile com conexões mais lentas).
       const track = state.queue?.[state.currentIndex];
-      renderQueue(state.queue, state.currentIndex);
+      renderQueue(Array.isArray(state.queue) ? state.queue : [], state.currentIndex);
       if (window.premiumRoomState) window.premiumRoomState(state);
       renderWaitingQueue(state.waitingQueue);
-      updateNextTrack(state.queue, state.currentIndex);
+      updateNextTrack(Array.isArray(state.queue) ? state.queue : [], state.currentIndex);
       renderPinnedMessage(state.pinnedMessage);
+      if (!player || !player.loadVideoById) return;
 
       if (!track) {
         currentTrackId = null;
