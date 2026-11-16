@@ -174,3 +174,13 @@
 @media(prefers-reduced-motion:reduce){
  .sf111-panel *{animation:none!important;transition:none!important}
 }
+/* Brief, accessible visual locator when arriving from a mention/reply. */
+#screen-room #chatMessagesInner .msg.sf111-mention-highlight{
+  position:relative;border-radius:11px!important;
+  outline:2px solid #ffb777!important;outline-offset:2px!important;
+  background:rgba(238,117,162,.19)!important;
+  box-shadow:0 0 22px rgba(252,144,124,.35)!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #screen-room #chatMessagesInner .msg.sf111-mention-highlight{scroll-behavior:auto!important}
+}
