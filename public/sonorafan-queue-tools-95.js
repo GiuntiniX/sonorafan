@@ -63,9 +63,10 @@
     $('screen-room')?.classList.toggle('sf95-compact-video',compact);
     const btn=$('sf95CompactVideo');
     if(btn){
-      btn.textContent=compact?'▣ Expandir vídeo':'▢ Compactar vídeo';
+      btn.textContent=compact?'▣':'▢';
       btn.setAttribute('aria-pressed',String(compact));
-      btn.title=compact?'Expandir vídeo da sala':'Reduzir vídeo sem interromper a reprodução';
+      btn.title=compact?'Expandir vídeo da sala':'Compactar vídeo sem interromper a reprodução';
+      btn.setAttribute('aria-label',btn.title);
     }
   }
   function openFilter() {
