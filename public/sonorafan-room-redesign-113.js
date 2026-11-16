@@ -326,27 +326,61 @@
     observer.observe(total,{characterData:true,childList:true,subtree:true});
   }
 
+  // v119: keep the real YouTube iframe AND its internal player dimensions in sync.
+  // CSS-only resizing can leave YouTube rendering at its original 460 × 260.
+  let sf119FrameSize = '';
   function fitVideoStage() {
     if (!frame) return;
     const width = frame.clientWidth;
     const height = frame.clientHeight;
     if (width < 20 || height < 20) return;
-    // YouTube embeds are 16:9: size the iframe in pixels like background-size:cover.
-    // The player and current video remain untouched; only the iframe viewport changes.
-    const videoRatio = 16 / 9;
-    const fullWidth = Math.ceil(Math.max(width, height * videoRatio));
-    const fullHeight = Math.ceil(Math.max(height, width / videoRatio));
+    const ratio = 16 / 9;
+    const fullWidth = Math.ceil(Math.max(width, height * ratio));
+    const fullHeight = Math.ceil(fullWidth / ratio);
     const widthPx = fullWidth + 'px';
     const heightPx = fullHeight + 'px';
-    if (frame.style.getPropertyValue('--sf118-video-width') !== widthPx)
-      frame.style.setProperty('--sf118-video-width', widthPx);
-    if (frame.style.getPropertyValue('--sf118-video-height') !== heightPx)
-      frame.style.setProperty('--sf118-video-height', heightPx);
+    frame.style.setProperty('--sf118-video-width', widthPx);
+    frame.style.setProperty('--sf118-video-height', heightPx);
+
+    // The API replaces the placeholder with an iframe retaining initial dimensions.
+    // Use important inline dimensions to defeat legacy 205/280px iframe rules.
+    const holder = frame.querySelector('#youtube-player');
+    const iframe = holder?.tagName === 'IFRAME' ? holder
+      : holder?.querySelector('iframe') || frame.querySelector('iframe');
+    if (iframe) {
+      iframe.style.setProperty('position', 'absolute', 'important');
+      iframe.style.setProperty('width', widthPx, 'important');
+      iframe.style.setProperty('height', heightPx, 'important');
+      iframe.style.setProperty('min-width', widthPx, 'important');
+      iframe.style.setProperty('min-height', heightPx, 'important');
+      iframe.style.setProperty('max-width', 'none', 'important');
+      iframe.style.setProperty('max-height', 'none', 'important');
+      iframe.style.setProperty('aspect-ratio', '16 / 9', 'important');
+      iframe.style.setProperty('inset', 'auto', 'important');
+      iframe.style.setProperty('top', '50%', 'important');
+      iframe.style.setProperty('left', '50%', 'important');
+      iframe.style.setProperty('transform', 'translate(-50%, -50%)', 'important');
+      if (iframe.getAttribute('width') !== String(fullWidth))
+        iframe.setAttribute('width', String(fullWidth));
+      if (iframe.getAttribute('height') !== String(fullHeight))
+        iframe.setAttribute('height', String(fullHeight));
+    }
+    const key = fullWidth + 'x' + fullHeight;
+    if (key !== sf119FrameSize) {
+      sf119FrameSize = key;
+      // Dedicated bridge to the existing YouTube Player API. Does not seek or pause.
+      window.sf119ResizeYoutube?.(fullWidth, fullHeight);
+    }
   }
-  if (frame && typeof ResizeObserver === 'function') {
-    new ResizeObserver(fitVideoStage).observe(frame);
-    room.querySelectorAll('.sf113-view-switch button').forEach(button=>
-      button.addEventListener('click',fitVideoStage));
+  window.sf119FitVideoStage = fitVideoStage;
+  if (frame) {
+    if (typeof ResizeObserver === 'function') {
+      new ResizeObserver(fitVideoStage).observe(frame);
+    }
+    // YT.Player dynamically replaces the #youtube-player DIV with an IFRAME.
+    new MutationObserver(fitVideoStage).observe(frame, { childList: true, subtree: true });
+    room.querySelectorAll('.sf113-view-switch button').forEach(button =>
+      button.addEventListener('click', () => requestAnimationFrame(fitVideoStage)));
   }
 
   updateVolumeUI();
