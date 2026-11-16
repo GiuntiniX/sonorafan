@@ -595,7 +595,7 @@ app.patch('/api/community/profile', rateLimit(15, 60000), async (req, res) => {
 // ========== SONORAFAN SOCIAL 4 — AMIGOS E EVENTOS ==========
 // IDs públicos não revelam email; sessões e permissões permanecem no servidor.
 const publicUserId = email => crypto.createHash('sha256').update('sf-public-v1:' + String(email).toLowerCase()).digest('hex').slice(0, 24);
-const studio100=createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLimit,adminEmails,getPosition,getFollowing,publicActivity});
+const studio100=createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLimit,adminEmails,getPosition,getFollowing,publicActivity,youtubeApiKey:YOUTUBE_API_KEY});
 const sf95 = installExperience95({ app, db, rooms, users, sessionEmail, publicUserId, rateLimit });
 const findSocialUser = id => [...users.entries()].find(([email]) => publicUserId(email) === id);
 const profileSafe = ([email, u]) => ({ id: publicUserId(email), name: String(u.nome || 'Ouvinte').slice(0, 40), avatar: String(u.avatar || '🎧').slice(0, 8), bio: String(u.bio || '').slice(0, 120), musicGenres: Array.isArray(u.musicGenres) ? u.musicGenres.slice(0, 6) : [] });
@@ -1174,7 +1174,7 @@ app.get('/api/search-youtube', rateLimit(30, 60000), async (req, res) => {
     if (searchCache.size > 500) searchCache.delete(searchCache.keys().next().value);
     searchCache.set(ck, { t: Date.now(), items });
     res.json({ items });
-  } catch (e) { musicOps.searchFailures++; console.error('Erro na busca do YouTube:', e.message); res.status(500).json({ error: 'Erro ao buscar vídeos.', items: [] }); }
+  } catch (e) { musicOps.searchFailures++; studio100.record('search-failed','unknown'); console.error('Erro na busca do YouTube:', e.message); res.status(500).json({ error: 'Erro ao buscar vídeos.', items: [] }); }
 });
 
 function fetchUrl(url) {
