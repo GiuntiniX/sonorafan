@@ -18,6 +18,9 @@ window.addEventListener('error',function(e){window.sf81Calls.errors.push(e.messa
 window.addEventListener('load',function(){
  const input=document.getElementById('songUrl');
  input.value='double you';
+ input.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+ document.getElementById('addBtn').click();
+ if(window.sf81Calls.full!==0)return finish('failed-enter-or-search-opened-full');
  window.sf78SearchFromField('double you',true);
  setTimeout(()=>{
    const row=document.querySelector('.sf78-row');
