@@ -19,6 +19,7 @@ const { installChat53 } = require('./chat-social-53');
 const { installPlatform63 } = require('./sonorafan-platform-63');
 const { installFavoriteGenres67 } = require('./favorite-genres-67');
 const { installFanClubs71 } = require('./fan-clubs-71');
+const { createStudio100 } = require('./sonorafan-studio-100');
 const installExperience95 = require('./sonorafan-experience-95');
 
 // ===== PROTEÇÃO GLOBAL PARA O SERVIDOR NUNCA CAIR =====
@@ -488,6 +489,7 @@ app.post('/api/delete-account', rateLimit(3, 60000), async (req, res) => {
   if (!email) return res.status(401).json({ error: 'Não autenticado' });
   if (adminEmails.has(email)) return res.status(403).json({ error: 'Contas admin não podem ser excluídas aqui' });
   try {
+    await studio100.deleteUserData(email);
     await sf95.deleteUserData(email);
     for (const c of ['users', 'favorites', 'points']) await db.collection(c).doc(email).delete();
     users.delete(email); userPoints.delete(email); userFavorites.delete(email); dropSessions(email);
@@ -593,6 +595,7 @@ app.patch('/api/community/profile', rateLimit(15, 60000), async (req, res) => {
 // ========== SONORAFAN SOCIAL 4 — AMIGOS E EVENTOS ==========
 // IDs públicos não revelam email; sessões e permissões permanecem no servidor.
 const publicUserId = email => crypto.createHash('sha256').update('sf-public-v1:' + String(email).toLowerCase()).digest('hex').slice(0, 24);
+const studio100=createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLimit,adminEmails,getPosition,getFollowing,publicActivity});
 const sf95 = installExperience95({ app, db, rooms, users, sessionEmail, publicUserId, rateLimit });
 const findSocialUser = id => [...users.entries()].find(([email]) => publicUserId(email) === id);
 const profileSafe = ([email, u]) => ({ id: publicUserId(email), name: String(u.nome || 'Ouvinte').slice(0, 40), avatar: String(u.avatar || '🎧').slice(0, 8), bio: String(u.bio || '').slice(0, 120), musicGenres: Array.isArray(u.musicGenres) ? u.musicGenres.slice(0, 6) : [] });
@@ -655,7 +658,7 @@ app.post('/api/social/follow',rateLimit(24,60000),async(req,res)=>{
   }catch(e){res.status(503).json({error:'Não foi possível salvar'});}
 });
 const eventClean=(v,n)=>String(v??'').replace(/[<>\u0000-\u001f]/g,' ').trim().slice(0,n);
-const publicEvent = e => ({ id:e.id,roomSlug:e.roomSlug,roomName:e.roomName,title:e.title,description:e.description,startAt:e.startAt,hostName:e.hostName,attendees:e.attendees.length });
+const publicEvent = e => ({ id:e.id,roomSlug:e.roomSlug,roomName:e.roomName,title:e.title,description:e.description,startAt:e.startAt,hostName:e.hostName,attendees:e.attendees.length,theme:e.theme||'indie',durationMinutes:e.durationMinutes||90 });
 async function initSocialEvents(){try{const snap=await db.collection('socialEvents').get();snap.forEach(d=>{const e=d.data();if(e&&e.id&&Array.isArray(e.attendees))socialEvents.set(e.id,e);});}catch(e){console.error('social events load',e.message);}}
 initSocialEvents();
 app.get('/api/social/my-rooms', (req,res)=>{const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});res.json([...rooms.values()].filter(r=>!r.isPrivate&&(r.ownerEmail===me||adminEmails.has(me))).map(r=>({slug:r.slug,name:r.name})));});
@@ -671,7 +674,9 @@ app.post('/api/social/events',rateLimit(8,60000),async(req,res)=>{
   const title=eventClean(req.body?.title,70),description=eventClean(req.body?.description,240),startAt=Date.parse(req.body?.startAt);
   if(title.length<3||!Number.isFinite(startAt)||startAt<Date.now()+5*60000||startAt>Date.now()+90*86400000)return res.status(400).json({error:'Informe título e data futura (5 min a 90 dias)'});
   if([...socialEvents.values()].filter(e=>e.roomSlug===slug&&e.startAt>Date.now()).length>=10)return res.status(400).json({error:'Limite de 10 eventos futuros por sala'});
-  const e={id:crypto.randomUUID(),roomSlug:slug,roomName:room.name,title,description,startAt,hostId:publicUserId(me),hostName:users.get(me)?.nome||room.admin,attendees:[],createdAt:Date.now()};
+  const theme=['indie','rock2000','discoveries','pop','electronic'].includes(req.body?.theme)?req.body.theme:'indie';
+   const durationMinutes=[45,60,90,120,180].includes(Number(req.body?.durationMinutes))?Number(req.body.durationMinutes):90;
+   const e={id:crypto.randomUUID(),roomSlug:slug,roomName:room.name,title,description,startAt,theme,durationMinutes,hostId:publicUserId(me),hostName:users.get(me)?.nome||room.admin,attendees:[],createdAt:Date.now()};
   try{await db.collection('socialEvents').doc(e.id).set(e);socialEvents.set(e.id,e);res.json(publicEvent(e));}
   catch(err){res.status(503).json({error:'Falha ao agendar evento'});}
 });
@@ -1206,6 +1211,7 @@ app.get('/api/video-info', rateLimit(40, 60000), async (req, res) => {
 io.on('connection', (socket) => {
   let currentRoom = null;
   let userEmail = null;
+  studio100.attachSocket(socket,()=>currentRoom,advanceQueue);
   sf95.registerSocket(socket, () => currentRoom, getRoomVotes, broadcastState, persistRoom);
 
   socket.on('joinRoom', ({ slug, name, avatar, token, invite, password }) => {
