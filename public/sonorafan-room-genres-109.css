@@ -1,0 +1,28 @@
+/* Version 109 — mandatory music-genre step, separate from visual theme. */
+#createRoomModal .sf109-genre-fieldset{min-width:0;max-width:100%;border:1px solid rgba(232,132,191,.45);
+ padding:13px 13px 12px;margin:12px 0 6px;border-radius:14px;background:linear-gradient(130deg,rgba(70,29,70,.73),rgba(31,19,49,.77))}
+#createRoomModal .sf109-genre-fieldset legend{padding:0 7px;color:#ffe9f1;font-size:13px;font-weight:850}
+#createRoomModal .sf109-genre-fieldset legend b{margin-left:6px;color:#ffbd85;font-size:10px}
+#createRoomModal .sf109-genre-fieldset p{margin:0 0 11px;color:#ceb6d0;line-height:1.4;font-size:11px}
+#createRoomModal .sf109-genre-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+#createRoomModal .sf109-genre-option{min-width:0;position:relative;cursor:pointer;display:block;margin:0}
+#createRoomModal .sf109-genre-option input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+#createRoomModal .sf109-genre-option span{min-width:0;min-height:60px;display:flex;gap:3px;align-items:center;justify-content:center;
+ flex-direction:column;padding:6px 3px;border:1px solid #865375;border-radius:10px;background:linear-gradient(145deg,#552748,#332141);
+ color:#f8e4f0;text-align:center;transition:border-color .15s,background .15s}
+#createRoomModal .sf109-genre-option i{font-size:18px;color:#ffc18a;font-style:normal;line-height:1}
+#createRoomModal .sf109-genre-option strong{font-size:10px;white-space:normal;line-height:1.25}
+#createRoomModal .sf109-genre-option input:checked+span{border-color:#ffce92;background:linear-gradient(115deg,#ba5a84,#8f447e);
+ box-shadow:inset 0 0 0 1px #ffc78c,0 0 10px #e65c9944}
+#createRoomModal .sf109-genre-option input:focus-visible+span{outline:2px solid #ffe4a6;outline-offset:2px}
+#createRoomModal .sf109-genre-fieldset.sf109-invalid{border-color:#ff6d94}
+#createRoomModal #sf109GenreError:not([hidden]){display:block;margin-top:9px;color:#ffb8c9;font-size:11px}
+#screen-lobby .sf109-quick-clean{min-height:59px}
+#screen-lobby .sf109-quick-clean .sf109-quick-message{margin-left:auto;white-space:normal;
+ font-size:11px;color:#e9c9da;flex:0 1 auto;text-align:right}
+@media(max-width:660px){
+ #createRoomModal .sf109-genre-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ #createRoomModal .sf109-genre-option span{min-height:58px}
+ #screen-lobby .sf109-quick-clean .sf109-quick-message{flex:1 1 100%;text-align:left;font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){#createRoomModal .sf109-genre-option span{transition:none}}
