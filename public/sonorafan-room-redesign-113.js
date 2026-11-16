@@ -329,6 +329,7 @@
   // v119: keep the real YouTube iframe AND its internal player dimensions in sync.
   // CSS-only resizing can leave YouTube rendering at its original 460 × 260.
   let sf119FrameSize = '';
+  let sf119LastIframe = null;
   function fitVideoStage() {
     if (!frame) return;
     const width = frame.clientWidth;
@@ -366,7 +367,9 @@
         iframe.setAttribute('height', String(fullHeight));
     }
     const key = fullWidth + 'x' + fullHeight;
-    if (key !== sf119FrameSize) {
+    const iframeChanged = Boolean(iframe && iframe !== sf119LastIframe);
+    if (iframeChanged) sf119LastIframe = iframe;
+    if (key !== sf119FrameSize || iframeChanged) {
       sf119FrameSize = key;
       // Dedicated bridge to the existing YouTube Player API. Does not seek or pause.
       window.sf119ResizeYoutube?.(fullWidth, fullHeight);
