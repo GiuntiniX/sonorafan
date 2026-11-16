@@ -123,3 +123,18 @@
  background:rgba(178,104,203,.16);border:1px solid rgba(178,104,203,.28);
  color:var(--text-secondary,#d9bfd9);
 }
+
+/* Acesso ao seletor no próprio cabeçalho do chat. */
+#screen-room .sf88-chat-switch{
+ min-height:30px;display:inline-flex;align-items:center;justify-content:center;
+ border:1px solid color-mix(in srgb,var(--sf88-primary,#c256e7) 44%,#6a526d);
+ border-radius:9px;color:var(--sf88-label,#f5d4ff);
+ background:color-mix(in srgb,var(--sf88-panel,#25112f) 83%,transparent);
+ padding:5px 8px;margin-left:auto;margin-right:7px;font:750 10px 'Inter',sans-serif;
+ cursor:pointer;white-space:nowrap;touch-action:manipulation;
+}
+#screen-room .sf88-chat-switch:hover{border-color:var(--sf88-primary,#c256e7)}
+@media(max-width:400px){
+ #screen-room .sf88-chat-switch{font-size:9px;padding:4px 5px;min-height:31px;margin-right:3px}
+ #screen-room .premium-chat-heading small{display:none}
+}
