@@ -116,7 +116,10 @@ function installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, 
       const otherName=String(users.get(req.chat53Email)?.nome||'Uma pessoa').slice(0,40);
       io.to('sf53-user-'+req.chat53Id).emit('sf53PrivateNew',{from:req.chat53Id,to:id,message:msg});
       io.to('sf53-user-'+id).emit('sf53PrivateNew',{from:req.chat53Id,to:id,message:msg,name:otherName});
-      if(can.notify) sf15Notify(target[0],{type:'message',title:'Mensagem privada de '+otherName,message:text.slice(0,120)}).catch(e=>console.error('chat53 notify',e.message));
+      if(can.notify) sf15Notify(target[0],{
+        type:'message',title:'Mensagem privada de '+otherName,
+        message:text.slice(0,120),peerId:req.chat53Id
+      }).catch(e=>console.error('chat53 notify',e.message));
       res.status(201).json({message:msg});
     }catch(e){console.error('chat53 private send',e.message);res.status(503).json({error:'Não foi possível enviar a mensagem'});}
   });
