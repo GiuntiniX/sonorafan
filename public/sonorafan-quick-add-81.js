@@ -71,8 +71,9 @@
     panel.append(top,line,actions);
     host.replaceChildren(panel);
     if($('sf78Hint'))$('sf78Hint').textContent='Busca rápida · confirme aqui. Use “Busca completa” apenas se quiser explorar mais.';
-    const timeout=setTimeout(()=>controller?.abort(),8000);
-    fetch('/api/video-info?id='+encodeURIComponent(track.id),{credentials:'include',signal:controller.signal})
+    const request=controller;
+    const timeout=setTimeout(()=>request.abort(),8000);
+    fetch('/api/video-info?id='+encodeURIComponent(track.id),{credentials:'include',signal:request.signal})
       .then(r=>{if(!r.ok)throw new Error('Verificação indisponível');return r.json();})
       .then(data=>{
         if(token!==version||!panel.isConnected)return;
