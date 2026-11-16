@@ -32,7 +32,7 @@
 .sf88-preview strong{display:block;font-size:13px}
 .sf88-preview p{font-size:11px;color:#bbacc8;line-height:1.45;margin:5px 0 0}
 .sf88-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap}
-.sf88-actions button{border:1px solid #6e517b;background:#31203c;color:#fff;font:800 12px inherit;padding:11px 16px;border-radius:10px;min-height:43px;cursor:pointer}
+.sf88-actions button{border:1px solid #6e517b;background:#31203c;color:#fff;font-size:12px;font-weight:800;font-family:inherit;padding:11px 16px;border-radius:10px;min-height:43px;cursor:pointer}
 .sf88-actions button[hidden]{display:none!important}
 .sf88-actions .sf88-apply{background:linear-gradient(115deg,#9437d2,#fb856b);border-color:#b856c5}
 .sf88-actions .sf88-reset{margin-right:auto}
@@ -42,7 +42,7 @@
 .sf88-mini div{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .sf88-mini strong{font-size:12px}
 .sf88-mini small{font-size:10px;color:var(--text-secondary,#afa3b9)}
-.sf88-mini button,.sf88-theme-switch{cursor:pointer;border:1px solid #ae7ab966;border-radius:10px;background:#4b265b66;color:#fff;font:800 12px inherit;padding:9px 12px;min-height:40px;white-space:nowrap}
+.sf88-mini button,.sf88-theme-switch{cursor:pointer;border:1px solid #ae7ab966;border-radius:10px;background:#4b265b66;color:#fff;font-size:12px;font-weight:800;font-family:inherit;padding:9px 12px;min-height:40px;white-space:nowrap}
 #screen-room .sf88-theme-switch{display:inline-flex;align-items:center;gap:7px;max-width:190px}
 #screen-room .sf88-theme-switch strong{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #screen-room[data-room-theme]{
@@ -115,3 +115,11 @@
  #screen-room .sf88-theme-switch strong{max-width:80px;font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.sf88-theme-card{transition:none!important;transform:none!important}}
+
+/* Os cards de lobby mostram o gênero sem esconder a música ou o nome da sala. */
+#screen-lobby .sf88-room-card-theme{
+ font-size:10px;font-weight:750;line-height:1.35;display:inline-block;
+ padding:5px 8px;border-radius:9px;margin:4px 0 8px;
+ background:rgba(178,104,203,.16);border:1px solid rgba(178,104,203,.28);
+ color:var(--text-secondary,#d9bfd9);
+}
