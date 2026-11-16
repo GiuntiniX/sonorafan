@@ -1,0 +1,188 @@
+/* SonoraFan 91 — layout adaptativo por largura + altura úteis.
+   CSS-first: o desenho correto é aplicado no primeiro paint, sem zoom ou JS.
+   O player continua sendo um iframe real; fila, chat e botões mantêm suas ações.
+*/
+#screen-room,
+#screen-lobby { min-width:0; max-width:100%; }
+#screen-room .app,
+#screen-room .room-layout,
+#screen-lobby .sf28-lobby-app,
+#screen-lobby .sf28-lobby-main,
+#screen-lobby .sf28-lobby-content { min-width:0; max-width:100%; }
+#screen-room .room-layout > *,
+#screen-room .player-section,
+#screen-room .queue-column,
+#screen-room .chat-column,
+#screen-room .player-column { min-width:0!important; }
+#screen-room .player-frame {
+  max-width:100%!important;
+  width:100%!important;
+  aspect-ratio:16 / 9!important;
+}
+#screen-room .player-frame iframe,
+#screen-room .player-frame #youtube-player { max-width:100%!important; }
+#screen-room .sf34-room-title > div { min-width:0!important; }
+#screen-room .sf34-room-title strong,
+#screen-room .sf34-room-title small { overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+#screen-room .sf34-room-title .sf34-room-vibe { flex:0 1 auto;overflow:hidden;text-overflow:ellipsis; }
+#screen-room .sf34-chat .chat-messages,
+#screen-room .sf34-queue .queue-list { min-width:0;min-height:0;overscroll-behavior:contain; }
+#screen-room .sf34-chat .premium-chat-heading,
+#screen-room .sf34-queue .queue-header { min-width:0; }
+#screen-room .sf34-chat .premium-chat-heading > * { min-width:0; }
+#screen-room .sf34-request .add-song { min-width:0; max-width:100%; }
+#screen-room .sf34-request .add-song input { min-width:0; max-width:100%; }
+
+/* 1300px+: três painéis independentes — fila | player | chat.
+   Cada painel se dimensiona pela área disponível em vez de impor 500px ao player. */
+@media (min-width:1300px) {
+  #screen-room .app {
+    display:grid!important;
+    grid-template-columns:clamp(180px,14.3vw,214px) minmax(0,1fr)!important;
+    grid-template-rows:clamp(48px,7dvh,58px) minmax(0,1fr) clamp(54px,8dvh,72px)!important;
+    min-height:0!important;
+    max-height:100dvh!important;
+    overflow:hidden!important;
+  }
+  #screen-room .room-layout {
+    display:grid!important;
+    grid-column:2!important;
+    grid-row:2!important;
+    grid-template-columns:minmax(195px,.82fr) minmax(0,1.92fr) minmax(240px,.98fr)!important;
+    grid-template-rows:clamp(44px,6.8dvh,56px) minmax(0,1fr) minmax(124px,24%)!important;
+    gap:clamp(6px,.6vw,10px)!important;
+    padding:0 clamp(7px,.65vw,12px) clamp(7px,.65vw,12px)!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:100%!important;
+    max-height:100%!important;
+    overflow:hidden!important;
+  }
+  #screen-room .sf5-section-title { grid-column:1/-1!important;grid-row:1!important;min-width:0!important; }
+  #screen-room .sf5-bottom-row { display:contents!important; }
+  #screen-room .sf34-queue { grid-column:1!important;grid-row:2!important;height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important; }
+  #screen-room .sf34-request { grid-column:1!important;grid-row:3!important;min-height:0!important;height:100%!important;max-height:100%!important;overflow-y:auto!important; }
+  #screen-room .sf34-player-column {
+    grid-column:2!important;grid-row:2/4!important;
+    height:100%!important;max-height:100%!important;
+    align-self:stretch!important;justify-content:flex-start!important;
+    overflow-x:hidden!important;overflow-y:auto!important;min-height:0!important;
+    scrollbar-width:thin;
+  }
+  #screen-room .sf34-chat { grid-column:3!important;grid-row:2/4!important;height:100%!important;max-height:100%!important;min-height:0!important;overflow:hidden!important; }
+  #screen-room .sf34-player-column .player-section {
+    height:auto!important;max-height:none!important;min-height:0!important;
+    flex:0 0 auto!important;overflow:visible!important;
+  }
+  #screen-room .sf34-player-column .player-frame {
+    height:auto!important;max-height:none!important;min-height:0!important;
+    flex:0 0 auto!important;
+  }
+  #screen-room .sf34-player-column .sf55-session { flex:0 0 auto!important; }
+}
+
+/* Notebooks de 1025–1299px ou navegador com zoom:
+   duas colunas e chat abaixo, sem encolher o vídeo nem cortar botões. */
+@media (min-width:1025px) and (max-width:1299px) {
+  #screen-room .app {
+    display:grid!important;
+    grid-template-columns:clamp(168px,15vw,190px) minmax(0,1fr)!important;
+    grid-template-rows:clamp(48px,7dvh,58px) minmax(0,1fr) clamp(54px,8dvh,72px)!important;
+    min-height:0!important;max-height:100dvh!important;overflow:hidden!important;
+  }
+  #screen-room .room-layout {
+    display:grid!important;
+    grid-column:2!important;grid-row:2!important;
+    grid-template-columns:minmax(205px,.78fr) minmax(0,1.65fr)!important;
+    grid-template-rows:50px minmax(385px,1fr) minmax(210px,.52fr)!important;
+    gap:8px!important;padding:0 8px 10px!important;
+    min-width:0!important;min-height:0!important;
+    height:100%!important;max-height:100%!important;
+    align-content:start!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    overscroll-behavior:contain;
+  }
+  #screen-room .sf5-section-title { grid-column:1/-1!important;grid-row:1!important;min-width:0!important; }
+  #screen-room .sf5-bottom-row { display:contents!important; }
+  #screen-room .sf34-queue { grid-column:1!important;grid-row:2!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important; }
+  #screen-room .sf34-request { grid-column:1!important;grid-row:3!important;height:100%!important;min-height:0!important;overflow-y:auto!important; }
+  #screen-room .sf34-player-column {
+    grid-column:2!important;grid-row:2!important;
+    height:100%!important;max-height:100%!important;
+    align-self:stretch!important;overflow-y:auto!important;overflow-x:hidden!important;
+    justify-content:flex-start!important;min-height:0!important;
+  }
+  #screen-room .sf34-player-column .player-section { height:auto!important;max-height:none!important;flex:0 0 auto!important;overflow:visible!important; }
+  #screen-room .sf34-player-column .player-frame { max-height:none!important;height:auto!important; }
+  #screen-room .sf34-chat { grid-column:2!important;grid-row:3!important;min-height:0!important;height:100%!important;overflow:hidden!important; }
+  #screen-room .sf34-chat .chat-messages { min-height:0!important; }
+  #screen-room .sf33-room-nav-art { display:none!important; }
+}
+
+/* Tablet / zoom alto: a sala não deve herdar a grade rígida de desktop. */
+@media (min-width:769px) and (max-width:1024px) {
+  #screen-room .app { display:flex!important;flex-direction:column!important;min-height:0!important;max-height:100dvh!important;overflow:hidden!important; }
+  #screen-room .room-layout {
+    display:grid!important;grid-template-columns:minmax(0,1.14fr) minmax(0,.86fr)!important;
+    grid-template-rows:48px minmax(360px,auto) minmax(225px,auto)!important;
+    align-content:start!important;gap:9px!important;padding:8px!important;
+    min-width:0!important;min-height:0!important;max-height:100%!important;
+    overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;
+  }
+  #screen-room .sf5-section-title { display:flex!important;grid-column:1/-1!important;grid-row:1!important;min-width:0!important; }
+  #screen-room .sf5-bottom-row { display:contents!important; }
+  #screen-room .sf34-player-column { display:flex!important;grid-column:1!important;grid-row:2!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important; }
+  #screen-room .sf34-queue { display:flex!important;grid-column:2!important;grid-row:2!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important; }
+  #screen-room .sf34-request { display:flex!important;grid-column:1!important;grid-row:3!important;height:auto!important;min-height:0!important; }
+  #screen-room .sf34-chat { display:flex!important;grid-column:2!important;grid-row:3!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important; }
+  #screen-room .player-frame { width:100%!important;max-height:none!important;height:auto!important; }
+  #screen-room .sf34-room-vibe { display:none!important; }
+}
+
+/* Mobile: manter as abas existentes, mas impedir larguras internas de
+   forçarem zoom visual ou rolagem horizontal ao abrir a sala. */
+@media (max-width:768px) {
+  #screen-room .app { min-width:0!important;max-width:100%!important; }
+  #screen-room .room-layout {
+    width:100%!important;max-width:100%!important;
+    min-width:0!important;overflow-x:hidden!important;
+  }
+  #screen-room .sf34-player-column,
+  #screen-room .sf34-chat,
+  #screen-room .sf34-queue { width:100%!important;max-width:100%!important;min-width:0!important; }
+  #screen-room .sf34-player-column .player-frame { width:100%!important;max-width:100%!important;height:auto!important; }
+  #screen-room .sf34-room-title { gap:6px!important;min-width:0!important; }
+  #screen-room .sf34-room-title > div { flex:1 1 auto; }
+  #screen-room .sf34-room-vibe { display:none!important; }
+}
+
+/* Alturas pequenas: mostrar música/chat sem deixar banners e cabeçalhos
+   reduzirem o espaço funcional. Nunca redimensionar o site via transform/zoom. */
+@media (min-width:1025px) and (max-height:730px) {
+  #screen-room .sf34-room-title .sf34-room-vibe { display:none!important; }
+  #screen-room .sf34-room-title .sf44-room-sparks { display:none!important; }
+  #screen-room .sf34-request { padding:8px!important;gap:5px!important; }
+  #screen-room .sf34-chat .premium-chat-heading { min-height:42px!important;padding:7px 9px!important; }
+  #screen-room .sf34-queue .queue-header { min-height:42px!important;padding:7px 9px!important; }
+}
+/* Lobby: grades adaptáveis (não estouram ao mudar monitor ou zoom). */
+#screen-lobby .sf28-lobby-content { box-sizing:border-box!important; }
+#screen-lobby #roomGrid { min-width:0!important; }
+#screen-lobby .sf40-mosaic,
+#screen-lobby .sf40-preset-grid { min-width:0!important; }
+@media (min-width:721px) and (max-width:1299px) {
+  #screen-lobby #roomGrid { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+  #screen-lobby .sf40-mosaic { grid-template-columns:minmax(0,1fr)!important; }
+  #screen-lobby .sf40-preset-grid { grid-template-columns:repeat(4,minmax(0,1fr))!important; }
+}
+@media (min-width:721px) and (max-width:950px) {
+  #screen-lobby .sf40-preset-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+  #screen-lobby .sf28-lobby-header { min-width:0!important; }
+  #screen-lobby .sf28-lobby-userbar { min-width:0!important;max-width:100%!important;flex-wrap:wrap; }
+}
+@media (max-width:720px) {
+  #screen-lobby .sf28-lobby-content { width:100%!important;max-width:100%!important; }
+  #screen-lobby .sf40-preset-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+}
+/* Reduz layout shift durante o carregamento de imagens responsivas. */
+#screen-lobby .sf41-hero-banner img { width:100%;max-width:100%;object-fit:cover; }
