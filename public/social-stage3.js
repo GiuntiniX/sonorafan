@@ -239,6 +239,7 @@ function realtime(){
 function init(){
  mount();window.sf15OpenNotifications=open;
  window.sf15RefreshNotifications=()=>load(true);
+ window.sf15OpenNotification=id=>{const item=state.alerts.find(a=>a.id===id);if(item)navigate(item);else open();};
  realtime();load(true);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(true);});
  setInterval(()=>{if(!document.hidden)load();},20000);
