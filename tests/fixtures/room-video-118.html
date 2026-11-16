@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SonoraFan 118 — player iframe e controles</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0b0815;color:#fff;font:14px Inter,system-ui}
+.screen{height:100%;width:100%;overflow:hidden}
+.app{display:grid;grid-template-columns:1fr;grid-template-rows:68px 1fr;height:100%;min-height:0}
+.header{height:68px;display:flex;align-items:center;padding:10px;color:white}
+.room-layout{display:grid;grid-template-columns:1fr 2fr 1fr;gap:13px;flex:1;min-height:0;overflow:hidden}
+.player-column,.chat-column,.queue-column{display:flex;flex-direction:column;min-width:0;min-height:0}
+.player-frame{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+.player-section{min-height:0;display:flex;flex-direction:column}
+#youtube-player{width:460px;height:260px;background:#fa4d36}
+.sf5-bottom-row{display:contents}
+.queue-list,.chat-messages-inner{overflow:auto}
+</style>
+<link rel="stylesheet" href="../../public/room-reference.css">
+<link rel="stylesheet" href="../../public/sonorafan-responsive-91.css">
+<link rel="stylesheet" href="../../public/sonorafan-room-redesign-113.css">
+</head>
+<body data-tab="player" class="sf64-room-sidebar-collapsed">
+<section id="screen-room" class="screen active sf113-room" data-sf113-view="video">
+<div class="app">
+<div class="header"><button>Voltar</button> SonoraFan</div>
+<div id="roomLayout" class="room-layout">
+<div class="sf113-now-card">Tocando agora</div>
+<div class="queue-column sf34-queue"><div class="queue-header">Fila colaborativa</div><div id="queueList">Lista</div></div>
+<div class="player-column sf34-player-column">
+ <div class="player-section" id="playerSection">
+  <div class="player-frame">
+    <iframe id="youtube-player" width="460" height="260" title="Vídeo de teste" srcdoc="<body style='margin:0;background:linear-gradient(135deg,#e6340d,#ec7b39 50%,#d2194b)'></body>"></iframe>
+    <div class="sf113-visual-stage" id="sf113VisualStage">Visual</div>
+    <div class="sf113-view-switch" role="group" aria-label="Alternar entre arte e vídeo">
+      <button data-sf113-view="visual" type="button">Visual</button>
+      <button data-sf113-view="video" type="button">Vídeo</button>
+    </div>
+  </div>
+  <div class="player-info" style="display:none"><span id="trackTitle">Música</span><span id="trackArtist">Artista</span></div>
+ </div>
+ <div class="progress-section sf117-player-controls sf118-controls-dock">
+   <div class="sf117-progress-wrap">
+    <div id="sf117ProgressTrack" class="progress-bar sf117-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div id="progressFill" class="progress-fill"></div>
+    </div>
+    <div class="progress-time sf117-progress-times"><span id="currentTime">0:30</span><span id="sf117Remaining">Faltam 3:30</span><span id="totalTime">4:00</span></div>
+   </div>
+   <div class="sf117-control-row">
+    <div class="volume-control"><button class="sf117-volume-toggle" id="sf117VolumeToggle" aria-pressed="false" aria-label="Silenciar"><span class="vol-icon" id="volIcon">🔊</span></button>
+     <input type="range" id="volumeSlider" value="80" min="0" max="100" aria-label="Volume">
+     <output id="volumeValue" for="volumeSlider">80%</output></div>
+    <div class="sf30-player-actions"><button>Favoritar</button></div>
+   </div>
+ </div>
+</div>
+<div class="sf5-bottom-row">
+ <div class="sf5-listening-card">Ouvintes</div>
+ <div class="chat-column sf34-chat"><div class="chat-panel"><div class="chat-messages"><div class="chat-messages-inner">Mensagem de teste</div></div></div></div>
+</div>
+</div>
+</div></section>
+<script>window.setVolume=function(v){document.getElementById('volumeSlider').value=String(v)}</script>
+<script src="../../public/sonorafan-room-redesign-113.js"></script>
+<script>
+const m = {};
+function report(){
+ const e=id=>document.getElementById(id);
+ const rect=el=>el.getBoundingClientRect();
+ const stage=e('screen-room').querySelector('.player-frame');
+ const iframe=e('youtube-player');
+ const column=e('screen-room').querySelector('.player-column');
+ const dock=e('screen-room').querySelector('.sf118-controls-dock');
+ const volume=e('volumeSlider');
+ const a=rect(stage),b=rect(iframe),c=rect(column),d=rect(dock),v=rect(volume);
+ m.viewport=innerWidth;m.stage=[a.x,a.y,a.width,a.height];m.iframe=[b.x,b.y,b.width,b.height];
+ m.dock=[d.x,d.y,d.width,d.height];m.volume=[v.x,v.y,v.width,v.height];
+ m.position=[getComputedStyle(iframe).top,getComputedStyle(iframe).left];
+ m.styleSize=[stage.style.getPropertyValue('--sf118-video-width'),stage.style.getPropertyValue('--sf118-video-height')];
+ m.cover=b.left <= a.left+2 && b.top <= a.top+2 && b.right >= a.right-2 && b.bottom >= a.bottom-2
+    && b.width >= a.width-2 && b.height >= a.height-2;
+ m.separated=dock.parentElement===column && !e('playerSection').contains(dock);
+ m.below=d.top>=a.bottom-4 && d.bottom <= c.bottom+5;
+ m.slider=v.width>=70 && v.height>0 && v.top>=a.bottom-5 && v.bottom<=c.bottom+5;
+ m.noscroll=Math.abs(column.scrollHeight-column.clientHeight)<=3 && Math.abs(stage.scrollHeight-stage.clientHeight)<=3;
+ m.correctSize=stage.style.getPropertyValue('--sf118-video-width').endsWith('px') && stage.style.getPropertyValue('--sf118-video-height').endsWith('px');
+ const out=document.createElement('output');out.id='sf118Metrics';
+ out.dataset.sf118Test=['cover','separated','below','slider','noscroll','correctSize'].every(x=>m[x])?'ok':'fail';
+ out.textContent=JSON.stringify(m);document.body.append(out);
+}
+window.addEventListener('load',()=>setTimeout(report,130));
+</script></body></html>
