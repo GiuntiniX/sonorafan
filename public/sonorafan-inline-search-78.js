@@ -80,6 +80,7 @@
   }
   function choose(track) {
     if (!validId(track?.id)) return;
+    if (typeof window.sf81QuickSelect === 'function' && window.sf81QuickSelect(track)) return;
     close();
     if (typeof window.sf77PickTrack === 'function') {
       window.sf77PickTrack(track);
@@ -110,7 +111,7 @@
       btn.addEventListener('click',()=>choose(track));
       host.append(btn);
     }
-    $('sf78Hint').textContent=`${tracks.length} ${tracks.length===1?'resultado':'resultados'} · escolha a faixa para confirmar a inclusão na fila.`;
+    $('sf78Hint').textContent=`${tracks.length} ${tracks.length===1?'resultado':'resultados'} · selecione para adicionar aqui ou use a busca completa.`;
     position();
   }
   function visualBounds() {
