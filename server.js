@@ -6,6 +6,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const { sanitize } = require('./room-settings');
+const { decodeYouTubeEntities } = require('./youtube-utils-81');
 const crypto = require('crypto');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
@@ -1151,7 +1152,7 @@ app.get('/api/search-youtube', rateLimit(30, 60000), async (req, res) => {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
-    const items = data.items.map(item => ({ id: item.id.videoId, title: item.snippet.title, artist: item.snippet.channelTitle, thumb: item.snippet.thumbnails.default.url }));
+    const items = (Array.isArray(data.items) ? data.items : []).filter(item => /^[a-zA-Z0-9_-]{11}$/.test(item?.id?.videoId || '')).map(item => ({ id: item.id.videoId, title: decodeYouTubeEntities(item.snippet?.title || 'Música'), artist: decodeYouTubeEntities(item.snippet?.channelTitle || 'Artista'), thumb: item.snippet?.thumbnails?.default?.url || '' }));
     if (searchCache.size > 500) searchCache.delete(searchCache.keys().next().value);
     searchCache.set(ck, { t: Date.now(), items });
     res.json({ items });
@@ -1179,7 +1180,7 @@ app.get('/api/video-info', rateLimit(40, 60000), async (req, res) => {
     const r = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,status&id=${id}&key=${YOUTUBE_API_KEY}`);
     const d = await r.json(); const v = d.items && d.items[0];
     if (v) {
-      info.title = v.snippet.title; info.embeddable = !(v.status && v.status.embeddable === false); info.artist = v.snippet.channelTitle;
+      info.title = decodeYouTubeEntities(v.snippet.title); info.embeddable = !(v.status && v.status.embeddable === false); info.artist = decodeYouTubeEntities(v.snippet.channelTitle);
       const m = (v.contentDetails.duration || '').match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
       if (m && v.snippet.liveBroadcastContent !== 'live') info.duration = (+m[1] || 0) * 3600 + (+m[2] || 0) * 60 + (+m[3] || 0);
     }
