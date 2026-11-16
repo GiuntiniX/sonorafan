@@ -36,6 +36,8 @@ jobs:
           node --check room-genres-109.js
           node --check public/sonorafan-room-genres-109.js
           node --check public/sonorafan-community-110.js
+          node --check public/social-stage3.js
+          node --check public/sonorafan-chat-53.js
           node --check public/sonorafan-community-71.js
       - name: Run regression tests
         run: npm test
