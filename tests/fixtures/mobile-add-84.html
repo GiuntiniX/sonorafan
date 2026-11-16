@@ -1,0 +1,38 @@
+<!doctype html><html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SonoraFan mobile search regression</title>
+<script>
+window.sf84={queued:0,favorited:0,errors:[]};
+window.currentRoom='rock';
+window.socket={connected:true};
+window.currentRoomData={queue:[],waitingQueue:[],maxDuration:600,allowLive:false};
+window.lastAddTime=0;
+window.COOLDOWN=30000;
+window.roomLimit=()=>600;
+window.toast=()=>{};
+window.clearPreview=()=>{};
+window.favPreview=async()=>{window.sf84.favorited++;};
+window.sf80QueueSong=async t=>{window.sf84.queued++;window.sf84.track=t;return {placement:'queue'}};
+window.fetch=async url=>{
+ if(String(url).includes('/api/search-youtube'))return {ok:true,json:async()=>({items:[{id:'abcdefghijk',title:'Double You',artist:'Test Artist'}]})};
+ if(String(url).includes('/api/video-info'))return {ok:true,json:async()=>({id:'abcdefghijk',title:'Double You',artist:'Test Artist',duration:230,embeddable:true})};
+ throw Error('Unexpected '+url);
+};
+window.addEventListener('error',e=>window.sf84.errors.push(e.message));
+window.addEventListener('load',()=>{
+ window.sf77OpenSearch('double you');
+ setTimeout(()=>{
+  const row=document.querySelector('.sf77-result');
+  if(!row)return finish('failed-results');
+  row.click();
+  setTimeout(()=>{
+   const add=document.getElementById('sf77Add');
+   if(!add||add.disabled)return finish('failed-add');
+   add.click();
+   setTimeout(()=>finish(window.sf84.queued===1&&window.sf84.favorited===0&&window.sf84.errors.length===0?'ok':'failed-favorite-instead-of-queue'),100);
+  },130);
+ },520);
+});
+function finish(s){document.documentElement.setAttribute('data-sf84-test',s);}
+</script>
+<script defer src="../../public/sonorafan-search-77.js"></script>
+</head><body><section id="screen-room" class="active"><input id="songUrl"><button id="addBtn"></button><div id="searchResults"></div></section></body></html>
