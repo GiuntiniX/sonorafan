@@ -8,9 +8,9 @@ const { spawn }=require('node:child_process');
 const binaries=[process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium','/usr/bin/chromium-browser'].filter(Boolean);
 const chrome=binaries.find(bin=>fs.existsSync(bin));
 
-async function runChrome(){
+async function runChrome(fixture='quick-add-81.html'){
  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'sf81-chrome-'));
- const file='file://'+path.join(__dirname,'fixtures/quick-add-81.html');
+ const file='file://'+path.join(__dirname,'fixtures',fixture);
  const args=['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--disable-extensions','--disable-sync','--no-first-run','--no-default-browser-check','--disable-background-networking','--allow-file-access-from-files','--user-data-dir='+profile,'--virtual-time-budget=4000','--dump-dom',file];
  try{
   return await new Promise((resolve,reject)=>{
@@ -41,6 +41,25 @@ test('desktop quick search confirms in place and full search stays separate (Chr
    try{
      const output=await runChrome();
      const match=output.match(/data-sf81-test="([^"]+)"/);
+     assert.equal(match?.[1],'ok',output.slice(-1500));
+     return;
+   }catch(error){
+     lastError=error;
+     if(!/Chrome test timeout|Chrome exit/.test(String(error?.message)))break;
+   }
+ }
+ throw lastError;
+});
+
+test('mobile music search adds to queue without favoriting (Chromium)',{
+ skip:chrome||process.env.CI==='true'?false:'Chrome/Chromium not installed'
+},async()=>{
+ assert.ok(chrome,'Chrome/Chromium required in CI');
+ let lastError=null;
+ for(let attempt=0;attempt<2;attempt++){
+   try{
+     const output=await runChrome('mobile-add-84.html');
+     const match=output.match(/data-sf84-test="([^"]+)"/);
      assert.equal(match?.[1],'ok',output.slice(-1500));
      return;
    }catch(error){
