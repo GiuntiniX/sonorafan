@@ -7,12 +7,13 @@
  let themes=[FALLBACK], byId=new Map([[FALLBACK.id,FALLBACK]]);
  let roomSlug='',sharedTheme='indie',personalOverride=null,mayEdit=false;
  let createChoice='indie',editChoice='indie',modalChoice='indie',modalMode='room',previousFocus=null;
- const safe=id=>byId.has(id)?id:'indie';
+ const KNOWN_THEMES=new Set(['indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro']);
+ const safe=id=>KNOWN_THEMES.has(id)?id:'indie';
  const find=id=>byId.get(safe(id))||FALLBACK;
  const storageKey=slug=>'sf88:theme:'+slug;
  function getLocal(slug){
    if(!slug)return null;
-   try {const value=localStorage.getItem(storageKey(slug));return byId.has(value)?value:null;}catch(_){return null;}
+   try {const value=localStorage.getItem(storageKey(slug));return KNOWN_THEMES.has(value)?value:null;}catch(_){return null;}
  }
  function storeLocal(slug,id){
    try{if(id)localStorage.setItem(storageKey(slug),id);else localStorage.removeItem(storageKey(slug));}catch(_){}
@@ -200,7 +201,7 @@
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
    .then(items=>{
      if(!Array.isArray(items)||items.length===0)return;
-     const valid=items.filter(t=>/^[a-z0-9_-]{2,24}$/.test(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&t.art==='/themes/'+t.id+'.svg');
+     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&t.art==='/themes/'+t.id+'.svg');
      if(!valid.length)return;
      themes=valid;byId=new Map(themes.map(x=>[x.id,x]));
      createChoice=safe(createChoice);editChoice=safe(editChoice);
