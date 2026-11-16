@@ -44,5 +44,9 @@ function setup() {
  console.log('OK: regra real de remoção ao 10º voto');
 }
 assert(client.includes('sf52-vote-controls'),'Markup novo de votação');
+assert(!client.includes('id="sf52VotingHelp"'),'A faixa de instruções redundante não deve ocupar espaço na sala');
+assert(client.includes('id="sf52VoteStatus"'),'Feedback acessível da votação permanece');
+assert(client.includes("voteSong(this.dataset.id, 'up')"),'Botão de apoiar permanece funcional');
+assert(client.includes("voteSong(this.dataset.id, 'down')"),'Botão de remover permanece funcional');
 assert(!client.includes('sf50-focus-toggle'),'Modo Foco removido do HTML');
 console.log('OK: controles da UI e remoção do Modo Foco');
