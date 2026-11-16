@@ -1,0 +1,39 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>SonoraFan menu alignment</title>
+<link rel="stylesheet" href="../../public/sonorafan-ui-38.css">
+<link rel="stylesheet" href="../../public/sonorafan-layout-42.css">
+<link rel="stylesheet" href="../../public/sonorafan-ui-65.css">
+<link rel="stylesheet" href="../../public/sonorafan-menu-favorites-67.css">
+<link rel="stylesheet" href="../../public/sonorafan-menu-align-89.css">
+<script>
+window.invites=0;
+function copyInviteLink(){window.invites++;}
+function finish(value){document.documentElement.setAttribute('data-sf89-test',value);}
+addEventListener('load',()=>{
+ const nav=document.querySelector('#screen-room .sf5-navigation');
+ const buttons=[...nav.querySelectorAll('button')];
+ const texts=buttons.map(x=>x.textContent.trim());
+ if(texts.join('|')!=='Comunidade|Mensagens|Convidar amigos|Meu perfil')return finish('wrong-order');
+ const normal=buttons[1],invite=buttons[2];
+ const st=getComputedStyle(normal),si=getComputedStyle(invite);
+ const nIcon=getComputedStyle(normal.querySelector('.sf64-menu-icon')),iIcon=getComputedStyle(invite.querySelector('.sf64-menu-icon'));
+ const nLabel=getComputedStyle(normal.querySelector('span:last-child')),iLabel=getComputedStyle(invite.querySelector('span:last-child'));
+ const approx=(a,b)=>Math.abs(parseFloat(a)-parseFloat(b))<0.15;
+ if(!approx(st.fontSize,si.fontSize))return finish('wrong-font-'+st.fontSize+'-'+si.fontSize);
+ if(!approx(st.paddingTop,si.paddingTop)||!approx(st.paddingLeft,si.paddingLeft))return finish('wrong-padding');
+ if(!approx(st.gap,si.gap))return finish('wrong-gap');
+ if(!approx(nIcon.width,iIcon.width)||!approx(nIcon.height,iIcon.height))return finish('wrong-icon');
+ if(!approx(nLabel.fontSize,iLabel.fontSize))return finish('wrong-label');
+ if(Math.abs(normal.getBoundingClientRect().height-invite.getBoundingClientRect().height)>.5)return finish('wrong-height');
+ invite.click();
+ if(window.invites!==1)return finish('broken-invite-action');
+ finish('ok');
+});
+</script></head><body>
+<div id="screen-room" class="active">
+ <aside class="sf5-sidebar"><nav class="sf5-navigation">
+  <button type="button"><span class="sf64-menu-icon" aria-hidden="true">♧</span><span>Comunidade</span></button>
+  <button type="button"><span class="sf64-menu-icon" aria-hidden="true">✉</span><span>Mensagens</span></button>
+  <button type="button" class="sf29-side-invite" onclick="copyInviteLink()"><span class="sf64-menu-icon sf64-icon-invite" aria-hidden="true">🔗</span><span>Convidar amigos</span></button>
+  <button type="button"><span class="sf64-menu-icon" aria-hidden="true">◉</span><span>Meu perfil</span></button>
+ </nav></aside>
+</div></body></html>
