@@ -264,3 +264,25 @@
 @media(prefers-reduced-motion:reduce){
  #screen-room.sf113-room .sf113-nav button{transition:none}
 }
+
+/* Ajustes de precedência: a arte fica acima da capa de espera, mas abaixo do desbloqueio de áudio. */
+#screen-room.sf113-room .sf113-visual-stage{
+ z-index:16!important;
+ background:linear-gradient(0deg,#0b0711a6,transparent 80%),
+ var(--sf88-art,url('/art-44/vinyl-room.webp')) center/cover no-repeat!important;
+}
+#screen-room.sf113-room .sf113-visual-backdrop{opacity:.61!important}
+#screen-room.sf113-room .sound-gate.show{z-index:26!important}
+#screen-room.sf113-room .sf113-view-switch{z-index:30!important}
+@media(max-width:768px){
+ body[data-tab="player"] #screen-room.sf113-room .player-column.sf34-player-column,
+ body[data-tab="queue"] #screen-room.sf113-room .queue-column.sf34-queue,
+ body[data-tab="chat"] #screen-room.sf113-room .chat-column.sf34-chat{
+  display:flex!important;
+ }
+ body[data-tab]:not([data-tab="player"]) #screen-room.sf113-room .player-column.sf34-player-column,
+ body[data-tab]:not([data-tab="queue"]) #screen-room.sf113-room .queue-column.sf34-queue,
+ body[data-tab]:not([data-tab="chat"]) #screen-room.sf113-room .chat-column.sf34-chat{
+  display:none!important;
+ }
+}
