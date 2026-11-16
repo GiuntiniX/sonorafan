@@ -20,7 +20,7 @@
     ['alternativo','◇','Alternativo',art.record],['festival','♛','Festivais',art.festival]];
   const state={rooms:null,events:[],clubs:[],notices:[],pinned:[],recent:[],search:'',genre:'',
     all:false,sort:'popular',signature:'',lastRooms:0,lastExtras:0,
-    clubState:'loading',clubError:'',clubsExpanded:false,lastClubs:0,clubFetching:false};
+    clubState:'loading',clubError:'',clubsExpanded:false,lastClubs:0,clubFetching:false,clubNeedsRefresh:false};
   const allRooms=()=>Array.isArray(state.rooms)?state.rooms.filter(r=>r&&!r.isPrivate&&valid(r.slug)):[];
   const ranked=()=>allRooms().slice().sort((a,b)=>count(b.listenerCount)-count(a.listenerCount)||Number(!!b.isPlaying)-Number(!!a.isPlaying));
   const lead=()=>ranked()[0]||null;
@@ -176,27 +176,51 @@
   }
   async function pullClubs(force=false){
     if(!active())return;
-    const now=Date.now();
-    if(state.clubFetching || !force&&now-state.lastClubs<60000)return;
-    state.clubFetching=true;state.lastClubs=now;
+    if(state.clubFetching){if(force)state.clubNeedsRefresh=true;return;}
+    if(!force&&Date.now()-state.lastClubs<15000)return;
+    state.clubFetching=true;
     if(state.clubState!=='ready')state.clubState='loading';
     renderClubs();
-    try{
-      const response=await fetch('/api/fan-clubs',{credentials:'include',cache:'no-store'});
-      const body=await response.json().catch(()=>null);
-      if(!response.ok)throw Error(
-        body?.error|| (response.status===401?'Faça login para visualizar as comunidades.':
+    const load=async(url)=>{
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),8500);
+      try{
+        const response=await fetch(url,{credentials:'include',cache:'no-store',signal:controller.signal});
+        const body=await response.json().catch(()=>null);
+        if(!response.ok)throw Error(body?.error||(
+          response.status===401?'Faça login para visualizar seus Fan Clubs.':
           response.status===429?'Muitas consultas. Tente novamente em instantes.':
-          'A consulta de Fan Clubs falhou.')
-      );
-      if(!body||!Array.isArray(body.clubs))throw Error('Formato inesperado na lista de comunidades.');
-      state.clubs=body.clubs.filter(c=>c&&typeof c.id==='string')
-        .sort((a,b)=>count(b.memberCount)-count(a.memberCount)||
-          count(b.createdAt)-count(a.createdAt));
-      state.clubState='ready';state.clubError='';
-    }catch(err){
-      state.clubState='error';state.clubError=String(err.message||'Falha na consulta.').slice(0,160);
-    }finally{state.clubFetching=false;renderClubs();}
+          'Não foi possível consultar os Fan Clubs.'));
+        if(!body||!Array.isArray(body.clubs))throw Error('Formato inválido na listagem de Fan Clubs.');
+        return body.clubs;
+      }finally{clearTimeout(timer);}
+    };
+    // Display results as soon as either request succeeds. Fetching "mine"
+    // separately recovers the owner's clubs if the global listing is stale.
+    const successes=[];
+    const apply=list=>{
+      successes.push(true);
+      const byId=new Map(state.clubs.map(c=>[c.id,c]));
+      for(const c of list)if(c&&typeof c.id==='string')byId.set(c.id,c);
+      state.clubs=[...byId.values()].sort((a,b)=>count(b.memberCount)-count(a.memberCount)||
+        (Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+      state.clubState='ready';state.clubError='';renderClubs();
+    };
+    try{
+      const results=await Promise.allSettled([
+        load('/api/fan-clubs').then(apply),
+        load('/api/fan-clubs?mine=true').then(apply)
+      ]);
+      if(!successes.length){
+        const failed=results.find(r=>r.status==='rejected');
+        state.clubState='error';
+        state.clubError=String(failed?.reason?.message||'Verifique sua conexão.').slice(0,160);
+      }
+      state.lastClubs=state.clubState==='error'?0:Date.now();
+    }finally{
+      state.clubFetching=false;renderClubs();
+      if(state.clubNeedsRefresh){state.clubNeedsRefresh=false;state.lastClubs=0;pullClubs(true);}
+    }
   }
   function renderEvents(){
     const host=$('sf107Events');if(!host)return;
@@ -516,8 +540,24 @@
       }
     };
     window.sf107RefreshFanClubs=()=>{
-      state.lastClubs=0;pullClubs(true);
+      state.lastClubs=0;return pullClubs(true);
     };
+    // Do not wait for the 22-second polling interval after signing in.
+    let previous=active();
+    const lobbyRoot=app();
+    if(lobbyRoot&&typeof MutationObserver!=='undefined'){
+      new MutationObserver(()=>{
+        const visible=active();
+        if(visible&&!previous){
+          state.lastRooms=0;state.lastExtras=0;state.lastClubs=0;
+          pullRooms(true);pullExtras(true);pullClubs(true);
+        }
+        previous=visible;
+      }).observe(lobbyRoot,{attributes:true,attributeFilter:['class']});
+    }
+    document.addEventListener('sf71:created',()=>{
+      state.lastClubs=0;pullClubs(true);
+    });
     window.sf107OpenFanClub=openClubs;
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
     setInterval(poll,22000);poll();
