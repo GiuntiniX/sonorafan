@@ -718,8 +718,18 @@ async function sf15WriteAlerts(email,list) {
 }
 async function sf15Notify(email,data) {
   const items = await sf15GetAlerts(email);
-  const next=[{id:crypto.randomUUID(),type:data.type,title:eventClean(data.title,90),message:eventClean(data.message,200),roomSlug:data.roomSlug||null,fanClubId:/^[a-f0-9-]{36}$/.test(data.fanClubId||'')?data.fanClubId:null,createdAt:Date.now(),read:false},...items].slice(0,70);
+  const item={id:crypto.randomUUID(),type:data.type,title:eventClean(data.title,90),message:eventClean(data.message,200),
+    roomSlug:typeof data.roomSlug==='string'&&rooms.has(data.roomSlug)?data.roomSlug:null,
+    fanClubId:/^[a-f0-9-]{36}$/.test(data.fanClubId||'')?data.fanClubId:null,
+    // Only trusted server paths can set these IDs. They never expose an email.
+    peerId:typeof data.peerId==='string'&&/^[a-f0-9]{24}$/.test(data.peerId)?data.peerId:null,
+    messageId:typeof data.messageId==='string'&&/^[a-zA-Z0-9.-]{1,100}$/.test(data.messageId)?data.messageId:null,
+    createdAt:Date.now(),read:false};
+  const next=[item,...items].slice(0,70);
   await sf15WriteAlerts(email,next);
+  // Authenticate membership in sf53-user-* before delivery; clients receive
+  // only a refresh signal, not private message content over a broad room.
+  io.to('sf53-user-'+sf15UserKey(email)).emit('sf111Notification',{id:item.id,type:item.type});
 }
 app.get('/api/social/notifications',rateLimit(50,60000),async(req,res)=>{
   const email=sessionEmail(req);if(!email)return res.status(401).json({error:'Faça login'});
@@ -1386,7 +1396,11 @@ io.on('connection', (socket) => {
         if(!mentioned.has(String(so.userName||'').toLocaleLowerCase('pt-BR')))continue;
         notices++;mentioned.delete(String(so.userName).toLocaleLowerCase('pt-BR'));
         so.emit('sf53Mention',{from:socket.userName,text:msg.text.slice(0,140),messageId:msg._id,roomSlug:currentRoom});
-        sf15Notify(so.userEmail,{type:'mention',title:'Menção de '+socket.userName,message:msg.text.slice(0,120),roomSlug:currentRoom}).catch(e=>console.error('chat53 mention notify:',e.message));
+        const isReply=!!refMsg && String(refMsg.user||'').toLocaleLowerCase('pt-BR')===String(so.userName||'').toLocaleLowerCase('pt-BR');
+        sf15Notify(so.userEmail,{
+          type:'mention',title:(isReply?'Resposta de ':'Menção de ')+socket.userName,
+          message:msg.text.slice(0,120),roomSlug:currentRoom,messageId:msg._id
+        }).catch(e=>console.error('chat53 mention notify:',e.message));
       }
     } catch (e) { console.error('Erro no chat:', e.message); }
   });
