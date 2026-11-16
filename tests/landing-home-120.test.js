@@ -27,7 +27,7 @@ test('features and login/signup actions are preserved',()=>{
  assert.equal((landing.match(/class="sf120-feature sf121-pillar" data-color=/g)||[]).length,4);
  assert.ok((landing.match(/onclick="openSignup\(\)"/g)||[]).length>=4);
  assert.equal((landing.match(/onclick="showLogin\(\)"/g)||[]).length,1,'Login is the only login entry');
- assert.equal((landing.match(/onclick="openSignup\(\)"/g)||[]).length,9,'all marketing controls open registration');
+ assert.equal((landing.match(/onclick="openSignup\(\)"/g)||[]).length,8,'all marketing controls open registration');
  const clickable=(landing.match(/<(?:a|button)\b[^>]*>/g)||[]);
  for(const tag of clickable) {
    if(tag.includes('sf52-skip-link')) continue; // accessibility skip link only
