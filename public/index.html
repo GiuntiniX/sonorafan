@@ -3035,19 +3035,67 @@
       }, 260);
     }
     function hideLogin() { $('loginScreen').classList.remove('active'); }
-    function openSignup() { hideLogin(); $('signupModal').classList.add('active'); }
+    function openSignup() {
+      hideLogin();
+      $('signupModal').classList.add('active');
+      requestAnimationFrame(() => $('signupNome')?.focus({preventScroll:true}));
+    }
     function closeSignup() { $('signupModal').classList.remove('active'); if (!currentUser) $('landingScreen').style.display = 'block'; }
-    function toggleChip(el) { el.classList.toggle('selected'); }
+    function toggleChip(el) {
+      const selected = el.classList.toggle('selected');
+      el.setAttribute('aria-pressed', String(selected));
+    }
+    function sf123TogglePassword(id, button) {
+      const el = $(id);
+      if (!el) return;
+      const show = el.type === 'password';
+      el.type = show ? 'text' : 'password';
+      button.setAttribute('aria-pressed',String(show));
+      button.setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');
+      button.textContent = show ? '◌' : '◉';
+    }
+    async function sf123ResetPassword() {
+      const email = $('loginEmail').value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        toast('Informe seu e-mail para recuperar a senha', 'error');
+        $('loginEmail').focus();return;
+      }
+      try {
+        await firebase.auth().sendPasswordResetEmail(email);
+        toast('Se houver uma conta para esse e-mail, enviaremos um link de recuperação.', 'success');
+      } catch (error) {
+        if (error?.code === 'auth/user-not-found') {
+          toast('Se houver uma conta para esse e-mail, enviaremos um link de recuperação.', 'success');
+        } else {
+          toast('Não foi possível enviar o e-mail de recuperação. Tente novamente.', 'error');
+        }
+      }
+    }
+    function sf123BackHome() {
+      hideLogin();
+      $('landingScreen').style.display = 'block';
+      $('landingScreen').classList.remove('exiting');
+    }
+    function sf123GoLogin() {
+      closeSignup();
+      showLogin();
+    }
 
     async function submitSignup() {
       const nome = $('signupNome').value.trim();
       const email = $('signupEmail').value.trim();
-      const senha = $('signupPassword').value.trim();
+      const senha = $('signupPassword').value;
+      const confirmacao = $('signupConfirm')?.value || '';
+      const username = ($('signupUsername')?.value || '').trim().toLowerCase();
+      const consent = $('sf123SignupConsent')?.checked === true;
       const estilos = Array.from(document.querySelectorAll('#signupStyles .chip.selected')).map(c => c.dataset.style);
       if (nome.length < 2) return toast('Digite seu nome', 'error');
-      if (!email.includes('@')) return toast('E-mail inválido', 'error');
+      if (!/^[a-z0-9._-]{3,24}$/.test(username)) return toast('Username: use 3 a 24 caracteres, letras, números, . _ ou -', 'error');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast('E-mail inválido', 'error');
       if (senha.length < 6) return toast('Senha deve ter 6+ caracteres', 'error');
+      if (senha !== confirmacao) return toast('As senhas não conferem', 'error');
       if (estilos.length === 0) return toast('Escolha um estilo musical', 'error');
+      if (!consent) return toast('Leia e aceite os Termos de Uso e a Política de Privacidade', 'error');
       const btn = document.querySelector('#signupModal .btn-primary');
       const originalText = btn.innerHTML;
       btn.disabled = true; btn.innerHTML = '⏳ Criando conta...';
@@ -3059,7 +3107,7 @@
         }
         const idToken = await firebase.auth().currentUser.getIdToken();
         try {
-          const res = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ nome, estilos, idToken }) });
+          const res = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ nome, username, estilos, idToken }) });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error);
         } catch (signupError) { console.log('Cadastro já existia no backend'); }
@@ -3084,8 +3132,13 @@
       const errorEl = $('loginError');
       if (!email || !senha) { errorEl.textContent = 'Preencha e-mail e senha'; errorEl.classList.add('show'); return; }
       const btn = $('loginBtn');
+      const originalLoginBtn = btn.innerHTML;
       btn.disabled = true; btn.textContent = 'Entrando...';
       try {
+        const prefs = firebase.auth.Auth?.Persistence;
+        if (prefs) {
+          await firebase.auth().setPersistence($('sf123RememberLogin')?.checked ? prefs.LOCAL : prefs.SESSION);
+        }
         const cred = await firebase.auth().signInWithEmailAndPassword(email, senha);
         const idToken = await cred.user.getIdToken();
         const res = await fetch('/api/login', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
@@ -3103,7 +3156,7 @@
       } catch(e) {
         errorEl.textContent = (e.code === 'auth/invalid-credential' || e.message.includes('invalid-credential')) ? 'Sem cadastro, venha ser um Fan!' : (e.message || 'Erro ao fazer login');
         errorEl.classList.add('show');
-      } finally { btn.disabled = false; btn.textContent = 'Entrar no palco'; }
+      } finally { btn.disabled = false; btn.innerHTML = originalLoginBtn; }
     }
 
     function doLogout() {
