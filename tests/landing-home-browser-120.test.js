@@ -31,7 +31,7 @@ window.addEventListener('load',()=>{
   const r=e=>e.getBoundingClientRect();
   const prevr=r(preview),hr=r(hero),rr=r(root),tr=r(top),cr=r(card);
   signup?.click();
-  $('.sf120-top-enter')?.click();
+  $('.sf121-search-button')?.click();
   const bg=getComputedStyle(root).backgroundColor;
   const feature=all('.sf120-feature');
   const whiteText=getComputedStyle($('#sf120HeroTitle')).color;
