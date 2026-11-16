@@ -119,57 +119,57 @@
  }
 }
 /* Aurora uses a cool violet-teal composition with warm coral for actions. */
-#screen-room[data-sf100-palette="aurora"]{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"]{
  --sf100-outline:rgba(119,212,196,.32);--sf100-glow:#91e7d5;--room-accent:#7ce0ce
 }
-#screen-room[data-sf100-palette="aurora"] .header{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .header{
  background:linear-gradient(105deg,#1b2040,#152936)!important;
  border-color:var(--sf100-outline)!important
 }
-#screen-room[data-sf100-palette="aurora"] .sf34-queue,
-#screen-room[data-sf100-palette="aurora"] .sf34-chat{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf34-queue,
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf34-chat{
  background:linear-gradient(180deg,#17253a,#1d1b36)!important;
  border-color:var(--sf100-outline)!important
 }
-#screen-room[data-sf100-palette="aurora"] .sf34-player-column{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf34-player-column{
  background:linear-gradient(170deg,#1a2940,#18152b)!important;
  border-color:var(--sf100-outline)!important
 }
-#screen-room[data-sf100-palette="aurora"] .sf34-queue .queue-header,
-#screen-room[data-sf100-palette="aurora"] .sf34-chat .premium-chat-heading,
-#screen-room[data-sf100-palette="aurora"] .sf5-section-title{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf34-queue .queue-header,
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf34-chat .premium-chat-heading,
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf5-section-title{
  background:linear-gradient(115deg,#243449,#2b2345)!important;
  border-bottom-color:rgba(130,225,217,.22)!important
 }
-#screen-room[data-sf100-palette="aurora"] .sf34-request{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf34-request{
  background:linear-gradient(155deg,#26334b,#201a37)!important;
  border-color:var(--sf100-outline)!important
 }
-#screen-room[data-sf100-palette="aurora"] .sf34-request .add-song button,
-#screen-room[data-sf100-palette="aurora"] .sf34-chat .chat-input-bar button:not(.emoji-btn){
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf34-request .add-song button,
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .sf34-chat .chat-input-bar button:not(.emoji-btn){
  background:linear-gradient(115deg,#427d80,#ab6988)!important;color:#fff!important
 }
-#screen-room[data-sf100-palette="aurora"] .premium-mini-player{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="aurora"] .premium-mini-player{
  background:rgba(17,34,47,.98)!important;border-top:1px solid var(--sf100-outline)!important
 }
-#screen-room[data-sf100-palette="festival"]{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"]{
  --sf100-outline:rgba(238,143,176,.37);--sf100-glow:#ffc382
 }
-#screen-room[data-sf100-palette="festival"] .header,
-#screen-room[data-sf100-palette="festival"] .sf5-section-title{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .header,
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .sf5-section-title{
  background:linear-gradient(115deg,#381b35,#342032)!important;border-color:var(--sf100-outline)!important
 }
-#screen-room[data-sf100-palette="festival"] .sf34-queue,
-#screen-room[data-sf100-palette="festival"] .sf34-player-column,
-#screen-room[data-sf100-palette="festival"] .sf34-chat{
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .sf34-queue,
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .sf34-player-column,
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .sf34-chat{
  background:linear-gradient(165deg,#281a31,#1b1527)!important;border-color:var(--sf100-outline)!important
 }
-#screen-room[data-sf100-palette="festival"] .sf34-request{background:linear-gradient(130deg,#482638,#2c1c30)!important}
-#screen-room[data-sf100-palette="festival"] .sf34-request .add-song button,
-#screen-room[data-sf100-palette="festival"] .sf34-chat .chat-input-bar button:not(.emoji-btn){
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .sf34-request{background:linear-gradient(130deg,#482638,#2c1c30)!important}
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .sf34-request .add-song button,
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .sf34-chat .chat-input-bar button:not(.emoji-btn){
  background:linear-gradient(110deg,#bd5888,#dc875e)!important;color:#fff!important
 }
-#screen-room[data-sf100-palette="festival"] .premium-mini-player{background:#241529!important}
+#screen-room:is(:not([data-room-theme]),[data-room-theme="geral"])[data-sf100-palette="festival"] .premium-mini-player{background:#241529!important}
 @media (max-width:768px){
  #sf95Overlay .sf100-intro{padding:12px}
  #sf95Overlay .sf100-intro h3{font-size:18px}
