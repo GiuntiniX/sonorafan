@@ -1,0 +1,50 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>SonoraFan sidebar no-scroll regression</title>
+<style>
+html,body{height:100%;margin:0;padding:0;background:#100918}
+#screen-room{height:100dvh;display:block}
+#screen-room .sf5-sidebar{height:calc(100dvh - 64px);width:202px;display:flex;flex-direction:column;box-sizing:border-box}
+#screen-room .sf5-brand{height:47px;flex-shrink:0}
+#screen-room .sf33-room-nav-art{height:75px}
+</style>
+<link rel="stylesheet" href="../../public/room-reference.css">
+<link rel="stylesheet" href="../../public/sonorafan-ui-38.css">
+<link rel="stylesheet" href="../../public/sonorafan-ui-65.css">
+<link rel="stylesheet" href="../../public/sonorafan-menu-favorites-67.css">
+<link rel="stylesheet" href="../../public/sonorafan-menu-align-89.css">
+<link rel="stylesheet" href="../../public/sonorafan-menu-no-scroll-90.css">
+<script>
+addEventListener('load',()=>{
+ const side=document.getElementById('sf64RoomSidebar');
+ const buttons=[...side.querySelectorAll('.sf5-navigation > button')];
+ const cs=getComputedStyle(side);
+ const remaining=side.clientHeight-side.scrollHeight;
+ const allVisible=buttons.every(b=>{const a=b.getBoundingClientRect(),s=side.getBoundingClientRect();return a.height>0&&a.top>=s.top-1&&a.bottom<=s.bottom+1});
+ const okay=window.innerWidth<1025?'wrong-viewport':buttons.length!==13?'missing-items':
+  cs.overflowY!=='hidden'?'scroll-enabled':
+  remaining < -1?'overflow-'+Math.round(remaining):
+  !allVisible?'hidden-items':'ok';
+ document.documentElement.setAttribute('data-sf90-test',okay);
+});
+</script>
+</head><body>
+<div id="screen-room" class="active">
+<aside class="sf5-sidebar" id="sf64RoomSidebar">
+  <div class="sf5-brand sf54-brand sf54-brand-room">SonoraFan</div>
+  <nav class="sf5-navigation">
+    <button><span class="sf64-menu-icon">⌂</span><span>Sala Atual</span></button>
+    <button><span class="sf64-menu-icon">◈</span><span>Descobrir salas</span></button>
+    <button><span class="sf64-menu-icon">♛</span><span>Ranking</span></button>
+    <button><span class="sf64-menu-icon">🏅</span><span>SonoraFan Club</span></button>
+    <button><span class="sf64-menu-icon">🎟</span><span>Minha Jornada</span></button>
+    <button><span class="sf64-menu-icon">♧</span><span>Comunidade</span></button>
+    <button><span class="sf64-menu-icon">✉</span><span>Mensagens</span></button>
+    <button class="sf29-side-invite"><span class="sf64-menu-icon sf64-icon-invite">🔗</span><span>Convidar amigos</span></button>
+    <button><span class="sf64-menu-icon">◉</span><span>Meu perfil</span></button>
+    <button><span class="sf64-menu-icon">☆</span><span>Favoritos</span></button>
+    <button><span class="sf64-menu-icon">⚙</span><span>Configurações</span></button>
+    <button><span class="sf64-menu-icon">❔</span><span>Ajuda / Tour</span></button>
+    <button><span class="sf64-menu-icon">⇥</span><span>Sair da Sala</span></button>
+  </nav>
+  <div class="sf33-room-nav-art" aria-hidden="true"></div>
+</aside>
+</div></body></html>
