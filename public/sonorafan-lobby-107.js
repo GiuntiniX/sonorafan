@@ -47,7 +47,16 @@
         genre==='alternativo'&&/indie|rock|alternativ/.test(n))&&
         (!state.search||n.includes(norm(state.search)));
     });
-    if(state.sort==='new')filtered.reverse();
+    if(state.sort==='new')filtered.sort((a,b)=>{
+      // New rooms receive a base36 timestamp suffix from the existing server.
+      // Do not invent an age for permanent rooms without that suffix.
+      const created=room=>{
+        const end=String(room.slug||'').split('-').pop()||'';
+        const ms=/^[0-9a-z]{7,12}$/i.test(end)?Number.parseInt(end,36):0;
+        return Number.isFinite(ms)&&ms>1577836800000&&ms<Date.now()+86400000?ms:0;
+      };
+      return created(b)-created(a)||count(b.listenerCount)-count(a.listenerCount);
+    });
     else if(state.sort==='live')filtered.sort((a,b)=>Number(!!b.isPlaying)-Number(!!a.isPlaying)||count(b.listenerCount)-count(a.listenerCount));
     else filtered.sort((a,b)=>count(b.listenerCount)-count(a.listenerCount));
     return filtered;
