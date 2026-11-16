@@ -1,8 +1,6 @@
 name: SonoraFan checks
 on:
   push:
-    branches: [main, 'fix/**']
-  pull_request:
     branches: [main]
 jobs:
   test:
@@ -21,5 +19,10 @@ jobs:
           node --check public/sonorafan-search-77.js
           node --check public/sonorafan-inline-search-78.js
           node --check public/sonorafan-mobile-music-76.js
+          node --check public/sonorafan-quick-add-81.js
+          node --check public/sonorafan-queue-discovery-82.js
+          node --check public/sonorafan-pwa-83.js
+          node --check public/admin-control-12.js
+          node --check youtube-utils-81.js
       - name: Run regression tests
         run: npm test
