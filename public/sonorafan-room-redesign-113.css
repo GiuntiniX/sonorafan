@@ -881,3 +881,133 @@ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app{
   transition:none!important;
  }
 }
+
+
+/* SonoraFan 118 — palco YouTube cobrindo 100% da moldura e volume ancorado abaixo. */
+/* Reestruturado: a área de controles é irmã do playerSection, não fica
+   escondida quando o quadro corta overflow. */
+#screen-room.sf113-room .player-column.sf34-player-column{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows:minmax(0,1fr) auto!important;
+ align-content:stretch!important;align-items:stretch!important;
+ gap:0!important;min-width:0!important;min-height:0!important;
+ overflow:hidden!important;
+}
+#screen-room.sf113-room .player-column.sf34-player-column > #playerSection{
+ grid-column:1!important;grid-row:1!important;
+ width:100%!important;height:100%!important;
+ min-height:0!important;max-height:100%!important;
+ padding:0!important;margin:0!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ border-radius:17px 17px 0 0!important;
+ overflow:hidden!important;
+}
+#screen-room.sf113-room .player-column.sf34-player-column > #playerSection > .player-frame{
+ grid-column:1!important;grid-row:1!important;
+ min-width:0!important;min-height:0!important;
+ max-width:100%!important;max-height:100%!important;
+ width:100%!important;height:100%!important;
+ flex:none!important;aspect-ratio:auto!important;
+ overflow:hidden!important;
+ border-radius:16px 16px 0 0!important;
+}
+#screen-room.sf113-room .player-column.sf34-player-column > .sf118-controls-dock{
+ grid-column:1!important;grid-row:2!important;
+ display:flex!important;position:relative!important;
+ width:100%!important;min-width:0!important;
+ height:auto!important;min-height:114px!important;max-height:none!important;
+ margin:0!important;flex:0 0 auto!important;
+ padding:11px 15px 12px!important;
+ border:1px solid var(--sf113-stroke)!important;
+ border-top:0!important;border-radius:0 0 17px 17px!important;
+ box-shadow:0 10px 25px #0004!important;
+ overflow:visible!important;
+ z-index:1!important;
+}
+/* O YouTube substitui #youtube-player (DIV) por um IFRAME com este mesmo ID.
+   As dimensões explícitas por CSS var neutralizam width/height do embed,
+   aspect-ratio e regras antigas que o restringiam a uma miniatura. */
+#screen-room.sf113-room .player-column .player-frame > #youtube-player,
+#screen-room.sf113-room .player-column .player-frame > iframe,
+#screen-room.sf113-room .player-column .player-frame #youtube-player iframe{
+ display:block!important;
+ position:absolute!important;
+ top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;
+ inset:auto!important;
+ width:var(--sf118-video-width,100%)!important;
+ height:var(--sf118-video-height,100%)!important;
+ min-width:100%!important;min-height:100%!important;
+ max-width:none!important;max-height:none!important;
+ margin:0!important;padding:0!important;border:0!important;
+ aspect-ratio:16 / 9!important;
+ transform:translate(-50%,-50%)!important;
+ transform-origin:center center!important;
+ background:#050308!important;
+}
+/* A apresentação visual mantém o iframe tocando (oculto) para preservar áudio. */
+#screen-room.sf113-room[data-sf113-view="visual"] .player-frame > iframe,
+#screen-room.sf113-room[data-sf113-view="visual"] .player-frame #youtube-player{
+ opacity:0!important;pointer-events:none!important;
+}
+#screen-room.sf113-room[data-sf113-view="video"] .player-frame > iframe,
+#screen-room.sf113-room[data-sf113-view="video"] .player-frame #youtube-player{
+ opacity:1!important;
+}
+/* Controle de som sempre abaixo do vídeo (sem exigir rolagem dentro do palco). */
+#screen-room.sf113-room .sf118-controls-dock .sf117-control-row{
+ order:1!important;
+ display:flex!important;gap:12px!important;
+ align-items:center!important;justify-content:space-between!important;
+}
+#screen-room.sf113-room .sf118-controls-dock .sf117-progress-wrap{
+ order:2!important;min-width:0!important;
+}
+#screen-room.sf113-room .sf118-controls-dock .volume-control{
+ display:flex!important;align-items:center!important;
+ flex:1 1 185px!important;min-width:170px!important;
+ max-width:280px!important;
+}
+#screen-room.sf113-room .sf118-controls-dock #volumeSlider{
+ display:block!important;visibility:visible!important;
+ flex:1 1 85px!important;min-width:85px!important;
+ width:auto!important;opacity:1!important;pointer-events:auto!important;
+}
+#screen-room.sf113-room .sf118-controls-dock #volumeValue{
+ display:inline-block!important;visibility:visible!important;
+}
+@media(min-width:769px){
+ #screen-room.sf113-room .room-layout{
+  /* Reserva altura para os controles sem criar rolagem no player. */
+  min-height:0!important;
+ }
+ #screen-room.sf113-room .player-column.sf34-player-column{
+  height:100%!important;max-height:100%!important;
+  grid-template-rows:minmax(0,1fr) auto!important;
+ }
+}
+@media(max-width:768px){
+ #screen-room.sf113-room .player-column.sf34-player-column{
+  display:grid!important;grid-template-rows:auto auto!important;
+  height:auto!important;max-height:none!important;overflow:visible!important;
+ }
+ #screen-room.sf113-room .player-column.sf34-player-column > #playerSection{
+  height:auto!important;max-height:none!important;
+  display:block!important;min-height:0!important;
+ }
+ #screen-room.sf113-room .player-column.sf34-player-column > #playerSection > .player-frame{
+  height:auto!important;max-height:none!important;
+  width:100%!important;aspect-ratio:16 / 9!important;
+ }
+ #screen-room.sf113-room .player-column.sf34-player-column > .sf118-controls-dock{
+  min-height:125px!important;max-height:none!important;
+  padding:11px 12px 13px!important;
+ }
+ #screen-room.sf113-room .sf118-controls-dock .sf117-control-row{
+  gap:8px!important;flex-wrap:wrap!important;
+ }
+ #screen-room.sf113-room .sf118-controls-dock .volume-control{
+  flex:1 1 170px!important;max-width:none!important;
+ }
+}
