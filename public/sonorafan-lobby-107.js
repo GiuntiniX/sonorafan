@@ -19,7 +19,8 @@
     ['eletronica','▥','Eletrônica',art.electro],
     ['alternativo','◇','Alternativo',art.record],['festival','♛','Festivais',art.festival]];
   const state={rooms:null,events:[],clubs:[],notices:[],pinned:[],recent:[],search:'',genre:'',
-    all:false,sort:'popular',signature:'',lastRooms:0,lastExtras:0};
+    all:false,sort:'popular',signature:'',lastRooms:0,lastExtras:0,
+    clubState:'loading',clubError:'',clubsExpanded:false,lastClubs:0,clubFetching:false};
   const allRooms=()=>Array.isArray(state.rooms)?state.rooms.filter(r=>r&&!r.isPrivate&&valid(r.slug)):[];
   const ranked=()=>allRooms().slice().sort((a,b)=>count(b.listenerCount)-count(a.listenerCount)||Number(!!b.isPlaying)-Number(!!a.isPlaying));
   const lead=()=>ranked()[0]||null;
@@ -128,17 +129,74 @@
         <button type="button" data-sf107="scroll">Explorar salas ›</button></div>`;
   }
   function renderClubs(){
-    const host=$('sf107Clubs');if(!host)return;
-    host.innerHTML=state.clubs.length?state.clubs.slice(0,4).map((c,i)=>{
-      const id=/^[a-f0-9-]{36}$/i.test(c.id||'')?c.id:'';
-      const fallback=[art.indie,art.rock,art.crowd,art.record][i];
+    const host=$('sf107Clubs'),caption=$('sf107ClubsCaption'),all=$('sf107ShowAllClubs');
+    if(!host)return;
+    const total=state.clubs.length,limit=state.clubsExpanded?24:4;
+    if(caption)caption.textContent=state.clubState==='ready'?
+      total+' '+(total===1?'comunidade disponível':'comunidades disponíveis'):'';
+    if(all){
+      all.hidden=state.clubState!=='ready'||total<=4;
+      all.textContent=state.clubsExpanded?'Ver menos':'Ver todos ›';
+      all.setAttribute('aria-expanded',String(state.clubsExpanded));
+    }
+    if(state.clubState==='loading'){
+      host.innerHTML='<div class="sf107-club-state" role="status">Buscando Fan Clubs disponíveis…</div>';
+      return;
+    }
+    if(state.clubState==='error'){
+      host.innerHTML=`<div class="sf107-club-state" role="alert">
+        <strong>Não foi possível carregar os Fan Clubs.</strong>
+        <span>${esc(state.clubError||'Verifique sua conexão e tente novamente.')}</span>
+        <button type="button" data-sf107="clubs-retry">↻ Tentar novamente</button>
+      </div>`;
+      return;
+    }
+    if(!total){
+      host.innerHTML=`<div class="sf107-club-state sf107-club-empty">
+        <span class="sf107-club-empty-icon" aria-hidden="true">♫</span>
+        <div><strong>Seu próximo Fan Club começa aqui</strong>
+        <small>Ainda não há comunidades disponíveis. Crie uma para reunir outros fãs.</small></div>
+        <button type="button" data-sf107="club-create">＋ Criar Fan Club</button>
+      </div>`;
+      return;
+    }
+    host.innerHTML=state.clubs.slice(0,limit).map((c,i)=>{
+      const id=/^[a-f0-9-]{36}$/i.test(String(c.id||''))?c.id:'';
+      const fallback=[art.indie,art.rock,art.crowd,art.record][i%4];
       const cover=c.coverVersion&&id?`/api/fan-clubs/${id}/cover?v=${encodeURIComponent(c.coverVersion)}`:fallback;
-      return `<button type="button" class="sf107-club" data-sf107-club="${id}">
-        <img src="${cover}" data-sf107-fallback="${fallback}" alt="" loading="lazy">
-        <span><strong>${esc(c.title||c.artist||'Fan Club')}</strong><small>${fmt(c.memberCount)} membros</small></span>
-        <b aria-hidden="true">›</b></button>`;
-    }).join(''):`<div class="sf107-inline-empty">Descubra comunidades musicais.
-      <button type="button" data-sf107="clubs">Explorar Fan Clubs ›</button></div>`;
+      return `<button type="button" class="sf107-club" data-sf107-club="${id}"
+        aria-label="Abrir Fan Club ${esc(c.title||c.artist||'comunidade')}">
+        <img src="${cover}" data-sf107-fallback="${fallback}" alt="" loading="lazy" decoding="async">
+        <span><strong>${esc(c.title||c.artist||'Fan Club')}</strong>
+        <small>${esc(c.artist||'Comunidade de fãs')} · ${fmt(c.memberCount)}
+          ${count(c.memberCount)===1?'membro':'membros'}</small></span>
+        <b aria-hidden="true">›</b>
+      </button>`;
+    }).join('');
+  }
+  async function pullClubs(force=false){
+    if(!active())return;
+    const now=Date.now();
+    if(state.clubFetching || !force&&now-state.lastClubs<60000)return;
+    state.clubFetching=true;state.lastClubs=now;
+    if(state.clubState!=='ready')state.clubState='loading';
+    renderClubs();
+    try{
+      const response=await fetch('/api/fan-clubs',{credentials:'include',cache:'no-store'});
+      const body=await response.json().catch(()=>null);
+      if(!response.ok)throw Error(
+        body?.error|| (response.status===401?'Faça login para visualizar as comunidades.':
+          response.status===429?'Muitas consultas. Tente novamente em instantes.':
+          'A consulta de Fan Clubs falhou.')
+      );
+      if(!body||!Array.isArray(body.clubs))throw Error('Formato inesperado na lista de comunidades.');
+      state.clubs=body.clubs.filter(c=>c&&typeof c.id==='string')
+        .sort((a,b)=>count(b.memberCount)-count(a.memberCount)||
+          count(b.createdAt)-count(a.createdAt));
+      state.clubState='ready';state.clubError='';
+    }catch(err){
+      state.clubState='error';state.clubError=String(err.message||'Falha na consulta.').slice(0,160);
+    }finally{state.clubFetching=false;renderClubs();}
   }
   function renderEvents(){
     const host=$('sf107Events');if(!host)return;
@@ -184,14 +242,13 @@
     state.lastExtras=Date.now();
     const jobs=[
       ['/api/social/events',data=>state.events=Array.isArray(data)?data:[]],
-      ['/api/fan-clubs',data=>state.clubs=(Array.isArray(data.clubs)?data.clubs:[]).sort((a,b)=>count(b.memberCount)-count(a.memberCount))],
       ['/api/social/notifications',data=>state.notices=Array.isArray(data)?data:[]],
       ['/api/experience95/profile',data=>state.pinned=Array.isArray(data.pinnedRooms)?data.pinnedRooms:[]]
     ];
     await Promise.all(jobs.map(async([url,fn])=>{try{
       const r=await fetch(url,{credentials:'include',cache:'no-store'});if(r.ok)fn(await r.json());
     }catch(_){}}));
-    renderRecent();renderClubs();renderEvents();renderNotices();
+    renderRecent();renderEvents();renderNotices();
   }
   function scrollTo(id){
     const box=document.querySelector('#screen-lobby .sf28-lobby-content'),target=$(id);
@@ -212,13 +269,35 @@
     // Open associated community surface when the legacy helper exists.
     if(typeof window.sf5OpenCommunity==='function')window.sf5OpenCommunity();
   }
+  function openClubs(id=''){
+    community('fanclubs');
+    const tab=document.querySelector('#sfSocialHub [data-sf-tab="fanclubs"]');
+    tab?.click();
+    window.sf71LoadFanClubs?.();
+    if(id&&/^[a-f0-9-]{36}$/i.test(id)){
+      window.sf71OpenFanClub?.(id);
+    }
+    const details=document.querySelector('#screen-lobby .sf32-community-drawer');
+    if(details){
+      details.classList.add('sf107-expose');details.open=true;
+      requestAnimationFrame(()=>details.scrollIntoView({behavior:'smooth',block:'start'}));
+    }
+  }
   function action(name){
     switch(name){
       case 'create':return window.showCreateRoom?.();
       case 'random':return window.joinRandomRoom?.();
       case 'favorites':return window.sf95OpenHub?.('rooms');
       case 'library':return window.sf95OpenHub?.('dna');
-      case 'clubs':return community('fanclubs');
+      case 'clubs':return openClubs();
+      case 'clubs-toggle':state.clubsExpanded=!state.clubsExpanded;renderClubs();return;
+      case 'clubs-retry':state.lastClubs=0;return pullClubs(true);
+      case 'club-create':{
+        const create=$('sf71CreateClub');
+        if(create){create.click();return;}
+        openClubs();
+        return;
+      }
       case 'community':return community('friends');
       case 'events':return community('events');
       case 'notices':return document.querySelector('.sf15-lobby-bell')?.click();
@@ -249,7 +328,7 @@
     const room=e.target.closest('[data-sf107-room]');
     if(room)return go(room.dataset.sf107Room);
     const club=e.target.closest('[data-sf107-club]');
-    if(club){community('fanclubs');if(club.dataset.sf107Club)setTimeout(()=>window.sf71OpenFanClub?.(club.dataset.sf107Club),100);return;}
+    if(club){openClubs(club.dataset.sf107Club);return;}
     const genre=e.target.closest('[data-sf107-genre]');
     if(genre){state.genre=state.genre===genre.dataset.sf107Genre?'':genre.dataset.sf107Genre;state.all=false;sync();scrollTo('sf107Popular');return;}
     const filter=e.target.closest('[data-sf107-filter]');
@@ -303,8 +382,15 @@
             </div>
           </section>
           <section class="sf107-module">
-            <header class="sf107-module-head"><h2>♧ Fan Clubs em alta</h2><button type="button" data-sf107="clubs">Ver todos ›</button></header>
-            <div class="sf107-club-grid" id="sf107Clubs"></div>
+            <header class="sf107-module-head sf107-clubs-header">
+              <div><h2>♧ Fan Clubs disponíveis</h2><small id="sf107ClubsCaption" aria-live="polite"></small></div>
+              <div class="sf107-clubs-actions">
+                <button type="button" class="sf107-club-create" data-sf107="club-create">＋ Criar Fan Club</button>
+                <button type="button" id="sf107ShowAllClubs" data-sf107="clubs-toggle" aria-expanded="false" hidden>Ver todos ›</button>
+                <button type="button" data-sf107="clubs">Explorar ›</button>
+              </div>
+            </header>
+            <div class="sf107-club-grid" id="sf107Clubs" aria-live="polite"></div>
           </section>
         </div>
         <aside class="sf107-side-col">
@@ -423,10 +509,13 @@
     const socketClient=typeof socket!=='undefined'?socket:null;
     socketClient?.on('roomState',r=>{if(r?.slug)remember(r.slug);});
     const poll=()=>{
-      if(active()&&!document.hidden){pullRooms();pullExtras();
+      if(active()&&!document.hidden){pullRooms();pullExtras();pullClubs();
         const nav=$('adminBtn'),admin=$('sf107Admin');
         if(admin&&nav)admin.hidden=getComputedStyle(nav).display==='none';
       }
+    };
+    window.sf107RefreshFanClubs=()=>{
+      state.lastClubs=0;pullClubs(true);
     };
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
     setInterval(poll,22000);poll();
