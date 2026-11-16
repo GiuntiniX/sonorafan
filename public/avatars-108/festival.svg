@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Avatar musical ilustrado festival">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#87415C"/><stop offset="1" stop-color="#FFBA78"/></linearGradient><linearGradient id="hood" x2="1" y2="1"><stop stop-color="#DF5C80"/><stop offset="1" stop-color="#23192D"/></linearGradient><radialGradient id="halo"><stop stop-color="#FFD68F" stop-opacity=".34"/><stop offset="1" stop-color="#F265AC" stop-opacity="0"/></radialGradient><clipPath id="cut"><rect width="600" height="600" rx="116"/></clipPath></defs>
+<g clip-path="url(#cut)"><rect width="600" height="600" fill="url(#bg)"/><circle cx="490" cy="144" r="225" fill="url(#halo)"/><circle cx="110" cy="482" r="160" fill="#261D50" opacity=".34"/>
+<g opacity=".58" fill="#FFD2DC"><circle cx="97" cy="90" r="8"/><circle cx="501" cy="326" r="5"/><path d="M500 95v29m-15-15h30M85 298v33m-16-17h33" stroke="#FFD2DC" stroke-width="6"/></g>
+<path d="M107 600q20-135 88-153l73-36h84l71 38q80 25 95 151z" fill="url(#hood)"/>
+<path d="M250 422l2 67q47 59 112 1l-2-71z" fill="#AE6C4D"/><path d="M243 469q56 57 125 0" fill="none" stroke="#F7B799" stroke-width="6" opacity=".5"/>
+<path d="M191 278q-1-111 109-125 121-5 131 116l-8 115q-16 82-121 97-108-18-114-103z" fill="#AE6C4D" stroke="#C77763" stroke-width="6"/>
+<ellipse cx="191" cy="340" rx="16" ry="24" fill="#AE6C4D"/><ellipse cx="431" cy="340" rx="16" ry="24" fill="#AE6C4D"/>
+<path d="M159 281q-1-161 143-173 139 1 147 163l-10 123-48-69-24-104-90 20-73 71-22 94z" fill="#2F2130"/><path d="M238 300q22-12 43 0m44 0q22-12 43 0" stroke="#39242F" stroke-width="7" fill="none" stroke-linecap="round"/>
+<path d="M299 317l-9 40 18 9" fill="none" stroke="#98614E" stroke-width="6" stroke-linecap="round"/>
+<path d="M277 408q28 23 62 0" stroke="#803C4E" stroke-width="7" fill="none" stroke-linecap="round"/>
+<g fill="#F8D471" stroke="#FF638F" stroke-width="5"><circle cx="215" cy="155" r="19"/><circle cx="268" cy="123" r="22"/><circle cx="352" cy="134" r="20"/><circle cx="400" cy="167" r="19"/></g><g fill="#ED6589"><circle cx="198" cy="155" r="9"/><circle cx="251" cy="123" r="10"/><circle cx="338" cy="133" r="10"/><circle cx="387" cy="167" r="9"/></g><path d="M435 317q50 24 32 105" stroke="#F6C55D" stroke-width="11" fill="none"/>
+<path d="M125 569q78-101 163-53m186 53q-78-101-153-53" stroke="#EFA88D" stroke-opacity=".27" stroke-width="10" fill="none"/>
+<text x="502" y="542" fill="#FFE0E9" font-size="57" text-anchor="middle" opacity=".79">✦</text>
+</g></svg>
