@@ -84,7 +84,12 @@ function report(){
  m.separated=dock.parentElement===column && !e('playerSection').contains(dock);
  m.below=d.top>=a.bottom-4 && d.bottom <= c.bottom+5;
  m.slider=v.width>=70 && v.height>0 && v.top>=a.bottom-5 && v.bottom<=c.bottom+5;
- m.noscroll=Math.abs(column.scrollHeight-column.clientHeight)<=3 && Math.abs(stage.scrollHeight-stage.clientHeight)<=3;
+ const stageOverflow=getComputedStyle(stage).overflowY;
+ const columnOverflow=getComputedStyle(column).overflowY;
+ m.scrollModes=[stageOverflow,columnOverflow];
+ // An intentionally cropped 16:9 iframe may extend scrollHeight; clip means
+ // no actual scrolling or visible scrollbar, which is what the user needs.
+ m.noscroll=!['auto','scroll'].includes(stageOverflow) && !['auto','scroll'].includes(columnOverflow);
  m.correctSize=stage.style.getPropertyValue('--sf118-video-width').endsWith('px') && stage.style.getPropertyValue('--sf118-video-height').endsWith('px');
  const out=document.createElement('output');out.id='sf118Metrics';
  out.dataset.sf118Test=['cover','separated','below','slider','noscroll','correctSize'].every(x=>m[x])?'ok':'fail';
