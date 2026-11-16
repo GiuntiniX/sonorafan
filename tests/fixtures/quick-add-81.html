@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>SonoraFan 81 Quick Flow</title>
+<script>
+window.sf81Calls={added:0,full:0,errors:[]};
+window.toast=function(){};
+window.roomLimit=function(){return 600};
+window.currentRoomData={queue:[],waitingQueue:[],maxDuration:600,allowLive:false};
+window.sf80QueueSong=async function(track){window.sf81Calls.added++;window.sf81Calls.track=track;return {placement:'queue'}};
+window.sf77OpenSearch=function(){window.sf81Calls.full++;};
+window.fetch=async function(url){
+ const text=String(url);
+ if(text.includes('/api/search-youtube'))return {ok:true,json:async()=>({items:[{id:'abcdefghijk',title:'Double You & Friends',artist:'Test Artist'}]})};
+ if(text.includes('/api/video-info'))return {ok:true,json:async()=>({id:'abcdefghijk',title:'Double You & Friends',artist:'Test Artist',duration:240,embeddable:true})};
+ throw new Error('Unexpected '+url);
+};
+window.addEventListener('error',function(e){window.sf81Calls.errors.push(e.message)});
+window.addEventListener('DOMContentLoaded',function(){
+ const input=document.getElementById('songUrl');
+ input.value='double you';
+ window.sf78SearchFromField('double you',true);
+ setTimeout(()=>{
+   const row=document.querySelector('.sf78-row');
+   if(!row)return finish('failed-no-results');
+   row.click();
+   if(window.sf81Calls.full||!document.querySelector('#sf81QuickSubmit'))return finish('failed-redirected-to-full-search');
+   setTimeout(()=>{
+     const add=document.querySelector('#sf81QuickSubmit');
+     if(!add||add.disabled)return finish('failed-add-disabled');
+     add.click();
+     setTimeout(()=>{
+       if(window.sf81Calls.added!==1||window.sf81Calls.full!==0)return finish('failed-submit');
+       input.value='double you';
+       window.sf78SearchFromField('double you',true);
+       setTimeout(()=>{
+         const full=document.querySelector('#sf78OpenFull');
+         if(!full)return finish('failed-no-complete-search');
+         full.click();
+         finish(window.sf81Calls.full===1&&window.sf81Calls.errors.length===0?'ok':'failed-full-search');
+       },150);
+     },100);
+   },120);
+ },200);
+});
+function finish(status){
+ document.documentElement.setAttribute('data-sf81-test',status);
+}
+</script>
+<script defer src="../../public/sonorafan-inline-search-78.js"></script>
+<script defer src="../../public/sonorafan-quick-add-81.js"></script>
+</head>
+<body>
+<div id="screen-room" class="active">
+<input id="songUrl" type="text" aria-label="Buscar música">
+<button id="addBtn" type="button">Buscar</button>
+<div id="searchResults"></div>
+</div>
+</body>
+</html>
