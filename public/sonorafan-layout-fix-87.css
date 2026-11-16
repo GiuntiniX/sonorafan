@@ -1,0 +1,128 @@
+/* SonoraFan 87: descoberta com duas ações e navegação mobile sem formulário gigante. */
+.sf63-track .sf70-queue-trigger {
+  background:linear-gradient(120deg,#a04cce,#ea806e) !important;
+  border:1px solid rgba(244,173,209,.42) !important;
+  color:#fff !important;
+  min-height:40px;
+  font-weight:800;
+}
+.sf63-track [data-sf70-favorite] {
+  flex:0 0 auto;
+  min-height:36px;
+  padding:8px 10px;
+  background:rgba(255,255,255,.035) !important;
+  color:#edc9e7 !important;
+  border:1px solid rgba(220,162,236,.3) !important;
+  border-radius:10px;
+  font-size:11px;
+  font-family:inherit;
+  font-weight:750;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.sf63-track [data-sf70-favorite]:hover {background:rgba(170,93,186,.2) !important}
+.sf63-track button:disabled{opacity:.55;cursor:wait}
+.sf63-queue-feedback {
+  font-size:12px;
+  line-height:1.5;
+  color:#bcf2d2;
+  margin:8px 0 15px;
+  padding:11px 12px;
+  border:1px solid rgba(112,205,160,.35);
+  background:rgba(31,102,68,.18);
+  border-radius:11px;
+}
+.sf63-queue-feedback.is-error{
+  color:#ffc7ca;
+  background:rgba(119,32,55,.18);
+  border-color:rgba(231,107,138,.45);
+}
+.sf63-hub{
+  display:flex !important;
+  flex-direction:column !important;
+  min-height:0;
+  overflow:hidden !important;
+}
+.sf63-hub-header,
+.sf63-hub > .sf63-tabs,
+.sf63-hub-foot{
+  flex:0 0 auto !important;
+  position:relative !important;
+}
+.sf63-hub > .sf63-tabs {
+  display:flex;
+  min-height:49px;
+  max-height:62px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+  z-index:2;
+  padding:7px 12px;
+}
+.sf63-hub-body{
+  position:relative !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+  padding-top:18px !important;
+  -webkit-overflow-scrolling:touch;
+}
+.sf63-hub-body .sf63-intro{margin-top:0!important}
+.sf63-hub-body .sf63-intro strong{line-height:1.28;display:block}
+.sf63-track{min-width:0}
+.sf63-track>div{min-width:0}
+.sf63-track [data-sf63-action^="song:"]{flex-shrink:0}
+@media(max-width:768px) {
+  /* O botão fixo + Música abre a busca completa; não mostrar o campo legado
+     que no celular assumia a largura toda e gerava "Cole um link". */
+  #screen-room #sf10RequestCard{display:none!important}
+  .sf63-overlay{padding:6px!important;align-items:stretch!important;justify-items:stretch!important}
+  .sf63-hub{
+    width:100%!important;
+    max-width:100%!important;
+    max-height:calc(100dvh - 12px)!important;
+    border-radius:16px;
+    margin:0 auto;
+  }
+  .sf63-hub-header{padding:13px 14px 10px!important;gap:9px}
+  .sf63-hub-header h2{font-size:clamp(20px,5vw,26px)!important;line-height:1.15}
+  .sf63-hub-header p{font-size:11.5px!important;line-height:1.4!important}
+  .sf63-hub > .sf63-tabs {min-height:47px;max-height:54px;padding:5px 9px!important;flex-wrap:nowrap!important}
+  .sf63-hub > .sf63-tabs button{min-height:38px;flex:0 0 auto}
+  .sf63-hub-body{padding:13px 12px 18px!important}
+  .sf63-hub-foot{padding:9px 12px calc(10px + env(safe-area-inset-bottom,0px))!important}
+  .sf63-music-search input{font-size:16px!important}
+  .sf63-track{
+    display:grid!important;
+    grid-template-columns:58px minmax(0,1fr) minmax(100px,auto);
+    grid-template-rows:auto auto;
+    gap:4px 9px!important;
+    padding:8px!important;
+  }
+  .sf63-track>img{grid-column:1;grid-row:1/span 2;width:58px;height:53px;object-fit:cover}
+  .sf63-track>div{grid-column:2;grid-row:1/span 2;min-width:0}
+  .sf63-track [data-sf63-action^="song:"]{
+    grid-column:3;grid-row:1;
+    padding:8px 7px!important;
+    font-size:10px!important;
+    min-height:39px;
+    white-space:normal!important;
+    line-height:1.2!important;
+  }
+  .sf63-track [data-sf70-favorite]{
+    grid-column:3;grid-row:2;
+    min-height:32px;
+    padding:6px 8px;
+    font-size:10px;
+  }
+}
+@media(max-width:360px){
+ .sf63-track{grid-template-columns:50px minmax(0,1fr) 92px;gap:4px 6px!important}
+ .sf63-track>img{width:50px;height:49px}
+ .sf63-track [data-sf63-action^="song:"]{font-size:9.5px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .sf63-hub *,#screen-room #mTabs *{transition:none!important;animation:none!important}
+}
