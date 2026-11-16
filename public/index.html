@@ -1439,170 +1439,189 @@
   <link rel="stylesheet" href="/sonorafan-profile-108.css?v=108.1">
   <link rel="stylesheet" href="/sonorafan-profile-library-112.css?v=112.2">
 <link rel="stylesheet" href="/sonorafan-room-redesign-113.css?v=119">
+  <link rel="stylesheet" href="/sonorafan-home-120.css?v=120">
 </head>
 <body>
-  <!-- ===== LANDING PAGE ===== -->
-  <div class="landing-screen" id="landingScreen">
+  <!-- ===== SONORAFAN 120 · NOVA HOME ===== -->
+  <div class="landing-screen sf120-home" id="landingScreen">
     <a class="sf52-skip-link" href="#sf52LandingMain">Ir para o conteúdo principal</a>
-    <div class="landing-bg"></div>
-    <div class="sf26-noise" aria-hidden="true"></div>
-    <div class="sf26-ambient" aria-hidden="true"><span class="orb orb-a"></span><span class="orb orb-b"></span><span class="orb orb-c"></span><span class="beam beam-a"></span><span class="beam beam-b"></span></div>
-    <div class="float-notes" aria-hidden="true">
-      <span>♪</span><span>♫</span><span>♬</span><span>♪</span><span>♫</span>
-    </div>
-
-    <nav class="topnav">
-      <div class="topnav-logo sf54-brand sf54-brand-top"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image"></div>
-      <div class="topnav-actions">
-        <button class="lang-btn active" data-lang="pt" onclick="setLanguage('pt')">PT</button>
-        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
-        <button class="lang-btn" data-lang="es" onclick="setLanguage('es')">ES</button>
-        <button class="btn-landing-secondary" onclick="showLogin()" data-i18n="hero.cta1">Entrar</button>
-        <button class="btn-landing-primary btn-shake" onclick="openSignup()" data-i18n="hero.cta2">Criar conta</button>
+    <nav class="topnav sf120-topbar" aria-label="Acesso ao SonoraFan">
+      <div class="topnav-logo sf54-brand sf54-brand-top">
+        <img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image">
+      </div>
+      <div class="topnav-actions sf120-top-actions">
+        <div class="sf120-langs" role="group" aria-label="Idioma">
+          <button class="lang-btn active" data-lang="pt" onclick="setLanguage('pt')" type="button" aria-label="Português">PT</button>
+          <button class="lang-btn" data-lang="en" onclick="setLanguage('en')" type="button" aria-label="English">EN</button>
+          <button class="lang-btn" data-lang="es" onclick="setLanguage('es')" type="button" aria-label="Español">ES</button>
+        </div>
+        <button class="btn-landing-secondary sf120-top-enter" type="button" onclick="showLogin()">Entrar</button>
+        <button class="btn-landing-primary sf120-signup sf120-top-signup" type="button" onclick="openSignup()">Criar conta grátis <span aria-hidden="true">→</span></button>
       </div>
     </nav>
 
-    <div class="landing-content" id="sf52LandingMain" tabindex="-1">
-      <section class="hero">
-        <div class="hero-text">
-          <span class="hero-badge"><span class="live-dot"></span> <span data-i18n="hero.badge">AO VIVO • SALAS COLABORATIVAS DE MÚSICA</span></span>
-          <h1 data-i18n="hero.title"><span>Sua vibe.</span> <span>Sua música.</span> <em>Ao vivo.</em></h1>
-          <p data-i18n="hero.sub">Entre numa sala, adicione seus hits do YouTube e sinta a energia da galera no chat em tempo real.</p>
-          <div class="hero-ctas">
-            <button class="btn-hero-secondary" onclick="showLogin()" data-i18n="hero.cta1b">🎤 Entrar na sala</button>
-            <button class="btn-hero-primary btn-shake" onclick="openSignup()" data-i18n="hero.cta2b">✍️ Criar conta grátis</button>
-          </div>
-          <div class="social-proof sf44-hero-benefits sf50-hero-benefits" aria-label="Destaques da plataforma">
-            <span>♬ Playlist colaborativa</span><span>✦ Salas ao vivo</span><span>♥ Música e comunidade</span>
+    <main class="landing-content sf120-content" id="sf52LandingMain" tabindex="-1">
+      <section class="sf120-hero" aria-labelledby="sf120HeroTitle">
+        <div class="sf120-hero-copy hero-text">
+          <span class="sf120-eyebrow">PLATAFORMA MUSICAL COLABORATIVA</span>
+          <h1 id="sf120HeroTitle">Novas formas de <span>viver a música juntos.</span></h1>
+          <p>O SonoraFan é o ponto de encontro para ouvir, assistir e compartilhar música em tempo real. Crie salas temáticas, monte filas coletivas, converse no chat e encontre quem curte o mesmo som.</p>
+          <div class="sf120-hero-ctas">
+            <button class="btn-hero-primary sf120-signup" type="button" onclick="openSignup()">▶ Criar conta grátis <span aria-hidden="true">→</span></button>
+            <a class="sf120-how-link" href="#sf120How"><span class="sf120-play" aria-hidden="true">▶</span> Ver como funciona</a>
           </div>
         </div>
 
-        <div class="hero-visual sf33-landing-visual">
-          <img class="sf33-woman-art" src="/art-33/woman-headphones.webp" alt="Ilustração indie de uma pessoa ouvindo música com fones e flores" width="813" height="600" decoding="async">
-          <div class="visual-glow"></div>
-          <div class="vinyl"></div>
-          <div class="sf63-landing-vibe" aria-live="polite">
-            <span>✦ UM PALCO PARA TODO MUNDO</span>
-            <strong id="sf63LandingHighlight">Sua próxima descoberta começa aqui.</strong>
-            <small id="sf63LandingActivity">Salas colaborativas, artistas e amizades musicais.</small>
+        <div class="sf120-preview" aria-label="Prévia ilustrativa de uma sala de música colaborativa do SonoraFan">
+          <div class="sf120-demo-head">
+            <span class="sf120-demo-brand"><img class="sf120-demo-logo" src="/brand-64/sonorafan-favicon-64.png" alt="" decoding="async"> SonoraFan</span>
+            <span class="sf120-demo-room">♫ Sala: Lounge Rock</span>
+            <span class="sf120-demo-live">● Demonstração</span>
+            <span class="sf120-demo-mock">PRÉVIA DA FERRAMENTA</span>
+          </div>
+          <div class="sf120-demo-grid">
+            <div class="sf120-demo-column">
+              <div class="sf120-demo-sidepanel">
+                <h3>♫ Tocando agora</h3>
+                <div class="sf120-mini-song">
+                  <img src="/art-33/poster-rock.webp" alt="" width="38" height="38" decoding="async">
+                  <div><strong>Rock na sala</strong><span>Audição coletiva</span></div>
+                </div>
+                <div class="sf120-mini-line"></div>
+                <h3>↗ A seguir</h3>
+                <div class="sf120-mini-song">
+                  <img src="/art-33/poster-indie.webp" alt="" width="38" height="38" decoding="async">
+                  <div><strong>Próxima escolha</strong><span>Fila compartilhada</span></div>
+                </div>
+                <div class="sf120-mini-line"></div>
+                <h3>Quem está ouvindo?</h3>
+                <div class="sf120-mini-avatars" aria-label="Avatares ilustrativos de participantes">
+                  <img src="/avatars-108/rock.svg" alt="">
+                  <img src="/avatars-108/indie.svg" alt="">
+                  <img src="/avatars-108/pop.svg" alt="">
+                </div>
+              </div>
+            </div>
+
+            <div class="sf120-demo-stage">
+              <div class="sf120-stage-art">
+                <img src="/art-44/festival-stage.webp" alt="Ilustração musical de palco com público durante show" width="1480" height="474" decoding="async">
+                <div class="sf120-stage-switch" aria-label="Dois modos disponíveis na sala"><span>✦ Visual</span><span>▣ Vídeo</span></div>
+                <span class="sf120-stage-caption">♫ Música e vídeo sincronizados</span>
+              </div>
+              <div class="sf120-stage-controls" aria-label="Exemplo visual de progresso da música">
+                <span>▶</span><span>2:14</span><div class="sf120-stage-progress"><i></i></div><span>4:28</span>
+              </div>
+              <div class="sf120-stage-volume"><span aria-hidden="true">🔊</span><div></div><span>73%</span></div>
+              <div class="sf120-demo-queue">
+                <strong>☷ Fila colaborativa</strong>
+                <span>＋ Adicionar música</span>
+              </div>
+            </div>
+
+            <div class="sf120-demo-chat">
+              <h3>◉ Chat da sala</h3>
+              <div class="sf120-chat-item">
+                <img src="/avatars-108/rock.svg" alt="" decoding="async">
+                <span><strong>Gui</strong>Essa escolha é demais! 🤘</span>
+              </div>
+              <div class="sf120-chat-item">
+                <img src="/avatars-108/pop.svg" alt="" decoding="async">
+                <span><strong>Ana</strong>Coloquei a próxima! 🔥</span>
+              </div>
+              <div class="sf120-chat-item">
+                <img src="/avatars-108/indie.svg" alt="" decoding="async">
+                <span><strong>Rafa</strong>Que vibe boa! 💜</span>
+              </div>
+              <div class="sf120-chat-input">Mensagem…</div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="sf74-home-highlights" aria-label="Descubra o SonoraFan">
-        <article><span aria-hidden="true">♫</span><div><strong>Escolha junto</strong><p>Salas colaborativas onde todo mundo é DJ.</p></div></article>
-        <article><span aria-hidden="true">♬</span><div><strong>Encontre sua galera</strong><p>Amigos, chat privado e encontros em tempo real.</p></div></article>
-        <article><span aria-hidden="true">✦</span><div><strong>Viva seus artistas</strong><p>Fan Clubs, eventos e descobertas musicais.</p></div></article>
-      </section>
-
-      <section class="sf26-live-marquee" aria-label="Explore o universo musical">
-        <div class="sf26-marquee-track">
-          <span>✳ INDIE & ALTERNATIVO</span><span>⚡ ROCK SEM PAUSA</span><span>✿ MPB & BRASILIDADES</span>
-          <span>♫ POP & NOVOS SONS</span><span>✦ VIVENDO MÚSICA JUNTO</span><span>♬ TODO MUNDO É DJ</span>
+      <section class="sf120-pillars" aria-labelledby="sf120PillarsTitle">
+        <h2 class="sf120-section-label" id="sf120PillarsTitle">OS QUATRO PILARES DO SONORAFAN</h2>
+        <div class="sf120-feature-grid">
+          <article class="sf120-feature" data-color="orange">
+            <b class="sf120-feature-number" aria-hidden="true">01</b><span class="sf120-feature-dot" aria-hidden="true"></span>
+            <h3>Salas Colaborativas</h3>
+            <small>Ouça, assista e crie junto</small>
+            <p>Entre em salas temáticas para ouvir músicas e assistir a vídeos em sincronia com amigos e outros fãs.</p>
+            <button class="sf120-feature-link" type="button" onclick="showLogin()">Explorar salas →</button>
+          </article>
+          <article class="sf120-feature" data-color="lime">
+            <b class="sf120-feature-number" aria-hidden="true">02</b><span class="sf120-feature-dot" aria-hidden="true"></span>
+            <h3>Fila Compartilhada</h3>
+            <small>Todo mundo participa da escolha</small>
+            <p>Adicione novas músicas, acompanhe o que vem a seguir e monte uma sequência com toda a galera.</p>
+            <button class="sf120-feature-link" type="button" onclick="openSignup()">Criar minha fila →</button>
+          </article>
+          <article class="sf120-feature" data-color="pink">
+            <b class="sf120-feature-number" aria-hidden="true">03</b><span class="sf120-feature-dot" aria-hidden="true"></span>
+            <h3>Fan Clubs</h3>
+            <small>Conexão real entre fãs</small>
+            <p>Encontre comunidades de artistas favoritos, converse, compartilhe seus interesses e faça novas amizades.</p>
+            <button class="sf120-feature-link" type="button" onclick="openSignup()">Encontrar Fan Clubs →</button>
+          </article>
+          <article class="sf120-feature" data-color="yellow">
+            <b class="sf120-feature-number" aria-hidden="true">04</b><span class="sf120-feature-dot" aria-hidden="true"></span>
+            <h3>Favoritos e Ranking</h3>
+            <small>Uma jornada que é sua</small>
+            <p>Salve as faixas que ama, participe das salas, ganhe XP e descubra novas conquistas musicais.</p>
+            <button class="sf120-feature-link" type="button" onclick="openSignup()">Começar a participar →</button>
+          </article>
         </div>
       </section>
 
-      <section class="sf44-festival-section sf44-reveal" aria-labelledby="sf44FestivalTitle">
-        <div class="sf44-festival-art"><img src="/art-44/festival-stage.webp" alt="Arte indie de um festival, com músicos no palco e público animado" loading="lazy" decoding="async" width="1480" height="474"></div>
-        <div class="sf44-festival-copy"><span class="sf44-eyebrow">A MÚSICA TEM O PODER DE APROXIMAR</span>
-          <h2 id="sf44FestivalTitle">A melhor parte do som é quem ouve com você.</h2>
-          <p>Escolha uma sala, encontre a sua galera, adicione músicas e transforme cada play em um encontro.</p>
-          <button type="button" onclick="openSignup()">✦ Viver a experiência</button>
-        </div>
-      </section>
-
-      <section class="sf44-story-grid" aria-label="O universo SonoraFan">
-        <article class="sf44-story-card sf44-reveal"><img src="/art-44/festival-card.webp" loading="lazy" decoding="async" alt="Ilustração de festival com guitarristas e público" width="907" height="509">
-          <div><span>✦ ENCONTRO</span><h3>Seu palco é com a galera.</h3><p>Entre em salas de diferentes estilos, converse e descubra pessoas que gostam do seu som.</p></div>
+      <section class="sf120-discover" aria-label="O que você encontra no SonoraFan">
+        <article>
+          <h2 class="sf120-section-label">COMUNIDADE EM DESTAQUE</h2>
+          <h2>Fãs que fazem<br>a música acontecer.</h2>
+          <p>Conheça pessoas que compartilham a mesma paixão, forme amizades e descubra novas comunidades.</p>
+          <div class="sf120-avatars" aria-label="Estilos musicais da comunidade">
+            <img src="/avatars-108/rock.svg" alt="Rock"><img src="/avatars-108/pop.svg" alt="Pop">
+            <img src="/avatars-108/indie.svg" alt="Indie"><img src="/avatars-108/eletronico.svg" alt="Eletrônica"><span>♫</span>
+          </div>
         </article>
-        <article class="sf44-story-card sf44-reveal"><img src="/art-44/vinyl-card.webp" loading="lazy" decoding="async" alt="Ilustração indie de toca-discos e objetos musicais" width="960" height="467">
-          <div><span>♫ COLABORAÇÃO</span><h3>Todo mundo escolhe a próxima.</h3><p>Uma playlist construída por todos, com músicas favoritas, votos e descobertas.</p></div>
+        <article>
+          <h2 class="sf120-section-label">SALAS E AUDIÇÕES</h2>
+          <div class="sf120-live-example">
+            <img src="/art-44/festival-card.webp" alt="Cena ilustrada de show e plateia" width="907" height="509" loading="lazy" decoding="async">
+            <div>
+              <strong id="sf63LandingHighlight">Um som, muitas pessoas.</strong>
+              <small id="sf63LandingActivity">Salas temáticas, fila colaborativa e encontros musicais.</small>
+              <button class="sf120-text-link" type="button" onclick="showLogin()">Entrar nas salas →</button>
+            </div>
+          </div>
+        </article>
+        <article>
+          <h2 class="sf120-section-label">DESCUBRA MÚSICAS</h2>
+          <div class="sf120-discovery-art">
+            <div>
+              <h2>Sua próxima favorita pode estar aqui.</h2>
+              <p>Compartilhe descobertas, salve músicas e encontre sons indicados por outros fãs.</p>
+              <button class="sf120-text-link sf120-pink-link" type="button" onclick="openSignup()">Criar meus favoritos →</button>
+            </div>
+            <img src="/art-33/woman-headphones.webp" alt="Ilustração musical de uma pessoa com fones" width="813" height="600" loading="lazy" decoding="async">
+          </div>
         </article>
       </section>
 
-      <section class="landing-section">
-        <div class="section-head">
-          <h2 data-i18n="how.title">Como funciona</h2>
-          <p data-i18n="how.sub">3 passos e a vibe tá no ar</p>
-        </div>
-        <div class="how-grid">
-          <div class="how-card">
-            <div class="how-num">1</div>
-            <h3 data-i18n="how1.title">Crie sua conta</h3>
-            <p data-i18n="how1.desc">Cadastro em 30 segundos. Só nome, e-mail e senha.</p>
-          </div>
-          <div class="how-card">
-            <div class="how-num">2</div>
-            <h3 data-i18n="how2.title">Entre numa sala</h3>
-            <p data-i18n="how2.desc">Escolha uma das salas ao vivo ou crie a sua própria.</p>
-          </div>
-          <div class="how-card">
-            <div class="how-num">3</div>
-            <h3 data-i18n="how3.title">Solta o som</h3>
-            <p data-i18n="how3.desc">Adicione músicas, vote nas favoritas e converse no chat.</p>
-          </div>
+      <section class="sf120-how" id="sf120How" aria-labelledby="sf120HowTitle">
+        <h2 class="sf120-section-label" id="sf120HowTitle">COMO FUNCIONA</h2>
+        <div class="sf120-how-grid">
+          <div class="sf120-how-step"><b>01</b><h3>Crie sua conta</h3><p>Cadastre-se gratuitamente e personalize seu perfil musical.</p></div>
+          <div class="sf120-how-step"><b>02</b><h3>Escolha sua sala</h3><p>Entre numa sala temática ou crie um espaço para compartilhar com amigos.</p></div>
+          <div class="sf120-how-step"><b>03</b><h3>Viva a música junto</h3><p>Adicione músicas à fila, converse no chat e aproveite a audição colaborativa.</p></div>
         </div>
       </section>
 
-      <section class="landing-section">
-        <div class="section-head">
-          <h2 data-i18n="features.title">Feito pra quem ama música</h2>
-          <p data-i18n="features.sub">Recursos que transformam qualquer noite numa festa</p>
-        </div>
-        <div class="feature-grid">
-          <div class="feature-card">
-            <span class="icon">🎵</span>
-            <h3 data-i18n="feat1.title">Fila colaborativa</h3>
-            <p data-i18n="feat1.desc">Todo mundo adiciona músicas do YouTube. A fila toca em sincronia pra todos.</p>
-          </div>
-          <div class="feature-card">
-            <span class="icon">💬</span>
-            <h3 data-i18n="feat2.title">Chat ao vivo</h3>
-            <p data-i18n="feat2.desc">Comente as músicas, reaja com emojis, curta as escolhas da galera.</p>
-          </div>
-          <div class="feature-card">
-            <span class="icon">🗳️</span>
-            <h3 data-i18n="feat3.title">Votação democrática</h3>
-            <p data-i18n="feat3.desc">Com 10 votos negativos a música sai. A galera manda no som.</p>
-          </div>
-          <div class="feature-card">
-            <span class="icon">🎨</span>
-            <h3 data-i18n="feat4.title">Salas personalizadas</h3>
-            <p data-i18n="feat4.desc">Escolha cor, ícone e regras. Sua sala, seu estilo.</p>
-          </div>
-          <div class="feature-card">
-            <span class="icon">⚡</span>
-            <h3 data-i18n="feat5.title">Sincronização perfeita</h3>
-            <p data-i18n="feat5.desc">Todos ouvem a mesma música no mesmo segundo. Sem delay.</p>
-          </div>
-          <div class="feature-card">
-            <span class="icon">🎁</span>
-            <h3 data-i18n="feat6.title">100% grátis</h3>
-            <p data-i18n="feat6.desc">Sem cartão, sem pegadinha. Crie quantas salas quiser.</p>
-          </div>
-        </div>
+      <section class="sf120-final" aria-label="Comece sua experiência">
+        <div><h2>Mais que música, uma experiência em comunidade.</h2><p>Seu próximo encontro musical começa com uma sala.</p></div>
+        <button class="sf120-signup" type="button" onclick="openSignup()">Criar conta grátis <span aria-hidden="true">→</span></button>
       </section>
-
-      <section class="sf44-last-call sf44-reveal" aria-label="Crie memórias com música">
-        <div class="sf44-last-call-art"><img src="/art-44/festival-crowd.webp" width="1480" height="407" loading="lazy" decoding="async" alt="Arte de festival ilustrado, com instrumentos, público e flores"></div>
-        <div class="sf44-last-call-content"><span>✳ O PALCO É DE TODO MUNDO</span>
-          <h2>De uma música nasce uma história.</h2>
-          <p>Uma sala com a sua cara, músicas escolhidas em conjunto e conversas que continuam depois da última faixa.</p>
-          <div class="sf44-last-call-tags"><b>♪ Descubra</b><b>✦ Compartilhe</b><b>♥ Conecte</b></div>
-        </div>
-      </section>
-
-      <section class="final-cta">
-        <h2 data-i18n="final.title">Pronto pra sentir a vibe?</h2>
-        <p data-i18n="final.sub">Crie sua conta grátis em 30 segundos e entre numa sala agora.</p>
-        <button class="final-cta-btn btn-shake" onclick="openSignup()" data-i18n="final.cta">Criar minha conta grátis 🎵</button>
-        <p class="final-cta-note" data-i18n="final.note">✨ Sem cartão. Sem pegadinha. Só música.</p>
-      </section>
-
-      <footer class="landing-footer">
-
-      </footer>
-    </div>
+      <footer class="sf120-home-footer">SonoraFan · Música é melhor quando a gente compartilha.</footer>
+    </main>
   </div>
 
   <!-- ===== LOGIN ===== -->
