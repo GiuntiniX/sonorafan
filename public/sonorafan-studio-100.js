@@ -55,7 +55,7 @@
    const e=$('sf100Section');if(!e)return;
    if(state.section==='mixtapes')return mixtapes(e);
    if(state.section==='match')return match(e);
-   if(state.section==='events')return events(e);
+   if(state.section==='events'){events(e);updateCountdown();return;}
    if(state.section==='alerts')return alerts(e);
    if(state.section==='quality')return quality(e);
    design(e);
@@ -136,6 +136,14 @@
      </article>`).join('')}</div>`:
        htmlMsg('Nenhum Match disponível','Pode ser que outras pessoas ainda não tenham ativado essa opção.')}
      <p class="sf100-fineprint">Compatibilidade experimental: sobreposição de gêneros declarados e artistas das últimas contribuições registradas. Não é um diagnóstico de personalidade.</p>`;
+ }
+ function updateCountdown(){
+   document.querySelectorAll('#sf100Section .sf100-countdown').forEach(el=>{
+     const seconds=Math.round((Number(el.dataset.start)-Date.now())/1000);
+     el.textContent=seconds<=0?'Sessão iniciada':
+       seconds<3600?'Começa em '+Math.ceil(seconds/60)+' min':
+       'Começa em '+Math.floor(seconds/3600)+'h '+Math.ceil((seconds%3600)/60)+'min';
+   });
  }
  function events(host){
    const names={indie:'Noite Indie',rock2000:'Rock 2000',discoveries:'Descobertas',pop:'Pop Club',electronic:'Eletrônica'};
@@ -433,10 +441,7 @@
    window.addEventListener('visibilitychange',()=>{if(!document.hidden)requestSync(false);});
    setInterval(()=>{if(!document.hidden&&roomActive()&&Date.now()-state.lastAutoSync>30000)requestSync(false);},30000);
    setInterval(()=>{if(!document.hidden&&state.prefs.alerts)checkAlerts();},90000);
-   setInterval(()=>{document.querySelectorAll('#sf100Section .sf100-countdown').forEach(el=>{
-     const seconds=Math.round((Number(el.dataset.start)-Date.now())/1000);
-     el.textContent=seconds<=0?'Sessão iniciada':seconds<3600?`Começa em ${Math.ceil(seconds/60)} min`:`Começa em ${Math.floor(seconds/3600)}h ${Math.ceil((seconds%3600)/60)}min`;
-   });},30000);
+   setInterval(updateCountdown,15000);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
