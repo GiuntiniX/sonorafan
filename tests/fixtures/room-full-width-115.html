@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SonoraFan v115 — reprodução de grade da sala</title>
+<style>
+* { box-sizing: border-box; }
+html,body { width:100%;height:100%;margin:0;overflow:hidden }
+body { display:flex; flex-direction:column; background:#0b0815;color:white;font:14px Inter,system-ui; }
+.screen { display:none;flex-direction:column;flex:1;height:100%;max-height:100%;min-width:0;overflow:hidden; }
+.screen.active { display:flex }
+.app { position:relative;z-index:1;display:flex;flex-direction:column;flex:1;min-height:0;height:100%;max-height:100%;overflow:hidden }
+.header { display:flex;align-items:center;justify-content:space-between;min-height:62px;gap:8px }
+.room-layout { display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:10px;flex:1;min-width:0;min-height:0;height:100%;overflow:hidden }
+.queue-column,.player-column,.chat-column { display:flex; flex-direction:column;min-width:0;min-height:0;overflow:hidden }
+.chat-panel { display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden }
+.chat-messages { display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden }
+.chat-messages-inner { flex:1;min-height:0;overflow:auto }
+.chat-input-bar { flex:0 0 auto;display:flex }
+.sf5-bottom-row { display:contents }
+.player-section { display:flex;flex-direction:column;min-width:0 }
+.player-frame { position:relative;width:100%;aspect-ratio:16/9 }
+#youtube-player {width:100%;height:100%}
+.progress-section { padding:10px }
+#screen-room .sf5-sidebar { min-width:130px }
+.mtaps { display:none }
+#screen-room .premium-mini-player { height:70px }
+</style>
+<link rel="stylesheet" href="../../public/room-reference.css">
+<link rel="stylesheet" href="../../public/sonorafan-ui-38.css">
+<link rel="stylesheet" href="../../public/sonorafan-ui-65.css">
+<link rel="stylesheet" href="../../public/sonorafan-footer-tools-106.css">
+<link rel="stylesheet" href="../../public/sonorafan-responsive-91.css">
+<link rel="stylesheet" href="../../public/sonorafan-room-ux-93.css">
+<link rel="stylesheet" href="../../public/sonorafan-room-redesign-113.css">
+</head>
+<body class="sf64-room-sidebar-collapsed" data-tab="player">
+<div class="screen active sf113-room sf106-footer-tools" id="screen-room" data-sf113-view="visual">
+<div class="app">
+<header class="header sf106-header-clean">
+  <div class="header-left"><button type="button">Voltar</button><h1 id="roomTitle">Sala</h1><span class="sf113-brand">SonoraFan</span>
+  <button id="cfgBtn" class="action-btn hidden">Config.</button></div>
+  <nav class="sf113-nav"><button type="button">Sala</button><button type="button">Fila</button><button type="button">Chat</button><button type="button">Participantes</button></nav>
+  <div class="header-right sf9-room-header-actions">
+    <button id="sf88RoomThemeButton" class="sf88-theme-switch">Tema musical</button>
+    <button id="sf64RoomSidebarToggle">Menu</button>
+    <button id="adminBtnRoom" style="display:none">Admin</button><span id="adminBadge">Admin</span>
+  </div>
+</header>
+<aside class="sf5-sidebar" id="sf64RoomSidebar">Menu antigo</aside>
+<div class="premium-room-ambient"></div>
+<main class="room-layout" id="roomLayout">
+  <section class="sf113-now-card"><div class="sf113-now-kicker">Tocando agora</div><div class="sf113-now-body">Música de teste</div></section>
+  <section class="queue-column sf34-queue"><div class="queue-header"><span>Fila colaborativa</span></div><div id="queueList" class="queue-list">Músicas</div></section>
+  <section class="player-column sf34-player-column">
+    <div class="player-section" id="playerSection"><div class="player-frame"><div id="youtube-player"></div>
+      <div class="sf113-visual-stage">Arte musical</div><div class="sf113-view-switch"><button>Visual</button><button>Vídeo</button></div></div>
+      <div class="progress-section">Controles do player</div>
+    </div>
+  </section>
+  <div class="sf5-bottom-row">
+    <section class="chat-column sf34-chat"><div class="premium-chat-heading sf53-chat-heading">Chat da sala</div>
+      <div class="chat-panel"><div class="chat-messages"><div class="chat-messages-inner">Mensagem 1</div></div>
+        <div class="chat-input-bar"><input id="chatInput" aria-label="Mensagem"><button>Enviar</button></div>
+      </div>
+    </section>
+    <section class="sf10-request-card sf34-request">Buscar músicas</section>
+    <section class="sf5-listening-card">Participantes</section>
+  </div>
+</main>
+<div class="premium-mini-player" id="premiumMiniPlayer">
+  <div class="premium-mini-cover">♫</div><div class="premium-mini-text">Música tocando</div>
+  <span class="premium-mini-live">● LIVE</span><button>↗</button>
+  <div class="premium-mini-progress"></div>
+</div>
+<nav class="mtabs" id="mTabs"><button>Fila</button><button>Player</button><button>Chat</button></nav>
+</div></div>
+<output id="metrics" hidden></output>
+<script src="../../public/sonorafan-footer-tools-106.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const room = document.getElementById('screen-room');
+  const app = room.querySelector('.app');
+  const rect = e => e.getBoundingClientRect();
+  const w = innerWidth;
+  const header = room.querySelector('.header');
+  const main = document.getElementById('roomLayout');
+  const mini = document.getElementById('premiumMiniPlayer');
+  const theme = document.getElementById('sf88RoomThemeButton');
+  const chat = room.querySelector('.sf34-chat');
+  const player = room.querySelector('.sf34-player-column');
+  const metrics = {
+    viewport:w, screen:rect(room).width, app:rect(app).width,
+    header:rect(header).width, main:rect(main).width,
+    chatRight:rect(chat).right, chatWidth:rect(chat).width,
+    playerWidth:rect(player).width,
+    miniDisplay:getComputedStyle(mini).display,
+    themeInHeader:!!theme.closest('.header-right'),
+    grid:getComputedStyle(app).gridTemplateColumns,
+    roomClasses:room.className
+  };
+  const ok = metrics.app >= w*.98 && metrics.header >= w*.98 &&
+    metrics.main >= w*.98 && metrics.chatRight <= w+4 &&
+    metrics.playerWidth >= w*.2 && metrics.chatWidth >= w*.15 &&
+    metrics.miniDisplay === 'none' && metrics.themeInHeader &&
+    !room.classList.contains('sf106-footer-tools');
+  const out=document.getElementById('metrics');
+  out.dataset.sf115Test=ok?'ok':'fail';
+  out.textContent=JSON.stringify(metrics);
+});
+</script></body></html>
