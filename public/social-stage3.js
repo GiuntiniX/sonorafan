@@ -240,6 +240,18 @@ function init(){
  mount();window.sf15OpenNotifications=open;
  window.sf15RefreshNotifications=()=>load(true);
  window.sf15OpenNotification=id=>{const item=state.alerts.find(a=>a.id===id);if(item)navigate(item);else open();};
+ window.sf15MarkPrivateRead=async id=>{
+   if(!peer(id))return;
+   const notices=state.alerts.filter(a=>a.type==='message'&&a.peerId===id&&!a.read);
+   const ids=notices.map(a=>a.id).slice(0,70);
+   if(!ids.length)return;
+   try{
+     await post('/api/social/notifications/read',{ids});
+     const done=new Set(ids);
+     state.alerts.forEach(a=>{if(done.has(a.id))a.read=true;});
+     renderBadge();if(state.drawer&&!state.inInvite)paint();
+   }catch(_){}
+ };
  realtime();load(true);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(true);});
  setInterval(()=>{if(!document.hidden)load();},20000);
