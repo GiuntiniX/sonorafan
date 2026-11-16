@@ -224,7 +224,9 @@
         const d=String(t.dj||'Comunidade').slice(0,60);
         artists.set(a,(artists.get(a)||0)+1);djs.set(d,(djs.get(d)||0)+1);
       }
+      const mostSupported=items.filter(t=>Number(t.likes)>0).sort((a,b)=>Number(b.likes)-Number(a.likes))[0]||null;
       state.recap={
+        topSong:mostSupported?{title:String(mostSupported.title||'Música').slice(0,100),votes:Number(mostSupported.likes)||0}:null,
         slug:current,name:String(data.name||state.room?.name||'Sala SonoraFan').slice(0,90),
         count:items.length,artist:[...artists].sort((a,b)=>b[1]-a[1])[0]?.[0]||null,
         dj:[...djs].sort((a,b)=>b[1]-a[1])[0]?.[0]||null
@@ -243,7 +245,8 @@
       <small>✦ SONORAFAN / RECAP</small><h3>${esc(r.name)}</h3>
       <div class="sf95-recap-number">${count(r.count)}<span>músicas registradas</span></div>
       <div class="sf95-recap-data"><div><small>ARTISTA MAIS TOCADO</small><strong>${esc(r.artist||'Aguardando histórico')}</strong></div>
-        <div><small>QUEM MAIS CONTRIBUIU</small><strong>${esc(r.dj||'Aguardando histórico')}</strong></div></div>
+        <div><small>QUEM MAIS CONTRIBUIU</small><strong>${esc(r.dj||'Aguardando histórico')}</strong></div>
+        <div class="sf95-supported-song"><small>FAIXA MAIS APOIADA</small><strong>${esc(r.topSong?r.topSong.title+' · '+r.topSong.votes+' apoios':'Sem apoios registrados')}</strong></div></div>
       <span class="sf95-recap-end">A trilha sonora é de todos. ♫</span>
       </div><p class="sf95-hint">Baseado em músicas já concluídas no histórico, não em estimativas ou na fila futura.</p>
       <div class="sf95-actions"><button type="button" data-sf95-action="recap-image">↓ Card PNG</button>
@@ -254,7 +257,8 @@
     const r=state.recap;if(!r)return '';
     return '🎧 SONORAFAN · RECAP\n'+r.name+'\n♫ '+r.count+' músicas registradas'+
       (r.artist?'\n★ Artista mais tocado: '+r.artist:'')+
-      (r.dj?'\n✦ Quem mais contribuiu: '+r.dj:'')+'\n\nFeito no SonoraFan ♫';
+      (r.dj?'\n✦ Quem mais contribuiu: '+r.dj:'')+
+      (r.topSong?'\n👍 Faixa mais apoiada: '+r.topSong.title+' ('+r.topSong.votes+' votos)':'')+'\n\nFeito no SonoraFan ♫';
   }
   function saveRecapImage(){
     const r=state.recap;if(!r)return;
@@ -272,11 +276,13 @@
     fit(r.name,285,64,'#ffffff');
     fit(String(r.count),560,220,'#ffb58f');
     fit('MÚSICAS REGISTRADAS',660,27,'#d4bdd9');
-    fit('ARTISTA MAIS TOCADO',810,25,'#eeacd3');
-    fit(r.artist||'Aguardando histórico',870,45,'#ffffff');
-    fit('QUEM MAIS CONTRIBUIU',1000,25,'#eeacd3');
-    fit(r.dj||'Aguardando histórico',1060,45,'#ffffff');
-    fit('A trilha sonora é de todos. ♫',1250,29,'#d3b6e0');
+    fit('ARTISTA MAIS TOCADO',775,24,'#eeacd3');
+    fit(r.artist||'Aguardando histórico',826,42,'#ffffff');
+    fit('QUEM MAIS CONTRIBUIU',926,24,'#eeacd3');
+    fit(r.dj||'Aguardando histórico',977,42,'#ffffff');
+    fit('FAIXA MAIS APOIADA',1080,24,'#eeacd3');
+    fit(r.topSong?r.topSong.title+' · '+r.topSong.votes+' apoios':'Sem apoios registrados',1132,35,'#ffffff');
+    fit('A trilha sonora é de todos. ♫',1270,27,'#d3b6e0');
     canvas.toBlob(blob=>{
       if(!blob)return message('Não foi possível gerar a imagem.',true);
       const url=URL.createObjectURL(blob),a=document.createElement('a');
