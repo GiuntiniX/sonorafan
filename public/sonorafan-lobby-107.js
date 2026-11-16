@@ -282,8 +282,12 @@
     box.scrollTo({top:Math.max(0,box.scrollTop+target.getBoundingClientRect().top-box.getBoundingClientRect().top-15),behavior:'smooth'});
   }
   function community(tab){
-    // Keep the original friends/events/Fan Club hub accessible even though its
-    // old lobby presentation is hidden. Never duplicate the feature content.
+    // Version 110 owns the visible community experience. Keep the old hub
+    // only as a fully functional detail surface, never as a duplicate drawer.
+    if(typeof window.sf110OpenCommunity==='function'){
+      window.sf110OpenCommunity(tab==='friends'?'overview':tab);
+      return;
+    }
     const drawer=document.querySelector('#screen-lobby .sf32-community-drawer');
     if(drawer){
       drawer.classList.add('sf107-expose');
@@ -297,6 +301,11 @@
   }
   function openClubs(id=''){
     community('fanclubs');
+    if(typeof window.sf110OpenCommunity==='function'){
+      if(id&&/^[a-f0-9-]{36}$/i.test(id))window.sf71OpenFanClub?.(id);
+      else window.sf71LoadFanClubs?.();
+      return;
+    }
     const tab=document.querySelector('#sfSocialHub [data-sf-tab="fanclubs"]');
     tab?.click();
     if(id&&/^[a-f0-9-]{36}$/i.test(id)){
