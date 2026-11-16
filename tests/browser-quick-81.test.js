@@ -69,3 +69,22 @@ test('mobile music search adds to queue without favoriting (Chromium)',{
  }
  throw lastError;
 });
+
+test('discovery panel chooses music for queue and keeps favorite separate (Chromium)',{
+  skip:chrome||process.env.CI==='true'?false:'Chrome/Chromium not installed'
+},async()=>{
+ assert.ok(chrome,'Chrome/Chromium required in CI');
+ let lastError=null;
+ for(let attempt=0;attempt<2;attempt++){
+   try{
+     const output=await runChrome('discovery-queue-87.html');
+     const match=output.match(/data-sf87-test="([^"]+)"/);
+     assert.equal(match?.[1],'ok',output.slice(-2400));
+     return;
+   }catch(error){
+     lastError=error;
+     if(!/Chrome test timeout|Chrome exit/.test(String(error?.message)))break;
+   }
+ }
+ throw lastError;
+});
