@@ -97,6 +97,8 @@ const MAX_SONGS_PER_USER = 10000;
 const SKIP_VOTE_THRESHOLD = 0.5;
 const MIN_SKIP_VOTES = 3;
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || '';
+// Contadores agregados em memória; nenhuma consulta ou identidade é armazenada.
+const musicOps = { startedAt: Date.now(), searchRequests: 0, searchFailures: 0, queueAccepted: 0, queueRejected: 0 };
 
 // ========== ESTADO EM MEMÓRIA ==========
 const users = new Map();
@@ -935,7 +937,7 @@ app.get('/api/admin/stats', async (req, res) => {
       privateRooms: roomList.filter(r => r.isPrivate).length,
       lockedChats: roomList.filter(r => r.chatLocked).length,
       activeSanctions: [...sanctions.values()].filter(s => !s.until || s.until > Date.now()).length,
-      checkedAt: Date.now() });
+      checkedAt: Date.now(), musicOps: { ...musicOps } });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -1143,6 +1145,7 @@ app.get('/api/admin/export-data', (req, res) => {
 
 // ========== API DO YOUTUBE ==========
 app.get('/api/search-youtube', rateLimit(30, 60000), async (req, res) => {
+  musicOps.searchRequests++;
   const query = req.query.q;
   if (!query || query.length < 2) return res.json({ items: [] });
   const ck = String(query).trim().toLowerCase().slice(0, 100), hit = searchCache.get(ck);
@@ -1156,7 +1159,7 @@ app.get('/api/search-youtube', rateLimit(30, 60000), async (req, res) => {
     if (searchCache.size > 500) searchCache.delete(searchCache.keys().next().value);
     searchCache.set(ck, { t: Date.now(), items });
     res.json({ items });
-  } catch (e) { console.error('Erro na busca do YouTube:', e.message); res.status(500).json({ error: 'Erro ao buscar vídeos: ' + e.message, items: [] }); }
+  } catch (e) { musicOps.searchFailures++; console.error('Erro na busca do YouTube:', e.message); res.status(500).json({ error: 'Erro ao buscar vídeos.', items: [] }); }
 });
 
 function fetchUrl(url) {
@@ -1466,6 +1469,7 @@ io.on('connection', (socket) => {
 
   socket.on('addSong', (song, acknowledge) => {
     const reply = (ok, details = {}) => {
+      if(ok)musicOps.queueAccepted++;else musicOps.queueRejected++;
       if (typeof acknowledge === 'function') {
         try { acknowledge({ ok, ...details }); } catch (_) {}
       }
