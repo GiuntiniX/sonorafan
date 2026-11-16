@@ -31,6 +31,7 @@ module.exports = function installExperience95({ app, db, rooms, users, sessionEm
     }
     const pinned = Array.isArray(data.pinnedRooms) ? data.pinnedRooms.slice(0, 30) : [];
     return {
+      userId: publicUserId(email),
       totalAdded: Number(data.totalAdded) || 0,
       sampleSize: events.length,
       uniqueArtistsInSample: artistCounts.size,
@@ -132,7 +133,7 @@ module.exports = function installExperience95({ app, db, rooms, users, sessionEm
       const votes = getVotes(room.slug);
       delete votes[id];
       broadcastState(room.slug);
-      socket.to(room.slug).emit('votesState',votes);
+      socket.nsp.to(room.slug).emit('votesState',votes);
       reply(ack,{ok:true});
     });
 
