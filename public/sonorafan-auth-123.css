@@ -452,3 +452,17 @@
  #loginScreen.sf123-login-screen *,
  #signupModal.sf123-signup-screen *{animation:none!important;transition:none!important;scroll-behavior:auto!important;}
 }
+
+
+/* Legal modal must sit above the full-screen registration dialog. */
+#legalModal.active { z-index:260!important; }
+/* Retain a sensible background when an older browser cannot load the mockup crop. */
+#loginScreen.sf123-login-screen .sf123-login-art { background:#1c0b22 url('/art-121/discover-headphones.webp') center/cover no-repeat!important; }
+#signupModal.sf123-signup-screen .sf123-signup-crowd { background-color:#220a22; }
+/* Vertical sizing at short desktop heights: forms scroll internally, never clip submit actions. */
+@media(min-width:801px) and (max-height:700px){
+ #loginScreen.sf123-login-screen .sf123-login-form { justify-content:flex-start!important;overflow-y:auto!important; }
+ #signupModal.sf123-signup-screen .sf123-signup-layout { height:calc(100vh - 12px)!important; }
+ #signupModal.sf123-signup-screen .sf123-signup-intro h2 { font-size:clamp(25px,2.7vw,36px)!important; }
+ #signupModal.sf123-signup-screen .sf123-signup-crowd { height:20%; }
+}
