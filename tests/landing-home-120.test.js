@@ -8,7 +8,7 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(root,'sonorafan-home-120.css'),'utf8');
 const css121=fs.readFileSync(path.join(root,'sonorafan-home-121.css'),'utf8');
 const a=html.indexOf('<!-- ===== SONORAFAN 121');
-const b=html.indexOf('<!-- ===== LOGIN ===== -->',a);
+const b=html.indexOf('<!-- ===== SONORAFAN 123',a);
 const landing=html.slice(a,b);
 
 test('v122 has no navigation menu, only Login and large signup CTA in the header',()=>{
@@ -27,7 +27,7 @@ test('features and login/signup actions are preserved',()=>{
  assert.equal((landing.match(/class="sf120-feature sf121-pillar" data-color=/g)||[]).length,4);
  assert.ok((landing.match(/onclick="openSignup\(\)"/g)||[]).length>=4);
  assert.equal((landing.match(/onclick="showLogin\(\)"/g)||[]).length,1,'Login is the only login entry');
- assert.equal((landing.match(/onclick="openSignup\(\)"/g)||[]).length,8,'all marketing controls open registration');
+ assert.equal((landing.match(/onclick="openSignup\(\)"/g)||[]).length,9,'all marketing controls open registration');
  const clickable=(landing.match(/<(?:a|button)\b[^>]*>/g)||[]);
  for(const tag of clickable) {
    if(tag.includes('sf52-skip-link')) continue; // accessibility skip link only
