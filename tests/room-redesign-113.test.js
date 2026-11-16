@@ -28,8 +28,10 @@ test('visual and video modes remain local presentation choices', () => {
 });
 
 test('room has only listening-related navigation; clubs stay outside', () => {
-  assert.match(html, /class="sf113-nav"/);
+  assert.doesNotMatch(html, /<nav class="sf113-nav"/);
+  assert.match(html, /id="sf116MoreButton"/);
   assert.match(html, /id="sf113AddMusic"/);
+  assert.match(html, /id="sf116Favorites"/);
   assert.doesNotMatch(html, /id="sf74OpenFanClubs"/);
   assert.match(css, /#sf82Explore/);
   assert.match(css, /#sf82FindFans/);
