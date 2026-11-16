@@ -140,7 +140,7 @@
     if(state.tab==='rooms')return renderRooms(host);
     if(state.tab==='recap')return renderRecap(host);
     if(state.tab==='dna')return renderDNA(host);
-    if(state.tab==='studio')return window.sf100RenderStudio?.(host,state) || (host.textContent='Estúdio não disponível.');
+    if(state.tab==='studio') { if(typeof window.sf100RenderStudio==='function') window.sf100RenderStudio(host,state); else host.textContent='Estúdio não disponível.'; return; }
     return renderQueueMode(host);
   }
   function renderDiscovery(host){
