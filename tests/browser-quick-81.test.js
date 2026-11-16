@@ -149,11 +149,11 @@ test('room sidebar has no scroll and all 13 actions are visible at desktop heigh
  }
 });
 
-test('room and player fit notebooks, widescreens and tablet widths without horizontal expansion (Chromium)',{
+test('three-column queue, player and chat fit notebook screens at 100% zoom (Chromium)',{
  skip:chrome||process.env.CI==='true'?false:'Chrome/Chromium not installed'
 },async()=>{
  assert.ok(chrome,'Chrome/Chromium required in CI');
- for(const viewport of ['1920,1080','1440,900','1366,768','1280,720','1100,700','1024,768','800,900','390,844']){
+ for(const viewport of ['1920,1080','1440,900','1366,768','1280,720','1200,700','1152,768','1100,700','1025,768','1024,768','900,720','800,900','390,844']){
   let lastError=null;
   for(let attempt=0;attempt<2;attempt++){
    try{
