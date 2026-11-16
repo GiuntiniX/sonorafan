@@ -20,6 +20,7 @@ const { installPlatform63 } = require('./sonorafan-platform-63');
 const { installFavoriteGenres67 } = require('./favorite-genres-67');
 const { installFanClubs71 } = require('./fan-clubs-71');
 const { createStudio100 } = require('./sonorafan-studio-100');
+const { installProfile108 } = require('./sonorafan-profile-108');
 const installExperience95 = require('./sonorafan-experience-95');
 
 // ===== PROTEÇÃO GLOBAL PARA O SERVIDOR NUNCA CAIR =====
@@ -53,6 +54,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api/profile108/avatar', express.json({limit:'240kb'}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -489,6 +491,7 @@ app.post('/api/delete-account', rateLimit(3, 60000), async (req, res) => {
   if (!email) return res.status(401).json({ error: 'Não autenticado' });
   if (adminEmails.has(email)) return res.status(403).json({ error: 'Contas admin não podem ser excluídas aqui' });
   try {
+    await profile108.deleteUserData(email);
     await studio100.deleteUserData(email);
     await sf95.deleteUserData(email);
     for (const c of ['users', 'favorites', 'points']) await db.collection(c).doc(email).delete();
@@ -595,6 +598,7 @@ app.patch('/api/community/profile', rateLimit(15, 60000), async (req, res) => {
 // ========== SONORAFAN SOCIAL 4 — AMIGOS E EVENTOS ==========
 // IDs públicos não revelam email; sessões e permissões permanecem no servidor.
 const publicUserId = email => crypto.createHash('sha256').update('sf-public-v1:' + String(email).toLowerCase()).digest('hex').slice(0, 24);
+const profile108=installProfile108({app,db,users,sessionEmail,publicUserId,rateLimit,getUserFromFirestore});
 const studio100=createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLimit,adminEmails,getPosition,getFollowing,publicActivity,youtubeApiKey:YOUTUBE_API_KEY});
 const sf95 = installExperience95({ app, db, rooms, users, sessionEmail, publicUserId, rateLimit });
 const findSocialUser = id => [...users.entries()].find(([email]) => publicUserId(email) === id);
