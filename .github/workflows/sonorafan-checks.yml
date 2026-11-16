@@ -31,6 +31,8 @@ jobs:
           node --check public/sonorafan-studio-100.js
           node --check public/sonorafan-footer-tools-106.js
           node --check public/sonorafan-lobby-107.js
+          node --check sonorafan-profile-108.js
+          node --check public/sonorafan-profile-108.js
           node --check public/sonorafan-community-71.js
       - name: Run regression tests
         run: npm test
