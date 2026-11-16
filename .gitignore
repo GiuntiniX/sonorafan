@@ -1,0 +1,11 @@
+# Credenciais locais; mantenha as configurações reais na hospedagem
+.env
+.env.*
+!.env.example
+arquivo.env.local
+*.pem
+service-account*.json
+firebase-service-account*.json
+node_modules/
+coverage/
+.DS_Store
