@@ -1441,27 +1441,22 @@
 <link rel="stylesheet" href="/sonorafan-room-redesign-113.css?v=119">
   <link rel="stylesheet" href="/sonorafan-home-120.css?v=120">
   <link rel="stylesheet" href="/sonorafan-home-121.css?v=121.1">
+  <link rel="stylesheet" href="/sonorafan-home-122.css?v=122">
 </head>
 <body>
 
   <!-- ===== SONORAFAN 121 · HOME DA FERRAMENTA ===== -->
   <div class="landing-screen sf120-home sf121-home" id="landingScreen">
     <a class="sf52-skip-link" href="#sf52LandingMain">Ir para o conteúdo principal</a>
-    <nav class="topnav sf120-topbar sf121-topbar" aria-label="Navegação da página inicial">
+    <header class="topnav sf120-topbar sf121-topbar sf122-topbar" aria-label="SonoraFan e acesso à plataforma">
       <div class="topnav-logo sf54-brand sf54-brand-top">
         <img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async" class="sf54-brand-image">
       </div>
-      <div class="sf121-nav-links" aria-label="Seções do SonoraFan">
-        <a class="active" aria-current="page" href="#sf52LandingMain">Início</a>
-        <button type="button" onclick="showLogin()">Salas</button>
-        <button type="button" onclick="showLogin()">Comunidade</button>
-        <a href="#sf121Highlights">Experiências</a>
+      <div class="topnav-actions sf120-top-actions sf121-actions sf122-auth-actions">
+        <button class="sf122-login-button" type="button" onclick="showLogin()" aria-label="Acessar a página de login">Login</button>
+        <button class="btn-landing-primary sf120-signup sf120-top-signup sf122-signup-pulse" type="button" onclick="openSignup()">Criar conta grátis <span aria-hidden="true">→</span></button>
       </div>
-      <div class="topnav-actions sf120-top-actions sf121-actions">
-        <button type="button" class="sf121-search-button" onclick="showLogin()" title="Entrar para buscar salas e músicas" aria-label="Buscar salas e músicas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg></button>
-        <button class="btn-landing-primary sf120-signup sf120-top-signup" type="button" onclick="openSignup()">Criar conta grátis <span aria-hidden="true">→</span></button>
-      </div>
-    </nav>
+    </header>
 
     <main class="landing-content sf120-content sf121-content" id="sf52LandingMain" tabindex="-1">
       <section class="sf120-hero sf121-hero" aria-labelledby="sf120HeroTitle">
@@ -1470,7 +1465,7 @@
           <h1 id="sf120HeroTitle">Novas formas de <span>viver a música juntos</span></h1>
           <p>O SonoraFan é o ponto de encontro para ouvir, assistir e compartilhar música em tempo real. Crie salas temáticas, monte filas coletivas, converse com outros fãs e viva experiências musicais com a comunidade.</p>
           <div class="sf120-hero-ctas">
-            <button class="btn-hero-primary sf120-signup sf121-hero-signup" type="button" onclick="openSignup()"><span aria-hidden="true">▶</span> Criar conta grátis <span aria-hidden="true">→</span></button>
+            <button class="btn-hero-primary sf120-signup sf121-hero-signup sf122-signup-pulse" type="button" onclick="openSignup()"><span aria-hidden="true">▶</span> Criar conta grátis <span aria-hidden="true">→</span></button>
           </div>
         </div>
 
@@ -1526,7 +1521,7 @@
             <div class="sf121-pillar-heading"><span class="sf121-pillar-icon" aria-hidden="true">▣</span><div><h3>Salas Colaborativas</h3><small>Ouça, assista e crie junto</small></div></div>
             <span class="sf120-feature-dot" aria-hidden="true"></span>
             <p>Entre em salas temáticas para ouvir músicas em sincronia, conversar e viver experiências musicais com outras pessoas.</p>
-            <button type="button" class="sf120-feature-link" onclick="showLogin()">Explorar salas →</button>
+            <button type="button" class="sf120-feature-link" onclick="openSignup()">Explorar salas →</button>
           </article>
           <article class="sf120-feature sf121-pillar" data-color="lime">
             <div class="sf121-pillar-heading"><span class="sf121-pillar-icon" aria-hidden="true">♫</span><div><h3>Fila Compartilhada</h3><small>Playlists feitas em conjunto</small></div></div>
@@ -1544,7 +1539,7 @@
             <div class="sf121-pillar-heading"><span class="sf121-pillar-icon" aria-hidden="true">ϟ</span><div><h3>Experiências em Tempo Real</h3><small>Da tela para sua galera</small></div></div>
             <span class="sf120-feature-dot" aria-hidden="true"></span>
             <p>Participe de audições coletivas, descubra salas por estilo musical e interaja no chat enquanto a música acontece.</p>
-            <button type="button" class="sf120-feature-link" onclick="showLogin()">Entrar em uma sala →</button>
+            <button type="button" class="sf120-feature-link" onclick="openSignup()">Entrar em uma sala →</button>
           </article>
         </div>
       </section>
@@ -1567,7 +1562,7 @@
               <span class="sf121-new-label">NOVIDADE</span>
               <strong id="sf63LandingHighlight">Novas salas, mais interação e música para todo mundo.</strong>
               <small id="sf63LandingActivity">Conheça salas e escolha um som para compartilhar.</small>
-              <button type="button" class="sf120-text-link" onclick="showLogin()">Explorar salas →</button>
+              <button type="button" class="sf120-text-link" onclick="openSignup()">Explorar salas →</button>
             </div>
           </div>
         </article>
