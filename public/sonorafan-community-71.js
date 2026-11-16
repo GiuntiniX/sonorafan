@@ -168,7 +168,10 @@
    const blocked=(d.club.blockedMembers||[]).map(m=>`<div class="sf71-member"><span>⛔</span><strong>${esc(m.name)}</strong><button type="button" data-sf71-unblock="${esc(m.id)}">Desbloquear</button></div>`).join('');
    return `<details class="sf71-members"><summary>Participantes (${d.club.memberCount})</summary><div class="sf71-members-list">${members}${blocked}</div></details>`;
  }
- function postHtml(post){return `<article class="sf71-post" data-sf71-post="${esc(post.id)}"><div class="sf71-post-head"><strong>♫ ${esc(post.authorName)}</strong><time>${new Date(Number(post.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(post.text)}</p>${post.editable?`<button type="button" data-sf71-delete-post="${esc(post.id)}">Excluir publicação</button>`:''}</article>`;}
+ function postHtml(post){const mix=String(post.text||'').match(/[?&]mix=([a-f0-9-]{36})/i);
+   return `<article class="sf71-post" data-sf71-post="${esc(post.id)}"><div class="sf71-post-head"><strong>♫ ${esc(post.authorName)}</strong><time>${new Date(Number(post.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(post.text)}</p>
+   ${mix?`<button type="button" data-sf71-mix="${esc(mix[1])}">♫ Abrir mixtape compartilhada</button>`:''}
+   ${post.editable?`<button type="button" data-sf71-delete-post="${esc(post.id)}">Excluir publicação</button>`:''}</article>`;}
  function roomHtml(room,owner){return `<div class="sf71-room"><div><strong>♫ ${esc(room.name)}</strong><small>${room.isPlaying?'● Tocando agora':'Sala disponível'} · ${Number(room.listenerCount)||0} ouvintes</small>${room.track?`<small>${esc(room.track.title)}</small>`:''}</div>
    <div class="sf71-room-actions"><button type="button" data-sf71-room="${esc(room.slug)}">Entrar</button>${owner?`<button type="button" data-sf71-unlink="${esc(room.slug)}" title="Desvincular sala">×</button>`:''}</div></div>`;}
  async function openDetail(id){
@@ -205,6 +208,11 @@
      },async id=>{await openDetail(id);});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+   if(t.hasAttribute('data-sf71-mix')){
+     const mixId=t.dataset.sf71Mix;
+     document.querySelector('.sf5-community-layer .sf5-close')?.click();
+     window.sf100OpenMixtape?.(mixId);return;
+   }
    if(t.hasAttribute('data-sf75-delete-club')){
      const club=state.detail?.club;
      if(!club?.canDelete)return;
