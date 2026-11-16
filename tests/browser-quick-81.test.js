@@ -169,3 +169,24 @@ test('three-column queue, player and chat fit notebook screens at 100% zoom (Chr
   if(lastError)throw lastError;
  }
 });
+
+test('lobby sidebar, content scroll and account center do not overlap at desktop and mobile sizes (Chromium)',{
+ skip:chrome||process.env.CI==='true'?false:'Chrome/Chromium not installed'
+},async()=>{
+ assert.ok(chrome,'Chrome/Chromium required in CI');
+ for(const viewport of ['1920,1080','1440,900','1366,768','1280,720','1100,700','1024,768','390,844']){
+  let lastError=null;
+  for(let attempt=0;attempt<2;attempt++){
+   try{
+    const output=await runChrome('lobby-account-92.html',viewport);
+    const match=output.match(/data-sf92-test="([^"]+)"/);
+    assert.equal(match?.[1],'ok',viewport+' '+output.slice(-2000));
+    lastError=null;break;
+   }catch(error){
+    lastError=error;
+    if(!/Chrome test timeout|Chrome exit/.test(String(error?.message)))break;
+   }
+  }
+  if(lastError)throw lastError;
+ }
+});
