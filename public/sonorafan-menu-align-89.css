@@ -1,0 +1,61 @@
+/* SonoraFan 89 — navegação da sala: Convidar amigos igual aos demais itens.
+   Sobrescreve apenas as regras legadas do convite, sem modificar outros menus. */
+#screen-room .sf5-sidebar .sf5-navigation > button.sf29-side-invite{
+  display:flex!important;
+  box-sizing:border-box!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  flex-direction:row!important;
+  width:100%!important;
+  min-height:36px!important;
+  height:auto!important;
+  margin:0!important;
+  padding:5px 8px!important;
+  gap:9px!important;
+  border:1px solid transparent!important;
+  border-radius:10px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:#ead9f0!important;
+  font:650 12px/1.2 'Inter',sans-serif!important;
+  text-align:left!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  white-space:normal!important;
+  transform:none!important;
+  cursor:pointer;
+}
+#screen-room .sf5-sidebar .sf5-navigation > button.sf29-side-invite .sf64-menu-icon{
+  display:inline-grid!important;
+  place-items:center!important;
+  flex:none!important;
+  width:24px!important;
+  height:24px!important;
+  min-width:24px!important;
+  min-height:24px!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:8px!important;
+  font-size:13px!important;
+  line-height:1!important;
+}
+#screen-room .sf5-sidebar .sf5-navigation > button.sf29-side-invite > span:last-child{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  font:inherit!important;
+  font-size:12px!important;
+  font-weight:650!important;
+  line-height:1.25!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#screen-room .sf5-sidebar .sf5-navigation > button.sf29-side-invite:hover{
+  background:rgba(160,91,221,.13)!important;
+  border-color:rgba(198,145,236,.27)!important;
+}
+#screen-room .sf5-sidebar .sf5-navigation > button.sf29-side-invite:focus-visible{
+  outline:2px solid #ffa7c9!important;
+  outline-offset:2px!important;
+}
