@@ -33,7 +33,8 @@
     if (live) mini.insertBefore(tools, live);
     else mini.appendChild(tools);
     const move = () => {
-      const shouldRelocate = desktop.matches;
+      // v115: the redesigned room owns its top bar; never move its controls to the old footer.
+      const shouldRelocate = desktop.matches && !room.classList.contains('sf113-room');
       room.classList.toggle('sf106-footer-tools', shouldRelocate);
       for (const id of ids) {
         const node = $(id), marker = markers.get(id);
