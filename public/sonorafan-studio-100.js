@@ -4,7 +4,7 @@
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const trunc=(x,n=100)=>String(x??'').slice(0,n);
  const state={section:'mixtapes',room:null,profile:null,mixtapes:[],selected:null,matches:[],events:[],clubs:[],prefs:{match:false,alerts:false},
-   loading:false,error:'',info:'',quality:null,qualityDenied:false,lastAutoSync:0,lastAutoReport:0,
+   loading:false,error:'',info:'',admin:false,quality:null,qualityAllowed:false,qualityDenied:false,lastAutoSync:0,lastAutoReport:0,
    seenAlerts:new Set(),alertsPrimed:false,activePanel:false};
  const safeId=x=>/^[a-f0-9-]{36}$/i.test(String(x));
  const ytId=x=>/^[a-zA-Z0-9_-]{11}$/.test(String(x));
@@ -43,7 +43,7 @@
        <h3>Estúdio SonoraFan</h3><p>Novas experiências reunidas aqui, sem ocupar seu player, chat e fila.</p></div>
      <div class="sf100-nav" role="group" aria-label="Ferramentas do Estúdio">
        ${[['mixtapes','Mixtapes'],['match','Match'],['events','Sessões'],['alerts','Avisos'],['design','Visual'],['quality','Qualidade']]
-       .map(([id,title])=>`<button type="button" class="${state.section===id?'active':''}" data-sf100-nav="${id}">${title}</button>`).join('')}
+       .filter(([id])=>id!=='quality'||state.qualityAllowed).map(([id,title])=>`<button type="button" class="${state.section===id?'active':''}" data-sf100-nav="${id}">${title}</button>`).join('')}
      </div>
      <div id="sf100Section" class="sf100-section"></div>
      <p id="sf100Status" class="sf100-status" role="status" aria-live="polite">${esc(state.info)}</p>
@@ -139,7 +139,7 @@
  }
  function events(host){
    const names={indie:'Noite Indie',rock2000:'Rock 2000',discoveries:'Descobertas',pop:'Pop Club',electronic:'Eletrônica'};
-   const canCreate=roomActive()&&!state.room?.isPrivate&&!!state.room;
+   const canCreate=roomActive()&&!state.room?.isPrivate&&!!state.room&&state.admin;
    host.innerHTML=`<div class="sf100-section-top"><div><h4>Sessões temáticas</h4><p>Encontros com tema, duração e contagem regressiva. Aproveita o sistema de eventos do SonoraFan.</p></div>
      <button type="button" data-sf100-action="refresh">↻ Atualizar</button></div>
     ${canCreate?`<details class="sf100-collapse"><summary>＋ Agendar uma sessão nesta sala (responsável)</summary>
@@ -362,7 +362,7 @@
        await post('/api/fan-clubs/'+club+'/posts',{text:'🎵 Nova mixtape colaborativa: '+state.selected.title+' · '+url.toString()});
        return notice('Mixtape publicada no mural do Fan Club.');
      }
-     if(act==='follow'){await post('/api/social/follow',{userId:id,follow:true});return notice('Você está seguindo esse ouvinte.');}
+     if(act==='follow'){await post('/api/social/follow',{id,follow:true});return notice('Você está seguindo esse ouvinte.');}
      if(act==='rsvp'){await post('/api/social/events/'+encodeURIComponent(id)+'/rsvp',{going:button.dataset.going==='true'});return refresh();}
      if(act==='browser-alerts')return browserPermission();
      if(act==='check-alerts')return checkAlerts(true);
@@ -416,6 +416,8 @@
      if(reason==='playing'&&Date.now()-state.lastAutoSync>12000)requestSync(false);
    };
    socketClient()?.on('roomState',data=>{state.room=data;});
+   socketClient()?.on('isAdmin',isAdmin=>{state.admin=!!isAdmin;});
+   api('/api/admin/studio100/quality').then(d=>{state.qualityAllowed=true;state.quality=d;}).catch(()=>{});
    api('/api/studio100/preferences').then(p=>{state.prefs=p;}).catch(()=>{});
    api('/api/experience95/profile').then(p=>{state.profile=p;}).catch(()=>{});
    const mix=new URLSearchParams(window.location.search).get('mix');
