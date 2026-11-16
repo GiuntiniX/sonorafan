@@ -39,7 +39,7 @@ window.addEventListener('load',()=>setTimeout(()=>{
   const sent=window.sf88test.updates.find(x=>x.name==='updateRoomSettings');
   if(sent?.value?.roomTheme!=='geral')throw Error('shared event');
   window.sf88RoomState({slug:'test-room',roomTheme:'geral'});
-  if(document.getElementById('screen-room').document.getElementById('screen-room').hasAttribute('data-room-theme'))throw Error('shared update');
+  if(document.getElementById('screen-room').hasAttribute('data-room-theme'))throw Error('shared update');
   window.sf88LeaveRoom();
   if(document.getElementById('screen-room').hasAttribute('data-room-theme'))throw Error('cleanup');
   finish('ok');
