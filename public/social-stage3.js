@@ -119,6 +119,24 @@ async function markAll(){
  }catch(e){info(e.message);}
  finally{state.busy=false;}
 }
+function focusChatMessage(a){
+ const id=String(a.messageId||'');if(!/^[A-Za-z0-9._-]{1,100}$/.test(id))return;
+ const list=document.getElementById('chatMessagesInner');if(!list)return;
+ let observer=null,timer=null;
+ const seek=()=>{
+   const target=[...list.querySelectorAll('.msg[data-msg-id]')].find(node=>node.dataset.msgId===id);
+   if(!target)return false;
+   observer?.disconnect();if(timer)clearTimeout(timer);
+   target.classList.add('sf111-mention-highlight');
+   target.scrollIntoView({behavior:'smooth',block:'center'});
+   setTimeout(()=>target.classList.remove('sf111-mention-highlight'),3800);
+   return true;
+ };
+ if(seek())return;
+ observer=new MutationObserver(seek);
+ observer.observe(list,{childList:true,subtree:true});
+ timer=setTimeout(()=>observer?.disconnect(),10500);
+}
 async function navigate(a){
  if(!a.read){if(!await markOne(a))return;}
  close();
@@ -128,8 +146,12 @@ async function navigate(a){
    return;
  }
  if(room(a.roomSlug)){
-   if(typeof joinRoom==='function')joinRoom(a.roomSlug);
-   else info('Abra a sala pelo Lobby.');
+   const alreadyHere=typeof currentRoom!=='undefined'&&currentRoom===a.roomSlug;
+   if(!alreadyHere){
+     if(typeof joinRoom==='function')joinRoom(a.roomSlug);
+     else {info('Abra a sala pelo Lobby.');return;}
+   }
+   if(a.type==='mention')focusChatMessage(a);
    return;
  }
  if(club(a.fanClubId)){
