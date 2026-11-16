@@ -934,8 +934,8 @@ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app{
 #screen-room.sf113-room .player-column .player-frame #youtube-player iframe{
  display:block!important;
  position:absolute!important;
- top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;
  inset:auto!important;
+ top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;
  width:var(--sf118-video-width,100%)!important;
  height:var(--sf118-video-height,100%)!important;
  min-width:100%!important;min-height:100%!important;
