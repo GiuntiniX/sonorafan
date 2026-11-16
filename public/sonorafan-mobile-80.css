@@ -1,0 +1,61 @@
+/* SonoraFan 80 — controles mobile visíveis, compactos e acessíveis. */
+@media (max-width: 768px) {
+  #screen-room #mTabs {
+    position: sticky;
+    bottom: 0;
+    z-index: 90;
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    padding: 5px 5px calc(5px + env(safe-area-inset-bottom, 0px));
+    background: rgba(22, 13, 34, .97);
+    border-top: 1px solid rgba(221, 161, 250, .27);
+    box-shadow: 0 -10px 26px rgba(0, 0, 0, .38);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+  #screen-room #mTabs::after { display: none; }
+  #screen-room #mTabs button {
+    min-width: 0;
+    min-height: 46px;
+    padding: 8px 2px;
+    font-size: clamp(10px, 2.65vw, 12px);
+    border-radius: 10px;
+    line-height: 1.2;
+    white-space: nowrap;
+    touch-action: manipulation;
+  }
+  #screen-room #mTabs button.on {
+    background: rgba(177, 97, 211, .18);
+  }
+  #screen-room #mTabs .sf34-add-mobile {
+    flex: 1.2;
+    min-width: 66px;
+    font-weight: 850;
+    background: linear-gradient(135deg, #9642ce, #ee8769) !important;
+    color: #fff !important;
+  }
+  #screen-room .sf5-listening-card { min-width: 0; padding: 9px 10px !important; }
+  #screen-room .sf5-listeners-body {
+    max-height: 82px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    gap: 5px !important;
+  }
+  #screen-room .sf5-listeners-body > * {
+    max-width: 100%;
+    font-size: 11px !important;
+    overflow-wrap: anywhere;
+  }
+  .sf77-overlay { z-index: 2147483000 !important; }
+  .sf77-dialog { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .sf77-result-action { flex-shrink: 0; }
+  .sf77-search-field input { font-size: 16px !important; }
+}
+@media (max-width: 360px) {
+  #screen-room #mTabs { gap: 1px; padding-left: 3px; padding-right: 3px; }
+  #screen-room #mTabs button { font-size: 10px; }
+  #screen-room #mTabs .sf34-add-mobile { min-width: 58px; }
+  .sf77-result img { width: 58px; height: 46px; flex-basis: 58px; }
+}
