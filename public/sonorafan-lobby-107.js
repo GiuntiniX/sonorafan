@@ -35,18 +35,15 @@
     if(/vinil|classico|retro/.test(n))return art.vinyl;
     return [art.crowd,art.stage,art.vinyl,art.record][i%4];
   }
-  const genreFor=r=>{
-    const n=norm([r.name,r.description,r.roomTheme].join(' '));
-    return styles.find(([k,,label])=>n.includes(k)||n.includes(norm(label)))?.[2]||'Sala colaborativa';
-  };
+  const genreFor=r=>
+    styles.find(([id])=>id===r.genre)?.[2]||'Estilo não informado';
   function getFiltered(){
     const filtered=allRooms().filter(r=>{
-      const n=norm([r.name,r.description,r.roomTheme,r.currentTrack?.artist].filter(Boolean).join(' '));
-      const genre=state.genre;
-      return (!genre||n.includes(genre)||genre==='eletronica'&&/eletr|techno|house/.test(n)||
-        genre==='festival'&&/festa|show|festival/.test(n)||
-        genre==='alternativo'&&/indie|rock|alternativ/.test(n))&&
-        (!state.search||n.includes(norm(state.search)));
+      // Genre filtering relies on the actual choice saved with the room,
+      // not on title, YouTube artist, description or visual theme.
+      if(state.genre&&r.genre!==state.genre)return false;
+      const search=norm([r.name,r.description,r.currentTrack?.artist,genreFor(r)].filter(Boolean).join(' '));
+      return !state.search||search.includes(norm(state.search));
     });
     if(state.sort==='new')filtered.sort((a,b)=>{
       // New rooms receive a base36 timestamp suffix from the existing server.
@@ -81,7 +78,7 @@
       ${special?'<span class="sf107-pop-badge">♛ Mais popular</span>':''}
       ${r.isPlaying?'<span class="sf107-live-badge">● AO VIVO</span>':''}
       <span class="sf107-card-copy"><strong>${esc(r.name||'Sala musical')}</strong>
-        <small>♧ ${fmt(r.listenerCount)} ${count(r.listenerCount)===1?'ouvinte':'ouvintes'}</small>
+        <small>♧ ${fmt(r.listenerCount)} ${count(r.listenerCount)===1?'ouvinte':'ouvintes'} · ${esc(genreFor(r))}</small>
       </span><span class="sf107-play">▶</span></button>`;
   }
   function renderRooms(){
@@ -379,20 +376,11 @@
     for(const child of [...host.children])child.classList.add('sf107-legacy');
     const main=document.createElement('div');main.id='sf107Dashboard';main.className='sf107-dashboard';
     main.innerHTML=`
-      <div class="sf107-quick">
+      <div class="sf107-quick sf109-quick-clean">
         <strong>ϟ Acesso rápido</strong>
         <button type="button" class="sf107-quick-primary" data-sf107="create">＋ Criar sala</button>
         <button type="button" data-sf107="invite">⌗ Entrar com código</button>
-        <span>Explorar salas:</span>
-        <div class="sf107-chips">
-          <button type="button" class="active" data-sf107-filter="popular">🔥 Em alta</button>
-          <button type="button" data-sf107-filter="new">✦ Novas</button>
-          <button type="button" data-sf107-filter="live">◉ Ao vivo</button>
-          <button type="button" data-sf107-genre="indie">✿ Indie</button>
-          <button type="button" data-sf107-genre="rock">♬ Rock</button>
-          <button type="button" data-sf107-genre="pop">✦ Pop</button>
-          <button type="button" data-sf107-genre="festival">♛ Festivais</button>
-        </div>
+        <span class="sf109-quick-message">Encontre sua próxima vibe nas categorias abaixo.</span>
       </div>
       <div class="sf107-content">
         <div class="sf107-main-col">
