@@ -93,11 +93,12 @@
    </section>`;
  }
  function agenda(){
+   const upcoming=state.events.filter(e=>Number(e.startAt)>Date.now()-3600000);
    return `<section class="sf110-card sf110-agenda">
      <div class="sf110-card-head"><h3>▦ Agenda da comunidade</h3>
        <button type="button" data-sf110-action="events">Ver agenda ›</button></div>
      <div class="sf110-event-list">
-       ${state.events.length?state.events.filter(e=>Number(e.startAt)>Date.now()-3600000).slice(0,3).map(e=>{
+       ${upcoming.length?upcoming.slice(0,3).map(e=>{
          const d=new Date(e.startAt);
          return `<button type="button" class="sf110-event-row" data-sf110-action="events">
             <span class="sf110-calendar"><small>${esc(d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','').toUpperCase())}</small>
