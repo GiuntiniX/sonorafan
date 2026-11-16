@@ -1,5 +1,16 @@
 [
   {
+    "id": "geral",
+    "name": "Geral · Original",
+    "description": "Visual original SonoraFan, com vinil, flores, guitarras e roxo indie",
+    "primary": "#7c3aed",
+    "secondary": "#ff6b35",
+    "bg": "#180f25",
+    "text": "#f0f0f8",
+    "emoji": "🎧",
+    "art": "/art-44/vinyl-room.webp"
+  },
+  {
     "id": "indie",
     "name": "Indie / Festival",
     "description": "Festival noturno, estrelas, guitarras e flores",

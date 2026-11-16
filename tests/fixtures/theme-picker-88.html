@@ -6,6 +6,7 @@ window.toast=function(){};
 window.fetch=async function(url){
  if(url!=='/themes/catalog-88.json')throw Error('Unexpected fetch '+url);
  return {ok:true,json:async()=>[
+  {id:'geral',name:'Geral · Original',description:'Padrão',primary:'#7c3aed',secondary:'#ff6b35',bg:'#180f25',text:'#f0f0f8',emoji:'🎧',art:'/art-44/vinyl-room.webp'},
   {id:'indie',name:'Indie / Festival',description:'Festival',primary:'#c256e7',secondary:'#fb8074',bg:'#170e27',text:'#f2d9ff',emoji:'🎪',art:'/themes/indie.svg'},
   {id:'metal',name:'Heavy Metal',description:'Metal',primary:'#ed3a39',secondary:'#ff9035',bg:'#130b0c',text:'#ffe4d8',emoji:'🤘',art:'/themes/metal.svg'},
   {id:'emo',name:'Emo',description:'Emo',primary:'#ef54a5',secondary:'#f3e6ec',bg:'#101014',text:'#f7f3f5',emoji:'🖤',art:'/themes/emo.svg'}]};
@@ -14,7 +15,7 @@ window.addEventListener('error',e=>window.sf88test.errors.push(e.message));
 window.addEventListener('load',()=>setTimeout(()=>{
  try{
   window.sf88ResetCreateTheme();
-  if(window.sf88GetCreateTheme()!=='indie')throw Error('default');
+  if(window.sf88GetCreateTheme()!=='geral')throw Error('default');
   document.querySelector('#sf88CreateTheme button').click();
   document.querySelector('#sf88ThemeCards [data-theme="emo"]').click();
   document.getElementById('sf88ThemeShared').click();
@@ -33,12 +34,12 @@ window.addEventListener('load',()=>setTimeout(()=>{
   if(document.getElementById('screen-room').dataset.roomTheme!=='emo')throw Error('personal persistence');
   window.sf88Permission(true);
   document.getElementById('sf88RoomThemeButton').click();
-  document.querySelector('#sf88ThemeCards [data-theme="indie"]').click();
+  document.querySelector('#sf88ThemeCards [data-theme="geral"]').click();
   document.getElementById('sf88ThemeShared').click();
   const sent=window.sf88test.updates.find(x=>x.name==='updateRoomSettings');
-  if(sent?.value?.roomTheme!=='indie')throw Error('shared event');
-  window.sf88RoomState({slug:'test-room',roomTheme:'indie'});
-  if(document.getElementById('screen-room').dataset.roomTheme!=='indie')throw Error('shared update');
+  if(sent?.value?.roomTheme!=='geral')throw Error('shared event');
+  window.sf88RoomState({slug:'test-room',roomTheme:'geral'});
+  if(document.getElementById('screen-room').document.getElementById('screen-room').hasAttribute('data-room-theme'))throw Error('shared update');
   window.sf88LeaveRoom();
   if(document.getElementById('screen-room').hasAttribute('data-room-theme'))throw Error('cleanup');
   finish('ok');

@@ -8,7 +8,7 @@ const compression = require('compression');
 const { sanitize } = require('./room-settings');
 const ROOM_THEMES_88 = require('./public/themes/catalog-88.json');
 const ROOM_THEME_IDS_88 = new Set(ROOM_THEMES_88.map(theme => theme.id));
-const normalizeRoomTheme88 = id => ROOM_THEME_IDS_88.has(id) ? id : 'indie';
+const normalizeRoomTheme88 = id => ROOM_THEME_IDS_88.has(id) ? id : 'geral';
 const { decodeYouTubeEntities } = require('./youtube-utils-81');
 const crypto = require('crypto');
 const { initializeApp, cert } = require('firebase-admin/app');
@@ -205,7 +205,7 @@ function createRoom(slug, name, adminName = null) {
     lastAddTime: new Map(), isPlaying: false, lastAdvanceAt: 0,
     history: [], skipVotes: new Set(),
     radioMode: false, radioGenre: 'pop', musicMode: 'all',
-    pinnedMessage: null, color: '#7c3aed', roomTheme: 'indie',
+    pinnedMessage: null, color: '#7c3aed', roomTheme: 'geral',
     discordWebhook: null, inviteCount: 0, eventStartTime: null,
     totalSongsAdded: 0, totalVotesGiven: 0, mostVoted: [],
     allowLong: false, allowLive: false, maxDuration: settings.maxDuration,

@@ -3,12 +3,12 @@
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
- const FALLBACK={id:'indie',name:'Indie / Festival',description:'Festival e flores',primary:'#c256e7',secondary:'#fb8074',bg:'#170e27',text:'#f2d9ff',emoji:'🎪',art:'/themes/indie.svg'};
+ const FALLBACK={id:'geral',name:'Geral · Original',description:'Visual original SonoraFan',primary:'#7c3aed',secondary:'#ff6b35',bg:'#180f25',text:'#f0f0f8',emoji:'🎧',art:'/art-44/vinyl-room.webp'};
  let themes=[FALLBACK], byId=new Map([[FALLBACK.id,FALLBACK]]);
- let roomSlug='',sharedTheme='indie',personalOverride=null,mayEdit=false;
- let createChoice='indie',editChoice='indie',modalChoice='indie',modalMode='room',previousFocus=null;
- const KNOWN_THEMES=new Set(['indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro']);
- const safe=id=>KNOWN_THEMES.has(id)?id:'indie';
+ let roomSlug='',sharedTheme='geral',personalOverride=null,mayEdit=false;
+ let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null;
+ const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro']);
+ const safe=id=>KNOWN_THEMES.has(id)?id:'geral';
  const find=id=>byId.get(safe(id))||FALLBACK;
  const storageKey=slug=>'sf88:theme:'+slug;
  function getLocal(slug){
@@ -22,12 +22,19 @@
    const screen=$('screen-room');
    if(!screen)return;
    const chosen=find(personalOverride||sharedTheme);
-   screen.dataset.roomTheme=chosen.id;
-   screen.style.setProperty('--sf88-primary',chosen.primary);
-   screen.style.setProperty('--sf88-secondary',chosen.secondary);
-   screen.style.setProperty('--sf88-panel',chosen.bg);
-   screen.style.setProperty('--sf88-label',chosen.text);
-   screen.style.setProperty('--sf88-art','url("'+chosen.art+'")');
+   const variables=['--sf88-primary','--sf88-secondary','--sf88-panel','--sf88-label','--sf88-art'];
+   if(chosen.id==='geral'){
+     // Sem atributo ou variáveis próprias: restitui todos os estilos e fundos antigos.
+     screen.removeAttribute('data-room-theme');
+     variables.forEach(key=>screen.style.removeProperty(key));
+   }else{
+     screen.dataset.roomTheme=chosen.id;
+     screen.style.setProperty('--sf88-primary',chosen.primary);
+     screen.style.setProperty('--sf88-secondary',chosen.secondary);
+     screen.style.setProperty('--sf88-panel',chosen.bg);
+     screen.style.setProperty('--sf88-label',chosen.text);
+     screen.style.setProperty('--sf88-art','url("'+chosen.art+'")');
+   }
    const label=$('sf88ThemeName');
    if(label)label.textContent=chosen.name;
    const status=$('sf88ThemeStatus');
@@ -48,7 +55,7 @@
  }
  function begin(slug){roomSlug=String(slug||'');sharedTheme='indie';personalOverride=getLocal(roomSlug);skin();}
  function exit(){
-   roomSlug='';sharedTheme='indie';personalOverride=null;mayEdit=false;
+   roomSlug='';sharedTheme='geral';personalOverride=null;mayEdit=false;
    const screen=$('screen-room');
    if(screen){screen.removeAttribute('data-room-theme');for(const key of ['--sf88-primary','--sf88-secondary','--sf88-panel','--sf88-label','--sf88-art'])screen.style.removeProperty(key);}
    close();
@@ -194,14 +201,14 @@
  window.sf88Permission=permissions;
  window.sf88OpenRoomPicker=()=>open('room');
  window.sf88OpenEditor=id=>{editChoice=safe(id);mini('sf88EditTheme','edit');};
- window.sf88ResetCreateTheme=()=>{createChoice='indie';mini('sf88CreateTheme','create');};
+ window.sf88ResetCreateTheme=()=>{createChoice='geral';mini('sf88CreateTheme','create');};
  window.sf88ThemeLabel=id=>find(id).name;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
  fetch('/themes/catalog-88.json',{credentials:'same-origin'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
    .then(items=>{
      if(!Array.isArray(items)||items.length===0)return;
-     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&t.art==='/themes/'+t.id+'.svg');
+     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&(t.id==='geral' ? t.art==='/art-44/vinyl-room.webp' : t.art==='/themes/'+t.id+'.svg'));
      if(!valid.length)return;
      themes=valid;byId=new Map(themes.map(x=>[x.id,x]));
      createChoice=safe(createChoice);editChoice=safe(editChoice);

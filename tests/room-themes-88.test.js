@@ -5,21 +5,24 @@ const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const content=p=>fs.readFileSync(path.join(root,p),'utf8');
 const catalog=JSON.parse(content('public/themes/catalog-88.json'));
-test('14 illustrated room themes have unique IDs and safe visual asset paths',()=>{
- assert.equal(catalog.length,14);
+test('original Geral plus 14 illustrated room themes have safe asset paths',()=>{
+ assert.equal(catalog.length,15);
+ assert.equal(catalog[0].id,'geral');
  const ids=new Set();
  for(const t of catalog){
    assert.match(t.id,/^[a-z0-9_-]+$/);
    assert.ok(!ids.has(t.id),'Duplicate theme '+t.id);
    ids.add(t.id);
    for(const color of ['primary','secondary','bg','text'])assert.match(t[color],/^#[a-f0-9]{6}$/i);
-   assert.equal(t.art,'/themes/'+t.id+'.svg');
+   assert.equal(t.art,t.id==='geral'?'/art-44/vinyl-room.webp':'/themes/'+t.id+'.svg');
    const file='public'+t.art;
    assert.ok(fs.existsSync(path.join(root,file)),file);
-   const art=content(file);
-   assert.match(art,/<svg /);
-   assert.match(art,/viewBox="0 0 1200 600"/);
-   assert.ok(art.length>1100, 'SVG missing artwork '+t.id);
+   if(t.id!=='geral'){
+     const art=content(file);
+     assert.match(art,/<svg /);
+     assert.match(art,/viewBox="0 0 1200 600"/);
+     assert.ok(art.length>1100, 'SVG missing artwork '+t.id);
+   }
  }
  for(const id of ['metal','emo','mpb','eletronica','indie','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro'])assert.ok(ids.has(id));
 });
@@ -54,4 +57,14 @@ test('personal visual override and room-wide choice are distinct',()=>{
  assert.match(app,/socket\.emit\('updateRoomSettings',\{roomTheme:modalChoice\}\)/);
  assert.match(app,/if\(!mayEdit\|\|!roomSlug/);
  assert.match(app,/personalOverride\|\|sharedTheme/);
+});
+
+test('Geral returns exact original styling without visual overrides',()=>{
+ const js=content('public/sonorafan-room-themes-88.js');
+ assert.match(js,/if\(chosen\.id==='geral'\)/);
+ assert.match(js,/screen\.removeAttribute\('data-room-theme'\)/);
+ assert.match(js,/screen\.style\.removeProperty\(key\)/);
+ const srv=content('server.js');
+ assert.match(srv,/normalizeRoomTheme88 = id => ROOM_THEME_IDS_88\.has\(id\) \? id : 'geral'/);
+ assert.match(srv,/roomTheme: 'geral'/);
 });
