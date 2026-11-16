@@ -119,12 +119,13 @@
     layer.hidden=false;
     document.body.classList.add('sf76-sheet-active');
     switchTab(tab);
-    status('Escolha uma música para participar da fila.');
+    status(tab==='search' ? 'Busque uma música e toque em adicionar para colocá-la na fila.' : 'Escolha uma faixa favorita para enviar à fila.');
   }
   function close(){
     const layer=$('sf76MusicSheet');if(!layer||layer.hidden)return;
     layer.hidden=true;
     document.body.classList.remove('sf76-sheet-active');
+    if(typeof window.sf78CloseInline==='function') window.sf78CloseInline();
     restoreRequestCard();
     state.lastFocus?.focus?.({preventScroll:true});
     state.lastFocus=null;

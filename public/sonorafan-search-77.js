@@ -357,7 +357,6 @@
     const input = $('songUrl'), button = $('addBtn');
     if (input) {
       input.addEventListener('keydown', (event) => {
-        if (window.sf78SearchFromField) return; // v78 gerencia Enter no dropdown rápido
         if (event.key === 'Enter' && fromField(input.value)) {
           event.preventDefault(); event.stopImmediatePropagation();
         }
@@ -365,7 +364,6 @@
     }
     if (button) {
       button.addEventListener('click', (event) => {
-        if (window.sf78SearchFromField) return; // v78 gerencia o botão Adicionar
         if (fromField(input?.value)) {
           event.preventDefault(); event.stopImmediatePropagation();
         }

@@ -81,3 +81,13 @@ body.sf77-search-active #searchResults { display: none !important; }
   .sf77-favorites { padding: 9px; font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) { .sf77-overlay * { animation: none !important; transition: none !important; } }
+
+
+/* SonoraFan 79 — mobile selection sticky and queue-first */
+@media (max-width: 768px) {
+  .sf77-selection{padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))}
+  .sf77-actions{position:sticky;bottom:0;z-index:4;padding:10px 0 calc(2px + env(safe-area-inset-bottom,0px));margin-top:14px;background:linear-gradient(180deg,rgba(23,14,37,0),rgba(23,14,37,.82) 22%,rgba(23,14,37,.98) 48%,rgba(23,14,37,1))}
+  .sf77-add{order:-1;min-height:52px;font-size:14px;box-shadow:0 10px 26px rgba(110,42,154,.26)}
+  .sf77-favorite{display:none}
+  .sf77-footnote{text-align:center;margin-top:8px}
+}
