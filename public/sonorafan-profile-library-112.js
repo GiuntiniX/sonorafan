@@ -58,6 +58,7 @@
        <label class="sf112-search">⌕ <input id="sf112Search" type="search"
          placeholder="Buscar no seu acervo…" autocomplete="off" aria-label="Buscar no acervo"></label>
      </div>
+     <div class="sf112-utility"><span id="sf112Loading" role="status" aria-live="polite"></span><button type="button" data-sf112="retry">↻ Atualizar acervo</button></div>
      <div class="sf112-stats" id="sf112Stats" aria-label="Seus números"></div>
      <div id="sf112Hero" class="sf112-hero"></div>
      <section class="sf112-section" aria-labelledby="sf112MixHeading">
@@ -230,7 +231,7 @@
   }
   function genreTile(g,i){
     const fallback=genres.find(([key])=>fold(g.name).includes(key))?.[2] || art[i%art.length];
-    const count=state.data.favorites.filter(t=>t.genreId===g.id).length;
+    const count=state.data.favorites.filter(t=>g.id==='__none__'?!t.genreId:t.genreId===g.id).length;
     const selected=state.genre===g.id;
     return `<button type="button" class="sf112-genre${selected?' on':''}" data-sf112="genre" data-id="${esc(g.id)}"
       aria-pressed="${selected}" style="--sf112-genre-image:url('${fallback}')">
@@ -240,8 +241,9 @@
     const host=$('sf112Genres');if(!host)return;
     const filtered=state.data.genres.filter(g=>matches(g.name));
     const missing=state.data.favorites.filter(t=>!t.genreId).length;
-    host.innerHTML=filtered.length?filtered.slice(0,8).map(genreTile).join('')+
-      (missing&&!state.query?genreTile({id:'__none__',name:'Sem categoria'},8):''):
+    const tiles=filtered.slice(0,8).map(genreTile);
+    if(missing&&!state.query)tiles.push(genreTile({id:'__none__',name:'Sem categoria'},8));
+    host.innerHTML=tiles.length?tiles.join(''):
       empty(state.query?'Sem coleções para a busca':'Organize suas favoritas por estilo',
         'Crie categorias musicais para encontrar suas músicas mais rapidamente.',
         'manage-favorites','Criar coleção');
@@ -290,13 +292,16 @@
   }
   function render(){
     if(!$('sf112Library'))return;
+    const loading=$('sf112Loading');
+    if(loading)loading.textContent=state.loading?'Atualizando suas coleções…':'';
     if(state.loading&&!state.loaded){
       $('sf112Stats').innerHTML='<p class="sf112-loading" role="status">Carregando seu acervo musical…</p>';
       say('Consultando suas músicas, mixtapes e salas…');return;
     }
     if(state.tab==='dna')dna();
     stats();hero();mixList();favList();genreList();recentList();savedRooms();
-    say(state.errors.length?state.errors.length+' seção(ões) não puderam ser carregadas. Use Atualizar para tentar novamente.':'');
+    say(state.errors.length?state.errors.length+' área(s) não puderam ser carregadas. Use Atualizar para tentar novamente.':'',
+      state.errors.length>0);
   }
   async function load(){
     const token=++state.request;state.loading=true;state.errors=[];
@@ -308,7 +313,12 @@
       ['/api/experience95/profile','profile',v=>v&&typeof v==='object'?v:null]
     ];
     const results=await Promise.allSettled(resources.map(async([url,key,parse])=>{
-      const data=await api(url);if(state.request===token)state.data[key]=parse(data);
+      const data=await api(url);
+      if(state.request===token){
+        state.data[key]=parse(data);
+        state.loaded=true; // Show the first real results immediately.
+        render();
+      }
     }));
     if(state.request!==token)return;
     state.errors=results.map((v,i)=>v.status==='rejected'?resources[i][1]:null).filter(Boolean);
@@ -368,6 +378,10 @@
     new MutationObserver(()=>{
       const now=profileOpen();
       if(now&&!wasOpen){
+        state.request++;state.loaded=false;state.loading=false;state.lastFetch=0;
+        state.data={mixtapes:[],favorites:[],genres:[],profile:null};
+        state.errors=[];state.query='';state.genre='';
+        if($('sf112Search'))$('sf112Search').value='';
         const target=state.opening||'profile';state.opening=null;
         select(target);
       }
