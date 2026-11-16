@@ -136,3 +136,97 @@
   setView(mode, false);
   syncArtwork();
 })();
+
+
+/* SonoraFan 116 — menu acessível, artista em destaque e próxima faixa. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const room = $('screen-room');
+  const trigger = $('sf116MoreButton');
+  const panel = $('sf116MorePanel');
+  if (!room || !trigger || !panel) return;
+  const FALLBACK = '/art-44/vinyl-room.webp';
+
+  function menuOpen(open, focusTrigger = false) {
+    panel.hidden = !open;
+    trigger.setAttribute('aria-expanded', String(open));
+    if (focusTrigger) trigger.focus();
+  }
+
+  trigger.addEventListener('click', event => {
+    event.stopPropagation();
+    menuOpen(panel.hidden);
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!panel.hidden && !event.target.closest('#sf116More')) menuOpen(false);
+  });
+  panel.addEventListener('click', event => {
+    if (event.target.closest('button')) menuOpen(false);
+  });
+  document.addEventListener('keydown', event => {
+    if (panel.hidden) return;
+    const items = Array.from(panel.querySelectorAll('button:not([disabled])'));
+    const index = items.indexOf(document.activeElement);
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      menuOpen(false, true);
+    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const offset = event.key === 'ArrowDown' ? 1 : -1;
+      items[(index + offset + items.length) % items.length]?.focus();
+    }
+  });
+
+  function setText(id, value) {
+    const el = $(id);
+    if (el && el.textContent !== value) el.textContent = value;
+  }
+  function setCover(id, src) {
+    const image = $(id);
+    if (!image || !src || image.getAttribute('src') === src) return;
+    image.src = src;
+  }
+  const safeYoutubeThumb = id =>
+    /^[A-Za-z0-9_-]{11}$/.test(String(id || ''))
+      ? 'https://img.youtube.com/vi/' + id + '/mqdefault.jpg'
+      : FALLBACK;
+
+  function syncStageAndUpcoming() {
+    const artist = ($('trackArtist')?.textContent || '').trim();
+    const hasTrack = artist && !/^(Adicione uma música|Escolha uma música|Desconhecido)$/i.test(artist);
+    setText('sf116BandWordmark', hasTrack ? artist : 'SONORAFAN');
+    setText('sf116VisualGenre', ($('sf88ThemeName')?.textContent || '').trim() || 'Arte musical');
+
+    // Uses only the public read-only player state. Never loads, skips or pauses video.
+    const state = typeof window.sf100PlayerSnapshot === 'function'
+      ? window.sf100PlayerSnapshot()?.currentRoomData : null;
+    const queue = Array.isArray(state?.queue) ? state.queue : [];
+    const index = Number.isInteger(state?.currentIndex) ? state.currentIndex : 0;
+    const next = queue[index + 1];
+    const nextVisible = $('nextTrack')?.style.display !== 'none';
+    const nextTitle = next?.title || (nextVisible ? $('nextTitle')?.textContent : '') || '';
+    const nextArtist = next?.artist || (nextVisible ? $('nextArtist')?.textContent : '') || '';
+    setText('sf116NextTitle', nextTitle && nextTitle !== '-' ? nextTitle : 'Fila aberta');
+    setText('sf116NextArtist', nextArtist && nextArtist !== '-' ? nextArtist : 'Adicione a próxima música');
+    setText('sf116NextDj', next?.dj ? 'Adicionada por ' + String(next.dj) : '');
+    const image = next?.id ? safeYoutubeThumb(next.id)
+      : (nextVisible ? $('nextThumb')?.querySelector('img')?.getAttribute('src') : null);
+    setCover('sf116NextCover', image || FALLBACK);
+  }
+
+  const image = $('sf116NextCover');
+  image?.addEventListener('error', () => {
+    if (image.getAttribute('src') !== FALLBACK) image.src = FALLBACK;
+  });
+
+  const observer = new MutationObserver(syncStageAndUpcoming);
+  for (const id of [
+    'trackArtist', 'trackTitle', 'nextTrack', 'nextTitle', 'nextArtist',
+    'nextThumb', 'sf88ThemeName', 'queueCount'
+  ]) {
+    const el = $(id);
+    if (el) observer.observe(el, {childList:true, subtree:true, characterData:true});
+  }
+  syncStageAndUpcoming();
+})();
