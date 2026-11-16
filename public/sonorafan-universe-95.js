@@ -359,6 +359,13 @@
       b.addEventListener('click',()=>pinRoom(slug()));
       heading.querySelector('.sf5-live-indicator')?.after(b);syncStar();
     }
+    if(heading&&!$('sf95RoomQuick')){
+      const b=document.createElement('button');b.id='sf95RoomQuick';b.type='button';
+      b.className='sf95-room-quick';b.textContent='✦';b.title='Abrir Meu universo musical';
+      b.setAttribute('aria-label',b.title);
+      b.addEventListener('click',()=>open('discover'));
+      $('sf95SaveRoom')?.after(b);
+    }
   }
   function init(){
     build();launchers();
