@@ -198,13 +198,15 @@
     // Display results as soon as either request succeeds. Fetching "mine"
     // separately recovers the owner's clubs if the global listing is stale.
     const successes=[];
+    const fresh=new Map();
     const apply=list=>{
       successes.push(true);
-      const byId=new Map(state.clubs.map(c=>[c.id,c]));
-      for(const c of list)if(c&&typeof c.id==='string')byId.set(c.id,c);
-      state.clubs=[...byId.values()].sort((a,b)=>count(b.memberCount)-count(a.memberCount)||
-        (Number(b.createdAt)||0)-(Number(a.createdAt)||0));
-      state.clubState='ready';state.clubError='';renderClubs();
+      for(const c of list)if(c&&typeof c.id==='string')fresh.set(c.id,c);
+      if(fresh.size){
+        state.clubs=[...fresh.values()].sort((a,b)=>count(b.memberCount)-count(a.memberCount)||
+          (Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+        state.clubState='ready';state.clubError='';renderClubs();
+      }
     };
     try{
       const results=await Promise.allSettled([
@@ -215,6 +217,9 @@
         const failed=results.find(r=>r.status==='rejected');
         state.clubState='error';
         state.clubError=String(failed?.reason?.message||'Verifique sua conexão.').slice(0,160);
+      }else{
+        state.clubs=[...fresh.values()].sort((a,b)=>count(b.memberCount)-count(a.memberCount));
+        state.clubState='ready';state.clubError='';
       }
       state.lastClubs=state.clubState==='error'?0:Date.now();
     }finally{
