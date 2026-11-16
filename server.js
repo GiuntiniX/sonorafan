@@ -6,6 +6,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const { sanitize } = require('./room-settings');
+const {normalizeRoomGenre109,legacyRoomGenre109} = require('./room-genres-109');
 const ROOM_THEMES_88 = require('./public/themes/catalog-88.json');
 const ROOM_THEME_IDS_88 = new Set(ROOM_THEMES_88.map(theme => theme.id));
 const normalizeRoomTheme88 = id => ROOM_THEME_IDS_88.has(id) ? id : 'geral';
@@ -194,7 +195,7 @@ function addSanction(s) { s.id = sanId(s.email, s.type, s.scope); sanctions.set(
 function removeSanction(id) { sanctions.delete(id); sanDoc(id).delete().catch(() => {}); }
 async function loadSanctions() { try { const snap = await db.collection('sanctions').get(); snap.forEach(d => { const s = d.data(); if (!s.until || s.until > Date.now()) sanctions.set(s.id, s); }); } catch (e) {} }
 function persistRoom(r) {
-  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, roomTheme: normalizeRoomTheme88(r.roomTheme), emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null, musicMode: r.musicMode || 'all', votePriority: !!r.votePriority, radioMode: !!r.radioMode, radioGenre: r.radioGenre || 'pop' }).catch(() => {});
+  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, roomTheme: normalizeRoomTheme88(r.roomTheme), genre: normalizeRoomGenre109(r.genre), emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null, musicMode: r.musicMode || 'all', votePriority: !!r.votePriority, radioMode: !!r.radioMode, radioGenre: r.radioGenre || 'pop' }).catch(() => {});
 }
 function createRoom(slug, name, adminName = null) {
   roomLikes.set(slug, {});
@@ -209,7 +210,7 @@ function createRoom(slug, name, adminName = null) {
     lastAddTime: new Map(), isPlaying: false, lastAdvanceAt: 0,
     history: [], skipVotes: new Set(),
     radioMode: false, radioGenre: 'pop', musicMode: 'all', votePriority: false,
-    pinnedMessage: null, color: '#7c3aed', roomTheme: 'geral',
+    pinnedMessage: null, color: '#7c3aed', roomTheme: 'geral', genre: null,
     discordWebhook: null, inviteCount: 0, eventStartTime: null,
     totalSongsAdded: 0, totalVotesGiven: 0, mostVoted: [],
     allowLong: false, allowLive: false, maxDuration: settings.maxDuration,
@@ -262,6 +263,7 @@ async function loadRooms() {
       const r = createRoom(v.slug, v.name, v.admin || 'Anônimo');
       if (v.color) r.color = v.color;
        r.roomTheme = normalizeRoomTheme88(v.roomTheme);
+      r.genre = normalizeRoomGenre109(v.genre) || legacyRoomGenre109(v.name, v.description);
       r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = v.addMode === 'owner' ? 'owner' : 'all'; r.musicMode = ['all', 'owner', 'fair'].includes(v.musicMode) ? v.musicMode : (r.addMode === 'owner' ? 'owner' : 'all'); r.radioMode = !!v.radioMode; r.votePriority = !!v.votePriority && r.musicMode !== 'fair'; r.radioGenre = typeof v.radioGenre === 'string' ? v.radioGenre.slice(0, 40) : 'pop';
       if (v.welcome) r.pinnedMessage = { author: r.admin, text: v.welcome };
       r.isPrivate = !!v.isPrivate; r.invite = v.invite || null; r.passHash = v.passHash || null; r.passSalt = v.passSalt || null;
@@ -320,7 +322,7 @@ function broadcastState(slug) {
     pinnedMessage: room.pinnedMessage,
     listenerCount: room.listenerCount,
     maxListeners: settings.maxListeners,
-    color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme),
+    color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), genre: room.genre || null,
     inviteCount: room.inviteCount,
     eventStartTime: room.eventStartTime,
     maxDuration: room.maxDuration,
@@ -788,7 +790,7 @@ app.get('/api/rooms', (req, res) => {
       slug: r.slug, name: r.name, listenerCount: r.listenerCount,
       queueLength: r.queue.length, isPlaying: r.isPlaying,
       currentTrack: r.queue[r.currentIndex] || null,
-      radioMode: r.radioMode, color: r.color || '#7c3aed', roomTheme: normalizeRoomTheme88(r.roomTheme), emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
+      radioMode: r.radioMode, color: r.color || '#7c3aed', roomTheme: normalizeRoomTheme88(r.roomTheme), genre: r.genre || null, emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
       allowLive: !!r.allowLive, allowLong: !!r.allowLong,
       inviteCount: r.inviteCount, eventStartTime: r.eventStartTime,
     }));
@@ -801,12 +803,15 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   const email = sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'Faça login para criar uma sala' });
   if (!name || name.trim().length < 2 || name.trim().length > 40) return res.status(400).json({ error: 'Nome inválido' });
+  const genre=normalizeRoomGenre109(req.body?.genre);
+  if (!genre) return res.status(400).json({error:'Selecione o gênero musical da sala.'});
   const isGlobalAdmin = email && adminEmails.has(email);
   const slug = name.trim().toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
   if (rooms.has(slug)) return res.status(400).json({ error: 'Sala já existe' });
   const room = createRoom(slug, name.trim(), String(adminName || 'Anônimo').slice(0, 40));
   room.ownerEmail = email;
   room.roomTheme = normalizeRoomTheme88(req.body.roomTheme);
+  room.genre = genre;
   room.musicMode = 'fair'; // novas salas: distribuição justa, todos continuam adicionando
   const cfg = sanitize(req.body);
   Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
@@ -816,7 +821,7 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   if (isGlobalAdmin && allowLive) { room.allowLive = true; room.maxDuration = 21600; }
   rooms.set(slug, room);
   persistRoom(room);
-  res.json({ slug, name: room.name, invite: room.isPrivate ? room.invite : undefined });
+  res.json({ slug, name: room.name, genre: room.genre, invite: room.isPrivate ? room.invite : undefined });
 });
 
 app.get('/api/rooms/random', (req, res) => {
@@ -1301,7 +1306,7 @@ io.on('connection', (socket) => {
         position: getPosition(room), votes: room.votes, queue: room.queue, waitingQueue: room.waitingQueue,
         admin: room.admin, isPlaying: room.isPlaying, history: room.history.slice(-10), radioMode: room.radioMode, musicMode: room.musicMode || 'all', votePriority: !!room.votePriority, radioGenre: room.radioGenre || 'pop',
         pinnedMessage: room.pinnedMessage, listenerCount: room.listenerCount, maxListeners: settings.maxListeners,
-        color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
+        color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), genre: room.genre || null, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
         maxDuration: room.maxDuration, allowLive: room.allowLive,
         emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
         isPrivate: room.isPrivate, hasPassword: !!room.passHash,
