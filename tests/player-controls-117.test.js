@@ -36,7 +36,9 @@ test('timeline visible in room themes, including end-of-track emphasis',()=>{
 
 test('video zoom uses same YouTube embed and preserves original streaming controls',()=>{
   assert.match(patch,/data-sf113-view="video"\] \.player-frame iframe/);
-  assert.match(css,/--sf118-video-width/);\n  assert.match(css,/--sf118-video-height/);\n  assert.match(js,/const fullWidth = Math.ceil\(Math.max\(width, height \* videoRatio\)\)/);
+  assert.match(css,/--sf118-video-width/);
+  assert.match(css,/--sf118-video-height/);
+  assert.match(js,/const fullWidth = Math.ceil\(Math.max\(width, height \* videoRatio\)\)/);
   assert.match(js,/new ResizeObserver\(fitVideoStage\)/);
   assert.match(js,/window\.setVolume\(next\)/);
   assert.doesNotMatch(js,/\b(?:pauseVideo|playVideo|loadVideoById|socket\.emit)\s*\(/);
