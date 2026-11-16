@@ -1438,7 +1438,7 @@
   <link rel="stylesheet" href="/sonorafan-community-110.css?v=110.1">
   <link rel="stylesheet" href="/sonorafan-profile-108.css?v=108.1">
   <link rel="stylesheet" href="/sonorafan-profile-library-112.css?v=112.2">
-<link rel="stylesheet" href="/sonorafan-room-redesign-113.css?v=118">
+<link rel="stylesheet" href="/sonorafan-room-redesign-113.css?v=119">
 </head>
 <body>
   <!-- ===== LANDING PAGE ===== -->
@@ -3548,6 +3548,27 @@ function openRoomCfg() {
         if (volumeLevel === 0 && player.mute) player.mute();
       } catch (e) { /* player ainda inicializando */ }
     }
+    // v119: redimensiona também o player INTERNO do YouTube, não só o CSS.
+    // setSize é um método de layout da IFrame API; não busca, pausa ou troca a faixa.
+    let sf119LastAppliedPlayerSize = '';
+    function sf119ResizeYoutube(width, height) {
+      const stage = document.querySelector('#screen-room .player-frame');
+      if (!stage || !player || typeof player.setSize !== 'function') return;
+      const w = Math.round(Number(width) || Math.max(stage.clientWidth, stage.clientHeight * 16 / 9));
+      const h = Math.round(Number(height) || w * 9 / 16);
+      if (!Number.isFinite(w) || !Number.isFinite(h) || w < 100 || h < 55) return;
+      const key = w + 'x' + h;
+      if (sf119LastAppliedPlayerSize === key) return;
+      try {
+        player.setSize(w, h);
+        sf119LastAppliedPlayerSize = key;
+        // YouTube may rewrite inline width/height; reapply the full-frame fit.
+        requestAnimationFrame(() => window.sf119FitVideoStage?.());
+      } catch (error) {
+        // Player may not yet have finished initializing; retry on onReady.
+      }
+    }
+    window.sf119ResizeYoutube = sf119ResizeYoutube;
     function sf9CheckAudio(expectedId) {
       if (sf9AudioCheck) clearTimeout(sf9AudioCheck);
       sf9AudioCheck = setTimeout(() => {
@@ -3568,6 +3589,13 @@ function openRoomCfg() {
         events: {
           onReady: () => {
             sf9RestoreAudio();
+            // OnReady fires after the YouTube placeholder becomes an iframe.
+            const stage = document.querySelector('#screen-room .player-frame');
+            if (stage && stage.clientWidth > 0 && stage.clientHeight > 0) {
+              const w = Math.ceil(Math.max(stage.clientWidth, stage.clientHeight * 16 / 9));
+              sf119ResizeYoutube(w, Math.ceil(w * 9 / 16));
+            }
+            window.sf119FitVideoStage?.();
             if (currentRoomData) syncPlayer(currentRoomData);
             window.sf100OnPlayback?.('ready');
           },
@@ -4578,6 +4606,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-community-110.js?v=110.1"></script>
   <script defer src="/sonorafan-profile-108.js?v=108.1"></script>
   <script defer src="/sonorafan-profile-library-112.js?v=112.2"></script>
-<script defer src="/sonorafan-room-redesign-113.js?v=118"></script>
+<script defer src="/sonorafan-room-redesign-113.js?v=119"></script>
 </body>
 </html>
