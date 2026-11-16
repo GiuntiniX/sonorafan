@@ -112,7 +112,7 @@
       resp.messages.forEach(renderPrivate);
       if(!resp.messages.length)$('sf53Messages').innerHTML='<p class="sf53-empty-small">Comece uma conversa respeitosa e musical 🎶</p>';
       $('sf53Messages').scrollTop=$('sf53Messages').scrollHeight;
-      request('/messages/'+encodeURIComponent(id)+'/read',{method:'POST'}).then(refreshInbox).catch(()=>{});
+      request('/messages/'+encodeURIComponent(id)+'/read',{method:'POST'}).then(()=>{refreshInbox();window.sf15MarkPrivateRead?.(id);}).catch(()=>{});
     }catch(e){tell(e.message,true);$('sf53Messages').textContent=e.message;}
   }
   function renderPrivate(m){
@@ -299,8 +299,8 @@
       const m=data?.message; if(!m)return;
       if(state.peer && (m.from===state.peer||m.to===state.peer) && isOpen()){
         renderPrivate(m);$('sf53Messages').scrollTop=$('sf53Messages').scrollHeight;
-        if(m.from!==state.id)request('/messages/'+encodeURIComponent(state.peer)+'/read',{method:'POST'}).catch(()=>{});
-      }else if(m.from!==state.id){toast('✉ Nova mensagem privada de '+(data.name||'um participante'));}
+        if(m.from!==state.id)request('/messages/'+encodeURIComponent(state.peer)+'/read',{method:'POST'}).then(()=>window.sf15MarkPrivateRead?.(state.peer)).catch(()=>{});
+      }else if(m.from!==state.id&&!window.sf15OpenNotifications){toast('✉ Nova mensagem privada de '+(data.name||'um participante'));}
       refreshInbox();
     });
     socket.on('sf53ReactionUpdate',data=>{
@@ -309,7 +309,7 @@
     });
     socket.on('sf53Mention',data=>{
       if(!data?.from)return;
-      toast('🔔 '+data.from+' mencionou você no chat da sala.');
+      if(!window.sf15OpenNotifications)toast('🔔 '+data.from+' mencionou você no chat da sala.');
     });
   }
   function init(){
