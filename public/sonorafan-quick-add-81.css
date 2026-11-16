@@ -1,0 +1,17 @@
+/* V81: confirmação compacta na busca rápida do desktop. */
+.sf81-quick-card{padding:14px;display:flex;flex-direction:column;gap:12px;background:#121017;color:#f7eef9}
+.sf81-quick-track{display:flex;align-items:center;gap:11px;min-width:0}
+.sf81-quick-thumb{height:66px;width:92px;flex:0 0 92px;object-fit:cover;border-radius:8px}
+.sf81-quick-copy{min-width:0;display:flex;flex-direction:column;gap:4px;flex:1}
+.sf81-quick-copy small{color:#dfb29b;font-size:9px;font-weight:850;letter-spacing:.1em}
+.sf81-quick-copy strong{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.sf81-quick-copy span{font-size:11px;color:#b7a5c0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sf81-quick-status{margin:0;padding:10px;border-radius:9px;border:1px solid #53415a;background:#211927;color:#dfd0e1;font-size:11px;line-height:1.45}
+.sf81-quick-status.error{border-color:#9d506a;background:#3b1e30;color:#ffd1d1}
+.sf81-quick-actions{display:flex;gap:9px}
+.sf81-quick-actions button{font-size:12px;font-weight:850;min-height:45px;border-radius:10px;border:1px solid #6d4b79;color:#fff;padding:10px 12px;touch-action:manipulation}
+.sf81-back{background:#2a1e31;flex:0 0 auto}
+.sf81-submit{background:linear-gradient(120deg,#9245c6,#e58071);flex:1}
+.sf81-quick-actions button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:400px){.sf81-quick-thumb{width:74px;height:56px;flex-basis:74px}.sf81-quick-actions button{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.sf81-quick-card *{animation:none!important;transition:none!important}}
