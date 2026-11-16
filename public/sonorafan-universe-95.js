@@ -82,6 +82,7 @@
           <button type="button" role="tab" data-sf95-tab="recap">◷ Recap</button>
           <button type="button" role="tab" data-sf95-tab="dna">◈ Meu DNA</button>
           <button type="button" role="tab" data-sf95-tab="queue">♫ Fila</button>
+          <button type="button" role="tab" data-sf95-tab="studio">✧ Estúdio</button>
         </nav>
         <div class="sf95-body" id="sf95Body" role="tabpanel"></div>
         <footer class="sf95-footer" id="sf95Notice" role="status" aria-live="polite"></footer>
@@ -120,7 +121,7 @@
     state.focus?.focus?.({preventScroll:true});state.focus=null;
   }
   function select(tab){
-    if(!['discover','rooms','recap','dna','queue'].includes(tab))tab='discover';
+    if(!['discover','rooms','recap','dna','queue','studio'].includes(tab))tab='discover';
     state.tab=tab;
     document.querySelectorAll('.sf95-tabs [data-sf95-tab]').forEach(b=>{
       const selected=b.dataset.sf95Tab===tab;
@@ -139,6 +140,7 @@
     if(state.tab==='rooms')return renderRooms(host);
     if(state.tab==='recap')return renderRecap(host);
     if(state.tab==='dna')return renderDNA(host);
+    if(state.tab==='studio')return window.sf100RenderStudio?.(host,state) || (host.textContent='Estúdio não disponível.');
     return renderQueueMode(host);
   }
   function renderDiscovery(host){
