@@ -15,7 +15,7 @@ window.fetch=async function(url){
  throw new Error('Unexpected '+url);
 };
 window.addEventListener('error',function(e){window.sf81Calls.errors.push(e.message)});
-window.addEventListener('DOMContentLoaded',function(){
+window.addEventListener('load',function(){
  const input=document.getElementById('songUrl');
  input.value='double you';
  window.sf78SearchFromField('double you',true);
