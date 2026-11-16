@@ -153,7 +153,15 @@
    },async result=>{
      let warning='';if(result.file){status('Preparando capa do Fan Club…');try{await uploadCover(result.id,result.file);}catch(e){warning='O Fan Club foi criado, mas a capa não foi enviada: '+e.message;}}
      state.mine=false;$('sf71ClubMine')?.setAttribute('aria-pressed','false');
-     await loadClubs();await openDetail(result.id);status(warning||'Fan Club criado! Personalize a capa e convide outros fãs.',!!warning);
+     await loadClubs();
+     window.sf107RefreshFanClubs?.();
+     if(document.getElementById('screen-lobby')?.classList.contains('active')
+       && typeof window.sf107OpenFanClub==='function'){
+       window.sf107OpenFanClub(result.id);
+     }else{
+       await openDetail(result.id);
+     }
+     status(warning||'Fan Club criado! Personalize a capa e convide outros fãs.',!!warning);
    });
    const input=overlay.querySelector('#sf73CreateCover'),img=overlay.querySelector('#sf73CoverPreview');let objectUrl=null;
    input?.addEventListener('change',()=>{
