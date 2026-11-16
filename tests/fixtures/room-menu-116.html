@@ -1,0 +1,60 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Room menu 116</title></head><body>
+<div class="screen sf113-room" id="screen-room" data-sf113-view="visual">
+ <div class="sf116-menu" id="sf116More">
+  <button id="sf116MoreButton" aria-expanded="false">⋯</button>
+  <div id="sf116MorePanel" role="menu" hidden>
+    <button id="sf116FavMenu" onclick="toggleFavorites()">♡ Minhas favoritas</button>
+  </div>
+ </div>
+ <section id="sf113VisualStage"></section>
+ <span id="trackTitle">First</span><span id="trackArtist">Singer</span>
+ <span id="trackCover"><img src="/art-44/vinyl-room.webp"></span>
+ <span id="nextTrack" style="display:flex"><span id="nextTitle">Next</span><span id="nextArtist">Next Band</span><span id="nextThumb"></span></span>
+ <span id="queueCount">2 músicas</span><span id="sf88ThemeName">Metal</span>
+ <strong id="sf116BandWordmark"></strong><strong id="sf116VisualGenre"></strong>
+ <strong id="sf116NextTitle"></strong><span id="sf116NextArtist"></span>
+ <small id="sf116NextDj"></small><img id="sf116NextCover" src="/art-44/vinyl-room.webp">
+ <span id="sf113NowTitle"></span><span id="sf113NowArtist"></span>
+ <span id="sf113VisualTitle"></span><span id="sf113VisualArtist"></span>
+ <span id="sf113NowRoom"></span><span id="sf113NowListeners"></span><span id="sf113NowTheme"></span>
+ <img id="sf113NowImage" src="/art-44/vinyl-room.webp">
+ <img id="sf113VisualCover" src="/art-44/vinyl-room.webp">
+ <img id="sf113VisualBackdrop" src="/art-44/vinyl-room.webp">
+ <span id="sf5RoomName">Lounge</span><span id="userCount">1</span>
+</div>
+<script>
+window.__favCount=0;
+window.toggleFavorites=()=>{window.__favCount++};
+window.sf100PlayerSnapshot=()=>({currentRoomData:{
+  queue:[
+    {id:'dQw4w9WgXcQ',title:'First',artist:'Singer'},
+    {id:'jNQXAC9IVRw',title:'Next',artist:'Next Band',dj:'Pessoa'}
+  ],currentIndex:0
+}});
+</script>
+<script src="../../public/sonorafan-room-redesign-113.js"></script>
+<script>
+const trigger=document.getElementById('sf116MoreButton');
+const panel=document.getElementById('sf116MorePanel');
+const report={};
+trigger.click();
+report.open = !panel.hidden && trigger.getAttribute('aria-expanded')==='true';
+document.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));
+report.outside=!panel.hidden===false && trigger.getAttribute('aria-expanded')==='false';
+trigger.click();
+document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+report.escape=panel.hidden && document.activeElement===trigger;
+trigger.click();
+document.getElementById('sf116FavMenu').click();
+report.action=window.__favCount===1 && panel.hidden;
+report.next=document.getElementById('sf116NextTitle').textContent==='Next'
+ && document.getElementById('sf116NextArtist').textContent==='Next Band'
+ && document.getElementById('sf116NextDj').textContent.includes('Pessoa');
+report.artist=document.getElementById('sf116BandWordmark').textContent==='Singer';
+report.genre=document.getElementById('sf116VisualGenre').textContent==='Metal';
+const out=document.createElement('output');
+out.dataset.sf116Test=Object.values(report).every(Boolean)?'ok':'fail';
+out.textContent=JSON.stringify(report);
+document.body.appendChild(out);
+</script>
+</body></html>
