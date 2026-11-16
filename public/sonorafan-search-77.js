@@ -356,6 +356,8 @@
     const input = $('songUrl'), button = $('addBtn');
     if (input) {
       input.addEventListener('keydown', (event) => {
+        // Com a busca rápida presente, Enter pertence ao pop-up compacto.
+        if (typeof window.sf78SearchFromField === 'function') return;
         if (event.key === 'Enter' && fromField(input.value)) {
           event.preventDefault(); event.stopImmediatePropagation();
         }
@@ -363,6 +365,8 @@
     }
     if (button) {
       button.addEventListener('click', (event) => {
+        // Apenas o botão “Busca completa” abre o modo ampliado.
+        if (typeof window.sf78SearchFromField === 'function') return;
         if (fromField(input?.value)) {
           event.preventDefault(); event.stopImmediatePropagation();
         }
