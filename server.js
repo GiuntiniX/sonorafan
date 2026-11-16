@@ -486,6 +486,7 @@ app.post('/api/delete-account', rateLimit(3, 60000), async (req, res) => {
   if (!email) return res.status(401).json({ error: 'Não autenticado' });
   if (adminEmails.has(email)) return res.status(403).json({ error: 'Contas admin não podem ser excluídas aqui' });
   try {
+    await sf95.deleteUserData(email);
     for (const c of ['users', 'favorites', 'points']) await db.collection(c).doc(email).delete();
     users.delete(email); userPoints.delete(email); userFavorites.delete(email); dropSessions(email);
     try { await getAuth().deleteUser((await getAuth().getUserByEmail(email)).uid); } catch (e) {}
