@@ -1393,7 +1393,7 @@
 <link rel="stylesheet" href="../../public/sonorafan-room-themes-88.css?v=89">
 <link rel="stylesheet" href="../../public/sonorafan-menu-align-89.css?v=89">
 <link rel="stylesheet" href="../../public/sonorafan-menu-no-scroll-90.css?v=90">
-<link rel="stylesheet" href="../../public/sonorafan-responsive-91.css?v=91">
+<link rel="stylesheet" href="../../public/sonorafan-responsive-91.css?v=92">
 <script>
 window.addEventListener('load',()=>{
  const $=id=>document.getElementById(id);
@@ -1410,18 +1410,14 @@ window.addEventListener('load',()=>{
  if(ls.right>w+tolerance||ls.left<-tolerance)return error('room-overflow-'+Math.round(ls.right));
  if(p.right>w+tolerance||p.left<-tolerance)return error('player-overflow-'+Math.round(p.right));
  if(ap.height>h+tolerance)return error('app-too-tall-'+Math.round(ap.height)+'-'+h);
- if(w>=1300){
-  if(!valid(queue)||!valid(chat)||!valid(request))return error('wide-missing');
-  if(!(q.left+tolerance<p.left&&p.left+tolerance<ch.left))return error('wide-wrong-order');
-  if(p.width<300||ch.width<205||q.width<175)return error('wide-panel-too-narrow-'+[q.width,p.width,ch.width].map(Math.round).join('-'));
-  if(!(rq.top>q.top+tolerance))return error('wide-request-not-below-queue');
-  if(Math.abs(q.top-ch.top)>4)return error('wide-not-aligned');
- }else if(w>=1025){
-  if(!valid(queue)||!valid(chat)||!valid(request))return error('notebook-missing');
-  if(!(q.left+tolerance<p.left&&ch.top>p.top+tolerance&&rq.top>q.top+tolerance))return error('notebook-order');
-  if(p.width<260||q.width<185)return error('notebook-too-narrow');
-  if(Math.abs(ch.left-p.left)>5)return error('notebook-chat-position');
-  if(getComputedStyle(layout).overflowY!=='auto')return error('notebook-no-safe-scroll');
+ if(w>=900){
+  if(!valid(queue)||!valid(chat)||!valid(request))return error('three-columns-missing-'+w);
+  if(!(q.left+tolerance<p.left && p.left+tolerance<ch.left))return error('chat-not-beside-player-'+w+'-'+[q.left,p.left,ch.left].map(Math.round).join('-'));
+  if(Math.abs(q.top-ch.top)>4||Math.abs(p.top-ch.top)>4)return error('panels-not-aligned-'+w);
+  if(q.width<150||p.width<210||ch.width<170)return error('panels-too-narrow-'+w+'-'+[q.width,p.width,ch.width].map(Math.round).join('-'));
+  if(ch.right>w+tolerance || ch.left<0)return error('chat-offscreen-'+w+'-'+Math.round(ch.right));
+  if(!(rq.top>q.top+tolerance))return error('search-not-below-queue-'+w);
+  if(layout.scrollWidth>layout.clientWidth+tolerance)return error('room-scrolls-horizontally-'+w);
  }else if(w>=769){
   if(!valid(queue)||!valid(chat)||!valid(request))return error('tablet-missing');
   if(!(p.left+tolerance<q.left&&ch.top>q.top+tolerance&&rq.top>p.top+tolerance))return error('tablet-order');
