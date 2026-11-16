@@ -13,7 +13,7 @@ function fixture() {
  const style=html.match(/<style>[\s\S]*?<\/style>/)?.[0];
  assert.ok(style,'Original inline CSS is missing');
  const linked=Array.from(html.matchAll(/<link[^>]*rel="stylesheet"[^>]*>/g),m=>m[0].replace(/href="\//g,'href="./'));
- const a=html.indexOf('<!-- ===== SONORAFAN 120');
+ const a=html.indexOf('<!-- ===== SONORAFAN 121');
  const b=html.indexOf('<!-- ===== LOGIN ===== -->',a);
  assert.ok(a>0&&b>a,'Landing region missing');
  const body=html.slice(a,b).replace(/src="\//g,'src="./');
@@ -27,7 +27,7 @@ window.addEventListener('load',()=>{
  setTimeout(()=>{
   const $=s=>document.querySelector(s),all=s=>Array.from(document.querySelectorAll(s));
   const root=$('#landingScreen'),top=$('.sf120-topbar'),hero=$('.sf120-hero'),
-    preview=$('.sf120-preview'),card=$('.sf120-feature'),signup=$('.sf120-hero-ctas .sf120-signup');
+    preview=$('.sf121-room-preview'),card=$('.sf120-feature'),signup=$('.sf120-hero-ctas .sf120-signup');
   const r=e=>e.getBoundingClientRect();
   const prevr=r(preview),hr=r(hero),rr=r(root),tr=r(top),cr=r(card);
   signup?.click();
@@ -40,7 +40,8 @@ window.addEventListener('load',()=>{
    viewport:innerWidth,
    background:bg,
    cards:feature.length,
-   navRemoved:!all('.sf120-topbar a,.sf120-topbar button').some(x=>/^(Início|Salas|Comunidade|Experiências)$/.test(x.textContent.trim())),
+   navPresent:['Início','Salas','Comunidade','Experiências'].every(x=>all('.sf121-nav-links a,.sf121-nav-links button').some(el=>el.textContent.trim()===x)),
+   howRemoved: !all('.sf120-how-link').length,
    clickSignup:signups===1,
    clickLogin:logins===1,
    heroWidth:hr.width,
@@ -54,7 +55,7 @@ window.addEventListener('load',()=>{
    black: bg==='rgb(20, 20, 20)'
   };
   const out=document.createElement('output');out.id='sf120HomeMetrics';
-  out.dataset.sf120HomeTest=data.cards===4 && data.navRemoved && data.clickSignup && data.clickLogin
+  out.dataset.sf120HomeTest=data.cards===4 && data.navPresent && data.howRemoved && data.clickSignup && data.clickLogin
     && data.fits && data.black ? 'ok':'fail';
   out.textContent=JSON.stringify(data);document.body.append(out);
  },250);
@@ -87,7 +88,7 @@ async function launch(viewport){
  }finally{fs.rmSync(target,{force:true});fs.rmSync(profile,{recursive:true,force:true})}
 }
 
-test('real home HTML + full styles: dark layout, signup, login and responsive hero', {
+test('real home v121 HTML + full styles: dark layout, approved nav, signup, login and responsive hero', {
  skip:chrome||process.env.CI==='true'?false:'Chromium unavailable'
 },async()=>{
  assert.ok(chrome,'Chromium required in CI');
