@@ -384,7 +384,9 @@ function advanceQueue(slug) {
   if (Date.now() - room.lastAdvanceAt < 10000) return false;
   room.lastAdvanceAt = Date.now();
   const current = room.queue[room.currentIndex];
-  if (current) { room.history.push(current); if (room.history.length > 50) room.history.shift(); updateMostVoted(room, current); platform63.onAdvance(room, current).catch(e => console.error('History63:',e.message)); }
+  if (current) { const tracked = getRoomVotes(slug)[current.id] || {};
+    current.votes = { up: Array.isArray(tracked.up) ? tracked.up.slice() : [], down: Array.isArray(tracked.down) ? tracked.down.slice() : [] };
+    room.history.push(current); if (room.history.length > 50) room.history.shift(); updateMostVoted(room, current); platform63.onAdvance(room, current).catch(e => console.error('History63:',e.message)); }
   room.queue.shift();
   room.currentIndex = 0;
   room.startedAt = Date.now();
@@ -434,7 +436,7 @@ setInterval(() => {
   }
 }, 2000);
 function updateMostVoted(room, track) {
-  const upVotes = room.votes?.up || 0;
+  const upVotes = Array.isArray(track.votes?.up) ? track.votes.up.length : 0;
   if (upVotes > 0) {
     const entry = room.mostVoted.find(t => t.id === track.id);
     if (entry) { entry.votes += upVotes; } else { room.mostVoted.push({ id: track.id, title: track.title, artist: track.artist, votes: upVotes }); }
