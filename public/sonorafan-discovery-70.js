@@ -375,7 +375,7 @@
       if (!track) return;
       const button = card.querySelector('[data-sf63-action^="song:"]');
       if (button) {
-        button.textContent = '＋ Adicionar à fila';
+        if (!button.disabled && button.textContent !== '＋ Adicionar à fila') button.textContent = '＋ Adicionar à fila';
         button.classList.remove('sf70-favorite-trigger');
         button.classList.add('sf70-queue-trigger');
         button.setAttribute('aria-label', 'Adicionar ' + track.title + ' à fila da sala');
@@ -389,7 +389,8 @@
         card.appendChild(save);
       }
       const favorite = findFavorite(track.id);
-      save.textContent = favorite ? '✓ Organizar' : '♡ Favoritar';
+      const label = favorite ? '✓ Organizar' : '♡ Favoritar';
+      if (save.textContent !== label) save.textContent = label;
       save.setAttribute('aria-label', favorite ? 'Organizar favorita ' + track.title : 'Favoritar ' + track.title);
     });
 
