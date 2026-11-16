@@ -18,7 +18,7 @@ test('login and registration reproduce the approved mockups with the existing lo
  assert.equal((form.match(/src="\/brand-64\/sonorafan-logo-transparent\.png"/g)||[]).length,2);
  assert.match(form,/class="sf123-login-layout"/);
  assert.match(form,/class="sf123-login-art"/);
- assert.match(form,/class="sf123-signup-layout"/);
+ assert.match(form,/class="modal sf26-signup-shell sf123-signup-layout"/);
  assert.match(form,/Entre para a/);
  assert.match(form,/Junte-se ao SonoraFan/);
  for(const filename of ['login-festival.webp','signup-crowd.webp']){
