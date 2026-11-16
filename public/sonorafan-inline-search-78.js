@@ -81,7 +81,9 @@
   function choose(track) {
     if (!validId(track?.id)) return;
     close();
-    if (typeof selectSearchResult === 'function') {
+    if (typeof window.sf77PickTrack === 'function') {
+      window.sf77PickTrack(track);
+    } else if (typeof selectSearchResult === 'function') {
       selectSearchResult(track.id, track.title, track.artist);
     } else {
       const input = $('songUrl');
@@ -108,7 +110,7 @@
       btn.addEventListener('click',()=>choose(track));
       host.append(btn);
     }
-    $('sf78Hint').textContent=`${tracks.length} ${tracks.length===1?'resultado':'resultados'} · escolha a faixa ou abra a busca completa.`;
+    $('sf78Hint').textContent=`${tracks.length} ${tracks.length===1?'resultado':'resultados'} · escolha a faixa para confirmar a inclusão na fila.`;
     position();
   }
   function visualBounds() {

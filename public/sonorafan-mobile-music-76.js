@@ -211,15 +211,8 @@
         if(!current?.allowLive && duration && duration>max)throw new Error('Esse vídeo ultrapassa o limite de duração da sala.');
       }finally{clearTimeout(timer);}
       const song={id,title:favorite.title||'Música',artist:favorite.artist||'Artista',duration};
-      await new Promise((resolve,reject)=>{
-        const timeout=setTimeout(()=>{done();reject(new Error('Sem confirmação da sala. Confira a fila antes de tentar novamente.'));},7000);
-        function done(){clearTimeout(timeout);liveSocket.off('roomState',onState);liveSocket.off('error',onError);}
-        function onState(s){if((s?.queue||[]).concat(s?.waitingQueue||[]).some(t=>t.id===id)){done();resolve();}}
-        function onError(msg){done();reject(new Error(typeof msg==='string'?msg:'Não foi possível adicionar a música.'));}
-        liveSocket.on('roomState',onState);liveSocket.on('error',onError);
-        liveSocket.emit('addSong',song);
-      });
-      if(typeof lastAddTime!=='undefined')lastAddTime=Date.now();
+      if(typeof window.sf80QueueSong!=='function')throw new Error('Fila indisponível. Atualize a página.');
+      await window.sf80QueueSong(song);
       status('✓ Música adicionada à fila! Use “Ver fila” para acompanhar.');
     }catch(e){status(e.message||'Erro ao adicionar música.',true);}
     finally{state.busy=false;buttons.forEach(b=>b.disabled=false);}
@@ -236,9 +229,9 @@
     window.sf34FindSong=function(){if(smallScreen())open('search');else originalFindSong?.();};
     document.addEventListener('click',e=>{
       if(!smallScreen())return;
-      const trigger=e.target.closest('#sf55SessionAdd,.add-first-btn');
+      const trigger=e.target.closest('#sf55SessionAdd,.add-first-btn,.sf34-add-mobile,[data-sf63-open="music"]');
       if(!trigger)return;
-      if(trigger.matches('#sf55SessionAdd,.add-first-btn')){
+      if(trigger.matches('#sf55SessionAdd,.add-first-btn,.sf34-add-mobile,[data-sf63-open="music"]')){
         e.preventDefault();e.stopPropagation();e.stopImmediatePropagation?.();open('search');
       }
     },true);

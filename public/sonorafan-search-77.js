@@ -259,13 +259,7 @@
     }
     $('sf77Add').disabled = tooLong;
     $('sf77Favorite').disabled = false;
-    // Reaproveita o fluxo de confirmação/favoritos existente sem renderizar o menu antigo.
-    const field = $('songUrl');
-    if (field) field.value = selected.id;
-    if (typeof showPreview === 'function') {
-      songData = selected;
-      showPreview(selected);
-    }
+    // A prévia da busca tem ação própria de fila; não acionamos o legado de favoritos.
   }
 
   function backToResults() {
@@ -278,31 +272,27 @@
     if (typeof clearPreview === 'function') clearPreview();
     $('sf77Query').focus();
   }
-  function addSelected() {
+  async function addSelected() {
     const selected = state.selected;
-    if (!selected || $('sf77Add').disabled) return;
-    if (!roomActive() || typeof currentRoom === 'undefined' || !currentRoom) {
-      $('sf77PickedNote').textContent = 'Entre em uma sala para adicionar a música.';
-      $('sf77PickedNote').classList.add('sf77-error'); return;
-    }
-    if (typeof socket === 'undefined' || !socket?.connected) {
-      $('sf77PickedNote').textContent = 'Conexão com a sala indisponível. Reconecte-se e tente novamente.';
-      $('sf77PickedNote').classList.add('sf77-error'); return;
-    }
-    if ([...(currentRoomData?.queue || []), ...(currentRoomData?.waitingQueue || [])].some(t => t.id === selected.id)) {
-      $('sf77PickedNote').textContent = 'Esta música já está na fila da sala.';
-      $('sf77PickedNote').classList.add('sf77-error'); return;
-    }
-    const cooldown = typeof COOLDOWN !== 'undefined' ? COOLDOWN : 30000;
-    if (Date.now() - lastAddTime < cooldown) {
-      const remaining = Math.ceil((cooldown - Date.now() + lastAddTime) / 1000);
-      $('sf77PickedNote').textContent = `Aguarde ${remaining}s para adicionar outra música.`;
-      $('sf77PickedNote').classList.add('sf77-error'); return;
-    }
-    if (typeof confirmAdd === 'function') {
-      songData = selected;
-      confirmAdd();
+    const button = $('sf77Add');
+    if (!selected || button.disabled) return;
+    button.disabled = true;
+    button.textContent = '⏳ Enviando à fila…';
+    $('sf77PickedNote').classList.remove('sf77-error');
+    $('sf77PickedNote').textContent = 'Aguardando confirmação da sala…';
+    try {
+      if (typeof window.sf80QueueSong !== 'function') throw new Error('A fila está indisponível. Atualize a página.');
+      await window.sf80QueueSong(selected);
+      $('sf77PickedNote').textContent = '✓ Música adicionada à fila colaborativa!';
+      if (typeof toast === 'function') toast('🎵 Música adicionada à fila!', 'success');
       close(false);
+      if (typeof clearPreview === 'function') clearPreview();
+    } catch (err) {
+      $('sf77PickedNote').textContent = err?.message || 'Não foi possível adicionar a música.';
+      $('sf77PickedNote').classList.add('sf77-error');
+    } finally {
+      button.textContent = '＋ Adicionar à fila';
+      button.disabled = false;
     }
   }
   async function favoriteSelected() {
@@ -312,6 +302,13 @@
       songData = state.selected;
       await favPreview();
     } finally { btn.disabled = false; }
+  }
+
+  function pickTrack(track) {
+    if (!validId(track?.id)) return false;
+    if (!open(state.open ? state.currentQuery : '')) return false;
+    choose(track);
+    return true;
   }
 
   function open(query = '') {
@@ -336,6 +333,7 @@
     $('sf77MusicModal').hidden = true;
     document.body.classList.remove('sf77-search-active');
     if (resetSelection && typeof clearPreview === 'function') clearPreview();
+    state.selected = null;
     if (resetSelection && $('songUrl') && !looksLikeLink($('songUrl').value)) $('songUrl').value = '';
     $('searchResults')?.classList.remove('show');
     const previous = state.lastFocus;
@@ -352,6 +350,7 @@
   function init() {
     build();
     window.sf77OpenSearch = open;
+    window.sf77PickTrack = pickTrack;
     window.sf77CloseSearch = close;
     window.sf77SearchFromField = fromField;
     const input = $('songUrl'), button = $('addBtn');

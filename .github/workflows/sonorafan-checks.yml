@@ -1,0 +1,25 @@
+name: SonoraFan checks
+on:
+  push:
+    branches: [main, 'fix/**']
+  pull_request:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Check frontend and backend syntax
+        run: |
+          node --check server.js
+          node --check public/sonorafan-queue-80.js
+          node --check public/sonorafan-search-77.js
+          node --check public/sonorafan-inline-search-78.js
+          node --check public/sonorafan-mobile-music-76.js
+      - name: Run regression tests
+        run: npm test

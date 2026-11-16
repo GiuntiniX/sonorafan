@@ -85,9 +85,18 @@ body.sf77-search-active #searchResults { display: none !important; }
 
 /* SonoraFan 79 — mobile selection sticky and queue-first */
 @media (max-width: 768px) {
-  .sf77-selection{padding-bottom:calc(94px + env(safe-area-inset-bottom,0px))}
-  .sf77-actions{position:sticky;bottom:0;z-index:4;padding:10px 0 calc(2px + env(safe-area-inset-bottom,0px));margin-top:14px;background:linear-gradient(180deg,rgba(23,14,37,0),rgba(23,14,37,.82) 22%,rgba(23,14,37,.98) 48%,rgba(23,14,37,1))}
+  .sf77-selection{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;min-height:100%}
+  .sf77-actions{position:sticky;bottom:0;z-index:4;padding:12px 0 calc(5px + env(safe-area-inset-bottom,0px));margin-top:auto;background:#170e25;box-shadow:0 -7px 16px rgba(10,5,20,.46)}
   .sf77-add{order:-1;min-height:52px;font-size:14px;box-shadow:0 10px 26px rgba(110,42,154,.26)}
   .sf77-favorite{display:none}
+  .sf77-dialog{height:min(780px,calc(100dvh - env(safe-area-inset-top,0px) - 8px));}
+  .sf77-main{overscroll-behavior:contain;}
+  .sf77-result{min-height:66px;touch-action:manipulation;}
+  .sf77-add{touch-action:manipulation;}
+  .sf77-header{flex-shrink:0;}
+  .sf77-toolbar{min-height:37px;}
+  .sf77-footnote{display:none;}
+  .sf77-footer{display:none;}
+  .sf77-picked-note{margin:10px 0 16px;}
   .sf77-footnote{text-align:center;margin-top:8px}
 }
