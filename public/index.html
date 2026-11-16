@@ -1438,6 +1438,7 @@
   <link rel="stylesheet" href="/sonorafan-community-110.css?v=110.1">
   <link rel="stylesheet" href="/sonorafan-profile-108.css?v=108.1">
   <link rel="stylesheet" href="/sonorafan-profile-library-112.css?v=112.2">
+<link rel="stylesheet" href="/sonorafan-room-redesign-113.css?v=113">
 </head>
 <body>
   <!-- ===== LANDING PAGE ===== -->
@@ -2047,18 +2048,31 @@
   </div>
 
   <!-- ROOM -->
-  <div class="screen" id="screen-room">
+  <div class="screen sf113-room" id="screen-room" data-sf113-view="visual">
     <a class="sf52-skip-link" href="#playerSection">Ir para o player da sala</a>
     <div class="app">
       <div class="header">
         <div class="header-left">
           <button onclick="leaveRoom()" style="background:transparent;border:1px solid var(--border);padding:6px 14px;border-radius:8px;color:var(--text);cursor:pointer;font-family:inherit;font-size:13px;" data-i18n="room.back">← Voltar</button>
-          <h1 id="roomTitle">Sala</h1>
+          <h1 id="roomTitle">Sala</h1><span class="sf113-brand" aria-label="SonoraFan"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async"></span>
           <button class="action-btn hidden" id="cfgBtn" onclick="openRoomCfg()" title="Personalizar sala">⚙️</button>
         </div>
-        <div class="header-right sf9-room-header-actions">
+        <nav class="sf113-nav" aria-label="Navegação da sala">
+<button type="button" data-sf113-target="player" class="active" aria-current="page">▷ Sala</button>
+<button type="button" data-sf113-target="queue">☷ Fila</button>
+<button type="button" data-sf113-target="chat">♧ Chat</button>
+<button type="button" data-sf113-target="people">♧ Participantes</button>
+</nav><div class="header-right sf9-room-header-actions">
           <button class="sf88-theme-switch" id="sf88RoomThemeButton" type="button" title="Escolher o tema visual da sala" aria-haspopup="dialog">🎨 <strong id="sf88ThemeName">Geral · Original</strong></button>
-          <button class="sf64-room-menu-toggle" id="sf64RoomSidebarToggle" type="button" aria-controls="sf64RoomSidebar" aria-expanded="true" aria-label="Recolher menu lateral da sala"><span aria-hidden="true">☰</span><span id="sf64RoomSidebarToggleLabel">Menu</span></button>
+          <button class="sf64-room-menu-toggle" id="sf64RoomSidebarToggle" type="button" aria-controls="sf64RoomSidebar" aria-expanded="false" aria-label="Menu lateral antigo (inativo)"><span aria-hidden="true">☰</span><span id="sf64RoomSidebarToggleLabel">Menu</span></button>
+<button class="sf113-invite" type="button" onclick="copyInviteLink()">♧ Convidar</button>
+<details class="sf113-menu"><summary aria-label="Mais opções da sala" title="Mais opções">⋯</summary><div class="sf113-menu-pop">
+<button type="button" onclick="openRoomCfg()">⚙ Configurações</button>
+<button type="button" onclick="window.sf5OpenProfile?.()">◉ Meu perfil</button>
+<button type="button" onclick="toggleFavorites()">♡ Favoritos</button>
+<button type="button" onclick="window.sf53OpenInbox?.()">✉ Mensagens privadas</button>
+<button type="button" onclick="openTutorial(0)">? Ajuda</button>
+</div></details>
           <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
 
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
@@ -2087,12 +2101,20 @@
       </aside>
       <div class="premium-room-ambient" id="premiumRoomAmbient" aria-hidden="true"></div>
       <div class="room-layout" id="roomLayout">
+<section class="sf113-now-card" aria-label="Música tocando agora">
+<div class="sf113-now-kicker"><span class="sf113-eq" aria-hidden="true">♫</span> Tocando agora</div>
+<div class="sf113-now-body"><img id="sf113NowImage" src="/art-44/vinyl-room.webp" alt="Capa da música atual" width="100" height="100" decoding="async">
+<div class="sf113-now-copy"><strong id="sf113NowTitle">Aguardando música</strong><span id="sf113NowArtist">Escolha uma música</span></div></div>
+<div class="sf113-now-details"><span>🎧 <span id="sf113NowRoom">Sala musical</span></span>
+<span>● Ao vivo · <span id="sf113NowListeners">0 ouvindo</span></span>
+<span class="sf113-theme-tag">🎨 <span id="sf113NowTheme">Geral · Original</span></span></div></section>
         <div class="sf5-section-title sf34-room-title"><span class="sf44-room-sparks" aria-hidden="true">✳ ♫ ✦</span><span class="sf5-room-dot">◉</span><div><strong id="sf5RoomName">Sala musical</strong><small id="sf5RoomSubtitle">Sua música, sua galera</small></div><span class="sf5-live-indicator">● AO VIVO</span><span class="sf5-header-spacer"></span><span class="sf34-room-vibe" aria-hidden="true">✦ MÚSICA BOA, GENTE JUNTA</span><span class="sf5-header-avatar" title="Comunidade">♫</span></div>
         <div class="queue-column sf33-queue-column sf34-queue">
           <div class="queue-header">
             <span>♫ &nbsp;Fila colaborativa</span>
             <div style="display:flex;gap:8px;align-items:center;">
-              <span class="count" id="queueCount" aria-live="polite">0 músicas</span>
+              <button class="sf113-add-song" id="sf113AddMusic" type="button">＋ Adicionar à fila</button>
+<span class="count" id="queueCount" aria-live="polite">0 músicas</span>
               <button type="button" onclick="copyQueueIds()" title="Copiar IDs da fila" aria-label="Copiar IDs das músicas da fila" style="background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text-muted);padding:2px 6px;font-size:10px;cursor:pointer;">📋</button>
             </div>
           </div>
@@ -2122,6 +2144,15 @@
             <div class="player-frame">
               <div class="premium-frame-corner" aria-hidden="true">SONORAFAN <b>LIVE</b></div>
               <div id="youtube-player"></div>
+<div class="sf113-visual-stage" id="sf113VisualStage" aria-label="Modo visual, sem comandos de pausa ou próxima faixa">
+<img class="sf113-visual-backdrop" id="sf113VisualBackdrop" src="/art-44/vinyl-room.webp" alt="" decoding="async">
+<div class="sf113-visual-details"><img id="sf113VisualCover" src="/art-44/vinyl-room.webp" alt="" width="97" height="97" decoding="async">
+<div class="sf113-visual-copy"><span>♪ Tocando agora</span><strong id="sf113VisualTitle">Aguardando música</strong>
+<small id="sf113VisualArtist">Escolha uma música</small></div></div></div>
+<div class="sf113-view-switch" role="group" aria-label="Escolha como visualizar a música">
+<button type="button" data-sf113-view="visual" aria-pressed="true" title="Mostrar a arte da música">✦ Visual</button>
+<button type="button" data-sf113-view="video" aria-pressed="false" title="Mostrar o vídeo do YouTube">▣ Vídeo</button>
+</div>
               <div class="sf33-empty-player-art" id="sf33EmptyPlayerArt" hidden aria-hidden="true"><img src="/art-44/vinyl-room.webp" alt="" width="1480" height="351" decoding="async" loading="lazy"></div>
               <div class="youtube-interaction-shield" aria-hidden="true"></div>
               <div class="buffering-overlay" id="bufferingOverlay"><div class="spinner"></div></div>
@@ -2169,11 +2200,7 @@
             </div>
             <button type="button" class="sf55-session-add" id="sf55SessionAdd" aria-label="Buscar música para adicionar à playlist">＋ Escolher música</button>
           </section>
-          <section class="sf74-fanclub-card" aria-label="Fan Clubs do SonoraFan">
-            <span class="sf74-fanclub-symbol" aria-hidden="true">♬</span>
-            <div class="sf74-fanclub-copy"><strong>Fan Clubs</strong><span>Encontre fãs do seu artista, entre na comunidade e compartilhe salas.</span></div>
-            <button type="button" id="sf74OpenFanClubs" aria-label="Abrir Fan Clubs na Comunidade">Explorar <span aria-hidden="true">↗</span></button>
-          </section>
+          
           <div class="sf63-room-activity" id="sf63RoomTools" aria-label="Atividades musicais da sala">
             <span>✦ Participe da sessão</span>
             <div><button type="button" data-sf63-open="music">＋ Música</button><button type="button" data-sf63-open="battle">⚡ Batalha</button><button type="button" data-sf63-open="challenge">🏅 Desafio</button><button type="button" data-sf63-open="history">☰ Histórico</button></div>
@@ -2226,7 +2253,8 @@
             </div>
           </div>
         </div>
-        <section class="sf10-request-card sf34-request" id="sf10RequestCard" aria-label="Buscar e adicionar músicas à sala">
+        <div class="sf113-search-backdrop" id="sf113SearchBackdrop" hidden></div>
+<section class="sf10-request-card sf34-request" id="sf10RequestCard" aria-label="Buscar e adicionar músicas à sala">
           <div class="sf10-request-top"><div class="sf10-request-icon">♫</div><div><strong>Escolha a próxima música</strong><small>Procure no YouTube ou cole um link</small></div></div>
           <div class="sf10-request-fields">
           <div class="add-song-area">
@@ -2267,7 +2295,7 @@
         <button data-t="chat" onclick="setTab('chat')">💬 Chat</button>
         <button type="button" onclick="window.sf53OpenInbox?.()">✉ Inbox</button>
         <button class="sf34-add-mobile" type="button" onclick="window.sf76OpenMusic ? window.sf76OpenMusic('search') : window.sf34FindSong?.()" aria-label="Abrir músicas e favoritas">＋ Música</button>
-        <button class="sf45-mobile-club" type="button" onclick="window.sf45OpenClub?.()" aria-label="Abrir SonoraFan Club">🏅 Club</button>
+        
       </nav>
     </div>
   </div>
@@ -4520,5 +4548,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-community-110.js?v=110.1"></script>
   <script defer src="/sonorafan-profile-108.js?v=108.1"></script>
   <script defer src="/sonorafan-profile-library-112.js?v=112.2"></script>
+<script defer src="/sonorafan-room-redesign-113.js?v=113"></script>
 </body>
 </html>
