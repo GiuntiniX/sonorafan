@@ -439,7 +439,7 @@
           <div id="sf107Featured"></div>
           <section class="sf107-module sf107-aside-module"><header class="sf107-module-head"><h2>▦ Agenda musical</h2><button type="button" data-sf107="events">Ver agenda ›</button></header>
             <div id="sf107Events"></div></section>
-          <section class="sf107-module sf107-aside-module"><header class="sf107-module-head"><h2>♢ Notificações</h2><button type="button" data-sf107="notices">Ver todas ›</button></header>
+          <section class="sf107-module sf107-aside-module"><header class="sf107-module-head"><div><h2>♢ Notificações</h2><small id="sf107NoticesTitleCount" hidden></small></div><button type="button" data-sf107="notices">Ver todas ›</button></header>
             <div id="sf107Notices"></div></section>
         </aside>
       </div>
