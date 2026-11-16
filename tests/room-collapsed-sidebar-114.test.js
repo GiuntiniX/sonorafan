@@ -27,7 +27,7 @@ test('legacy sidebar reveal shortcut stays hidden in top-nav room', () => {
 });
 
 test('room CSS is cache-busted in HTML and video/chat IDs remain untouched', () => {
-  assert.match(html, /sonorafan-room-redesign-113\.css\?v=114\.1/);
+  assert.match(html, /sonorafan-room-redesign-113\.css\?v=115/);
   assert.match(html, /id="screen-room" data-sf113-view="visual"/);
   for(const id of ['youtube-player','chatMessagesInner','chatInput','queueList','sf113VisualStage']){
     assert.ok(html.includes('id="' + id + '"'), id);
