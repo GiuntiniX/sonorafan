@@ -30,8 +30,9 @@ window.addEventListener('load',()=>{
     preview=$('.sf121-room-preview'),card=$('.sf120-feature'),signup=$('.sf120-hero-ctas .sf120-signup');
   const r=e=>e.getBoundingClientRect();
   const prevr=r(preview),hr=r(hero),rr=r(root),tr=r(top),cr=r(card);
-  signup?.click();
-  $('.sf121-search-button')?.click();
+  const registrationButtons=all('#landingScreen button[onclick="openSignup()"]');
+  registrationButtons.forEach(button=>button.click());
+  $('.sf122-login-button')?.click();
   const bg=getComputedStyle(root).backgroundColor;
   const feature=all('.sf120-feature');
   const whiteText=getComputedStyle($('#sf120HeroTitle')).color;
@@ -40,10 +41,13 @@ window.addEventListener('load',()=>{
    viewport:innerWidth,
    background:bg,
    cards:feature.length,
-   navPresent:['Início','Salas','Comunidade','Experiências'].every(x=>all('.sf121-nav-links a,.sf121-nav-links button').some(el=>el.textContent.trim()===x)),
+   navRemoved:!all('.sf121-nav-links,.sf121-search-button').length,
    howRemoved: !all('.sf120-how-link').length,
-   clickSignup:signups===1,
+   clickSignup:registrationButtons.length===8 && signups===registrationButtons.length,
    clickLogin:logins===1,
+   loginVisible: (()=>{const b=$('.sf122-login-button');const x=r(b);return x.width>30&&x.height>30&&x.right<=innerWidth+3;})(),
+   signupVisible:(()=>{const x=r($('.sf122-auth-actions .sf122-signup-pulse'));return x.width>90&&x.height>30&&x.right<=innerWidth+3;})(),
+   animationsEnabled:getComputedStyle($('.sf121-hero-signup')).animationName!=='none',
    heroWidth:hr.width,
    preview:[prevr.x,prevr.width,prevr.height],
    topWidth:tr.width,
@@ -55,8 +59,8 @@ window.addEventListener('load',()=>{
    black: bg==='rgb(20, 20, 20)'
   };
   const out=document.createElement('output');out.id='sf120HomeMetrics';
-  out.dataset.sf120HomeTest=data.cards===4 && data.navPresent && data.howRemoved && data.clickSignup && data.clickLogin
-    && data.fits && data.black ? 'ok':'fail';
+  out.dataset.sf120HomeTest=data.cards===4 && data.navRemoved && data.howRemoved && data.clickSignup && data.clickLogin
+    && data.loginVisible && data.signupVisible && data.fits && data.black ? 'ok':'fail';
   out.textContent=JSON.stringify(data);document.body.append(out);
  },250);
 });
@@ -88,7 +92,7 @@ async function launch(viewport){
  }finally{fs.rmSync(target,{force:true});fs.rmSync(profile,{recursive:true,force:true})}
 }
 
-test('real home v121 HTML + full styles: dark layout, approved nav, signup, login and responsive hero', {
+test('real home v122: no menu, Login beside signup and every marketing action registers at 4 screen widths', {
  skip:chrome||process.env.CI==='true'?false:'Chromium unavailable'
 },async()=>{
  assert.ok(chrome,'Chromium required in CI');
