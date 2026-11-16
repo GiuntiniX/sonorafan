@@ -1463,44 +1463,56 @@ io.on('connection', (socket) => {
     } catch (e) { console.error('Erro ao configurar rádio:', e.message); }
   });
 
-  socket.on('addSong', (song) => {
+  socket.on('addSong', (song, acknowledge) => {
+    const reply = (ok, details = {}) => {
+      if (typeof acknowledge === 'function') {
+        try { acknowledge({ ok, ...details }); } catch (_) {}
+      }
+    };
+    const refuse = message => {
+      socket.emit('error', message);
+      reply(false, { error: message });
+    };
     try {
-      if (!currentRoom) return;
+      if (!currentRoom) { refuse('Entre em uma sala para adicionar música.'); return; }
       const room = rooms.get(currentRoom);
-      if (room.addMode === 'owner' && !socket.isAdmin) { socket.emit('error', '🎧 Nesta sala só o dono escolhe as músicas. Use o chat para sugerir!'); return; }
+      if (!room) { refuse('Sala indisponível. Entre novamente.'); return; }
+      if (room.addMode === 'owner' && !socket.isAdmin) { refuse('🎧 Nesta sala só o dono escolhe as músicas. Use o chat para sugerir!'); return; }
       if (!song || typeof song !== 'object' || typeof song.id !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(song.id)) {
-        socket.emit('error', 'Link ou vídeo do YouTube inválido.'); return;
+        refuse('Link ou vídeo do YouTube inválido.'); return;
       }
       if (room.queue.concat(room.waitingQueue).some(track => track.id === song.id)) {
-        socket.emit('error', 'Esta música já está na fila. Escolha outra!'); return;
+        refuse('Esta música já está na fila. Escolha outra!'); return;
       }
       const now = Date.now();
       const lastAdd = room.lastAddTime.get(socket.userEmail || socket.userName) || 0;
-      if (now - lastAdd < 30000) { const wait = Math.ceil((30000 - (now - lastAdd)) / 1000); socket.emit('error', `Aguarde ${wait}s`); return; }
+      if (now - lastAdd < 30000) { const wait = Math.ceil((30000 - (now - lastAdd)) / 1000); refuse(`Aguarde ${wait}s`); return; }
       const userSongs = room.queue.filter(t => t.dj === socket.userName).length + room.waitingQueue.filter(t => t.dj === socket.userName).length;
-      if (room.listenerCount > 1 && userSongs >= 5) { socket.emit('error','Para manter a fila colaborativa, aguarde uma de suas 5 músicas pendentes tocar.'); return; }
-      if (userSongs >= MAX_SONGS_PER_USER) { socket.emit('error', `Você já tem ${MAX_SONGS_PER_USER} músicas na fila/espera. Aguarde outras serem tocadas.`); return; }
+      if (room.listenerCount > 1 && userSongs >= 5) { refuse('Para manter a fila colaborativa, aguarde uma de suas 5 músicas pendentes tocar.'); return; }
+      if (userSongs >= MAX_SONGS_PER_USER) { refuse(`Você já tem ${MAX_SONGS_PER_USER} músicas na fila/espera. Aguarde outras serem tocadas.`); return; }
       const limit = room.maxDuration || settings.maxDuration;
       const liveOk = !!room.allowLive;
-      if (!liveOk && song.duration && song.duration > limit) { socket.emit('error', `⛔ Vídeo muito longo! Duração: ${Math.floor(song.duration / 60)} min. Limite: ${Math.floor(limit / 60)} min.`); return; }
+      if (!liveOk && song.duration && song.duration > limit) { refuse(`⛔ Vídeo muito longo! Duração: ${Math.floor(song.duration / 60)} min. Limite: ${Math.floor(limit / 60)} min.`); return; }
       if (liveOk && !song.duration) song.live = true;
       const isQueueFull = room.queue.length >= settings.maxQueue;
       if (isQueueFull) {
-        if (room.waitingQueue.length >= settings.maxQueue) { socket.emit('error', `Fila de espera cheia (${settings.maxQueue})`); return; }
+        if (room.waitingQueue.length >= settings.maxQueue) { refuse(`Fila de espera cheia (${settings.maxQueue})`); return; }
         song.dj = socket.userName; room.waitingQueue.push(song); room.lastAddTime.set(socket.userEmail || socket.userName, now); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); addPoints(socket.userEmail, 1, 'song', currentRoom + ':' + song.id);
         io.to(currentRoom).emit('playSound', 'waiting');
         addSystemMsg(currentRoom, `⏳ "${song.title}" entrou na fila de espera (${room.waitingQueue.length} músicas aguardando)`);
         broadcastState(currentRoom);
+        reply(true, { placement: 'waiting' });
         return;
       }
       song.dj = socket.userName; room.queue.push(song); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2, 'song', currentRoom + ':' + song.id);
       room.totalSongsAdded = (room.totalSongsAdded || 0) + 1;
       if (!room.isPlaying && room.queue.length === 1) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); addSystemMsg(currentRoom, `▶ ${song.title} — ${song.artist}`); }
       broadcastState(currentRoom);
+      reply(true, { placement: 'queue' });
       if (room.discordWebhook) { const msg = `🎵 **${song.title}** por ${song.artist} foi adicionada por ${socket.userName} na sala **${room.name}**`; sendDiscordWebhook(room.discordWebhook, msg); }
     } catch (e) {
       console.error('❌ CRASH AO ADICIONAR MÚSICA:', e.message);
-      socket.emit('error', 'Erro interno ao adicionar música. Verifique os logs.');
+      refuse('Erro interno ao adicionar música. Verifique os logs.');
     }
   });
 
