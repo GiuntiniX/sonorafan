@@ -1,0 +1,116 @@
+/* SonoraFan 90 — menu da sala sem scroll em telas desktop.
+ * Prioriza todas as ações acessíveis e remove a arte decorativa antes de comprimir botões.
+ * Em viewports extremamente baixos, mantém navegação por rolagem invisível (acessibilidade).
+ */
+@media (min-width: 1025px) {
+  #screen-room #sf64RoomSidebar {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    overscroll-behavior: contain;
+    padding: 9px 8px !important;
+    min-height: 0 !important;
+  }
+  #screen-room #sf64RoomSidebar::-webkit-scrollbar { display: none !important; }
+  #screen-room #sf64RoomSidebar .sf5-navigation {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 0 1 auto !important;
+    gap: 2px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #screen-room #sf64RoomSidebar .sf5-navigation > button,
+  #screen-room #sf64RoomSidebar .sf5-navigation > button.sf29-side-invite {
+    box-sizing: border-box !important;
+    flex: 0 0 34px !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    max-height: 34px !important;
+    width: 100% !important;
+    padding: 4px 8px !important;
+    margin: 0 !important;
+    gap: 9px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+  #screen-room #sf64RoomSidebar .sf5-navigation > button .sf64-menu-icon {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+  }
+  #screen-room #sf64RoomSidebar .sf5-brand.sf54-brand-room {
+    flex: 0 0 auto !important;
+    max-height: 49px !important;
+    min-height: 0 !important;
+    margin: 0 0 7px !important;
+    overflow: hidden !important;
+  }
+  #screen-room #sf64RoomSidebar .sf33-room-nav-art {
+    flex: 0 1 50px !important;
+    max-height: 50px !important;
+    min-height: 0 !important;
+    margin-top: auto !important;
+    overflow: hidden !important;
+  }
+  #screen-room #sf64RoomSidebar .sf5-side-waves {
+    pointer-events: none;
+  }
+}
+@media (min-width: 1025px) and (max-height: 770px) {
+  #screen-room #sf64RoomSidebar .sf33-room-nav-art,
+  #screen-room #sf64RoomSidebar .sf5-side-waves { display: none !important; }
+  #screen-room #sf64RoomSidebar .sf5-navigation { gap: 1px !important; }
+  #screen-room #sf64RoomSidebar .sf5-brand.sf54-brand-room {
+    max-height: 38px !important;
+    margin-bottom: 4px !important;
+  }
+  #screen-room #sf64RoomSidebar .sf5-navigation > button,
+  #screen-room #sf64RoomSidebar .sf5-navigation > button.sf29-side-invite {
+    flex-basis: 32px !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    max-height: 32px !important;
+    padding-block: 3px !important;
+  }
+}
+@media (min-width: 1025px) and (max-height: 610px) {
+  #screen-room #sf64RoomSidebar .sf5-brand.sf54-brand-room { display: none !important; }
+  #screen-room #sf64RoomSidebar .sf5-navigation > button,
+  #screen-room #sf64RoomSidebar .sf5-navigation > button.sf29-side-invite {
+    flex-basis: 29px !important;
+    min-height: 29px !important;
+    height: 29px !important;
+    max-height: 29px !important;
+    padding-block: 2px !important;
+  }
+  #screen-room #sf64RoomSidebar .sf5-navigation > button .sf64-menu-icon {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+  }
+}
+@media (min-width: 1025px) and (max-height: 500px) {
+  #screen-room #sf64RoomSidebar { padding: 4px 6px !important; }
+  #screen-room #sf64RoomSidebar .sf5-navigation { gap: 0 !important; }
+  #screen-room #sf64RoomSidebar .sf5-navigation > button,
+  #screen-room #sf64RoomSidebar .sf5-navigation > button.sf29-side-invite {
+    flex-basis: 27px !important;
+    min-height: 27px !important;
+    height: 27px !important;
+    max-height: 27px !important;
+  }
+}
+/* Não ocultar opções de navegação em janelas excepcionalmente baixas. */
+@media (min-width: 1025px) and (max-height: 430px) {
+  #screen-room #sf64RoomSidebar {
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+  }
+}
