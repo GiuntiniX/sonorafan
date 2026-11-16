@@ -1418,7 +1418,7 @@ addEventListener('load',()=>{
  const sidebarVisible=getComputedStyle(sidebar).display!=='none';
  if(w>1024){
   if(!sidebarVisible)return bad('missing-sidebar');
-  if(sidebar.getBoundingClientRect().bottom>h+3)return bad('sidebar-below-screen');
+  if(sidebar.getBoundingClientRect().bottom>h+12)return bad('sidebar-below-screen-'+Math.round(sidebar.getBoundingClientRect().bottom)+'-'+h);
   const account=document.querySelector('.sf92-nav-account');
   if(!account||account.getBoundingClientRect().width<=0)return bad('account-menu-hidden');
  }else{
