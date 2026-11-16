@@ -230,3 +230,121 @@
   }
   syncStageAndUpcoming();
 })();
+
+
+/* SonoraFan 117 — status do áudio, progresso com tempo restante e ampliação do vídeo. */
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const room = $('screen-room');
+  const slider = $('volumeSlider');
+  const toggle = $('sf117VolumeToggle');
+  const fill = $('progressFill');
+  const timeline = $('sf117ProgressTrack');
+  const remainingLabel = $('sf117Remaining');
+  const current = $('currentTime');
+  const total = $('totalTime');
+  const frame = room?.querySelector('.player-frame');
+  if (!room || !slider || !toggle || !fill || !timeline || !remainingLabel) return;
+
+  const MAX_VOLUME = 100;
+  const lastAudibleKey = 'sf117LastAudibleVolume';
+  let lastAudible = 80;
+  try {
+    const stored = Number(localStorage.getItem(lastAudibleKey));
+    if (Number.isFinite(stored) && stored > 0 && stored <= MAX_VOLUME) lastAudible = stored;
+  } catch (_) {}
+
+  function volumeValue() {
+    const number = Number(slider.value);
+    return Number.isFinite(number) ? Math.min(MAX_VOLUME, Math.max(0,number)) : 0;
+  }
+  function updateVolumeUI() {
+    const value = volumeValue();
+    if (value > 0) {
+      lastAudible = value;
+      try {localStorage.setItem(lastAudibleKey,String(value));} catch (_) {}
+    }
+    room.style.setProperty('--sf117-volume-pct', value + '%');
+    const muted = value === 0;
+    toggle.setAttribute('aria-pressed',String(muted));
+    toggle.setAttribute('aria-label', muted ? 'Ativar áudio' : 'Silenciar áudio');
+    toggle.title = muted ? 'Ativar áudio' : 'Silenciar áudio';
+    const icon = $('volIcon');
+    if (icon) icon.textContent = muted ? '🔇' : value < 40 ? '🔉' : '🔊';
+    const output = $('volumeValue');
+    if (output) output.textContent = value + '%';
+  }
+
+  toggle.addEventListener('click', () => {
+    const next = volumeValue() > 0 ? 0 : lastAudible;
+    slider.value = String(next);
+    // Reuse the original SonoraFan audio recovery (including persistence).
+    if (typeof window.setVolume === 'function') window.setVolume(next);
+    else slider.dispatchEvent(new Event('input',{bubbles:true}));
+    updateVolumeUI();
+  });
+  slider.addEventListener('input',updateVolumeUI);
+  slider.addEventListener('change',updateVolumeUI);
+  document.addEventListener('DOMContentLoaded',updateVolumeUI,{once:true});
+
+  function parseClock(value) {
+    const parts = String(value || '').trim().split(':');
+    if (parts.length < 2 || parts.length > 3 || parts.some(part=>!/^[0-9]+$/.test(part))) return NaN;
+    return parts.reduce((acc,part)=>acc*60 + Number(part),0);
+  }
+  function displayClock(value) {
+    const seconds = Math.max(0,Math.floor(value));
+    const h = Math.floor(seconds/3600);
+    const m = Math.floor((seconds%3600)/60);
+    const s = String(seconds%60).padStart(2,'0');
+    return h > 0 ? h + ':' + String(m).padStart(2,'0') + ':' + s : m + ':' + s;
+  }
+  function updateProgressUI() {
+    const seconds = parseClock(current?.textContent);
+    const duration = parseClock(total?.textContent);
+    const ready = Number.isFinite(seconds) && Number.isFinite(duration) && duration > 0;
+    const pct = ready ? Math.min(100,Math.max(0,seconds/duration*100)) : 0;
+    timeline.setAttribute('aria-valuenow', String(Math.round(pct)));
+    timeline.setAttribute('aria-valuetext',ready
+      ? displayClock(seconds)+' de '+displayClock(duration)
+      : 'Aguardando música');
+    const left = ready ? Math.max(0,duration-seconds) : 0;
+    const ending = ready && left <= 30;
+    const hasProgress = ready && seconds > 0;
+    timeline.classList.toggle('sf117-ending', ending);
+    timeline.classList.toggle('sf117-has-progress', hasProgress);
+    remainingLabel.classList.toggle('sf117-ending', ending);
+    remainingLabel.textContent = ready
+      ? (left === 0 ? 'Finalizando' : 'Faltam '+displayClock(left))
+      : 'Aguardando música';
+    fill.style.width = pct.toFixed(2)+'%';
+  }
+  if (current && total) {
+    const observer = new MutationObserver(updateProgressUI);
+    observer.observe(current,{characterData:true,childList:true,subtree:true});
+    observer.observe(total,{characterData:true,childList:true,subtree:true});
+  }
+
+  function fitVideoStage() {
+    if (!frame) return;
+    const width = frame.clientWidth;
+    const height = frame.clientHeight;
+    if (width < 20 || height < 20) return;
+    // YouTube is 16:9. Cover taller stages without changing the original iframe.
+    const desired = Math.max(1.04, (height / (width * 9/16)) * 1.025);
+    const zoom = Math.min(1.42, desired);
+    const rounded = zoom.toFixed(3);
+    if (frame.style.getPropertyValue('--sf117-video-zoom') !== rounded)
+      frame.style.setProperty('--sf117-video-zoom',rounded);
+  }
+  if (frame && typeof ResizeObserver === 'function') {
+    new ResizeObserver(fitVideoStage).observe(frame);
+    room.querySelectorAll('.sf113-view-switch button').forEach(button=>
+      button.addEventListener('click',fitVideoStage));
+  }
+
+  updateVolumeUI();
+  updateProgressUI();
+  fitVideoStage();
+})();
