@@ -17,14 +17,7 @@
 .sf54-brand-signup {width:190px;max-width:100%;margin-bottom:14px;}
 .sf54-brand-signup img {max-height:70px;}
 
-/* Fila: textos de ajuda recolhíveis e contadores que não ocupam espaço desnecessário. */
-#screen-room .sf54-voting-guide {flex:0 0 auto;margin:4px 10px 5px; color:#dac8e8; font-size:11px; background:rgba(120,55,140,.09); border:1px solid rgba(255,255,255,.09); border-radius:10px;}
-#screen-room .sf54-voting-guide summary {display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 10px;cursor:pointer;list-style:none;font-weight:700;line-height:1.25;}
-#screen-room .sf54-voting-guide summary::-webkit-details-marker{display:none}
-#screen-room .sf54-voting-guide summary span{transition:transform .18s ease}
-#screen-room .sf54-voting-guide[open] summary span{transform:rotate(180deg)}
-#screen-room .sf54-voting-guide p{padding:0 10px 11px;margin:0;line-height:1.45;max-width:42ch;color:#e1d0ee}
-#screen-room .sf54-voting-guide strong{color:#fff1c9}
+/* Fila: contadores e avisos concisos, sem faixa de instruções repetida. */
 #screen-room .sf39-queue-insight{min-height:0!important;padding:5px 10px!important;margin:2px 8px!important; font-size:10px!important;}
 #screen-room .sf52-vote-status:not(:empty){margin:3px 10px!important;padding:6px 9px!important;font-size:11px!important;line-height:1.25!important;}
 
@@ -64,7 +57,6 @@
   #screen-lobby .sf54-brand-lobby{width:150px!important;}
   #screen-room .sf5-brand.sf54-brand-room{width:151px!important;}
 }
-@media(prefers-reduced-motion:reduce){#screen-room .sf54-voting-guide summary span {transition:none}}
 /* Votos aparecem na segunda linha, preservando a largura para títulos e artista. */
 #screen-room #queueList .queue-item {
   display:grid!important;
