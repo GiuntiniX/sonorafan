@@ -41,6 +41,28 @@
 #screen-lobby.sf107-ready .sf34-mobile-lobby-nav,
 #screen-lobby.sf107-ready .sf44-back-top {display:none!important}
 
+/* Lobby 107.3 — De-duplicate the legacy grid.
+   Older bundled CSS uses '#screen-lobby #roomGrid {display:grid!important}',
+   which has more specificity than our generic .sf107-legacy selector.
+   Retain the node as an internal compatibility hook for old renderers,
+   but never paint its cards next to the new featured/popular rooms. */
+#screen-lobby.sf107-ready #roomGrid,
+#screen-lobby.sf107-ready #roomGrid.room-grid{
+  display:none!important;
+  visibility:hidden!important;
+  margin:0!important;
+  padding:0!important;
+  height:0!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+#screen-lobby.sf107-ready .sf28-lobby-content > details.sf32-community-drawer:not([open]){
+  display:none!important;
+}
+#screen-lobby.sf107-ready .sf28-lobby-content > details.sf32-community-drawer.sf107-expose[open]{
+  display:block!important;
+}
+
 /* Global nav: single slim header with a discreet festival image strip. */
 #screen-lobby .sf107-top{
   z-index:20;position:relative;display:flex;flex:0 0 auto;
