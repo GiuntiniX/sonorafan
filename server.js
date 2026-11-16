@@ -456,26 +456,37 @@ async function sendDiscordWebhook(webhookUrl, message) {
 
 // ========== ROTAS ==========
 app.post('/api/signup', rateLimit(5, 60000), async (req, res) => {
-  const { nome, estilos, idToken } = req.body;
+  const { nome, username, estilos, idToken } = req.body;
+  const publicUsername = typeof username === 'string' ? username.trim().toLowerCase() : null;
   let email;
   try { email = (await getAuth().verifyIdToken(idToken)).email; } catch (e) { return res.status(401).json({ error: 'Sessão Firebase inválida' }); }
   if (!nome || nome.length < 2 || nome.length > 60) return res.status(400).json({ error: 'Nome inválido' });
   if (!email) return res.status(400).json({ error: 'E-mail inválido' });
   if (!Array.isArray(estilos) || estilos.length === 0) return res.status(400).json({ error: 'Escolha um estilo' });
+  // Backwards compatible: older app versions do not submit a username.
+  if (publicUsername !== null && !/^[a-z0-9._-]{3,24}$/.test(publicUsername))
+    return res.status(400).json({ error: 'Username inválido' });
   if ([...users.values()].some(u => String(u.nome || '').trim().toLowerCase() === String(nome).trim().toLowerCase())) return res.status(400).json({ error: 'Esse nome já está em uso. Escolha outro.' });
+  if (publicUsername && [...users.values()].some(u => String(u.username || '').toLowerCase() === publicUsername))
+    return res.status(400).json({ error: 'Esse username já está em uso.' });
 
   try {
     const existing = await db.collection('users').doc(email).get();
     if (existing.exists) return res.status(400).json({ error: 'E-mail já cadastrado' });
+    // Use a DB lookup as well as the memory cache to keep handles unique across instances.
+    if (publicUsername) {
+      const used = await db.collection('users').where('username', '==', publicUsername).limit(1).get();
+      if (!used.empty) return res.status(400).json({ error: 'Esse username já está em uso.' });
+    }
 
-    const userData = { nome: String(nome).trim(), email, estilos, avatar: '🎸', criadoEm: new Date(), theme: 'dark', fontSize: 16, colorblind: false, discordWebhook: null };
+    const userData = { nome: String(nome).trim(), username: publicUsername || null, email, estilos, avatar: '🎸', criadoEm: new Date(), theme: 'dark', fontSize: 16, colorblind: false, discordWebhook: null };
     await setUserInFirestore(email, userData);
     users.set(email, userData);
     await setPointsInFirestore(email, { points: 0, badges: [] });
     userPoints.set(email, { points: 0, badges: [] });
     await setFavoritesInFirestore(email, []);
     userFavorites.set(email, []);
-    res.json({ success: true, nome, email });
+    res.json({ success: true, nome, username: publicUsername, email });
   } catch (e) { console.error('Erro no signup:', e.message); res.status(500).json({ error: 'Erro ao salvar dados no Firestore: ' + e.message }); }
 });
 
