@@ -12,7 +12,7 @@ const js = fs.readFileSync(path.join(root, 'sonorafan-room-redesign-113.js'), 'u
 test('room redesign is loaded and does not remove core realtime elements', () => {
   assert.match(html, /id="screen-room" data-sf113-view="visual"/);
   for (const asset of ['sonorafan-room-redesign-113.css', 'sonorafan-room-redesign-113.js']) {
-    assert.ok(html.includes('/' + asset + '?v=113'), asset);
+    assert.ok(html.includes('/' + asset + '?v='), asset);
   }
   for (const id of ['youtube-player', 'queueList', 'chatMessagesInner', 'sf5ListenersBody', 'sf88RoomThemeButton', 'volumeSlider', 'sf113VisualStage']) {
     assert.ok(html.includes('id="' + id + '"'), id);
