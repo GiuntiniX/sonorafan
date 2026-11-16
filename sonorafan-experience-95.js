@@ -149,5 +149,9 @@ module.exports = function installExperience95({ app, db, rooms, users, sessionEm
     });
   }
 
-  return { onAddedSong, applyPriority, registerSocket };
+  async function deleteUserData(email) {
+    if (!email) return;
+    await db.recursiveDelete(profileDoc(email));
+  }
+  return { onAddedSong, applyPriority, registerSocket, deleteUserData };
 };
