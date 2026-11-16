@@ -19,6 +19,7 @@ const { installChat53 } = require('./chat-social-53');
 const { installPlatform63 } = require('./sonorafan-platform-63');
 const { installFavoriteGenres67 } = require('./favorite-genres-67');
 const { installFanClubs71 } = require('./fan-clubs-71');
+const installExperience95 = require('./sonorafan-experience-95');
 
 // ===== PROTEÇÃO GLOBAL PARA O SERVIDOR NUNCA CAIR =====
 process.on('uncaughtException', (err) => {
@@ -190,7 +191,7 @@ function addSanction(s) { s.id = sanId(s.email, s.type, s.scope); sanctions.set(
 function removeSanction(id) { sanctions.delete(id); sanDoc(id).delete().catch(() => {}); }
 async function loadSanctions() { try { const snap = await db.collection('sanctions').get(); snap.forEach(d => { const s = d.data(); if (!s.until || s.until > Date.now()) sanctions.set(s.id, s); }); } catch (e) {} }
 function persistRoom(r) {
-  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, roomTheme: normalizeRoomTheme88(r.roomTheme), emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null, musicMode: r.musicMode || 'all', radioMode: !!r.radioMode, radioGenre: r.radioGenre || 'pop' }).catch(() => {});
+  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, roomTheme: normalizeRoomTheme88(r.roomTheme), emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null, musicMode: r.musicMode || 'all', votePriority: !!r.votePriority, radioMode: !!r.radioMode, radioGenre: r.radioGenre || 'pop' }).catch(() => {});
 }
 function createRoom(slug, name, adminName = null) {
   roomLikes.set(slug, {});
@@ -204,7 +205,7 @@ function createRoom(slug, name, adminName = null) {
     chatHistory: [], listenerCount: 0,
     lastAddTime: new Map(), isPlaying: false, lastAdvanceAt: 0,
     history: [], skipVotes: new Set(),
-    radioMode: false, radioGenre: 'pop', musicMode: 'all',
+    radioMode: false, radioGenre: 'pop', musicMode: 'all', votePriority: false,
     pinnedMessage: null, color: '#7c3aed', roomTheme: 'geral',
     discordWebhook: null, inviteCount: 0, eventStartTime: null,
     totalSongsAdded: 0, totalVotesGiven: 0, mostVoted: [],
@@ -258,7 +259,7 @@ async function loadRooms() {
       const r = createRoom(v.slug, v.name, v.admin || 'Anônimo');
       if (v.color) r.color = v.color;
        r.roomTheme = normalizeRoomTheme88(v.roomTheme);
-      r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = v.addMode === 'owner' ? 'owner' : 'all'; r.musicMode = ['all', 'owner', 'fair'].includes(v.musicMode) ? v.musicMode : (r.addMode === 'owner' ? 'owner' : 'all'); r.radioMode = !!v.radioMode; r.radioGenre = typeof v.radioGenre === 'string' ? v.radioGenre.slice(0, 40) : 'pop';
+      r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = v.addMode === 'owner' ? 'owner' : 'all'; r.musicMode = ['all', 'owner', 'fair'].includes(v.musicMode) ? v.musicMode : (r.addMode === 'owner' ? 'owner' : 'all'); r.radioMode = !!v.radioMode; r.votePriority = !!v.votePriority && r.musicMode !== 'fair'; r.radioGenre = typeof v.radioGenre === 'string' ? v.radioGenre.slice(0, 40) : 'pop';
       if (v.welcome) r.pinnedMessage = { author: r.admin, text: v.welcome };
       r.isPrivate = !!v.isPrivate; r.invite = v.invite || null; r.passHash = v.passHash || null; r.passSalt = v.passSalt || null;
       if (v.allowLong) r.allowLong = true;
@@ -312,7 +313,7 @@ function broadcastState(slug) {
     admin: room.admin,
     isPlaying: room.isPlaying,
     history: room.history.slice(-10),
-    radioMode: room.radioMode, musicMode: room.musicMode || 'all', radioGenre: room.radioGenre || 'pop',
+    radioMode: room.radioMode, musicMode: room.musicMode || 'all', votePriority: !!room.votePriority, radioGenre: room.radioGenre || 'pop',
     pinnedMessage: room.pinnedMessage,
     listenerCount: room.listenerCount,
     maxListeners: settings.maxListeners,
@@ -589,6 +590,7 @@ app.patch('/api/community/profile', rateLimit(15, 60000), async (req, res) => {
 // ========== SONORAFAN SOCIAL 4 — AMIGOS E EVENTOS ==========
 // IDs públicos não revelam email; sessões e permissões permanecem no servidor.
 const publicUserId = email => crypto.createHash('sha256').update('sf-public-v1:' + String(email).toLowerCase()).digest('hex').slice(0, 24);
+const sf95 = installExperience95({ app, db, rooms, users, sessionEmail, publicUserId, rateLimit });
 const findSocialUser = id => [...users.entries()].find(([email]) => publicUserId(email) === id);
 const profileSafe = ([email, u]) => ({ id: publicUserId(email), name: String(u.nome || 'Ouvinte').slice(0, 40), avatar: String(u.avatar || '🎧').slice(0, 8), bio: String(u.bio || '').slice(0, 120), musicGenres: Array.isArray(u.musicGenres) ? u.musicGenres.slice(0, 6) : [] });
 const socialFollowing = new Map();
@@ -1201,6 +1203,7 @@ app.get('/api/video-info', rateLimit(40, 60000), async (req, res) => {
 io.on('connection', (socket) => {
   let currentRoom = null;
   let userEmail = null;
+  sf95.registerSocket(socket, () => currentRoom, getRoomVotes, broadcastState, persistRoom);
 
   socket.on('joinRoom', ({ slug, name, avatar, token, invite, password }) => {
     try {
@@ -1283,7 +1286,7 @@ io.on('connection', (socket) => {
       socket.emit('roomState', {
         slug: room.slug, name: room.name, currentIndex: room.currentIndex,
         position: getPosition(room), votes: room.votes, queue: room.queue, waitingQueue: room.waitingQueue,
-        admin: room.admin, isPlaying: room.isPlaying, history: room.history.slice(-10), radioMode: room.radioMode, musicMode: room.musicMode || 'all', radioGenre: room.radioGenre || 'pop',
+        admin: room.admin, isPlaying: room.isPlaying, history: room.history.slice(-10), radioMode: room.radioMode, musicMode: room.musicMode || 'all', votePriority: !!room.votePriority, radioGenre: room.radioGenre || 'pop',
         pinnedMessage: room.pinnedMessage, listenerCount: room.listenerCount, maxListeners: settings.maxListeners,
         color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
         maxDuration: room.maxDuration, allowLive: room.allowLive,
@@ -1452,7 +1455,7 @@ io.on('connection', (socket) => {
       if (!['all', 'owner', 'fair'].includes(mode)) return socket.emit('error', 'Modo musical inválido.');
       room.musicMode = mode;
       room.addMode = mode === 'owner' ? 'owner' : 'all';
-      if (mode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; }
+      if (mode === 'fair') { room.votePriority = false; room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; }
       persistRoom(room); broadcastState(room.slug);
       addSystemMsg(room.slug, `🎛️ Modo musical: ${{all:'Colaborativo', owner:'DJ anfitrião', fair:'Fila justa'}[mode]}`);
     } catch (e) { console.error('Erro ao alterar modo musical:', e.message); }
@@ -1507,15 +1510,16 @@ io.on('connection', (socket) => {
       const isQueueFull = room.queue.length >= settings.maxQueue;
       if (isQueueFull) {
         if (room.waitingQueue.length >= settings.maxQueue) { refuse(`Fila de espera cheia (${settings.maxQueue})`); return; }
-        song.dj = socket.userName; room.waitingQueue.push(song); room.lastAddTime.set(socket.userEmail || socket.userName, now); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); addPoints(socket.userEmail, 1, 'song', currentRoom + ':' + song.id);
+        song.dj = socket.userName; song.addedByUserId = publicUserId(socket.userEmail); room.waitingQueue.push(song); sf95.onAddedSong(socket.userEmail,room,song); room.lastAddTime.set(socket.userEmail || socket.userName, now); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); addPoints(socket.userEmail, 1, 'song', currentRoom + ':' + song.id);
         io.to(currentRoom).emit('playSound', 'waiting');
         addSystemMsg(currentRoom, `⏳ "${song.title}" entrou na fila de espera (${room.waitingQueue.length} músicas aguardando)`);
         broadcastState(currentRoom);
         reply(true, { placement: 'waiting' });
         return;
       }
-      song.dj = socket.userName; room.queue.push(song); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2, 'song', currentRoom + ':' + song.id);
+      song.dj = socket.userName; song.addedByUserId = publicUserId(socket.userEmail); room.queue.push(song); sf95.onAddedSong(socket.userEmail,room,song); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2, 'song', currentRoom + ':' + song.id);
       room.totalSongsAdded = (room.totalSongsAdded || 0) + 1;
+      if (room.votePriority) sf95.applyPriority(room,getRoomVotes(currentRoom));
       if (!room.isPlaying && room.queue.length === 1) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); addSystemMsg(currentRoom, `▶ ${song.title} — ${song.artist}`); }
       broadcastState(currentRoom);
       reply(true, { placement: 'queue' });
@@ -1718,6 +1722,7 @@ io.on('connection', (socket) => {
         return;
       }
       io.to(room).emit('voteUpdate', { id, up: data.up, down: data.down });
+      if (roomData.votePriority && sf95.applyPriority(roomData,votes)) broadcastState(room);
     } catch (e) { console.error('Erro no voteSong:', e.message); }
   });
 
