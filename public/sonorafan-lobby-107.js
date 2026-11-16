@@ -273,9 +273,10 @@
     community('fanclubs');
     const tab=document.querySelector('#sfSocialHub [data-sf-tab="fanclubs"]');
     tab?.click();
-    window.sf71LoadFanClubs?.();
     if(id&&/^[a-f0-9-]{36}$/i.test(id)){
       window.sf71OpenFanClub?.(id);
+    }else{
+      window.sf71LoadFanClubs?.();
     }
     const details=document.querySelector('#screen-lobby .sf32-community-drawer');
     if(details){
@@ -517,6 +518,7 @@
     window.sf107RefreshFanClubs=()=>{
       state.lastClubs=0;pullClubs(true);
     };
+    window.sf107OpenFanClub=openClubs;
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
     setInterval(poll,22000);poll();
   }
