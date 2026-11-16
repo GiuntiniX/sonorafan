@@ -38,7 +38,10 @@ function buildRealRoomFixture() {
  iframe.width='460';iframe.height='260';
  iframe.style.width='460px';iframe.style.height='260px';
  iframe.srcdoc='<body style="margin:0;background:linear-gradient(130deg,#dc493c,#dd792d)"></body>';
- placeholder.replaceWith(iframe);
+ window.__sf119ResizeCalls=[];
+ window.sf119ResizeYoutube=(w,h)=>window.__sf119ResizeCalls.push([w,h]);
+ // Replace AFTER the room script initializes, just like YouTube IFrame API.
+ window.addEventListener('load',()=>setTimeout(()=>placeholder.replaceWith(iframe),65));
  window.setVolume=v=>{
    const slider=document.getElementById('volumeSlider');
    slider.value=String(v);
@@ -75,9 +78,12 @@ window.addEventListener('load',()=>{
    computedGrid:getComputedStyle(player.parentElement).gridTemplateRows,
    progress:[bar.width,bar.height],
    fit,below,vol,
-   clean:!(['auto','scroll'].includes(getComputedStyle(frame).overflowY))};
+   clean:!(['auto','scroll'].includes(getComputedStyle(frame).overflowY)),
+   attrsMatch:Number(iframe.getAttribute('width')) >= fw - 1
+     && Number(iframe.getAttribute('height')) >= fh - 1,
+   apiBridge:(window.__sf119ResizeCalls || []).length >= 2};
   const node=document.createElement('output');node.id='sf119Metrics';
-  node.dataset.sf119Test=['fit','below','vol','clean'].every(key=>data[key])?'ok':'fail';
+  node.dataset.sf119Test=['fit','below','vol','clean','attrsMatch','apiBridge'].every(key=>data[key])?'ok':'fail';
   node.textContent=JSON.stringify(data);document.body.append(node);
  },200);
 });
@@ -108,7 +114,7 @@ async function renderOne(browserSize) {
   });
  }finally{fs.rmSync(fixture,{force:true});fs.rmSync(profile,{recursive:true,force:true})}
 }
-test('real room HTML and all CSS: iframe must fill stage and volume remain below (Chromium)', {
+test('actual room CSS and async YouTube iframe replacement: full stage, volume, and Player API bridge (Chromium)', {
  skip: chrome||process.env.CI==='true'?false:'Chromium unavailable'
 }, async()=>{
  assert.ok(chrome,'Chromium required in CI');
