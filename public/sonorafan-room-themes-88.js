@@ -133,6 +133,10 @@
    const choose=document.createElement('button');choose.type='button';
    choose.textContent='Escolher tema';choose.addEventListener('click',()=>open(type));
    row.append(picture,data,choose);target.append(title,row);
+   if(type==='create'){
+     const hero=$('createRoomModal')?.querySelector('.sf35-create-hero img');
+     if(hero){hero.src=theme.art;hero.alt='Arte do tema '+theme.name;}
+   }
  }
  function updateChoice(){
    if(modalMode==='create'){
