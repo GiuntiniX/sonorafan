@@ -4118,6 +4118,8 @@ function openRoomCfg() {
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('button');
       if (!btn || btn.dataset.noRipple) return;
+      // Menos DOM e animações pesadas em dispositivos touch e diálogos interativos.
+      if (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches || btn.closest('.sf78-popover, .sf77-overlay, .sf76-sheet, #mTabs')) return;
       const r = btn.getBoundingClientRect();
       const ripple = document.createElement('span');
       ripple.className = 'ripple';
