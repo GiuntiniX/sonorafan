@@ -238,7 +238,11 @@
   }
   function renderNotices(){
     const host=$('sf107Notices');if(!host)return;
-    const notices=state.notices||[];
+    const notices=(state.notices||[]).slice().sort((a,b)=>
+      Number(!b.read)-Number(!a.read)||
+      Number(b.type==='message'||b.type==='mention')-Number(a.type==='message'||a.type==='mention')||
+      Number(b.createdAt||0)-Number(a.createdAt||0)
+    );
     const unread=notices.filter(n=>!n.read).length;
     const countEl=$('sf107NoticesTitleCount');
     if(countEl){countEl.textContent=unread?unread+' nova'+(unread===1?'':'s'):'';countEl.hidden=!unread;}
