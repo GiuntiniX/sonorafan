@@ -3404,7 +3404,7 @@ function openRoomCfg() {
             const failedId = currentTrackId;
             setSpectrum(false);
             if (!sf13ActiveTrack(failedId)) return;
-            toast('O YouTube não conseguiu reproduzir esta faixa. Tentando avançar…', 'error');
+            toast('Falha de reprodução neste dispositivo. Tente ativar o som ou reconectar à sala.', 'error');
             if (sf13ErrorTimer) clearTimeout(sf13ErrorTimer);
             sf13ErrorTimer = setTimeout(() => {
               if (sf13ActiveTrack(failedId)) socket.emit('videoEnded', { videoId: failedId });
