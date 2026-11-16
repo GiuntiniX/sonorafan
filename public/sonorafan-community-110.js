@@ -56,7 +56,7 @@
            <small>${esc(m.preview||'Abrir conversa')}</small></span>
            <span class="sf110-message-time">${esc(relative(m.updatedAt))}${m.unread?'<i title="Não lida"></i>':''}</span>
          </button>`).join(''):
-         '<div class="sf110-empty">Nenhuma conversa recente. Comece chamando uma pessoa para ouvir música.</div>'}
+         '<div class="sf110-empty">'+(state.loading?'Carregando conversas…':'Nenhuma conversa recente. Comece chamando uma pessoa para ouvir música.')+'</div>'}
      </div>
      <button type="button" class="sf110-wide-button" data-sf110-action="inbox">✉ Nova conversa</button>
    </section>`;
@@ -71,7 +71,7 @@
        <img src="${clubArt(c,i)}" alt="" loading="lazy" decoding="async"
          data-sf110-fallback="${coverFallback[i%coverFallback.length]}">
        <span><strong>${esc(c.title||'Fan Club')}</strong><small>${c.owner?'Criado por você':'Participando'} · ${Math.max(0,Number(c.memberCount)||0)} membros</small></span>
-     </button>`).join(''):'<div class="sf110-empty">Você ainda não participa de Fan Clubs.</div>'}
+     </button>`).join(''):'<div class="sf110-empty">'+(state.loading?'Carregando Fan Clubs…':'Você ainda não participa de Fan Clubs.')+'</div>'}
      <button type="button" class="sf110-join-more" data-sf110-action="fanclubs"><b>＋</b><span>Entrar em mais comunidades</span></button>
    </div>
   </section>`;
@@ -87,7 +87,7 @@
            title="Conversar com ${esc(p.name||'Ouvinte')}">
            <span class="sf110-person-avatar">${photo(p)}<i class="sf110-online"></i></span>
            <small>${esc(p.name||'Ouvinte')}</small>
-         </button>`).join(''):'<p class="sf110-muted">Nenhum amigo online agora. Encontre pessoas na comunidade.</p>'}
+         </button>`).join(''):'<p class="sf110-muted">'+(state.loading?'Consultando amigos online…':'Nenhum amigo online agora. Encontre pessoas na comunidade.')+'</p>'}
        <button class="sf110-person sf110-add-friend" type="button" data-sf110-action="friends" title="Encontrar amigos"><span>＋</span><small>Buscar</small></button>
      </div>
    </section>`;
@@ -106,7 +106,7 @@
               <small>${esc(e.roomName||'Sala da comunidade')} · ${esc(d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}))}</small></span>
             <i aria-hidden="true">›</i>
            </button>`;
-         }).join(''):'<div class="sf110-empty">Ainda não existem encontros agendados.</div>'}
+         }).join(''):'<div class="sf110-empty">'+(state.loading?'Carregando agenda…':'Ainda não existem encontros agendados.')+'</div>'}
      </div>
    </section>`;
  }
@@ -162,7 +162,7 @@
      ['/api/chat53/inbox','conversations'],['/api/fan-clubs?mine=true','clubs'],
      ['/api/social/following','friends'],['/api/social/events','events']
    ];
-   state.loading=true;state.errors=[];
+   state.loading=true;state.errors=[];render();
    await Promise.all(endpoints.map(async([url,key])=>{
      try{
        const body=await request(url);
@@ -189,6 +189,8 @@
    goBack.type='button';goBack.id='sf110Back';goBack.hidden=true;
    goBack.textContent='← Visão geral';goBack.addEventListener('click',back);
    s.querySelector('.sf5-community-top')?.insertBefore(goBack,s.querySelector('.sf5-community-top .sf5-close'));
+   state.conversations=[];state.clubs=[];state.friends=[];state.events=[];
+   state.loading=true;state.errors=[];
    const p=document.createElement('div');p.className='sf110-dashboard';
    scroller.insertBefore(p,scroller.firstChild);
    p.addEventListener('click',click);
@@ -207,6 +209,17 @@
    original=window.sf5OpenCommunity;
    window.sf110OpenCommunity=open;
    window.sf110ShowDetails=showDetails;
+   const nativeTabSwitch=window.sfSocialSwitchTab;
+   if(typeof nativeTabSwitch==='function'){
+     window.sfSocialSwitchTab=tab=>{
+       nativeTabSwitch(tab);
+       if(shell()&&!shell().classList.contains('sf110-show-details')){
+         const s=shell();
+         s.classList.add('sf110-show-details');
+         const back=s.querySelector('#sf110Back');if(back)back.hidden=false;
+       }
+     };
+   }
    window.sf5OpenCommunity=()=>open('overview');
    document.addEventListener('sf71:created',()=>{
      if(shell())load();
