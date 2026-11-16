@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Avatar musical ilustrado rapper">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#2B2A59"/><stop offset="1" stop-color="#9C60D0"/></linearGradient><linearGradient id="hood" x2="1" y2="1"><stop stop-color="#342B60"/><stop offset="1" stop-color="#23192D"/></linearGradient><radialGradient id="halo"><stop stop-color="#FFD68F" stop-opacity=".34"/><stop offset="1" stop-color="#F265AC" stop-opacity="0"/></radialGradient><clipPath id="cut"><rect width="600" height="600" rx="116"/></clipPath></defs>
+<g clip-path="url(#cut)"><rect width="600" height="600" fill="url(#bg)"/><circle cx="490" cy="144" r="225" fill="url(#halo)"/><circle cx="110" cy="482" r="160" fill="#261D50" opacity=".34"/>
+<g opacity=".58" fill="#FFD2DC"><circle cx="97" cy="90" r="8"/><circle cx="501" cy="326" r="5"/><path d="M500 95v29m-15-15h30M85 298v33m-16-17h33" stroke="#FFD2DC" stroke-width="6"/></g>
+<path d="M107 600q20-135 88-153l73-36h84l71 38q80 25 95 151z" fill="url(#hood)"/>
+<path d="M250 422l2 67q47 59 112 1l-2-71z" fill="#966041"/><path d="M243 469q56 57 125 0" fill="none" stroke="#F7B799" stroke-width="6" opacity=".5"/>
+<path d="M191 278q-1-111 109-125 121-5 131 116l-8 115q-16 82-121 97-108-18-114-103z" fill="#966041" stroke="#C77763" stroke-width="6"/>
+<ellipse cx="191" cy="340" rx="16" ry="24" fill="#966041"/><ellipse cx="431" cy="340" rx="16" ry="24" fill="#966041"/>
+<path d="M179 253c7-114 90-166 155-156 75 8 121 62 105 160l-20 49-10-87-74-45-114 60-23 86z" fill="#17202B"/><path d="M238 300q22-12 43 0m44 0q22-12 43 0" stroke="#39242F" stroke-width="7" fill="none" stroke-linecap="round"/>
+<path d="M299 317l-9 40 18 9" fill="none" stroke="#98614E" stroke-width="6" stroke-linecap="round"/>
+<path d="M277 408q28 23 62 0" stroke="#803C4E" stroke-width="7" fill="none" stroke-linecap="round"/>
+<path d="M168 195q139-112 263-5l30 57q-130-28-281-13z" fill="#1D2746" stroke="#C77EDE" stroke-width="7"/><path d="M250 230q104-37 225 3" stroke="#3B3460" stroke-width="24" fill="none"/><path d="M182 317q-23 95 33 131m207-132q30 97-20 126" stroke="#2D2F52" stroke-width="15" fill="none"/>
+<path d="M125 569q78-101 163-53m186 53q-78-101-153-53" stroke="#EFA88D" stroke-opacity=".27" stroke-width="10" fill="none"/>
+<text x="502" y="542" fill="#FFE0E9" font-size="57" text-anchor="middle" opacity=".79">♪</text>
+</g></svg>
