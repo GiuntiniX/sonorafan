@@ -331,12 +331,17 @@
     const width = frame.clientWidth;
     const height = frame.clientHeight;
     if (width < 20 || height < 20) return;
-    // YouTube is 16:9. Cover taller stages without changing the original iframe.
-    const desired = Math.max(1.04, (height / (width * 9/16)) * 1.025);
-    const zoom = Math.min(1.42, desired);
-    const rounded = zoom.toFixed(3);
-    if (frame.style.getPropertyValue('--sf117-video-zoom') !== rounded)
-      frame.style.setProperty('--sf117-video-zoom',rounded);
+    // YouTube embeds are 16:9: size the iframe in pixels like background-size:cover.
+    // The player and current video remain untouched; only the iframe viewport changes.
+    const videoRatio = 16 / 9;
+    const fullWidth = Math.ceil(Math.max(width, height * videoRatio));
+    const fullHeight = Math.ceil(Math.max(height, width / videoRatio));
+    const widthPx = fullWidth + 'px';
+    const heightPx = fullHeight + 'px';
+    if (frame.style.getPropertyValue('--sf118-video-width') !== widthPx)
+      frame.style.setProperty('--sf118-video-width', widthPx);
+    if (frame.style.getPropertyValue('--sf118-video-height') !== heightPx)
+      frame.style.setProperty('--sf118-video-height', heightPx);
   }
   if (frame && typeof ResizeObserver === 'function') {
     new ResizeObserver(fitVideoStage).observe(frame);
