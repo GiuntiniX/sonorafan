@@ -1459,6 +1459,7 @@
   <link rel="stylesheet" href="/sonorafan-search-inline-134.css?v=134.1">
   <link rel="stylesheet" href="/sonorafan-mobile-room-135.css?v=137.1">
   <link rel="stylesheet" href="/sonorafan-mobile-room-136.css?v=137.1">
+  <link rel="stylesheet" href="/sonorafan-mobile-music-138.css?v=138.1">
 </head>
 <body>
 
@@ -2376,7 +2377,7 @@
         <button data-t="player" class="on" onclick="setTab('player')" aria-label="Ver player da sala" aria-pressed="true">▶ Player</button>
         <button data-t="chat" onclick="setTab('chat')" aria-label="Abrir chat da sala" aria-pressed="false">💬 Chat</button>
         <button type="button" onclick="window.sf53OpenInbox?.()">✉ Inbox</button>
-        <button class="sf34-add-mobile sf135-add-music" type="button" onclick="window.sf76OpenMusic ? window.sf76OpenMusic('search') : window.sf34FindSong?.()" aria-label="Adicionar música: buscar ou escolher das favoritas" aria-haspopup="dialog" aria-controls="sf76MusicSheet" title="Buscar músicas e escolher favoritas">＋ Música</button>
+        <button class="sf34-add-mobile sf135-add-music" type="button" aria-label="Adicionar música: buscar ou escolher das favoritas" aria-haspopup="dialog" aria-controls="sf76MusicSheet" title="Buscar músicas e escolher favoritas">＋ Música</button>
         
       </nav>
     </div>
@@ -3889,7 +3890,7 @@ function openRoomCfg() {
         list.innerHTML = `<div class="empty-state-mini">
           <div style="font-size:32px;margin-bottom:6px;">🎵</div>
           <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Nenhuma música ainda. Que tal começar?</p>
-          <button class="add-first-btn" onclick="window.sf77OpenSearch ? window.sf77OpenSearch('') : document.getElementById('songUrl').focus()">+ Adicionar primeira música</button>
+          <button class="add-first-btn" type="button" aria-label="Abrir busca e favoritas para adicionar primeira música">+ Adicionar primeira música</button>
         </div>`;
         return;
       }
@@ -4737,9 +4738,9 @@ function openRoomCfg() {
   <script defer src="/sonorafan-queue-80.js?v=87"></script>
   
   
-  <script defer src="/sonorafan-mobile-music-76.js?v=134.1"></script>
+  <script defer src="/sonorafan-mobile-music-76.js?v=138.1"></script>
   
-  <script defer src="/sonorafan-search-77.js?v=87"></script>
+  <script defer src="/sonorafan-search-77.js?v=138.1"></script>
   
   <script defer src="/sonorafan-inline-search-78.js?v=134.1"></script>
   
