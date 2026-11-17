@@ -112,6 +112,13 @@
     max-width:min(275px,calc(100vw - 24px))!important;
     z-index:800!important;
   }
+  #screen-room.sf113-room .sf137-menu-version {
+    padding:9px 11px 5px!important;margin-top:5px!important;
+    border-top:1px solid color-mix(in srgb,var(--sf88-primary,#ad68d4) 30%,#50415b)!important;
+    color:#bca8c8!important;text-align:center!important;
+    font:650 10px/1.2 Inter,system-ui,sans-serif!important;
+    letter-spacing:.035em!important;pointer-events:none!important;
+  }
   #screen-room.sf113-room > .app > #roomLayout.room-layout {
     grid-column:1!important;grid-row:2!important;
     position:relative!important;
