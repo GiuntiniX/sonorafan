@@ -272,6 +272,10 @@
   padding:8px 13px!important;font:800 11px Inter,system-ui,sans-serif!important;
  }
 }
+/* Não deixar uma caixa vazia de resultados consumir espaço antes da busca. */
+body .sf76-sheet .sf76-moved-request .search-results:empty{
+ display:none!important;
+}
 body .sf76-sheet[hidden],
 body .sf76-sheet [hidden]{display:none!important}
 
