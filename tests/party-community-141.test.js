@@ -1,0 +1,62 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
+
+test('party rounds are temporary, scoped and do not grant XP or reorder songs',()=>{
+ const server=read('server.js');
+ const a=server.indexOf('const sf141PartyRounds=new Map();');
+ const b=server.indexOf('function broadcastState(slug) {',a);
+ assert.ok(a>0&&b>a,'party state helper exists');
+ const runtime={Date,Map,Set,Object,Math};
+ vm.runInNewContext(server.slice(a,b)+'\nthis.getParty=sf141PartyPublic;this.putParty=sf141PartyRounds;',runtime,{timeout:2000});
+ const empty=runtime.getParty('test-room');
+ assert.equal(empty.active,false);
+ runtime.putParty.set('test-room',{round:2,choices:['Indie','Rock'],counts:[1,3],voters:new Set(),endsAt:Date.now()+60000});
+ const current=runtime.getParty('test-room');
+ assert.equal(current.active,true);
+ assert.equal(current.round,2);
+ assert.deepEqual(Array.from(current.votes),[1,3]);
+ assert.equal(runtime.getParty('another-room').active,false);
+ runtime.putParty.get('test-room').endsAt=Date.now()-1;
+ assert.equal(runtime.getParty('test-room').active,false);
+ assert.equal(runtime.putParty.has('test-room'),false);
+ const handler=server.slice(server.indexOf("socket.on('sf141:partyAction'"),server.indexOf("socket.on('setMusicMode'"));
+ assert.match(handler,/socket\.userEmail/);
+ assert.match(handler,/room\.ownerEmail/);
+ assert.match(handler,/voters\.has\(key\)/);
+ assert.match(handler,/sf141:partyState/);
+ assert.doesNotMatch(handler,/advanceQueue|gamification45\.award|persistRoom/);
+});
+test('fanclub program uses real linked events and existing RSVP route',()=>{
+ const api=read('fan-clubs-71.js'),client=read('public/sonorafan-community-71.js');
+ assert.match(api,/clubEvents\(data,me\)/);
+ assert.match(api,/going:!!me\?\.id/);
+ assert.match(client,/data-sf141-club-rsvp/);
+ assert.match(client,/data-sf141-club-room/);
+ assert.match(client,/\/api\/social\/events\//);
+ assert.match(client,/Programação do Fan Club/);
+});
+test('existing studio hosts party and admin-only conflict diagnostic',()=>{
+ const studio=read('public/sonorafan-studio-100.js');
+ const html=read('public/index.html');
+ assert.match(studio,/function partyPanel\(/);
+ assert.match(studio,/function inspectConflicts\(/);
+ assert.match(studio,/sf141:partyAction/);
+ assert.match(studio,/sf141:partyState/);
+ assert.match(studio,/state\.qualityAllowed&&!state\.loading&&!state\.qualityDenied/);
+ assert.match(studio,/function inspectConflicts\(\)[\s\S]*?duplicate-id/);
+ assert.match(html,/sonorafan-studio-100\.js\?v=141\.0/);
+ assert.match(html,/sonorafan-community-71\.js\?v=141\.0/);
+ assert.match(html,/sonorafan-community-110\.js\?v=141\.0/);
+ assert.doesNotMatch(html,/Interface mobile v137\.1/);
+});
+test('community retains fresh data while returning to dashboard',()=>{
+ const js=read('public/sonorafan-community-110.js');
+ assert.match(js,/lastLoaded:0/);
+ assert.match(js,/Date\.now\(\)-state\.lastLoaded<45000/);
+ assert.match(js,/scheduleRender\(\)/);
+});
