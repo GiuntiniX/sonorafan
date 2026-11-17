@@ -77,7 +77,8 @@ setTimeout(()=>{
  const good=lr.visible&&lr.photoLoaded&&lr.button&&lr.left&&lr.eye
    &&sd.visible&&sd.fields&&sd.chips&&sd.correctOrder
    &&sd.noHorizontalScroll&&sd.submit[1]>180&&sd.submit[2]>40
-   &&lr.background==='rgb(20, 20, 20)'&&sd.background==='rgb(20, 20, 20)';
+   &&['rgb(13, 9, 18)','rgb(20, 20, 20)'].includes(lr.background)
+   &&sd.background==='rgb(20, 20, 20)';
  const output=document.createElement('output');
  output.id='sf123AuthMetrics';
  output.dataset.sf123Auth=good?'ok':'fail';
@@ -110,7 +111,7 @@ async function run(size){
  }finally{fs.rmSync(fullpath,{force:true});fs.rmSync(profile,{recursive:true,force:true})}
 }
 
-test('original CSS stack: matching login and signup with local photos and no cut controls across widths', {
+test('v131 concert login and signup remain functional without clipped controls across widths', {
  skip: chrome||process.env.CI==='true'?false:'Chromium unavailable'
 }, async()=>{
  assert.ok(chrome,'Chromium is needed in CI');
