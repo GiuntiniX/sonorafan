@@ -45,7 +45,8 @@
       $('sf95FilterInput').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLowerCase('pt-BR');schedule();});
       $('sf95FilterInput').addEventListener('keydown',e=>{if(e.key==='Escape')closeFilter();});
       $('sf95FilterMode').addEventListener('change',e=>{mode=e.target.value;schedule();});
-      new MutationObserver(schedule).observe(list,{childList:true,subtree:true});
+      // Evita loop: a decoração muda conteúdo interno das linhas.
+      new MutationObserver(schedule).observe(list,{childList:true});
     }
     const mini=$('premiumMiniPlayer');
     if(mini&&!$('sf95CompactVideo')){
@@ -95,8 +96,29 @@
     const tracks=room?.queue||[], index=Number(room?.currentIndex)||0;
     const rows=[...list.querySelectorAll(':scope > .queue-item')];
     let visible=0;
+    let durationAhead=0,estimateKnown=true;
     rows.forEach((row,i)=>{
       const song=tracks[i];if(!song)return;
+      if(i>index){
+        const holder=row.querySelector('.info');
+        let eta=holder?.querySelector('.sf140-duration-ahead');
+        if(estimateKnown&&durationAhead>0){
+          if(!eta&&holder){
+            eta=document.createElement('small');eta.className='sf140-duration-ahead';
+            holder.appendChild(eta);
+          }
+          if(eta){
+            const estimate='Antes desta: ~'+Math.ceil(durationAhead/60)+' min em músicas';
+            if(eta.textContent!==estimate)eta.textContent=estimate;
+            eta.title='Soma das durações anteriores, não é o tempo exato de espera';
+          }
+        }else eta?.remove();
+      }
+      if(i>=index){
+        const duration=Number(song.duration);
+        if(!Number.isFinite(duration)||duration<=0)estimateKnown=false;
+        else durationAhead+=duration;
+      }
       const matched=(!query||(String(song.title||'')+' '+String(song.artist||'')+' '+String(song.dj||'')).toLocaleLowerCase('pt-BR').includes(query)) &&
         (mode==='all'||mode==='next'&&i>index||mode==='mine'&&own(song));
       row.classList.toggle('sf95-row-hidden',filterOpen&&!matched);
