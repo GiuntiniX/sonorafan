@@ -10,7 +10,7 @@ test('approved logo appears in all legacy site brand surfaces',()=>{
  const hits=(html.match(/src="\/brand-144\/sonorafan-logo\.svg"/g)||[]).length;
  assert.equal(hits,8);
  assert.doesNotMatch(html,/sonorafan-logo-transparent\.png/);
- assert.match(html,/property="og:image" content="\/brand-144\/sonorafan-logo\.svg"/);
+ assert.match(html,/property="og:image" content="\/brand-144\/sonorafan-og\.png"/);
  assert.match(html,/id="roomTitle"/);
  assert.match(html,/id="queueList"/);
  assert.match(html,/id="chatInput"/);
@@ -30,10 +30,23 @@ test('favicon and PWA use consistent mark with non-SVG installation fallback',()
  const html=read('public/index.html');
  const manifest=JSON.parse(read('public/manifest.json'));
  assert.match(html,/rel="icon" href="\/brand-144\/sonorafan-mark\.svg"/);
- assert.match(html,/rel="apple-touch-icon" href="\/brand-64\/sonorafan-icon-192\.png"/);
+ assert.match(html,/rel="apple-touch-icon" href="\/brand-144\/sonorafan-icon-192\.png"/);
  assert.ok(manifest.icons.some(x=>x.src==='/brand-144/sonorafan-mark.svg'));
  assert.ok(manifest.icons.some(x=>x.type==='image/png'&&x.sizes==='192x192'));
  assert.ok(manifest.icons.some(x=>x.type==='image/png'&&x.sizes==='512x512'));
  const icon=read('public/brand-144/sonorafan-mark.svg');
  assert.match(icon,/viewBox="760 0 540 450"/);
+});
+
+test('social image and install icons are actual PNG images at the expected sizes',()=>{
+ for(const [file,w,h] of [
+  ['public/brand-144/sonorafan-og.png',1200,406],
+  ['public/brand-144/sonorafan-icon-192.png',192,192],
+  ['public/brand-144/sonorafan-icon-512.png',512,512]
+ ]){
+  const png=fs.readFileSync(path.join(root,file));
+  assert.deepEqual([...png.subarray(0,8)],[137,80,78,71,13,10,26,10]);
+  assert.equal(png.readUInt32BE(16),w);
+  assert.equal(png.readUInt32BE(20),h);
+ }
 });
