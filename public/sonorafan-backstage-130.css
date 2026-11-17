@@ -219,6 +219,15 @@
  background:#c4ff00!important;color:#10110a!important;
 }
 
+/* A regra legada .sf10-stepper span não deve transformar o texto interno em outro botão. */
+#createRoomModal .sf10-stepper.sf130-progress [data-sf10-step-mark] > span{
+ display:inline!important;flex:1 1 auto!important;min-width:0!important;
+ padding:0!important;margin:0!important;min-height:0!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important;color:inherit!important;
+ text-align:left!important;font:inherit!important;line-height:1.25!important;
+}
+
 /* Apenas o corpo central rola: o cabeçalho, a progressão e o CTA permanecem visíveis. */
 #createRoomModal .sf130-stage-scroll{
  flex:1 1 auto;min-height:0;min-width:0;
