@@ -17,6 +17,8 @@ function fixture(){
  const ranking=html.split('\n').find(line=>line.includes('id="lbModal"'));assert.ok(ranking);
  const community='<div class="sf5-community-layer sf125-community" style="display:none"><div class="sf5-community-shell sf110-community-shell"><div class="sf5-community-top"><h2>Comunidades</h2></div><div class="sf5-community-scroll"><div class="sf110-dashboard">Comunidade</div></div></div></div>';
  const boot=['<script>',
+  'window.__sf125Errors=[];',
+  'window.addEventListener("error",e=>window.__sf125Errors.push(String(e.message)+" @"+e.lineno));',
   'document.body.classList.add("sf125-global");',
   'document.getElementById("sf43ProfileModal").classList.add("sf108-profile");',
   'document.getElementById("sf43ProfileModal").querySelector(".sf43-profile-body").classList.add("sf108-ready");',
@@ -49,9 +51,15 @@ function fixture(){
   'out.textContent=JSON.stringify(metrics);document.body.append(out);',
   '},650);',
   '</script>'].join('\n');
+ const guard=['<script>',
+  'setTimeout(()=>{if(document.getElementById("sf125Overlays"))return;',
+  'const node=document.createElement("output");node.id="sf125Overlays";node.dataset.sf125Status="fail";',
+  'node.textContent=JSON.stringify({diagnostic:"no metrics",errors:window.__sf125Errors||[],profile:!!document.getElementById("sf43ProfileModal"),rank:!!document.getElementById("lbModal"),community:!!document.querySelector(".sf5-community-layer")});',
+  'document.body.append(node);},1300);',
+  '</script>'].join('\\n');
  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+inline+styles+
    '</head><body>'+profile+ranking+community+boot+
-   '<script src="./sonorafan-unified-125.js"></script>'+check+'</body></html>';
+   '<script src="./sonorafan-unified-125.js"></script>'+check+guard+'</body></html>';
 }
 async function render(res){
  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'sf125-overlay-'));
