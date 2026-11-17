@@ -3160,6 +3160,54 @@
       showLogin();
     }
 
+    // Mensagens claras, sem expor erros internos ou presumir que uma conta não existe.
+    function sf145AuthErrorMessage(error, flow = 'login') {
+      const code = String(error?.code || '');
+      if (code === 'auth/email-already-in-use') return 'Este e-mail já possui uma conta. Entre com sua senha ou use Recuperar senha.';
+      if (['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found', 'auth/invalid-login-credentials'].includes(code))
+        return flow === 'signup'
+          ? 'Este e-mail já possui cadastro e a senha informada não corresponde. Faça login ou recupere sua senha.'
+          : 'Não foi possível entrar com este e-mail e senha. Confira os dados ou use Recuperar senha.';
+      if (code === 'auth/weak-password') return 'Escolha uma senha mais forte, com pelo menos 6 caracteres.';
+      if (code === 'auth/invalid-email') return 'Confira o endereço de e-mail informado.';
+      if (code === 'auth/too-many-requests') return 'Muitas tentativas. Aguarde um pouco antes de tentar novamente.';
+      if (['auth/network-request-failed', 'auth/internal-error'].includes(code))
+        return 'Não foi possível conectar ao Firebase. Verifique sua conexão e tente novamente.';
+      if (code === 'auth/operation-not-allowed') return 'Cadastro por e-mail indisponível. Entre em contato com o suporte.';
+      return error?.message || (flow === 'signup' ? 'Não foi possível concluir seu cadastro.' : 'Não foi possível fazer login.');
+    }
+    async function sf145AuthRequest(url, idToken, details) {
+      const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(details ? { ...details, idToken } : { idToken })
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(payload.error || (url === '/api/signup'
+          ? 'Não foi possível salvar o cadastro. Tente novamente.'
+          : 'Não foi possível iniciar sua sessão. Tente novamente.'));
+        error.status = response.status;
+        error.reason = payload.error || '';
+        throw error;
+      }
+      return payload;
+    }
+    function sf145EnterLobby(user, isNew) {
+      currentUser = user;
+      myName = currentUser.nome;
+      myAvatar = currentUser.avatar || '🎸';
+      myPoints = currentUser.points || 0;
+      myBadges = currentUser.badges || [];
+      if (currentUser.theme) { currentTheme = currentUser.theme; applyTheme(); }
+      closeSignup(); hideLogin();
+      $('landingScreen').style.display = 'none';
+      showScreen('lobby');
+      updateUserInfo(); loadRooms(); checkAdmin(); loadFavorites();
+      toast(isNew ? 'Bem-vindo(a) ' + myName + '! 🎉' : 'Bem-vindo(a) de volta ' + myName + '!', 'success');
+    }
+
     async function submitSignup() {
       const nome = $('signupNome').value.trim();
       const email = $('signupEmail').value.trim();
@@ -3170,72 +3218,79 @@
       const estilos = Array.from(document.querySelectorAll('#signupStyles .chip.selected')).map(c => c.dataset.style);
       if (nome.length < 2) return toast('Digite seu nome', 'error');
       if (!/^[a-z0-9._-]{3,24}$/.test(username)) return toast('Username: use 3 a 24 caracteres, letras, números, . _ ou -', 'error');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast('E-mail inválido', 'error');
+      if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return toast('E-mail inválido', 'error');
       if (senha.length < 6) return toast('Senha deve ter 6+ caracteres', 'error');
       if (senha !== confirmacao) return toast('As senhas não conferem', 'error');
       if (estilos.length === 0) return toast('Escolha um estilo musical', 'error');
       if (!consent) return toast('Leia e aceite os Termos de Uso e a Política de Privacidade', 'error');
       const btn = document.querySelector('#signupModal .btn-primary');
+      if (btn.disabled) return;
       const originalText = btn.innerHTML;
       btn.disabled = true; btn.innerHTML = '⏳ Criando conta...';
       try {
-        try { await firebase.auth().createUserWithEmailAndPassword(email, senha); }
-        catch (authError) {
-          if (authError.code === 'auth/email-already-in-use') await firebase.auth().signInWithEmailAndPassword(email, senha);
-          else throw authError;
-        }
-        const idToken = await firebase.auth().currentUser.getIdToken();
+        let credential, existingFirebaseAccount = false;
         try {
-          const res = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ nome, username, estilos, idToken }) });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error);
-        } catch (signupError) { console.log('Cadastro já existia no backend'); }
-        const loginRes = await fetch('/api/login', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
-        const loginData = await loginRes.json();
-        if (!loginRes.ok) throw new Error(loginData.error);
-        currentUser = loginData.user;
-        myName = currentUser.nome; myAvatar = currentUser.avatar || '🎸';
-        myPoints = currentUser.points || 0; myBadges = currentUser.badges || [];
-        closeSignup(); hideLogin();
-        $('landingScreen').style.display = 'none';
-        showScreen('lobby');
-        updateUserInfo(); loadRooms(); checkAdmin(); loadFavorites();
-        toast('Bem-vindo(a) ' + myName + '! 🎉', 'success');
-      } catch(e) { toast(e.message || 'Erro ao criar conta', 'error'); }
-      finally { btn.disabled = false; btn.innerHTML = originalText; }
+          credential = await firebase.auth().createUserWithEmailAndPassword(email, senha);
+        } catch (authError) {
+          if (authError?.code !== 'auth/email-already-in-use') throw authError;
+          // A conta já existe: autenticar somente com a senha correta do titular.
+          // Isso também permite recuperar perfis cujo primeiro cadastro falhou no backend.
+          existingFirebaseAccount = true;
+          try {
+            credential = await firebase.auth().signInWithEmailAndPassword(email, senha);
+          } catch (signInError) {
+            if (['auth/invalid-credential','auth/wrong-password','auth/user-not-found'].includes(signInError?.code))
+              throw Object.assign(new Error(sf145AuthErrorMessage(signInError, 'signup')), { handled: true });
+            throw signInError;
+          }
+        }
+        const idToken = await credential.user.getIdToken();
+        if (existingFirebaseAccount) {
+          try {
+            const session = await sf145AuthRequest('/api/login', idToken);
+            sf145EnterLobby(session.user, false);
+            return;
+          } catch (error) {
+            // Apenas "Usuário não encontrado" permite concluir cadastro interrompido.
+            // Outros erros (bloqueios, rede, indisponibilidade) devem continuar visíveis.
+            if (error.status !== 401 || error.reason !== 'Usuário não encontrado') throw error;
+          }
+        }
+        await sf145AuthRequest('/api/signup', idToken, { nome, username, estilos });
+        const session = await sf145AuthRequest('/api/login', idToken);
+        sf145EnterLobby(session.user, true);
+      } catch (error) {
+        toast(error?.handled ? error.message : sf145AuthErrorMessage(error, 'signup'), 'error');
+      } finally {
+        btn.disabled = false; btn.innerHTML = originalText;
+      }
     }
 
     async function doLogin() {
       const email = $('loginEmail').value.trim();
-      const senha = $('loginPassword').value.trim();
+      const senha = $('loginPassword').value;
       const errorEl = $('loginError');
       if (!email || !senha) { errorEl.textContent = 'Preencha e-mail e senha'; errorEl.classList.add('show'); return; }
       const btn = $('loginBtn');
+      if (btn.disabled) return;
       const originalLoginBtn = btn.innerHTML;
       btn.disabled = true; btn.textContent = 'Entrando...';
+      errorEl.classList.remove('show');
       try {
         const prefs = firebase.auth.Auth?.Persistence;
         if (prefs) {
           await firebase.auth().setPersistence($('sf123RememberLogin')?.checked ? prefs.LOCAL : prefs.SESSION);
         }
-        const cred = await firebase.auth().signInWithEmailAndPassword(email, senha);
-        const idToken = await cred.user.getIdToken();
-        const res = await fetch('/api/login', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken }) });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        currentUser = data.user;
-        myName = currentUser.nome; myAvatar = currentUser.avatar || '🎸';
-        myPoints = currentUser.points || 0; myBadges = currentUser.badges || [];
-        if (currentUser.theme) { currentTheme = currentUser.theme; applyTheme(); }
-        hideLogin();
-        $('landingScreen').style.display = 'none';
-        showScreen('lobby');
-        updateUserInfo(); loadRooms(); checkAdmin(); loadFavorites();
-        toast('Bem-vindo(a) de volta ' + myName + '!', 'success');
-      } catch(e) {
-        errorEl.textContent = (e.code === 'auth/invalid-credential' || e.message.includes('invalid-credential')) ? 'Sem cadastro, venha ser um Fan!' : (e.message || 'Erro ao fazer login');
+        const credential = await firebase.auth().signInWithEmailAndPassword(email, senha);
+        const idToken = await credential.user.getIdToken();
+        const session = await sf145AuthRequest('/api/login', idToken);
+        sf145EnterLobby(session.user, false);
+      } catch(error) {
+        errorEl.textContent = sf145AuthErrorMessage(error, 'login');
         errorEl.classList.add('show');
-      } finally { btn.disabled = false; btn.innerHTML = originalLoginBtn; }
+      } finally {
+        btn.disabled = false; btn.innerHTML = originalLoginBtn;
+      }
     }
 
     function doLogout() {
