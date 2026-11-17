@@ -44,10 +44,16 @@ function build(){
   'sidebarVisible:visible("#sf125Sidebar"),mobileVisible:visible("#sf125MobileBar"),',
   'horizontal:document.documentElement.scrollWidth<=innerWidth+5,',
   'headFits:head&&head.getBoundingClientRect().right<=innerWidth+5,',
-  'live:all("#sf125LiveRooms .sf125-rail-room").length,ranking:all("#sf125Leaders .sf125-rail-leader").length};',
+  'live:all("#sf125LiveRooms .sf125-rail-room").length,ranking:all("#sf125Leaders .sf125-rail-leader").length,',
+  'polished:screen.classList.contains("sf126-lobby"),',
+  'roomFiller:!!$(".sf126-create-room-card"),',
+  'roomsFirst:!!$("#sf107Popular")&&$("#sf107Popular").parentElement.firstElementChild===$("#sf107Popular"),',
+  'communityRemoved:!all("#sf125Sidebar [data-sf125-go=community]").length,',
+  'heroHeight:hero?.getBoundingClientRect().height};',
   'all("[data-sf125-go=clubs]")[0]?.click();all("[data-sf125-go=create]")[0]?.click();',
   'data.calls=window.__sf125Calls;',
   'const pass=data.ready&&data.created&&data.horizontal&&data.headFits&&data.live===1&&data.ranking===2',
+  '&&data.polished&&data.roomFiller&&data.roomsFirst&&data.communityRemoved&&data.heroHeight>=225',
   '&&data.calls.includes("community:fanclubs")&&data.calls.includes("create")&&!data.calls.includes("legacy-community")',
   '&&(innerWidth<=860?data.mobileVisible&&!data.sidebarVisible:data.sidebarVisible&&!data.mobileVisible);',
   'const out=document.createElement("output");out.id="sf125Metrics";out.dataset.sf125Result=pass?"ok":"fail";',
@@ -57,7 +63,7 @@ function build(){
  ].join('\n');
  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
   inline+styles+'</head><body>'+lobby+boot+
-  '<script src="./sonorafan-lobby-107.js"></script><script src="./sonorafan-unified-125.js"></script>'+verify+'</body></html>';
+  '<script src="./sonorafan-lobby-107.js"></script><script src="./sonorafan-unified-125.js"></script><script src="./sonorafan-experience-126.js"></script>'+verify+'</body></html>';
 }
 async function render(view){
  const profile=fs.mkdtempSync(path.join(os.tmpdir(),'sf125-'));
@@ -78,7 +84,7 @@ async function render(view){
   });
  }finally{fs.rmSync(fixture,{force:true});fs.rmSync(profile,{force:true,recursive:true})}
 }
-test('v125 actual Lobby DOM and styles: visual shell, working CTAs and mobile bottom navigation',{
+test('v126 real Lobby DOM and full CSS stack: correct hero, real room + create tile, Fan Clubs and mobile navigation',{
  skip:chrome||process.env.CI==='true'?false:'Chromium unavailable'
 },async()=>{
  assert.ok(chrome,'Chromium required in CI');
