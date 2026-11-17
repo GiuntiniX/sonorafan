@@ -45,9 +45,43 @@ window.sf10FocusSong=()=>{
 const composer=$('sf10RequestCard'),home=composer?.parentElement;
 function placeComposer(){if(!composer||!home)return;const target=window.innerWidth<=1024?document.querySelector('#screen-room .player-column'):home;if(target&&composer.parentElement!==target)target.append(composer)}
 window.addEventListener('resize',placeComposer);placeComposer();
-const modal=$('createRoomModal');function step(n){if(!modal)return;modal.dataset.sf10Step=String(n);const back=modal.querySelector('.sf10-back'),next=modal.querySelector('.sf10-next'),submit=modal.querySelector('.sf10-submit');if(back)back.hidden=n!==2;if(next)next.hidden=n!==1;if(submit)submit.hidden=n!==2;}
+const modal=$('createRoomModal');
+function step(n){
+ if(!modal)return;
+ modal.dataset.sf10Step=String(n);
+ const back=modal.querySelector('.sf10-back'),next=modal.querySelector('.sf10-next'),submit=modal.querySelector('.sf10-submit');
+ if(back)back.hidden=n!==2;
+ if(next)next.hidden=n!==1;
+ if(submit)submit.hidden=n!==2;
+ modal.querySelectorAll('[data-sf10-step-mark]').forEach(mark=>{
+   const current=mark.dataset.sf10StepMark===String(n);
+   if(current)mark.setAttribute('aria-current','step');else mark.removeAttribute('aria-current');
+ });
+ const scroll=modal.querySelector('#sf130CreateScroll');
+ if(scroll)scroll.scrollTop=0; // mobile e desktop começam a nova etapa pelo topo
+}
 window.sf10WizardReset=()=>step(1);
-window.sf10WizardNext=()=>{const name=$('newRoomName');if(!name?.value.trim()){name?.focus();if(typeof toast==='function')toast('Dê um nome para sua sala.','error');return}step(2)};
+window.sf10WizardNext=()=>{
+ const name=$('newRoomName');
+ if(!name?.value.trim()){name?.focus();if(typeof toast==='function')toast('Dê um nome para sua sala.','error');return}
+ const genre=modal?.querySelector('input[name="sf109RoomGenre"]:checked');
+ const error=$('sf109GenreError');
+ if(!genre){
+   if(error)error.hidden=false;
+   $('sf109GenrePicker')?.classList.add('sf109-invalid');
+   modal?.querySelector('input[name="sf109RoomGenre"]')?.focus();
+   if(typeof toast==='function')toast('Selecione o gênero musical da sua sala.','error');
+   return;
+ }
+ if(error)error.hidden=true;
+ $('sf109GenrePicker')?.classList.remove('sf109-invalid');
+ step(2);
+};
 window.sf10WizardBack=()=>step(1);
+modal?.querySelector('#sf109GenrePicker')?.addEventListener('change',()=>{
+ const error=$('sf109GenreError');
+ if(error)error.hidden=true;
+ $('sf109GenrePicker')?.classList.remove('sf109-invalid');
+});
 step(1);
 })();
