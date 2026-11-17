@@ -14,6 +14,28 @@
  const currentTrack=()=>state.room?.queue?.[state.room.currentIndex??0]||null;
  const dev=()=>window.matchMedia('(max-width:690px)').matches?'mobile':window.matchMedia('(max-width:1100px)').matches?'tablet':'desktop';
  const date=when=>new Date(when).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+ const eventCalendar=(e)=>{
+   const time=Number(e?.startAt),minutes=Number(e?.durationMinutes)||90;
+   if(!Number.isFinite(time)||time<=0)return null;
+   const stamp=x=>new Date(x).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+   const escapeIcs=x=>String(x||'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/[,;]/g,c=>'\\'+c);
+   const content=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SonoraFan//Eventos//PT',
+     'BEGIN:VEVENT','UID:'+String(e.id||'evento')+'@sonorafan',
+     'DTSTAMP:'+stamp(Date.now()),'DTSTART:'+stamp(time),
+     'DTEND:'+stamp(time+Math.max(15,Math.min(360,minutes))*60000),
+     'SUMMARY:'+escapeIcs(e.title||'Encontro SonoraFan'),
+     'DESCRIPTION:'+escapeIcs((e.roomName||'Sala')+' - '+(e.description||'Encontro musical colaborativo')),
+     'BEGIN:VALARM','TRIGGER:-PT30M','ACTION:DISPLAY',
+     'DESCRIPTION:Seu encontro SonoraFan começa em 30 minutos','END:VALARM',
+     'END:VEVENT','END:VCALENDAR'].join('\r\n')+'\r\n';
+   return new Blob([content],{type:'text/calendar;charset=utf-8'});
+ };
+ function saveCalendarEvent(e){
+   const file=eventCalendar(e);if(!file)throw Error('Data do evento inválida.');
+   const url=URL.createObjectURL(file),link=document.createElement('a');
+   link.href=url;link.download='sonorafan-evento.ics';document.body.append(link);
+   link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }
  const prefsKey='sf100-design-v1';
  let layout='ouvir',palette='aurora';
  try{let p=JSON.parse(localStorage.getItem(prefsKey)||'{}');layout=['ouvir','interagir'].includes(p.layout)?p.layout:'ouvir';palette=['aurora','festival'].includes(p.palette)?p.palette:'aurora';}catch(_){}
@@ -185,6 +207,7 @@
       <span>${Math.max(0,e.attendees||0)} confirmados · <time class="sf100-countdown" data-start="${Number(e.startAt)}" aria-label="Contagem regressiva da sessão"></time></span></div>
       <button type="button" data-sf100-action="event-enter" data-slug="${esc(e.roomSlug)}">Entrar</button>
       <button type="button" data-sf100-action="rsvp" data-id="${esc(e.id)}" data-going="${e.going?'false':'true'}">${e.going?'✓ Confirmado':'Participar'}</button>
+      <button type="button" data-sf100-action="calendar" data-id="${esc(e.id)}" aria-label="Adicionar ${esc(e.title)} ao calendário">Calendário</button>
       </article>`).join('')}</div>`:htmlMsg('Nenhuma sessão agendada','Seja o primeiro a reunir a comunidade em um evento musical.')}
     `;
  }
@@ -470,6 +493,11 @@
        }catch(err){notice(err.message,true);}
        finally{partyBusy=false;if(button.isConnected)button.disabled=false;}
        return;
+     }
+     if(act==='calendar'){
+       const item=state.events.find(e=>e.id===id);
+       if(!item)return notice('Evento não encontrado. Atualize a agenda.',true);
+       saveCalendarEvent(item);return notice('Evento preparado para seu calendário com lembrete de 30 minutos.');
      }
      if(act==='rsvp'){await post('/api/social/events/'+encodeURIComponent(id)+'/rsvp',{going:button.dataset.going==='true'});return refresh();}
      if(act==='browser-alerts')return browserPermission();
