@@ -101,6 +101,12 @@ function fixture() {
       await new Promise(r=>setTimeout(r,80));
       const sheet=document.getElementById('sf76MusicSheet');
       metric.sheetOpen=!!sheet&&!sheet.hidden&&visible(sheet.querySelector('.sf76-panel'));
+      metric.searchVisible=visible(document.getElementById('sf138SearchQuery'));
+      metric.mobileFormIndependent=!sheet.contains(document.getElementById('sf10RequestCard'));
+      metric.singleModal=document.getElementById('sf77MusicModal')?.hidden===true;
+      window.sf77OpenSearch('Metallica');
+      metric.redirected=sheet.hidden===false && document.getElementById('sf77MusicModal').hidden &&
+        document.getElementById('sf138SearchQuery')?.value==='Metallica';
       const favorites=sheet.querySelector('[data-sf76-tab="favorites"]');
       favorites.click();
       await new Promise(r=>setTimeout(r,100));
@@ -135,6 +141,7 @@ function fixture() {
  return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
   inline+links+'</head><body>'+room+pre+
   '<script src="./sonorafan-mobile-music-76.js"></script>'+
+  '<script src="./sonorafan-search-77.js"></script>'+
   '<script src="./sonorafan-room-redesign-113.js"></script>'+
   '<script src="./sonorafan-mobile-room-136.js"></script>'+
   post+'</body></html>';
