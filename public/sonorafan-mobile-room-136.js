@@ -41,27 +41,6 @@
   vv?.addEventListener('scroll',schedule,{passive:true});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule();});
 
-  const welcome=document.getElementById('sf136MobileWelcome');
-  const count=document.getElementById('queueCount');
-  if(!welcome||!count)return;
-  function syncWelcome(){
-    const numeric=Number.parseInt(count.textContent?.trim()||'0',10);
-    // 0 músicas na fila é suficiente para oferecer uma ação de descoberta;
-    // o título do mini-player pode continuar mostrando a faixa anterior.
-    const empty=!Number.isNaN(numeric)&&numeric===0;
-    welcome.hidden=!empty;
-  }
-  new MutationObserver(syncWelcome).observe(count,{childList:true,subtree:true,characterData:true});
-  syncWelcome();
-  welcome.querySelector('[data-sf136="music"]')?.addEventListener('click',()=>{
-    if(typeof window.sf76OpenMusic==='function')window.sf76OpenMusic('search');
-    else window.sf34FindSong?.();
-  });
-  welcome.querySelector('[data-sf136="chat"]')?.addEventListener('click',()=>{
-    if(typeof window.setTab==='function')window.setTab('chat');
-    else document.querySelector('#mTabs [data-t="chat"]')?.click();
-    document.getElementById('roomLayout')?.scrollTo({top:0,behavior:'instant'});
-  });
   // Diagnóstico não contém dados de usuário, músicas ou conversa.
   window.sf137MobileMetrics=()=>{
     const bounds=selector=>{
@@ -72,7 +51,7 @@
         visible:getComputedStyle(el).display!=='none'};
     };
     return {
-      version:'137.1',width:window.innerWidth,height:window.innerHeight,
+      version:'139.1',width:window.innerWidth,height:window.innerHeight,
       visualHeight:Math.round(Number(vv?.height)||0),
       configuredHeight:root.style.getPropertyValue('--sf137-viewport-height'),
       root:bounds('body'),screen:bounds('#screen-room'),
@@ -81,7 +60,12 @@
       active:screen.classList.contains('active')
     };
   };
-  // Em aparelhos reais, o teclado pode alterar visualViewport depois do focus.
-  document.getElementById('chatInput')?.addEventListener('focus',schedule,{passive:true});
-  document.getElementById('chatInput')?.addEventListener('blur',schedule,{passive:true});
+  // Recalcula a área útil também ao focar campos inseridos dinamicamente
+  // (chat, seleção de músicas e busca). Não interfere no controle de teclado v93.
+  screen.addEventListener('focusin',event=>{
+    if(event.target.matches('input,textarea,[contenteditable="true"]'))schedule();
+  },{passive:true});
+  screen.addEventListener('focusout',event=>{
+    if(event.target.matches('input,textarea,[contenteditable="true"]'))schedule();
+  },{passive:true});
 })();
