@@ -1728,6 +1728,9 @@ io.on('connection', (socket) => {
       if (!currentRoom) return;
       const room = rooms.get(currentRoom);
       if (!room || !room.isPlaying) return;
+      // Numa transmissão exclusiva, eventos de jogadores convidados não podem avançar a live.
+      if ((room.addMode === 'owner' || room.musicMode === 'owner') &&
+          (room.ownerEmail ? socket.userEmail !== room.ownerEmail : !socket.isAdmin)) return;
       const activeId = room.queue[room.currentIndex]?.id;
       const reportedId = payload && typeof payload.videoId === 'string' ? payload.videoId : null;
       // Não aceite pedidos sem identificação da faixa nem eventos de músicas anteriores.
@@ -1747,6 +1750,8 @@ io.on('connection', (socket) => {
       if (!isGlobalAdmin && !socket.isAdmin) { socket.emit('error', 'Apenas admin pode reordenar'); return; }
       const room = rooms.get(currentRoom);
       if (!room || room.queue.length === 0) return;
+      if ((room.addMode === 'owner' || room.musicMode === 'owner') &&
+          (room.ownerEmail ? socket.userEmail !== room.ownerEmail : !socket.isAdmin)) return;
       const currentTrack = room.queue[room.currentIndex]; const currentId = currentTrack ? currentTrack.id : null;
       const newQueue = [];
       for (const id of newOrder) { const track = room.queue.find(t => t.id === id); if (track) newQueue.push(track); }
@@ -1764,6 +1769,8 @@ io.on('connection', (socket) => {
       if (!room || room !== currentRoom || !socket.userEmail || !socket.userName || !id || typeof id !== 'string') return;
       const roomData = rooms.get(room);
       if (!roomData) return;
+      // Votações não podem retirar/reordenar uma playlist sob controle do criador.
+      if (roomData.addMode === 'owner' || roomData.musicMode === 'owner') return;
       const index = roomData.queue.findIndex(t => t.id === id);
       if (index === -1) return;
       if (index === roomData.currentIndex) { socket.emit('error', 'Não é possível votar na música atual'); return; }
