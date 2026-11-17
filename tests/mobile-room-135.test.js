@@ -28,6 +28,8 @@ test('v135 mobile tabs contain queue, player, chat and unified music/favorites',
   assert.match(room,/aria-controls="sf76MusicSheet"/);
   assert.match(html,/sonorafan-mobile-room-135\.css\?v=135/);
   assert.match(css,/#screen-room\.sf113-room #mTabs\.mtabs/);
+  assert.match(html,/sonorafan-mobile-room-136\.css\?v=136/);
+  assert.match(html,/sonorafan-mobile-room-136\.js\?v=136/);
   assert.match(css,/body\[data-tab="chat"\]/);
   assert.match(css,/#chatMessagesInner/);
   assert.match(css,/#sf113AddMusic/);
@@ -85,6 +87,13 @@ function fixture() {
       const nav=document.getElementById('mTabs');
       const music=nav.querySelector('.sf34-add-mobile');
       metric.nav=visible(nav);
+      metric.navBottom=rect(nav).bottom<=innerHeight+2;
+      const app=document.querySelector('#screen-room > .app');
+      const layout=document.getElementById('roomLayout');
+      metric.docked=Math.abs(rect(nav).top-rect(layout).bottom)<6;
+      metric.headerCompact=rect(document.querySelector('#screen-room .header')).height<=60;
+      metric.appFits=rect(app).bottom<=innerHeight+2;
+      metric.welcome=visible(document.getElementById('sf136MobileWelcome'));
       metric.music=visible(music);
       metric.musicLabel=music.getAttribute('aria-label').includes('favoritas');
       metric.tabCount=nav.querySelectorAll('button[data-t]').length===3;
@@ -127,6 +136,7 @@ function fixture() {
   inline+links+'</head><body>'+room+pre+
   '<script src="./sonorafan-mobile-music-76.js"></script>'+
   '<script src="./sonorafan-room-redesign-113.js"></script>'+
+  '<script src="./sonorafan-mobile-room-136.js"></script>'+
   post+'</body></html>';
 }
 async function render(size){
