@@ -69,7 +69,8 @@
         else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
       }
     });
-    window.addEventListener('resize',()=>{if(!smallScreen()&&!layer.hidden)close();});
+    // A mesma janela serve ao desktop e mobile; mudar o tamanho não deve fechá-la.
+    window.addEventListener('resize',()=>{if(!layer.hidden && !$('screen-room')?.classList.contains('active'))close();});
   }
   function looksLikeYouTubeReference(value){
     const v=String(value||'').trim();
@@ -106,11 +107,10 @@
     state.originalHolder=null;
   }
   function open(tab='search'){
-    if(tab==='search' && typeof window.sf77OpenSearch==='function'){window.sf77OpenSearch('');return;}
-    if(!smallScreen()){
-      if(typeof originalFindSong==='function')originalFindSong();
-      return;
-    }
+    // Janela unificada: busca e favoritas são abas no mesmo painel.
+    // Evita abrir sf77 por cima das favoritas ou duplicar a experiência.
+    window.sf77CloseSearch?.();
+    window.sf113CloseSongSearch?.();
     if(!$('screen-room')?.classList.contains('active')&&!roomName())return;
     buildSheet();
     state.lastFocus=document.activeElement;
@@ -118,6 +118,9 @@
     takeRequestCard();
     layer.hidden=false;
     document.body.classList.add('sf76-sheet-active');
+    layer.classList.toggle('sf133-owner-locked',$('screen-room')?.classList.contains('sf129-guest-locked'));
+    const head=layer.querySelector('.sf76-head small');
+    if(head)head.textContent=$('screen-room')?.classList.contains('sf129-owner-mode')?'PLAYLIST DO ANFITRIÃO':'A PRÓXIMA ESCOLHA É SUA';
     switchTab(tab);
     status(tab==='search' ? 'Busque uma música e toque em adicionar para colocá-la na fila.' : 'Escolha uma faixa favorita para enviar à fila.');
   }
@@ -142,6 +145,10 @@
     });
     if(tab==='favorites')loadFavorites();
     else requestAnimationFrame(()=>$('songUrl')?.focus({preventScroll:true}));
+    const locked=$('screen-room')?.classList.contains('sf129-guest-locked');
+    const submit=$('addBtn');if(submit)submit.disabled=!!locked;
+    document.querySelectorAll('#sf76MusicSheet .song-preview-confirm').forEach(b=>b.disabled=!!locked);
+    const info=$('sf76MusicStatus');if(locked&&info)status('🔒 Somente o anfitrião pode adicionar músicas nesta sala.',true);
   }
   async function loadFavorites(){
     const sequence=++state.searchRequest;
@@ -186,6 +193,7 @@
   async function submitFavorite(favorite){
     if(state.busy)return;
     if(!roomName()){status('Você precisa entrar em uma sala para adicionar músicas.',true);return;}
+    if($('screen-room')?.classList.contains('sf129-guest-locked')){status('Somente o anfitrião pode adicionar músicas nesta sala.',true);return;}
     const liveSocket=socketClient();
     if(!liveSocket?.connected){status('Sem conexão com a sala. Reconecte-se e tente novamente.',true);return;}
     const current=currentRoomState();
@@ -226,9 +234,8 @@
     $('addBtn')?.addEventListener('click',submitSearchText,true);
     $('searchResults')?.addEventListener('click',()=>{setTimeout(updateSearchButton,0);});
     // Atalhos legados agora abrem o painel acessível no mobile.
-    window.sf34FindSong=function(){if(smallScreen())open('search');else originalFindSong?.();};
+    window.sf34FindSong=function(){open('search');};
     document.addEventListener('click',e=>{
-      if(!smallScreen())return;
       const trigger=e.target.closest('#sf55SessionAdd,.add-first-btn,.sf34-add-mobile,[data-sf63-open="music"]');
       if(!trigger)return;
       if(trigger.matches('#sf55SessionAdd,.add-first-btn,.sf34-add-mobile,[data-sf63-open="music"]')){
