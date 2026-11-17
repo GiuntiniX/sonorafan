@@ -186,21 +186,56 @@
     new MutationObserver(renderPodium).observe(list,{childList:true,subtree:true});
     renderPodium();
   }
+  function closeActiveOverlay(){
+    if($('sf43ProfileModal')?.classList.contains('active'))window.sf43CloseProfile?.();
+    const layer=qs('.sf5-community-layer');
+    if(layer&&getComputedStyle(layer).display!=='none')layer.querySelector('.sf5-close')?.click();
+    $('lbModal')?.classList.remove('active');
+    $('sf45ClubModal')?.classList.remove('active');
+  }
+  function addModalRail(container,activeArea){
+    if(!container||container.querySelector(':scope > .sf125-modal-rail'))return;
+    container.classList.add('sf125-has-rail');
+    const rail=document.createElement('aside');
+    rail.className='sf125-modal-rail';rail.setAttribute('aria-label','Navegação da plataforma');
+    rail.innerHTML='<div class="sf125-modal-brand"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="180" height="60"></div>'+
+      '<nav class="sf125-modal-menu">'+nav.map(item=>'<button type="button" data-sf125-modal-go="'+item[0]+'"'+
+        (item[0]===activeArea?' class="is-active" aria-current="page"':'')+'>'+
+        '<span aria-hidden="true">'+item[1]+'</span>'+item[2]+'</button>').join('')+'</nav>'+
+      '<div class="sf125-modal-waves" aria-hidden="true"></div>';
+    container.prepend(rail);
+    rail.addEventListener('click',event=>{
+      const button=event.target.closest('[data-sf125-modal-go]');
+      if(!button)return;
+      closeActiveOverlay();go(button.dataset.sf125ModalGo);
+    });
+  }
   function hookOverlay(){
     const profile=$('sf43ProfileModal');
     profile?.classList.add('sf125-profile');
-    const community=qs('.sf5-community-layer');
-    community?.classList.add('sf125-community');
+    addModalRail(qs('.sf43-profile-modal',profile||document),'profile');
     $('sf45ClubModal')?.classList.add('sf125-club-xp');
+    const rank=$('lbModal');
+    rank?.classList.add('sf125-ranking');
+    addModalRail(qs('.sf35-ranking-modal',rank||document),'ranking');
     const assign=(elem,cls)=>elem?.classList.add(cls);
     assign($('favoritesModal'),'sf125-extras');
     assign($('sf53Inbox'),'sf125-extras');
     assign($('sf92AccountOverlay'),'sf125-extras');
-    // Community shell is built only when opened; class the parent after insertion.
-    if(!qs('.sf5-community-layer')){
-      new MutationObserver((records,observer)=>{
-        const layer=qs('.sf5-community-layer');if(layer){layer.classList.add('sf125-community');observer.disconnect();}
-      }).observe(document.body,{childList:true,subtree:true});
+    function ensureCommunityRail(){
+      const layer=qs('.sf5-community-layer');
+      if(!layer)return false;
+      layer.classList.add('sf125-community');
+      addModalRail(qs('.sf110-community-shell',layer),'community');
+      return Boolean(qs('.sf110-community-shell',layer));
+    }
+    ensureCommunityRail();
+    // Native community is constructed on demand; wait for it and attach once.
+    if(typeof MutationObserver==='function'){
+      const observer=new MutationObserver(()=>{
+        if(ensureCommunityRail())observer.disconnect();
+      });
+      observer.observe(document.body,{childList:true,subtree:true});
     }
   }
   function init(){
