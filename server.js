@@ -826,23 +826,24 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   if (!name || name.trim().length < 2 || name.trim().length > 40) return res.status(400).json({ error: 'Nome inválido' });
   const genre=normalizeRoomGenre109(req.body?.genre);
   if (!genre) return res.status(400).json({error:'Selecione o gênero musical da sala.'});
-  const isGlobalAdmin = email && adminEmails.has(email);
   const slug = name.trim().toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
   if (rooms.has(slug)) return res.status(400).json({ error: 'Sala já existe' });
   const room = createRoom(slug, name.trim(), String(adminName || 'Anônimo').slice(0, 40));
   room.ownerEmail = email;
   room.roomTheme = normalizeRoomTheme88(req.body.roomTheme);
   room.genre = genre;
-  room.musicMode = 'fair'; // novas salas: distribuição justa, todos continuam adicionando
   const cfg = sanitize(req.body);
+  // A escolha feita na criação precisa persistir e ser aplicada no servidor.
+  room.musicMode = cfg.addMode === 'owner' ? 'owner' : 'fair';
   Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
   if (cfg.welcome) room.pinnedMessage = { author: room.admin, text: cfg.welcome };
   if (req.body.isPrivate) { room.isPrivate = true; room.invite = newInvite(); setPassword(room, String(req.body.password || '').slice(0, 30)); room.allowed.add(email); }
-  if (isGlobalAdmin && allowLong) { room.allowLong = true; room.maxDuration = 21600; }
-  if (isGlobalAdmin && allowLive) { room.allowLive = true; room.maxDuration = 21600; }
+  // Os formatos apresentados no formulário são válidos para qualquer criador autenticado.
+  if (allowLong === true || allowLive === true) { room.allowLong = true; room.maxDuration = 21600; }
+  if (allowLive === true) room.allowLive = true;
   rooms.set(slug, room);
   persistRoom(room);
-  res.json({ slug, name: room.name, genre: room.genre, invite: room.isPrivate ? room.invite : undefined });
+  res.json({ slug, name: room.name, genre: room.genre, addMode:room.addMode, musicMode:room.musicMode, invite: room.isPrivate ? room.invite : undefined });
 });
 
 app.get('/api/rooms/random', (req, res) => {
@@ -1478,6 +1479,10 @@ io.on('connection', (socket) => {
       if (!currentRoom) return;
       const room = rooms.get(currentRoom);
       if (room.queue.length === 0) return;
+      if ((room.addMode === 'owner' || room.musicMode === 'owner') &&
+          (room.ownerEmail ? socket.userEmail !== room.ownerEmail : !socket.isAdmin)) {
+        socket.emit('error','🔒 Somente o criador controla a reprodução nesta sala.');return;
+      }
       if (socket.isAdmin) { advanceQueue(currentRoom); addSystemMsg(currentRoom, `⏭️ ${socket.userName} pulou a música (admin)`); return; }
       if (room.skipVotes.has(socket.userName)) { socket.emit('error', 'Você já votou para pular.'); return; }
       room.skipVotes.add(socket.userName);
@@ -1498,6 +1503,7 @@ io.on('connection', (socket) => {
       if (!['all', 'owner', 'fair'].includes(mode)) return socket.emit('error', 'Modo musical inválido.');
       room.musicMode = mode;
       room.addMode = mode === 'owner' ? 'owner' : 'all';
+      if (mode === 'owner') { room.votePriority = false; room.radioMode = false; }
       if (mode === 'fair') { room.votePriority = false; room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; }
       persistRoom(room); broadcastState(room.slug);
       addSystemMsg(room.slug, `🎛️ Modo musical: ${{all:'Colaborativo', owner:'DJ anfitrião', fair:'Fila justa'}[mode]}`);
@@ -1533,7 +1539,10 @@ io.on('connection', (socket) => {
       if (!currentRoom) { refuse('Entre em uma sala para adicionar música.'); return; }
       const room = rooms.get(currentRoom);
       if (!room) { refuse('Sala indisponível. Entre novamente.'); return; }
-      if (room.addMode === 'owner' && !socket.isAdmin) { refuse('🎧 Nesta sala só o dono escolhe as músicas. Use o chat para sugerir!'); return; }
+      if (room.addMode === 'owner' || room.musicMode === 'owner') {
+        const authorized = room.ownerEmail ? socket.userEmail === room.ownerEmail : !!socket.isAdmin;
+        if (!authorized) { refuse('🔒 Playlist exclusiva: somente o criador desta sala pode adicionar músicas.'); return; }
+      }
       if (!song || typeof song !== 'object' || typeof song.id !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(song.id)) {
         refuse('Link ou vídeo do YouTube inválido.'); return;
       }
@@ -1625,7 +1634,10 @@ io.on('connection', (socket) => {
       if (!room || !socket.isAdmin) return;
       const cfg = sanitize(input, room);
       Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
-      if (input.addMode !== undefined) room.musicMode = cfg.addMode === 'owner' ? 'owner' : 'all';
+      if (input.addMode !== undefined) {
+        room.musicMode = cfg.addMode === 'owner' ? 'owner' : 'fair';
+        if (cfg.addMode === 'owner') { room.votePriority = false; room.radioMode = false; }
+      }
       if (input.roomTheme !== undefined) {
         if (!ROOM_THEME_IDS_88.has(input.roomTheme)) return socket.emit('error', 'Tema visual inválido.');
         room.roomTheme = input.roomTheme;
