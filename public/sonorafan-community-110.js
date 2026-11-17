@@ -88,8 +88,9 @@
            <span class="sf110-person-avatar">${photo(p)}<i class="sf110-online"></i></span>
            <small>${esc(p.name||'Ouvinte')}</small>
          </button>`).join(''):'<p class="sf110-muted">'+(state.loading?'Consultando amigos online…':'Nenhum amigo online agora. Encontre pessoas na comunidade.')+'</p>'}
-       <button class="sf110-person sf110-add-friend" type="button" data-sf110-action="friends" title="Encontrar amigos"><span>＋</span><small>Buscar</small></button>
+       <button class="sf110-person sf110-add-friend" type="button" data-sf110-action="friends" title="Encontrar pessoas"><span>＋</span><small>Buscar</small></button>
      </div>
+     <button class="sf110-wide-button sf139-invite" type="button" data-sf110-action="invite">✉ Convidar para ouvir junto</button>
    </section>`;
  }
  function agenda(){
@@ -153,6 +154,12 @@
    if(club){showDetails('fanclubs');if(safeId(club.dataset.sf110Club))window.sf71OpenFanClub?.(club.dataset.sf110Club);return;}
    const act=target.dataset.sf110Action;
    if(act==='inbox'){closeLayer();window.sf53OpenInbox?.();return;}
+   if(act==='invite'){
+     closeLayer();
+     if(typeof window.sf15InviteFriend==='function')window.sf15InviteFriend();
+     else window.sf15OpenNotifications?.();
+     return;
+   }
    if(act==='fanclubs'||act==='friends'||act==='events'){showDetails(act);return;}
    if(act==='create'){showDetails('fanclubs');$('sf71CreateClub')?.click();return;}
    if(act==='back'){back();}
