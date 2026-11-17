@@ -27,7 +27,7 @@ test('approved brand is retained by the existing theme navigation',()=>{
  assert.match(js,/\/brand-144\/sonorafan-logo\.svg/);
  assert.match(html,/sf113-brand" aria-label="SonoraFan"/);
  assert.match(html,/sf54-brand-image/);
- assert.doesNotMatch(js,/svg[^>]*SonoraFan|data:image|createObjectURL/);
+ assert.doesNotMatch(js,/<svg\b|data:image|createObjectURL/);
 });
 test('six functional navigation choices and mobile fallback',()=>{
  for(const key of ['lobby','rooms','profile','community','clubs','ranking']){
