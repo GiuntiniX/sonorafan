@@ -692,3 +692,51 @@ body.sf125-global :is(#favoritesModal,#sf53Inbox) button.btn-primary{
  right:0;top:35px;width:33%;height:135px;opacity:.6;
  background:url('/art-125/neon-waves.svg') center/contain no-repeat;
 }
+
+/* v125.3 — fallback temático para janelas antigas ainda em uso.
+   Somente cor/borda/controles; nenhuma alteração nos handlers ou posições. */
+body.sf125-global .modal-overlay:not(#signupModal):not(#sf43ProfileModal):not(#lbModal):not(#sf45ClubModal){
+ --sf125-aux-bg:#131316;--sf125-aux-border:#64546a;
+}
+body.sf125-global .modal-overlay:not(#signupModal):not(#sf43ProfileModal):not(#lbModal):not(#sf45ClubModal) .modal{
+ background-color:var(--sf125-aux-bg)!important;
+ color:#f8f8fb!important;
+ border:1px solid var(--sf125-aux-border)!important;
+ border-radius:17px!important;
+ box-shadow:0 14px 60px #0009!important;
+}
+body.sf125-global .modal-overlay:not(#signupModal) :is(input:not([type=range]):not([type=checkbox]),textarea,select){
+ border-color:#625968;color:#fff;
+}
+body.sf125-global .modal-overlay:not(#signupModal) :is(input:not([type=range]):not([type=checkbox]),textarea,select):focus-visible{
+ outline-color:var(--sf125-lime)!important;outline-offset:2px!important;
+}
+body.sf125-global .modal-overlay:not(#signupModal) button.btn-primary{
+ background:var(--sf125-lime)!important;color:#101013!important;
+ border-color:var(--sf125-lime)!important;
+ border-radius:999px!important;font-weight:850!important;
+}
+body.sf125-global .modal-overlay:not(#signupModal) button.btn-secondary{
+ background:#1e1d23!important;border:1px solid #706473!important;
+ color:#f7f6f9!important;border-radius:999px!important;
+}
+body.sf125-global .modal-overlay:not(#signupModal) button.btn-secondary:hover{
+ border-color:var(--sf125-pink)!important;
+}
+body.sf125-global :is(.sf63-hub,.sf77-overlay,.sf92-account-overlay,.sf95-overlay){
+ --sf125-surface:#131316;--sf125-highlight:#c4ff00;
+ color:#f8f8fb;
+}
+body.sf125-global :is(.sf63-panel,.sf77-popover,.sf92-account-panel,.sf95-panel){
+ background-color:#131316;border-color:#62506b;color:#fff;
+}
+body.sf125-global :is(.sf63-panel,.sf92-account-panel,.sf95-panel) :is(h2,h3,strong){
+ color:#fff;
+}
+@media(max-width:600px){
+ body.sf125-global .modal-overlay:not(#signupModal):not(#sf43ProfileModal):not(#lbModal):not(#sf45ClubModal) .modal{
+  max-width:calc(100vw - 16px)!important;
+  max-height:calc(100dvh - 16px)!important;
+  overflow-y:auto!important;overscroll-behavior:contain;
+ }
+}
