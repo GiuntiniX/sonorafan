@@ -1,0 +1,242 @@
+/* SonoraFan 128 — ação à esquerda, fila real à direita, presença em faixa compacta.
+   Apenas apresentação: não altera Socket.IO, reprodução, votos ou favoritos. */
+#screen-room.sf113-room .queue-column.sf34-queue.sf128-queue{
+  --sf128-surface:#171219;
+  --sf128-accent:#c4ff00;
+  --sf128-border:#674364;
+  background:#120e15!important;border-color:#654053!important;
+  min-width:0!important;min-height:0!important;box-sizing:border-box!important;
+}
+#screen-room.sf113-room .sf128-queue .queue-header{
+  flex:0 0 auto!important;min-height:52px!important;
+  gap:10px!important;padding:10px 17px!important;
+  background:linear-gradient(100deg,#291017,#1e1019)!important;
+  border-bottom:1px solid #61354d!important;
+}
+#screen-room.sf113-room .sf128-queue .queue-header>span:first-child{
+  color:#f7f4f7!important;font-size:13px!important;
+  font-weight:850!important;letter-spacing:.025em!important;
+}
+#screen-room.sf113-room .sf128-queue #queueCount{
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid #77506d;border-radius:999px;
+  background:#261b28!important;color:#e8d5e5!important;
+  padding:5px 10px;font-size:11px!important;font-weight:700;
+  white-space:nowrap;
+}
+#screen-room.sf113-room .sf128-queue-workspace{
+  flex:1 1 auto;min-width:0;min-height:0;display:grid;
+  grid-template-columns:minmax(215px,265px) minmax(0,1fr);
+  gap:0;overflow:hidden;
+}
+#screen-room.sf113-room .sf128-add-panel{
+  display:flex;flex-direction:column;align-items:stretch;
+  min-width:0;min-height:0;padding:18px 17px 14px;
+  background:linear-gradient(155deg,#211422,#140f18);
+  border-right:1px solid #5c3b52;
+  gap:10px;box-sizing:border-box;
+}
+#screen-room.sf113-room .sf128-kicker{
+  font-size:10px;font-weight:900;letter-spacing:.09em;
+  color:var(--sf128-accent);text-transform:uppercase;
+}
+#screen-room.sf113-room .sf128-add-panel h3{
+  font:850 clamp(17px,1.45vw,23px)/1.12 Inter,system-ui,sans-serif;
+  letter-spacing:-.035em;color:#fff;margin:0;
+}
+#screen-room.sf113-room .sf128-add-panel>p{
+  margin:0 0 3px;font-size:12px;line-height:1.45;color:#cfc0ce;
+}
+#screen-room.sf113-room .sf128-add-panel #sf113AddMusic{
+  display:flex!important;align-items:center;justify-content:space-between;
+  gap:9px;min-height:51px;width:100%;padding:11px 13px!important;
+  border:1px solid var(--sf128-accent)!important;border-radius:13px!important;
+  background:var(--sf128-accent)!important;color:#0d0d0d!important;
+  font:850 12px/1.25 Inter,system-ui,sans-serif!important;
+  text-align:left;box-shadow:0 7px 20px #c4ff0017;cursor:pointer;
+}
+#screen-room.sf113-room .sf128-add-panel #sf113AddMusic .sf128-search-icon{
+  font-size:18px;font-weight:900;line-height:1;flex:0 0 auto;
+}
+#screen-room.sf113-room .sf128-add-panel #sf113AddMusic .sf128-search-label{
+  flex:1 1 auto;min-width:0;
+}
+#screen-room.sf113-room .sf128-add-panel #sf113AddMusic:hover{
+  filter:brightness(1.08);
+}
+#screen-room.sf113-room .sf128-add-panel #sf116Favorites{
+  display:inline-flex!important;align-items:center;justify-content:center;
+  gap:6px;min-height:39px;width:100%;padding:8px 11px!important;
+  border-radius:12px!important;border:1px solid #805077!important;
+  color:#f0ddec!important;background:#2a1b2b!important;
+  font:750 11px Inter,system-ui,sans-serif!important;cursor:pointer;
+}
+#screen-room.sf113-room .sf128-add-panel #sf116Favorites:hover{
+  border-color:#df8fbf!important;background:#38263a!important;
+}
+#screen-room.sf113-room .sf128-add-panel .sf5-listening-card.sf128-presence{
+  /* Reutiliza o elemento original e seus IDs atualizados pelo socket. */
+  display:flex!important;flex-direction:column!important;align-items:stretch;
+  grid-column:auto!important;grid-row:auto!important;
+  flex:0 0 auto!important;min-width:0!important;
+  min-height:0!important;max-height:112px!important;height:auto!important;
+  margin:auto 0 0!important;padding:10px 0 0!important;
+  background:transparent!important;box-shadow:none!important;
+  border:0!important;border-top:1px solid #64415b!important;
+  border-radius:0!important;overflow:hidden!important;gap:5px!important;
+}
+#screen-room.sf113-room .sf128-add-panel .sf128-presence .sf5-card-heading{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:7px!important;font-size:11px!important;line-height:1.2!important;
+  font-weight:800!important;color:#d5e9d3!important;
+  white-space:nowrap!important;
+}
+#screen-room.sf113-room .sf128-presence .sf128-online-dot{
+  width:7px;height:7px;border-radius:50%;background:#59e6a3;
+  box-shadow:0 0 0 3px #59e6a31c;flex:0 0 auto;
+}
+#screen-room.sf113-room .sf128-presence #sf5ListenersCount{
+  margin-left:auto!important;font-size:10px!important;
+  color:#a8eca9!important;border-radius:999px;
+  background:#1b3324!important;padding:3px 8px!important;
+}
+#screen-room.sf113-room .sf128-presence #sf5ListenersBody{
+  display:flex!important;flex-flow:row nowrap!important;align-items:center!important;
+  flex:0 0 auto!important;min-width:0!important;
+  min-height:0!important;max-height:47px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  gap:6px!important;padding:3px 0!important;
+  scrollbar-width:thin!important;overscroll-behavior-x:contain;
+}
+#screen-room.sf113-room .sf128-presence #sf5ListenersBody > *{
+  flex:0 0 auto!important;max-width:210px!important;min-width:0!important;
+  padding:5px 9px!important;margin:0!important;border-radius:999px!important;
+  background:#29212c!important;border:1px solid #514151!important;
+  color:#e5d6e7!important;white-space:nowrap!important;
+  font-size:10px!important;line-height:1.25!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;
+}
+#screen-room.sf113-room .sf128-queue-tracks{
+  display:flex;flex-direction:column;min-width:0;min-height:0;
+  overflow:hidden;background:#141016;
+}
+#screen-room.sf113-room .sf128-tracks-title{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 15px 7px;min-width:0;
+  font:850 12px Inter,system-ui,sans-serif;color:#fff;
+}
+#screen-room.sf113-room .sf128-tracks-title small{
+  font:650 10px Inter,system-ui,sans-serif;color:#cdb7c9;white-space:nowrap;
+}
+#screen-room.sf113-room .sf128-queue-tracks .premium-queue-summary{
+  flex:0 0 auto!important;min-height:0!important;
+  padding:4px 15px!important;font-size:10px!important;
+  background:transparent!important;border:0!important;
+}
+#screen-room.sf113-room .sf128-queue-tracks #sf39QueueInsight{
+  flex:0 0 auto!important;margin:2px 11px 7px!important;
+  padding:8px 10px!important;min-height:0!important;
+  font-size:11px!important;border-radius:10px!important;
+  background:#281927!important;border:1px solid #634361!important;
+}
+#screen-room.sf113-room .sf128-queue-tracks #sf52VoteStatus:empty,
+#screen-room.sf113-room .sf128-queue-tracks #waitingQueueList:empty{
+  display:none!important;
+}
+#screen-room.sf113-room .sf128-queue-tracks #queueList.queue-list{
+  flex:1 1 0!important;min-height:0!important;max-height:none!important;
+  height:auto!important;overflow-y:auto!important;overflow-x:hidden!important;
+  padding:1px 8px 9px!important;scrollbar-color:#9b6ba2 transparent!important;
+}
+#screen-room.sf113-room .sf128-queue-tracks #queueList .queue-item{
+  margin:0 0 7px!important;min-height:60px!important;
+  flex:0 0 auto!important;border-radius:12px!important;
+}
+#screen-room.sf113-room .sf128-queue-tracks #queueList .sf56-next-space{
+  display:none!important; /* ação primária já está no painel esquerdo */
+}
+#screen-room.sf113-room .sf128-queue-tracks #queueList .add-first-btn{
+  display:none!important; /* evita segundo botão Adicionar música na lista vazia */
+}
+#screen-room.sf113-room .sf128-queue-tracks #queueList .empty-state-mini{
+  min-height:90px!important;padding:12px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex-direction:column!important;border:1px dashed #674563;border-radius:12px;
+  background:#201722!important;
+}
+#screen-room.sf113-room .sf128-queue-tracks #waitingQueueLabel{
+  flex:0 0 auto!important;
+}
+#screen-room.sf113-room .sf128-queue-tracks #waitingQueueList{
+  flex:0 0 auto!important;max-height:85px!important;
+}
+
+@media(min-width:769px){
+  #screen-room.sf113-room .room-layout .queue-column.sf34-queue.sf128-queue{
+    grid-column:1 / 3!important;grid-row:2!important;
+    height:100%!important;max-height:none!important;overflow:hidden!important;
+  }
+}
+@media(min-width:769px) and (max-width:1130px){
+  #screen-room.sf113-room .sf128-queue-workspace{
+    grid-template-columns:minmax(190px,225px) minmax(0,1fr);
+  }
+  #screen-room.sf113-room .sf128-add-panel{padding:12px!important;gap:7px!important}
+  #screen-room.sf113-room .sf128-add-panel>p{font-size:11px!important}
+  #screen-room.sf113-room .sf128-add-panel .sf128-presence{padding-top:6px!important}
+}
+@media(max-width:768px){
+  /* Não alterar as abas: o painel aparece somente ao selecionar Fila. */
+  #screen-room.sf113-room .queue-column.sf34-queue.sf128-queue{
+    height:auto!important;max-height:none!important;min-height:0!important;
+    overflow:visible!important;
+  }
+  #screen-room.sf113-room .sf128-queue-workspace{
+    display:flex!important;flex-direction:column!important;
+    overflow:visible!important;gap:10px!important;
+  }
+  #screen-room.sf113-room .sf128-add-panel{
+    position:relative!important;z-index:1!important;
+    border:1px solid #633b5a!important;border-radius:0 0 13px 13px!important;
+    padding:13px!important;gap:8px!important;
+  }
+  #screen-room.sf113-room .sf128-add-panel h3{font-size:18px!important}
+  #screen-room.sf113-room .sf128-add-panel>p{display:none!important}
+  #screen-room.sf113-room .sf128-add-panel #sf113AddMusic{
+    display:flex!important;min-height:49px!important;font-size:13px!important;
+  }
+  #screen-room.sf113-room .sf128-add-panel #sf116Favorites{
+    width:auto!important;min-height:35px!important;
+  }
+  #screen-room.sf113-room .sf128-add-panel .sf5-listening-card.sf128-presence{
+    margin:4px 0 0!important;padding-top:7px!important;
+    max-height:79px!important;
+  }
+  #screen-room.sf113-room .sf128-queue-tracks{
+    flex:0 0 auto!important;height:auto!important;min-height:220px!important;
+    border-radius:12px!important;border:1px solid #60445f!important;
+  }
+  #screen-room.sf113-room .sf128-queue-tracks #queueList.queue-list{
+    flex:0 1 auto!important;min-height:100px!important;
+    height:auto!important;max-height:min(43dvh,390px)!important;
+    overflow-y:auto!important;
+  }
+  #screen-room.sf113-room .sf128-queue-tracks #queueList .queue-item{
+    min-height:65px!important;
+  }
+  #screen-room.sf113-room .sf128-queue .queue-header{min-height:45px!important;padding:9px 12px!important}
+  #screen-room.sf113-room .sf128-queue .queue-header>span:first-child{font-size:12px!important}
+}
+@media(max-width:400px){
+  #screen-room.sf113-room .sf128-add-panel{
+    padding:11px!important;
+  }
+  #screen-room.sf113-room .sf128-tracks-title{
+    flex-wrap:wrap;gap:4px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #screen-room.sf113-room .sf128-add-panel #sf113AddMusic{
+    transition:none!important;animation:none!important;
+  }
+}
