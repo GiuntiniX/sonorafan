@@ -2,3 +2,10 @@
 color:var(--text,#f0e6f6);border-radius:10px;padding:7px 11px;font-family:inherit;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
 .sf83-install:hover,.sf83-install:focus-visible{background:rgba(129,61,165,.36);outline:2px solid rgba(236,175,240,.55);outline-offset:2px}
 @media(max-width:768px){.sf83-install{min-height:41px;padding:7px 9px;font-size:10.5px}}
+
+/* v142: mostra indisponibilidade de conexão apenas fora da sala, sem modal. */
+.sf83-offline{position:fixed;z-index:1400;left:50%;bottom:max(16px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+max-width:min(94vw,550px);padding:11px 15px;border-radius:12px;
+border:1px solid #a9698c;background:#24172b;color:#fff1f3;box-shadow:0 10px 25px #0008;
+font:600 12px/1.4 system-ui;text-align:center;pointer-events:none}
+@media(max-width:768px){.sf83-offline{bottom:calc(14px + env(safe-area-inset-bottom,0px));font-size:11px}}
