@@ -360,3 +360,30 @@ body.sf133-themed-room #favoritesModal .sf35-favorites-modal h3{
 @media(prefers-reduced-motion:reduce){
  .sf76-sheet *,#screen-room #sf116MoreButton{animation:none!important;transition:none!important}
 }
+
+
+/* v140 — temas integrados sem criar componentes ou controles adicionais. */
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .queue-item.current,
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .sf39-next{
+ border-left-color:var(--sf88-secondary,var(--sf88-primary,#b463d8))!important;
+ background:linear-gradient(105deg,color-mix(in srgb,var(--sf88-primary,#9650c9) 18%,transparent),transparent 75%)!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .queue-header,
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .premium-chat-heading{
+ background-image:linear-gradient(100deg,color-mix(in srgb,var(--sf88-panel,#21122a) 92%,transparent),color-mix(in srgb,var(--sf88-primary,#a358ca) 16%,transparent)),var(--sf88-art)!important;
+ background-position:center!important;background-size:cover!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .queue-item:focus-within,
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .sf5-chat-input:focus-within{
+ outline:1px solid var(--sf88-secondary,#d57acf);outline-offset:1px;
+}
+#screen-room #queueList .sf140-duration-ahead{
+ display:block;margin-top:4px;color:var(--sf88-label,var(--text-muted,#b7a8c4));
+ opacity:.8;font-size:10px;line-height:1.3;
+}
+@media(max-width:768px){
+ #screen-room #queueList .sf140-duration-ahead{font-size:10px;white-space:normal}
+}
+@media(prefers-reduced-motion:reduce){
+ #screen-room[data-room-theme] #roomLayout .queue-item{transition:none!important}
+}
