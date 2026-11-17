@@ -318,6 +318,21 @@ function fairMusicQueue(queue, currentIndex = 0) {
   return result;
 }
 
+// Rodadas temporárias no contexto da sala: nunca modificam fila, pontos ou reprodução.
+const sf141PartyRounds=new Map();
+const sf141PartyChoices=Object.freeze([
+  ['Indie','Rock'],['Pop','Eletrônica'],['Clássicos','Descobertas'],
+  ['Anos 2000','Atualidades'],['Brasil','Internacional']
+]);
+function sf141PartyPublic(slug){
+  const p=sf141PartyRounds.get(slug);
+  if(!p)return {active:false,round:0,choices:[],votes:[0,0],endsAt:0};
+  if(p.endsAt<=Date.now()){
+    sf141PartyRounds.delete(slug);
+    return {active:false,round:p.round,choices:[],votes:[0,0],endsAt:0};
+  }
+  return {active:true,round:p.round,choices:p.choices,votes:[p.counts[0],p.counts[1]],endsAt:p.endsAt};
+}
 function broadcastState(slug) {
   const room = rooms.get(slug);
   if (!room) return;
@@ -342,6 +357,7 @@ function broadcastState(slug) {
     allowLive: room.allowLive,
     emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
     isPrivate: room.isPrivate, hasPassword: !!room.passHash,
+    sf141Party:sf141PartyPublic(slug),
   });
 }
 function broadcastUsers(slug) {
@@ -1345,6 +1361,7 @@ io.on('connection', (socket) => {
         maxDuration: room.maxDuration, allowLive: room.allowLive,
         emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
         isPrivate: room.isPrivate, hasPassword: !!room.passHash,
+        sf141Party:sf141PartyPublic(room.slug),
       });
       socket.emit('chatHistory', room.chatHistory.slice(-150));
       socket.emit('isAdmin', socket.isAdmin);
@@ -1505,6 +1522,35 @@ io.on('connection', (socket) => {
       io.to(currentRoom).emit('skipVoteUpdate', { votes: currentVotes, needed: minVotes });
       if (currentVotes >= minVotes) { addSystemMsg(currentRoom, `⏭️ Música pulada por votação! (${currentVotes} votos)`); advanceQueue(currentRoom); room.skipVotes = new Set(); }
     } catch (e) { console.error('Erro no voteSkip:', e.message); }
+  });
+
+  // Modo Festa — votação efêmera de clima musical, separada dos votos da fila.
+  socket.on('sf141:partyAction', (data={},ack)=>{
+    const respond=(ok,error)=>{if(typeof ack==='function')ack(ok?{ok:true}:{ok:false,error});};
+    const room=currentRoom&&rooms.get(currentRoom);
+    if(!room||!socket.userEmail)return respond(false,'Entre em uma sala para participar.');
+    const isOwner=room.ownerEmail?room.ownerEmail===socket.userEmail:!!socket.isAdmin;
+    const command=String(data?.action||'');
+    const current=sf141PartyRounds.get(currentRoom);
+    if(command==='start'||command==='next'||command==='stop'){
+      if(!isOwner&&!adminEmails.has(socket.userEmail))return respond(false,'Somente o responsável pela sala pode conduzir a festa.');
+      if(command==='stop'){
+        sf141PartyRounds.delete(currentRoom);
+      }else{
+        const round=command==='next'&&current?current.round+1:1;
+        const choices=sf141PartyChoices[(round-1)%sf141PartyChoices.length];
+        sf141PartyRounds.set(currentRoom,{round,choices,counts:[0,0],voters:new Set(),endsAt:Date.now()+5*60000});
+      }
+    }else if(command==='vote'){
+      const selected=Number(data?.option);
+      if(!current||current.endsAt<=Date.now())return respond(false,'A rodada já terminou.');
+      if(selected!==0&&selected!==1)return respond(false,'Escolha inválida.');
+      const key=socket.userEmail;
+      if(current.voters.has(key))return respond(false,'Você já votou nesta rodada.');
+      current.voters.add(key);current.counts[selected]++;
+    }else return respond(false,'Ação inválida.');
+    io.to(currentRoom).emit('sf141:partyState',sf141PartyPublic(currentRoom));
+    respond(true);
   });
 
   // Etapa 2 — modos musicais por sala. Nenhum cliente pode alterar salas fora da sua sessão.
