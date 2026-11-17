@@ -193,22 +193,12 @@
     $('lbModal')?.classList.remove('active');
     $('sf45ClubModal')?.classList.remove('active');
   }
-  function addModalRail(container,activeArea){
-    if(!container||container.querySelector(':scope > .sf125-modal-rail'))return;
-    container.classList.add('sf125-has-rail');
-    const rail=document.createElement('aside');
-    rail.className='sf125-modal-rail';rail.setAttribute('aria-label','Navegação da plataforma');
-    rail.innerHTML='<div class="sf125-modal-brand"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="180" height="60"></div>'+
-      '<nav class="sf125-modal-menu">'+nav.map(item=>'<button type="button" data-sf125-modal-go="'+item[0]+'"'+
-        (item[0]===activeArea?' class="is-active" aria-current="page"':'')+'>'+
-        '<span aria-hidden="true">'+item[1]+'</span>'+item[2]+'</button>').join('')+'</nav>'+
-      '<div class="sf125-modal-waves" aria-hidden="true"></div>';
-    container.prepend(rail);
-    rail.addEventListener('click',event=>{
-      const button=event.target.closest('[data-sf125-modal-go]');
-      if(!button)return;
-      closeActiveOverlay();go(button.dataset.sf125ModalGo);
-    });
+  // v127: navegação fixa somente no lobby e na sala.
+  // Diálogos (Perfil, Ranking, Fan Clubs) conservam apenas o botão de fechar.
+  function addModalRail(container){
+    if(!container)return;
+    container.querySelectorAll(':scope > .sf125-modal-rail').forEach(rail=>rail.remove());
+    container.classList.remove('sf125-has-rail');
   }
   function hookOverlay(){
     const profile=$('sf43ProfileModal');
