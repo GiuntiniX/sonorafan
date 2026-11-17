@@ -24,11 +24,11 @@ test('v137 eliminates conflicting root 100vh, fixed tabs and duplicate bottom pa
  assert.match(css,/grid-row:3!important/);
  assert.match(css,/height:var\(--sf137-viewport-height,100dvh\)!important/);
 });
-test('v137 identifies the deployed version, disables caching of index and names its scripts',()=>{
+test('mobile build preserves cache controls without exposing technical version to users',()=>{
  assert.match(html,/sonorafan-mobile-room-135\.css\?v=137/);
- assert.match(html,/sonorafan-mobile-room-136\.css\?v=137/);
- assert.match(html,/sonorafan-mobile-room-136\.js\?v=137/);
- assert.match(html,/Interface mobile v137\.1/);
+ assert.match(html,/sonorafan-mobile-room-136\.css\?v=139\.1/);
+ assert.match(html,/sonorafan-mobile-room-136\.js\?v=139\.1/);
+ assert.doesNotMatch(html,/Interface mobile v137\.1/);
  assert.match(server,/get\('\/api\/client-version'/);
  assert.match(server,/res\.set\('Cache-Control','no-store, no-cache, must-revalidate'\)/);
 });
@@ -77,8 +77,8 @@ test('actual viewport JavaScript clamps body to Chrome Android visible height',(
  assert.equal(data.root.style.getPropertyValue('--sf137-viewport-height'),'637px');
  assert.equal(data.screen.style.getPropertyValue('--sf136-mobile-vh'),'637px');
  assert.equal(data.body.classList.contains('sf137-mobile-room'),true);
- assert.equal(data.welcome.hidden,false);
- assert.equal(data.context.window.sf137MobileMetrics().version,'137.1');
+ assert.equal(data.context.window.sf137MobileMetrics().active,true);
+ assert.equal(data.context.window.sf137MobileMetrics().version,'139.1');
  data.screen.classList.remove('active');
  // A observação da classe da sala força a medição quando se sai dela.
  data.subscriptions[0].cb();
