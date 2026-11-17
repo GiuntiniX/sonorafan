@@ -1457,6 +1457,7 @@
   <link rel="stylesheet" href="/sonorafan-room-experience-132.css?v=132.1">
   <link rel="stylesheet" href="/sonorafan-room-personalization-133.css?v=133.2">
   <link rel="stylesheet" href="/sonorafan-search-inline-134.css?v=134.1">
+  <link rel="stylesheet" href="/sonorafan-mobile-room-135.css?v=135.1">
 </head>
 <body>
 
@@ -2359,12 +2360,12 @@
         </div>
       </div>
       <div class="premium-mini-player" id="premiumMiniPlayer" aria-label="Faixa em reprodução"><div class="premium-mini-cover" id="premiumMiniCover">♫</div><div class="premium-mini-text"><strong id="premiumMiniTitle">Nenhuma música</strong><span id="premiumMiniArtist">Escolha uma música</span></div><span class="premium-mini-live">● LIVE</span><button type="button" onclick="setTab('player')" aria-label="Abrir player">↗</button><div class="premium-mini-progress"><span id="premiumMiniFill"></span></div></div>
-      <nav class="mtabs" id="mTabs">
-        <button data-t="queue" onclick="setTab('queue')">🎵 Fila</button>
-        <button data-t="player" class="on" onclick="setTab('player')">▶ Player</button>
-        <button data-t="chat" onclick="setTab('chat')">💬 Chat</button>
+      <nav class="mtabs" id="mTabs" aria-label="Navegação da sala no celular">
+        <button data-t="queue" onclick="setTab('queue')" aria-label="Ver fila de músicas" aria-pressed="false">🎵 Fila</button>
+        <button data-t="player" class="on" onclick="setTab('player')" aria-label="Ver player da sala" aria-pressed="true">▶ Player</button>
+        <button data-t="chat" onclick="setTab('chat')" aria-label="Abrir chat da sala" aria-pressed="false">💬 Chat</button>
         <button type="button" onclick="window.sf53OpenInbox?.()">✉ Inbox</button>
-        <button class="sf34-add-mobile" type="button" onclick="window.sf76OpenMusic ? window.sf76OpenMusic('search') : window.sf34FindSong?.()" aria-label="Abrir músicas e favoritas">＋ Música</button>
+        <button class="sf34-add-mobile sf135-add-music" type="button" onclick="window.sf76OpenMusic ? window.sf76OpenMusic('search') : window.sf34FindSong?.()" aria-label="Adicionar música: buscar ou escolher das favoritas" aria-haspopup="dialog" aria-controls="sf76MusicSheet" title="Buscar músicas e escolher favoritas">＋ Música</button>
         
       </nav>
     </div>
@@ -4408,7 +4409,11 @@ function openRoomCfg() {
 
     function setTab(tab) {
       document.body.dataset.tab = tab;
-      document.querySelectorAll('#mTabs button').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
+      document.querySelectorAll('#mTabs button[data-t]').forEach(b => {
+        const selected = b.dataset.t === tab;
+        b.classList.toggle('on', selected);
+        b.setAttribute('aria-pressed', String(selected));
+      });
       if (tab === 'chat') {
         document.querySelector('#mTabs button[data-t="chat"] .unread-dot')?.remove();
         userScrolledUp = false; unreadMessages = 0;
