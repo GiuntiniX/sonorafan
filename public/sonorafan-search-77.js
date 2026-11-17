@@ -313,6 +313,18 @@
 
   function open(query = '') {
     if (!roomActive()) return false;
+    // v138: no celular sf76 é a única janela. Atalhos legados não podem
+    // abrir sf77 atrás dela nem disparar outro modal em seguida.
+    if (window.matchMedia('(max-width:768px)').matches && typeof window.sf76OpenMusic==='function') {
+      window.sf76OpenMusic('search');
+      const field=$('sf138SearchQuery');
+      const text=String(query||'').trim();
+      if(field&&text){
+        field.value=text;
+        field.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+      return true;
+    }
     build();
     const currentlyOpen = state.open;
     if (!currentlyOpen) {
