@@ -54,6 +54,19 @@ app.use((req, res, next) => {
   res.set({ 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'SAMEORIGIN', 'Referrer-Policy': 'strict-origin-when-cross-origin' });
   next();
 });
+// HTML deve sempre revalidar: no Android, a index.html antiga pode continuar
+// apontando para os estilos mobile antigos após a publicação do Render.
+app.use((req,res,next)=>{
+  if(req.method==='GET' && (req.path==='/' || req.path.endsWith('.html'))){
+    res.set('Cache-Control','no-store, no-cache, must-revalidate');
+    res.set('Pragma','no-cache');
+  }
+  next();
+});
+app.get('/api/client-version',(req,res)=>{
+  res.set('Cache-Control','no-store');
+  res.json({mobile:'137.1',commit:process.env.RENDER_GIT_COMMIT||null});
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/profile108/avatar', express.json({limit:'240kb'}));
 app.use(express.json());
