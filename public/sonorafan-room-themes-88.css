@@ -138,3 +138,17 @@
  #screen-room .sf88-chat-switch{font-size:9px;padding:4px 5px;min-height:31px;margin-right:3px}
  #screen-room .premium-chat-heading small{display:none}
 }
+
+
+/* v139 — galeria acessível sem cortes em tablets e teclados móveis. */
+#sf88ThemeOverlay .sf88-theme-card:focus-visible,
+#sf88ThemeOverlay button:focus-visible{outline:3px solid #f6d2ff;outline-offset:2px}
+#sf88ThemeOverlay .sf88-theme-grid{scrollbar-gutter:stable;overscroll-behavior:contain}
+@media(min-width:769px) and (max-width:1024px){
+ #sf88ThemeOverlay .sf88-theme-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:768px){
+ #sf88ThemeOverlay{padding:max(5px,env(safe-area-inset-top,0px)) 5px max(5px,env(safe-area-inset-bottom,0px))}
+ #sf88ThemeOverlay .sf88-modal{max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 10px)}
+ #sf88ThemeOverlay .sf88-theme-grid{min-height:0;overflow-y:auto}
+}
