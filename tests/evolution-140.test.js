@@ -86,13 +86,13 @@ test('integrated upgrades keep single existing surfaces and updated resources',(
   const theme=read('public/sonorafan-room-themes-88.js');
   const badges=read('public/sonorafan-club-45.js');
   const community=read('public/sonorafan-community-110.js');
-  assert.doesNotMatch(html,/Interface mobile v137\\.1/);
-  assert.match(html,/sonorafan-mobile-room-136\\.js\\?v=140\\.0/);
-  assert.match(html,/sonorafan-queue-tools-95\\.js\\?v=140\\.0/);
+  assert.doesNotMatch(html,/Interface mobile v137\.1/);
+  assert.match(html,/sonorafan-mobile-room-136\.js\?v=140\.0/);
+  assert.match(html,/sonorafan-queue-tools-95\.js\?v=140\.0/);
   assert.match(styles,/sf140-duration-ahead/);
   assert.match(club,/data-sf140-share-song/);
   assert.match(club,/sf71PostText/);
-  assert.match(theme,/function updateSelection\\(/);
+  assert.match(theme,/function updateSelection\(/);
   assert.match(badges,/Faltam /);
   assert.match(community,/scheduleRender/);
 });
