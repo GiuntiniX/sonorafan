@@ -3218,7 +3218,7 @@
       const estilos = Array.from(document.querySelectorAll('#signupStyles .chip.selected')).map(c => c.dataset.style);
       if (nome.length < 2) return toast('Digite seu nome', 'error');
       if (!/^[a-z0-9._-]{3,24}$/.test(username)) return toast('Username: use 3 a 24 caracteres, letras, números, . _ ou -', 'error');
-      if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return toast('E-mail inválido', 'error');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast('E-mail inválido', 'error');
       if (senha.length < 6) return toast('Senha deve ter 6+ caracteres', 'error');
       if (senha !== confirmacao) return toast('As senhas não conferem', 'error');
       if (estilos.length === 0) return toast('Escolha um estilo musical', 'error');
