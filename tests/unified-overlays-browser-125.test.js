@@ -37,7 +37,7 @@ function fixture(){
   'const visible=x=>getComputedStyle(x).display!=="none"&&x.getBoundingClientRect().width>0;',
   'const metrics={width:innerWidth,profile:!!prail,ranking:!!rrail,community:!!crail,',
   'modalRailVisible:!!prail&&visible(prail),',
-  'logo:!!prail?.querySelector("img[src$=sonorafan-logo-transparent.png]"),',
+  'logo:!!prail&&[...prail.querySelectorAll("img")].some(img=>img.getAttribute("src")?.endsWith("sonorafan-logo-transparent.png")),',
   'profileContent:$("#sf43ProfileModal .sf43-profile-shell").getBoundingClientRect().width,',
   'profileOverflow:$("#sf43ProfileModal .sf43-profile-modal").getBoundingClientRect().right<=innerWidth+5,',
   'profilePadding:parseFloat(getComputedStyle($("#sf43ProfileModal .sf43-profile-modal")).paddingLeft),',
