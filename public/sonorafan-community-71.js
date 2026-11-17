@@ -206,6 +206,7 @@
              <div class="sf141-event-actions">
                <button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${ev.going?'false':'true'}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button>
                <button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Entrar na sala</button>
+               <button type="button" data-sf142-club-calendar="${esc(ev.id)}">Lembrar no calendário</button>
              </div>
            </div>`).join(''):'<p class="sf71-empty">Nenhum encontro programado para as salas deste Fan Club.</p>'}
            <button type="button" data-sf71-events>Ver agenda completa</button>
@@ -253,6 +254,15 @@
      await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/cover',{method:'DELETE'});await openDetail(id);},'Capa removida.');return;
    }
    if(t.matches('[data-sf71-back]')){showList();await loadClubs();return;}
+   if(t.hasAttribute('data-sf142-club-calendar')){
+     const event=state.detail?.club?.events?.find(ev=>ev.id===t.dataset.sf142ClubCalendar);
+     if(!event||typeof window.sf100DownloadEventCalendar!=='function'){
+       status('Não foi possível preparar o lembrete. Abra a agenda completa.',true);return;
+     }
+     window.sf100DownloadEventCalendar(event);
+     status('Evento preparado para calendário com lembrete de 30 minutos.');
+     return;
+   }
    if(t.hasAttribute('data-sf141-club-rsvp')){
      const eventId=t.dataset.sf141ClubRsvp;
      if(!/^[a-f0-9-]{36}$/i.test(eventId))return;
