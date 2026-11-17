@@ -2364,19 +2364,40 @@
     </div>
   </div>
 
-  <!-- CREATE ROOM -->
-  <div class="modal-overlay" id="createRoomModal" role="dialog" aria-modal="true" aria-labelledby="sf35CreateTitle">
-    <div class="modal sf35-create-modal">
-      <header class="sf35-create-hero">
-        <div class="sf35-create-copy">
-          <span class="sf35-kicker">✳ SEU SOM, SUA COMUNIDADE</span>
-          <h3 id="sf35CreateTitle">Crie seu espaço musical</h3>
-          <p class="sf10-create-desc">Escolha sua vibe, defina a privacidade e controle quem pode adicionar músicas.</p>
+  <!-- CREATE ROOM · BACKSTAGE / FESTIVAL · CONCEITO 3 -->
+  <div class="modal-overlay sf130-backstage-overlay" id="createRoomModal" role="dialog" aria-modal="true" aria-labelledby="sf35CreateTitle" aria-describedby="sf130CreateDescription">
+    <div class="modal sf35-create-modal sf130-backstage-modal">
+      <aside class="sf130-stage-art sf130-stage-art-left" aria-hidden="true">
+        <div class="sf130-stage-art-top"><span class="sf130-neon-spark">✦</span><span>SONORAFAN / BACKSTAGE</span></div>
+        <div class="sf130-stage-art-bottom">
+          <div class="sf130-equalizer"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <span class="sf130-side-kicker">ENTRE NO PALCO</span>
+          <strong>Seu som.
+            Sua sala.</strong>
+          <small>Crie o espaço perfeito para reunir quem curte a mesma vibe.</small>
         </div>
-        <img src="/art-129/sonorafan-stage.svg" alt="" width="160" height="160" decoding="async">
-      </header>
-      <div class="sf10-stepper"><span data-sf10-step-mark="1">1 · Identidade</span><span data-sf10-step-mark="2">2 · Tipo da sala</span></div>
-      <div class="sf10-step-one">
+      </aside>
+
+      <div class="sf130-main-stage">
+        <header class="sf35-create-hero sf130-create-header">
+          <div class="sf130-brand-row">
+            <img class="sf130-brand-image" src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="600" height="185" decoding="async">
+            <span class="sf130-header-label">✦ CONFIGURAR / BACKSTAGE</span>
+            <button type="button" class="sf130-create-close" aria-label="Fechar criação de sala" onclick="closeCreateRoom()">✕</button>
+          </div>
+          <div class="sf35-create-copy">
+            <span class="sf35-kicker">✳ UMA NOVA EXPERIÊNCIA COMEÇA AQUI</span>
+            <h3 id="sf35CreateTitle">Criar sua sala <span aria-hidden="true">♫</span></h3>
+            <p class="sf10-create-desc" id="sf130CreateDescription">Escolha seu estilo, configure a playlist e abra as portas da sua comunidade musical.</p>
+          </div>
+        </header>
+
+        <div class="sf10-stepper sf130-progress" aria-label="Etapas de criação da sala">
+          <span data-sf10-step-mark="1"><b aria-hidden="true">01</b><span>Identidade e estilo</span></span>
+          <span data-sf10-step-mark="2"><b aria-hidden="true">02</b><span>Playlist e acesso</span></span>
+        </div>
+        <div class="sf130-stage-scroll" id="sf130CreateScroll" tabindex="-1">
+                <div class="sf10-step-one">
         <label for="newRoomName">Como sua sala vai se chamar?</label>
         <input type="text" id="newRoomName" placeholder="Ex.: Noite do Rock" maxlength="40">
         <p>O nome será mostrado para quem encontrar sua sala.</p>
@@ -2389,12 +2410,12 @@
           <small id="sf109GenreError" role="alert" hidden>Escolha um gênero para continuar.</small>
         </fieldset>
       </div>
-      <div class="sf10-step-two"><div id="sf88CreateTheme" aria-label="Tema visual da nova sala"></div><div id="createCfg" class="cfg"></div></div>
-      <div class="sf17-create-hint">
+                <div class="sf10-step-two"><div id="sf88CreateTheme" aria-label="Tema visual da nova sala"></div><div id="createCfg" class="cfg"></div></div>
+                <div class="sf17-create-hint">
         <strong>Escolha quem controla a playlist</strong>
         <span>Você decide: todos os participantes podem colaborar ou somente o anfitrião adiciona músicas. O modo anfitrião é ideal para lives e shows.</span>
       </div>
-      <div id="adminRoomOptions" style="display:none;margin-top:6px;text-align:left;">
+                <div id="adminRoomOptions" style="display:none;margin-top:6px;text-align:left;">
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 0;cursor:pointer;">
           <input type="checkbox" id="optAllowLong" style="width:auto;margin:0;accent-color:var(--accent);"> 🎬 Aceitar vídeos longos / sets / podcasts (até 6h)
         </label>
@@ -2402,12 +2423,33 @@
           <input type="checkbox" id="optAllowLive" style="width:auto;margin:0;accent-color:var(--accent);"> 🔴 Aceitar lives do YouTube / transmissões contínuas
         </label>
       </div>
-      <div class="modal-actions">
-        <button class="btn-secondary" onclick="closeCreateRoom()">Cancelar</button>
-        <button class="btn-secondary sf10-back" type="button" onclick="window.sf10WizardBack?.()" hidden>← Anterior</button>
-        <button class="btn-primary sf10-next" type="button" onclick="window.sf10WizardNext?.()">Continuar →</button>
-        <button class="btn-primary sf10-submit" type="button" onclick="createRoom()" hidden>Criar sala ♫</button>
+        </div>
+        <footer class="sf130-create-footer">
+          <div class="sf130-footer-caption"><span aria-hidden="true">◉</span><span>Sua música, suas regras.</span></div>
+          <div class="modal-actions">
+            <button class="btn-secondary sf130-cancel" type="button" onclick="closeCreateRoom()">Cancelar</button>
+            <button class="btn-secondary sf10-back" type="button" onclick="window.sf10WizardBack?.()" hidden>← Anterior</button>
+            <button class="btn-primary sf10-next" type="button" onclick="window.sf10WizardNext?.()">Continuar →</button>
+            <button class="btn-primary sf10-submit" type="button" onclick="createRoom()" hidden>Criar sala ♫</button>
+          </div>
+        </footer>
       </div>
+
+      <aside class="sf130-stage-art sf130-stage-art-right" aria-hidden="true">
+        <div class="sf130-lights"><i></i><i></i><i></i><i></i></div>
+        <div class="sf130-pass">
+          <span class="sf130-pass-hole">●</span>
+          <div class="sf130-pass-icon">♫</div>
+          <span>ACESSO CRIADOR</span>
+          <strong>SONORAFAN</strong>
+          <em>BACKSTAGE</em>
+          <small>CREATE YOUR ROOM</small>
+          <div class="sf130-pass-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="sf130-stage-art-quote">FAÇA A VIBE
+          <strong>ACONTECER.</strong>
+        </div>
+      </aside>
     </div>
   </div>
 
