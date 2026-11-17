@@ -90,3 +90,28 @@
   #screen-room #queueList .queue-item{grid-template-columns:16px 44px minmax(0,1fr) 33px!important;}
   #screen-room #queueList .queue-item .sf52-vote-btn{min-width:58px!important;min-height:40px!important;}
 }
+
+/* v144 — a marca Terra SonoraFan aprovada, sem contorno artificial;
+   preserva transparência, escala e alinhamento nos contextos da plataforma. */
+.sf54-brand img[src="/brand-144/sonorafan-logo.svg"],
+.sf113-brand img[src="/brand-144/sonorafan-logo.svg"],
+.sf130-brand-image[src="/brand-144/sonorafan-logo.svg"]{
+  display:block;max-width:100%;height:auto;object-fit:contain;
+  filter:none!important;mix-blend-mode:normal!important;
+  text-shadow:none!important;
+}
+.sf54-brand .sf54-brand-image{aspect-ratio:1260/426}
+.topnav-logo.sf54-brand-top{width:min(190px,100%)!important}
+#loginScreen .sf54-brand-login{width:min(260px,100%)!important}
+#screen-lobby .sf54-brand-lobby{width:min(185px,100%)!important}
+#screen-room .sf54-brand-room .sf54-brand-image{max-height:53px}
+#screen-room .sf113-brand img{max-height:46px;width:auto;object-position:center}
+.sf130-brand-image[src="/brand-144/sonorafan-logo.svg"]{object-position:center}
+@media(max-width:768px){
+  .topnav-logo.sf54-brand-top{width:min(152px,100%)!important}
+  #screen-room .sf54-brand-room .sf54-brand-image{max-height:44px}
+  #screen-room .sf113-brand img{max-height:35px}
+}
+@media(max-width:380px){
+  .topnav-logo.sf54-brand-top{width:min(135px,100%)!important}
+}
