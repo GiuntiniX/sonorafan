@@ -740,3 +740,32 @@ body.sf125-global :is(.sf63-panel,.sf92-account-panel,.sf95-panel) :is(h2,h3,str
   overflow-y:auto!important;overscroll-behavior:contain;
  }
 }
+
+/* 125.4 · Genre chips follow the approved Lobby screenshot, not old poster tiles. */
+#screen-lobby.sf125-platform .sf107-style-list{
+ display:flex!important;flex-wrap:wrap!important;
+ gap:8px!important;grid-template-columns:none!important;
+}
+#screen-lobby.sf125-platform .sf107-style{
+ display:inline-flex!important;flex-direction:row!important;
+ align-items:center!important;justify-content:center!important;gap:7px!important;
+ flex:0 0 auto!important;width:auto!important;
+ min-height:38px!important;padding:7px 12px!important;
+ font-size:12px!important;line-height:1.15!important;
+ border:1px solid #66606d!important;
+ background:#111114!important;isolation:auto!important;
+ border-radius:999px!important;white-space:nowrap!important;
+ box-shadow:none!important;
+}
+#screen-lobby.sf125-platform .sf107-style::before,
+#screen-lobby.sf125-platform .sf107-style::after{
+ content:none!important;display:none!important;
+}
+#screen-lobby.sf125-platform .sf107-style b{
+ font-size:15px!important;color:var(--sf125-orange)!important;
+}
+#screen-lobby.sf125-platform .sf107-style.selected{
+ background:var(--sf125-lime)!important;border-color:var(--sf125-lime)!important;
+ color:#101011!important;
+}
+#screen-lobby.sf125-platform .sf107-style.selected b{color:#141414!important}
