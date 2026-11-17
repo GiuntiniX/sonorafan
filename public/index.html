@@ -10,6 +10,10 @@
   <meta property="og:image" content="/brand-64/sonorafan-logo-transparent.png"><meta name="theme-color" content="#7c3aed">
   <link rel="manifest" href="/manifest.json"><link rel="icon" href="/brand-64/sonorafan-favicon-64.png" type="image/png">
   <link rel="apple-touch-icon" href="/brand-64/sonorafan-icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://img.youtube.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap">
   <script src="/socket.io/socket.io.js"></script>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -29,7 +33,7 @@
 
   <style>
     /* ===== FONTES ===== */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap');
+    /* Fontes pré-conectadas e carregadas no head, sem cascata de @import. */
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
@@ -1411,7 +1415,7 @@
   <link rel="stylesheet" href="/sonorafan-player-68.css">
   <link rel="stylesheet" href="/sonorafan-social-69.css">
   <link rel="stylesheet" href="/sonorafan-discovery-70.css">
-  <link rel="stylesheet" href="/sonorafan-community-71.css">
+  <link rel="stylesheet" href="/sonorafan-community-71.css?v=140.0">
   <link rel="stylesheet" href="/sonorafan-polish-72.css">
   <link rel="stylesheet" href="/sonorafan-visual-74.css">
   <link rel="stylesheet" href="/sonorafan-fila-fanclub-75.css">
@@ -1455,7 +1459,7 @@
   <link rel="stylesheet" href="/sonorafan-backstage-130.css?v=130.2">
   <link rel="stylesheet" href="/sonorafan-room-login-fanclub-131.css?v=131.3">
   <link rel="stylesheet" href="/sonorafan-room-experience-132.css?v=132.1">
-  <link rel="stylesheet" href="/sonorafan-room-personalization-133.css?v=133.2">
+  <link rel="stylesheet" href="/sonorafan-room-personalization-133.css?v=140.0">
   <link rel="stylesheet" href="/sonorafan-search-inline-134.css?v=134.1">
   <link rel="stylesheet" href="/sonorafan-mobile-room-135.css?v=137.1">
   <link rel="stylesheet" href="/sonorafan-mobile-room-136.css?v=139.1">
@@ -3918,7 +3922,7 @@ function openRoomCfg() {
       const label = $('waitingQueueLabel'); const list = $('waitingQueueList');
       if (!waitingQueue || waitingQueue.length === 0) { label.classList.add('hidden'); list.innerHTML = ''; return; }
       label.classList.remove('hidden');
-      list.innerHTML = waitingQueue.map((track, i) => `<div class="queue-item waiting"><span class="pos">${i + 1}</span><div class="thumb"><img src="https://img.youtube.com/vi/${track.id}/default.jpg"></div><div class="info"><div class="title">${escapeHtml(sf74SongText(track.title))}</div><div class="artist">${escapeHtml(sf74SongText(track.artist))}</div></div></div>`).join('');
+      list.innerHTML = waitingQueue.map((track, i) => `<div class="queue-item waiting"><span class="pos">${i + 1}</span><div class="thumb"><img src="https://img.youtube.com/vi/${/^[A-Za-z0-9_-]{11}$/.test(String(track.id||''))?track.id:''}/default.jpg" alt="" loading="lazy" decoding="async"></div><div class="info"><div class="title">${escapeHtml(sf74SongText(track.title))}</div><div class="artist">${escapeHtml(sf74SongText(track.artist))}</div></div></div>`).join('');
     }
 
     function voteSkip() { if (!currentRoom) { toast('Entre em uma sala', 'error'); return; } socket.emit('voteSkip'); }
@@ -4695,7 +4699,7 @@ function openRoomCfg() {
   
   <script defer src="/sonorafan-experience-44.js"></script>
   
-  <script defer src="/sonorafan-club-45.js"></script>
+  <script defer src="/sonorafan-club-45.js?v=140.0"></script>
   
   <script defer src="/sonorafan-ux-50.js"></script>
   
@@ -4720,7 +4724,7 @@ function openRoomCfg() {
   
   <script defer src="/sonorafan-menu-favorites-67.js"></script>
   <script defer src="/sonorafan-discovery-70.js?v=87"></script>
-  <script defer src="/sonorafan-community-71.js?v=108.1"></script>
+  <script defer src="/sonorafan-community-71.js?v=140.0"></script>
   
   
   
@@ -4739,16 +4743,16 @@ function openRoomCfg() {
   <script defer src="/sonorafan-queue-discovery-82.js?v=82"></script>
   
   <script defer src="/sonorafan-pwa-83.js?v=83"></script>
-  <script defer src="/sonorafan-room-themes-88.js?v=139.1"></script>
+  <script defer src="/sonorafan-room-themes-88.js?v=140.0"></script>
   <script defer src="/sonorafan-lobby-account-92.js?v=92"></script>
   <script defer src="/sonorafan-room-ux-93.js?v=93"></script>
-  <script defer src="/sonorafan-queue-tools-95.js?v=99.1"></script>
+  <script defer src="/sonorafan-queue-tools-95.js?v=140.0"></script>
   <script defer src="/sonorafan-universe-95.js?v=105.2"></script>
   <script defer src="/sonorafan-studio-100.js?v=105.2"></script>
   <script defer src="/sonorafan-footer-tools-106.js?v=115"></script>
   <script defer src="/sonorafan-lobby-107.js?v=112.2"></script>
   <script defer src="/sonorafan-room-genres-109.js?v=110.1"></script>
-  <script defer src="/sonorafan-community-110.js?v=139.1"></script>
+  <script defer src="/sonorafan-community-110.js?v=140.0"></script>
   <script defer src="/sonorafan-profile-108.js?v=108.1"></script>
   <script defer src="/sonorafan-profile-library-112.js?v=112.2"></script>
 <script defer src="/sonorafan-room-redesign-113.js?v=119"></script>
@@ -4756,6 +4760,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-experience-126.js?v=126.1"></script>
   <script defer src="/sonorafan-room-permissions-129.js?v=129.1"></script>
   <script defer src="/sonorafan-room-personalization-133.js?v=133.1"></script>
-  <script defer src="/sonorafan-mobile-room-136.js?v=139.1"></script>
+  <script defer src="/sonorafan-mobile-room-136.js?v=140.0"></script>
 </body>
 </html>
