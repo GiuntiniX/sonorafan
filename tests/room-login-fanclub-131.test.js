@@ -27,7 +27,7 @@ test('v131 login uses editable fields and concert photo rather than previous SVG
  for(const id of ['loginScreen','loginEmail','loginPassword','loginBtn','sf123RememberLogin','loginError']){
   assert.match(login,new RegExp('id="'+id+'"'));
  }
- assert.match(login,/art-44\/festival-stage\.webp/);
+ assert.match(login,/art-132\/sonorafan-login-guitarrista\.avif/);
  assert.doesNotMatch(login,/art-129\/sonorafan-stage\.svg/);
  assert.match(styles,/grid-template-columns:minmax\(355px,38%\) minmax\(0,62%\)/);
  assert.match(styles,/@media\(max-width:800px\)/);
