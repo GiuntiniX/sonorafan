@@ -48,7 +48,8 @@ test('form actions validate username confirmation, terms and selected genres',()
  assert.match(html,/senha !== confirmacao/);
  assert.match(html,/const username = \(\$\('signupUsername'\)/);
  assert.match(html,/if \(!consent\) return toast/);
- assert.match(html,/JSON\.stringify\(\{ nome, username, estilos, idToken \}\)/);
+ assert.match(html,/sf145AuthRequest\('\/api\/signup', idToken, \{ nome, username, estilos \}\)/);
+ assert.match(html,/JSON\.stringify\(details \? \{ \.\.\.details, idToken \} : \{ idToken \}\)/);
  assert.match(html,/setAttribute\('aria-pressed', String\(selected\)\)/);
  assert.match(html,/sendPasswordResetEmail\(email\)/);
  assert.match(html,/sf123RememberLogin/);
