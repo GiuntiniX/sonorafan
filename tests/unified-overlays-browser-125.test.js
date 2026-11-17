@@ -44,9 +44,9 @@ function fixture(){
   'rankPadding:parseFloat(getComputedStyle($("#lbModal .sf35-ranking-modal")).paddingLeft),',
   'communityPadding:parseFloat(getComputedStyle($(".sf5-community-shell")).paddingLeft)};',
   'const mobile=innerWidth<=860;',
-  'const pass=metrics.profile&&metrics.ranking&&metrics.community&&metrics.logo&&metrics.profileOverflow',
-  '&&metrics.profileContent>200&&(mobile?!metrics.modalRailVisible&&metrics.profilePadding===0',
-  ':metrics.modalRailVisible&&metrics.profilePadding>=190&&metrics.rankPadding>=190&&metrics.communityPadding>=190);',
+  'const pass=!metrics.profile&&!metrics.ranking&&!metrics.community&&metrics.profileOverflow',
+  '&&metrics.profileContent>200&&metrics.profilePadding<100',
+  '&&metrics.rankPadding<100&&metrics.communityPadding<100;',
   'const out=document.createElement("output");out.id="sf125Overlays";out.dataset.sf125Status=pass?"ok":"fail";',
   'out.textContent=JSON.stringify(metrics);document.body.append(out);',
   '},650);',
@@ -79,7 +79,7 @@ async function render(res){
   });
  }finally{fs.rmSync(filename,{force:true});fs.rmSync(profile,{recursive:true,force:true})}
 }
-test('v125 profile, ranking and community overlay rails are desktop-only and mobile width is not clipped',{
+test('v128 profile, ranking and Fan Clubs open without side navigation on desktop and mobile',{
  skip:chrome||process.env.CI==='true'?false:'Chromium unavailable'
 },async()=>{
  assert.ok(chrome,'Chromium required in CI');
