@@ -653,3 +653,42 @@ body.sf125-global :is(#favoritesModal,#sf53Inbox) button.btn-primary{
 #lbModal.sf125-ranking .sf35-ranking-modal.sf125-has-rail > .sf125-modal-rail{
  position:absolute!important;inset:0 auto 0 0!important;
 }
+
+/* 125.2 · Faixas de frequência compartilhadas entre as cinco telas */
+#screen-lobby.sf125-platform .sf125-sidebar-art{
+ background:
+ linear-gradient(to bottom,#0b0b0d 0%,transparent 50%,#0b0b0d 98%),
+ url('/art-125/neon-waves.svg') 35% 90%/500px 170px no-repeat,
+ url('/art-33/speakers.webp') center 70%/contain no-repeat!important;
+}
+#screen-lobby.sf125-platform .sf125-lobby-hero::after{
+ background:url('/art-125/neon-waves.svg') center center/100% 100% no-repeat!important;
+ right:-3%;bottom:4%;width:47%;height:160px;opacity:.9!important;
+ transform:rotate(-7deg);
+ -webkit-mask-image:none;mask-image:none;
+}
+#sf43ProfileModal.sf125-profile .sf108-hero::after{
+ background:url('/art-125/neon-waves.svg') center /cover no-repeat!important;
+ width:55%;height:90%;inset:auto -4% -16% auto!important;
+ pointer-events:none;opacity:.85!important;
+}
+#sf43ProfileModal.sf125-profile .sf125-modal-waves,
+.sf5-community-layer.sf125-community .sf125-modal-waves,
+#lbModal.sf125-ranking .sf125-modal-waves{
+ background:url('/art-125/neon-waves.svg') 45% bottom/420px 160px no-repeat!important;
+ -webkit-mask-image:linear-gradient(transparent,#000 30%);mask-image:linear-gradient(transparent,#000 30%);
+}
+.sf5-community-layer.sf125-community .sf110-hero{
+ position:relative;isolation:isolate;overflow:hidden;
+}
+.sf5-community-layer.sf125-community .sf110-hero::after{
+ content:"";position:absolute;z-index:-1;pointer-events:none;
+ inset:auto -2% -15% auto;width:40%;height:115%;
+ background:url('/art-125/neon-waves.svg') center/contain no-repeat;
+ opacity:.7;
+}
+#lbModal.sf125-ranking .sf35-ranking-modal::after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ right:0;top:35px;width:33%;height:135px;opacity:.6;
+ background:url('/art-125/neon-waves.svg') center/contain no-repeat;
+}
