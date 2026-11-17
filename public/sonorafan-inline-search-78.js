@@ -53,6 +53,8 @@
     state.items = [];
     if (clearQuery) state.query = '';
     $('sf78InlineSearch')?.setAttribute('hidden','');
+    // Mantém o componente dentro da aba enquanto a janela estiver aberta.
+    // O próximo open() reposiciona-o se acionado fora dela.
     const input = $('songUrl');
     input?.setAttribute('aria-expanded','false');
     input?.removeAttribute('aria-activedescendant');
@@ -114,6 +116,29 @@
     $('sf78Hint').textContent=`${tracks.length} ${tracks.length===1?'resultado':'resultados'} · selecione para adicionar aqui ou use a busca completa.`;
     position();
   }
+  /* Na janela única de música, a busca ocupa a área de resultados da própria
+     aba. Fora da janela, preserva a pesquisa flutuante legada. */
+  function syncResultsHost(){
+    const popup=$('sf78InlineSearch');
+    if(!popup)return false;
+    const sheet=$('sf76MusicSheet');
+    const inline=$('sf76InlineResultsHost');
+    const useInline=Boolean(sheet && !sheet.hidden && inline);
+    if(useInline){
+      if(popup.parentElement!==inline)inline.appendChild(popup);
+      popup.classList.add('sf134-inline');
+      popup.style.removeProperty('top');
+      popup.style.removeProperty('left');
+      popup.style.removeProperty('width');
+      popup.style.removeProperty('max-height');
+      popup.dataset.placement='inline';
+    } else {
+      popup.classList.remove('sf134-inline');
+      if(popup.parentElement!==document.body)document.body.appendChild(popup);
+    }
+    return useInline;
+  }
+
   function visualBounds() {
     const view=window.visualViewport;
     return view ? { top:view.offsetTop, bottom:view.offsetTop+view.height, width:view.width } : { top:0, bottom:window.innerHeight, width:window.innerWidth };
@@ -125,6 +150,9 @@
       if (!state.open) return;
       const popup=$('sf78InlineSearch'), input=$('songUrl');
       if (!popup || !input || !input.getClientRects().length) return;
+      // A área interna é parte do fluxo normal, nunca calcula coordenadas
+      // absolutas ou cobre o formulário e o botão de fechar.
+      if(syncResultsHost())return;
       const rect=input.getBoundingClientRect();
       const v=visualBounds(), margin=10, gap=8;
       const width=Math.min(470,Math.max(240,Math.min(v.width-margin*2, Math.max(rect.width+100, 340))));
@@ -145,6 +173,7 @@
     if (!roomActive()) return false;
     build();
     state.open=true;
+    syncResultsHost();
     $('sf78InlineSearch').hidden=false;
     $('songUrl')?.setAttribute('aria-expanded','true');
     $('searchResults')?.classList.remove('show');
