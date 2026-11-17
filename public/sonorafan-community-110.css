@@ -264,3 +264,16 @@
 @media(prefers-reduced-motion:reduce){
  .sf5-community-layer .sf110-dashboard *{animation:none!important;transition:none!important}
 }
+
+/* v139 — convite da comunidade usa o mesmo fluxo de notificações. */
+.sf5-community-layer .sf110-friends .sf139-invite{margin-top:12px;min-height:44px;width:100%;touch-action:manipulation}
+.sf5-community-layer .sf110-friends .sf139-invite:focus-visible{outline:2px solid #f3a8dc;outline-offset:3px}
+@media(min-width:701px) and (max-width:1024px){
+ .sf5-community-layer .sf110-community-shell .sf110-friends-row{flex-wrap:wrap;row-gap:10px}
+ .sf5-community-layer .sf110-community-shell .sf110-club-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .sf5-community-layer .sf110-community-shell .sf5-community-scroll{overscroll-behavior:contain;scrollbar-gutter:stable}
+ .sf5-community-layer .sf110-community-shell .sf110-friends-row{flex-wrap:wrap}
+ .sf5-community-layer .sf110-friends .sf139-invite{min-height:46px;font-size:12px}
+}
