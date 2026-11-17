@@ -39,10 +39,10 @@ test('features and login/signup actions are preserved',()=>{
  }
 });
 
-test('preview clearly marked as mockup; existing local assets are used',()=>{
+test('preview clearly marked as mockup; scalable concert art and original brand are used',()=>{
  assert.match(landing,/Prévia ilustrativa/);
  assert.match(landing,/sf121-room-preview/);
- assert.match(landing,/src="\/art-121\/preview-guitar.webp"/);
+ assert.match(landing,/src="\/art-129\/sonorafan-stage\.svg"/);
  assert.match(landing,/src="\/brand-64\/sonorafan-logo-transparent.png"/);
  assert.match(landing,/src="\/avatars-108\/rock.svg"/);
  assert.match(landing,/src="\/art-121\/highlight-singer.webp"/);
