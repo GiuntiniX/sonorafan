@@ -148,3 +148,11 @@
 .sf71-panel .sf140-post-tools button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .sf71-panel .sf140-post-tools small{font-size:11px;opacity:.75}
 @media(max-width:600px){.sf71-panel .sf140-post-tools{align-items:stretch;flex-direction:column}.sf71-panel .sf140-post-tools button{width:100%}}
+
+
+/* v141 — fanclub appointments share the existing community event system. */
+.sf71-panel .sf141-event-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.sf71-panel .sf141-event-actions button{min-height:40px;flex:1 1 auto;padding:8px 10px;border-radius:9px;border:1px solid #86659b;background:#3c2450;color:#fff;font:700 11px/1.3 system-ui;cursor:pointer;touch-action:manipulation}
+.sf71-panel .sf141-event-actions button:focus-visible{outline:2px solid #f1c7ff;outline-offset:2px}
+.sf71-panel .sf141-event-actions button:disabled{opacity:.55;cursor:wait}
+@media(max-width:650px){.sf71-panel .sf141-event-actions{display:grid;grid-template-columns:1fr 1fr}.sf71-panel .sf141-event-actions button{min-width:0;white-space:normal}}
