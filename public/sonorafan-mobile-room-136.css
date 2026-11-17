@@ -112,13 +112,6 @@
     max-width:min(275px,calc(100vw - 24px))!important;
     z-index:800!important;
   }
-  #screen-room.sf113-room .sf137-menu-version {
-    padding:9px 11px 5px!important;margin-top:5px!important;
-    border-top:1px solid color-mix(in srgb,var(--sf88-primary,#ad68d4) 30%,#50415b)!important;
-    color:#bca8c8!important;text-align:center!important;
-    font:650 10px/1.2 Inter,system-ui,sans-serif!important;
-    letter-spacing:.035em!important;pointer-events:none!important;
-  }
   #screen-room.sf113-room > .app > #roomLayout.room-layout {
     grid-column:1!important;grid-row:2!important;
     position:relative!important;
@@ -173,53 +166,6 @@
     border:1px solid #c4ff00!important;
     box-shadow:0 0 16px #c4ff002e!important;
   }
-  /* Ações contextuais aproveitam a área antes vazia em salas sem músicas. */
-  #screen-room.sf113-room #sf136MobileWelcome {
-    display:none!important;
-    margin:12px 0 0!important;
-    padding:14px!important;box-sizing:border-box!important;
-    border:1px solid color-mix(in srgb,var(--sf88-primary,#b95acb) 45%,#634465)!important;
-    border-radius:16px!important;
-    background:
-      radial-gradient(ellipse at 100% 0%,color-mix(in srgb,var(--sf88-primary,#b764d5) 20%,transparent),transparent 60%),
-      color-mix(in srgb,var(--sf88-panel,#24152d) 95%,#120d1d)!important;
-    box-shadow:0 12px 24px #0003!important;
-    color:#f9edff!important;
-  }
-  body[data-tab="player"] #screen-room.sf113-room #sf136MobileWelcome:not([hidden]) {
-    display:block!important;
-  }
-  #screen-room.sf113-room #sf136MobileWelcome .sf136-eyebrow {
-    display:block!important;margin-bottom:7px!important;
-    color:#c4ff00!important;font:900 10px/1.2 Inter,system-ui,sans-serif!important;
-    letter-spacing:.12em!important;
-  }
-  #screen-room.sf113-room #sf136MobileWelcome strong {
-    display:block!important;color:#fff!important;
-    font:850 16px/1.25 Inter,system-ui,sans-serif!important;
-  }
-  #screen-room.sf113-room #sf136MobileWelcome p {
-    margin:6px 0 12px!important;color:#d4c2dc!important;
-    font:500 12px/1.45 Inter,system-ui,sans-serif!important;
-  }
-  #screen-room.sf113-room #sf136MobileWelcome .sf136-actions {
-    display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)!important;
-    gap:8px!important;
-  }
-  #screen-room.sf113-room #sf136MobileWelcome button {
-    min-height:42px!important;padding:9px 8px!important;
-    border-radius:11px!important;
-    font:850 11px/1.15 Inter,system-ui,sans-serif!important;
-    cursor:pointer!important;touch-action:manipulation!important;
-  }
-  #screen-room.sf113-room #sf136MobileWelcome [data-sf136="music"] {
-    background:#c4ff00!important;color:#13140b!important;
-    border:1px solid #c4ff00!important;
-  }
-  #screen-room.sf113-room #sf136MobileWelcome [data-sf136="chat"] {
-    background:#34203b!important;color:#f6e8f9!important;
-    border:1px solid #805488!important;
-  }
   body.sf93-keyboard-open #screen-room.sf113-room > .app,
   body.sf93-keyboard-open.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app,
   body.sf93-keyboard-open:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app {
@@ -239,12 +185,7 @@
   #screen-room.sf113-room .header-right.sf9-room-header-actions {gap:3px!important}
   #screen-room.sf113-room > .app > #mTabs.mtabs {padding-left:5px!important;padding-right:5px!important;gap:3px!important}
 }
-@media(max-height:640px) and (max-width:768px){
-  #screen-room.sf113-room #sf136MobileWelcome{padding:10px 12px!important}
-  #screen-room.sf113-room #sf136MobileWelcome p{margin:4px 0 8px!important}
-}
 @media(prefers-reduced-motion:reduce){
-  #screen-room.sf113-room #sf136MobileWelcome,
   #screen-room.sf113-room #mTabs * {transition:none!important;animation:none!important}
 }
 
