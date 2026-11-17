@@ -22,7 +22,7 @@ function createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLi
  const quality={startedAt:now(),events:0,totals:{},byDevice:{},recent:[]};
  const failures=new Map(),pendingRecovery=new Set();
  const record=(event,device='unknown',slug='')=>{
-   const allowed=['player-error','audio-blocked','sync-drift','search-failed','recovery','video-unavailable'];
+   const allowed=['player-error','audio-blocked','sync-drift','search-failed','recovery','video-unavailable','connection-lost','connection-restored','player-buffering'];
    if(!allowed.includes(event))return;
    quality.events++;quality.totals[event]=(quality.totals[event]||0)+1;
    const d=['mobile','desktop','tablet'].includes(device)?device:'unknown';
@@ -175,7 +175,7 @@ function createStudio100({app,db,io,rooms,users,sessionEmail,publicUserId,rateLi
  app.post('/api/studio100/telemetry',rateLimit(25,60000),(req,res)=>{
    const email=own(req,res);if(!email)return;
    const event=txt(req.body?.event,30),device=txt(req.body?.device,10),room=txt(req.body?.roomSlug,75);
-   if(!['player-error','audio-blocked','sync-drift','search-failed','recovery','video-unavailable'].includes(event))
+   if(!['player-error','audio-blocked','sync-drift','search-failed','recovery','video-unavailable','connection-lost','connection-restored','player-buffering'].includes(event))
      return res.status(400).json({error:'Evento inválido.'});
    // No personal identity is retained in metrics.
    record(event,device,room);res.json({ok:true});
