@@ -76,10 +76,11 @@ const fixture=()=>{
      add:{x:add.x,y:add.y,w:add.width,h:add.height},
      grid:style.gridTemplateColumns,layoutHeight:layout.height};
    const ok=innerWidth>=769
-     ? player.width>=queue.width && queue.x>player.x && chat.x>=queue.x-3
-       && chat.y>queue.y && add.width>80 && add.height>=30
+     ? player.width>=queue.width && queue.x<player.x && chat.x>player.x
+       && Math.abs(chat.y-queue.y)<26 && add.width>80 && add.height>=30
        && frame.width>queue.width && frame.height>160
-       && player.x>=layout.x-2 && queue.right<=layout.right+3
+       && queue.height>layout.height*.72 && chat.height>layout.height*.72
+       && queue.x>=layout.x-2 && chat.right<=layout.right+3
      : true;
    const out=document.createElement('output');out.id='sf131Metrics';
    out.setAttribute('data-ok',String(ok));out.textContent=JSON.stringify(info);document.body.append(out);
@@ -102,7 +103,7 @@ async function render(size){
    child.on('close',code=>code===0?finish(null,result):finish(new Error('Chrome '+code+stderr.slice(-200))));
  });}finally{fs.rmSync(file,{force:true});fs.rmSync(user,{recursive:true,force:true})}
 }
-test('v131 Chromium places queue above chat BESIDE the oversized video',{skip:!chrome},async()=>{
+test('v132 Chromium places left music queue, central video, and full-height right chat',{skip:!chrome},async()=>{
  for(const size of ['1600,900','1280,900','1024,768']){
   const output=await render(size);
   const status=output.match(/id="sf131Metrics"[^>]*data-ok="([^"]+)"/)?.[1];
