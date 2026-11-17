@@ -37,15 +37,15 @@ test('service worker intercepts only public artwork and bypasses private request
      addEventListener:(kind,cb)=>{callbacks[kind]=cb;},
      skipWaiting(){},clients:{claim(){}}
    },
-   caches:{},URL,Response,
-   fetch(){throw Error('not invoked during registration');}
+   caches:{open:async()=>({match:async()=>null,put:async()=>{},keys:async()=>[]})},URL,Response,
+   fetch:async()=>({ok:false,type:'error'})
  };
  vm.runInNewContext(read('public/sf-static-142-sw.js'),context);
  assert.ok(callbacks.fetch);
  function intercepted(url,extra={}){
    let called=false;
    const req={method:'GET',mode:'cors',url,headers:{has:()=>false},...extra};
-   callbacks.fetch({request:req,respondWith:()=>{called=true;}});
+   callbacks.fetch({request:req,respondWith:promise=>{called=true;promise.catch(()=>{});}});
    return called;
  }
  assert.equal(intercepted('https://app.example/api/me'),false);
