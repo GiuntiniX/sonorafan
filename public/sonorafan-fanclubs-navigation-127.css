@@ -1,0 +1,235 @@
+/* SonoraFan 127 — janelas sem menu lateral e Fan Clubs sem duplicação.
+   O menu de navegação é reservado ao lobby e às salas. */
+
+/* Fallback para janelas eventualmente montadas por versões em cache. */
+#sf43ProfileModal .sf125-modal-rail,
+#lbModal .sf125-modal-rail,
+.sf5-community-layer .sf125-modal-rail,
+.modal-overlay .sf125-modal-rail{
+  display:none!important;
+}
+#sf43ProfileModal.sf125-profile .sf43-profile-modal.sf125-has-rail,
+#lbModal.sf125-ranking .sf35-ranking-modal.sf125-has-rail,
+.sf5-community-layer.sf125-community .sf5-community-shell.sf125-has-rail{
+  padding-left:0!important;
+}
+#sf43ProfileModal.sf125-profile .sf125-has-rail .sf43-profile-shell,
+.sf5-community-layer.sf125-community .sf125-has-rail .sf5-community-scroll,
+.sf5-community-layer.sf125-community .sf125-has-rail .sf5-community-top{
+  width:100%!important;min-width:0!important;box-sizing:border-box!important;
+}
+
+/* O atributo hidden precisa vencer as regras display:grid!important da v126. */
+.sf5-community-layer.sf126-fan-layer #sf71ClubList[hidden],
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail[hidden],
+.sf5-community-layer.sf126-fan-layer #sfFanClubsPanel[hidden]{
+  display:none!important;
+}
+
+/* Descoberta: cards compactos em colunas fixas, sem esticar um clube único. */
+.sf5-community-layer.sf126-fan-layer .sf126-club-layout{
+  grid-template-columns:minmax(0,1fr) minmax(235px,270px)!important;
+  align-items:start!important;gap:22px!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubList:not([hidden]){
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))!important;
+  align-items:start!important;gap:16px!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf71-club-card{
+  max-width:420px!important;min-height:310px!important;
+  box-shadow:0 9px 28px rgba(0,0,0,.22)!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf71-club-art{
+  flex:0 0 154px!important;height:154px!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf71-club-art .sf73-cover-img{
+  display:block!important;width:100%!important;height:100%!important;
+  object-fit:cover!important;object-position:center 38%!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf71-club-copy{
+  padding:14px 15px 8px!important;gap:5px!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf71-club-copy strong{
+  font-size:17px!important;overflow-wrap:anywhere!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf71-club-copy p{
+  display:-webkit-box!important;-webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;line-clamp:2!important;
+  overflow:hidden!important;line-height:1.45!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf71-club-card>button{
+  margin:8px 15px 15px!important;
+}
+
+/* Dentro de um Fan Club só o detalhe deve ser visível.
+   O painel de recomendações e os filtros ficam na tela de descoberta. */
+.sf5-community-layer.sf126-fan-layer:has(#sf71ClubDetail:not([hidden])) .sf126-club-hero,
+.sf5-community-layer.sf126-fan-layer:has(#sf71ClubDetail:not([hidden])) .sf71-club-toolbar,
+.sf5-community-layer.sf126-fan-layer:has(#sf71ClubDetail:not([hidden])) .sf71-club-search,
+.sf5-community-layer.sf126-fan-layer:has(#sf71ClubDetail:not([hidden])) #sf71ClubStatus,
+.sf5-community-layer.sf126-fan-layer:has(#sf71ClubDetail:not([hidden])) .sf126-club-side{
+  display:none!important;
+}
+.sf5-community-layer.sf126-fan-layer:has(#sf71ClubDetail:not([hidden])) .sf126-club-layout{
+  display:block!important;margin-top:18px!important;
+}
+.sf5-community-layer.sf126-fan-layer:has(#sf71ClubDetail:not([hidden])) .sf126-club-layout #sfSocialHub{
+  display:block!important;width:100%!important;max-width:none!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail:not([hidden]){
+  display:block!important;width:100%!important;min-width:0!important;
+  padding:0 0 16px!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-back{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  background:#222026!important;color:#fff!important;border:1px solid #716272!important;
+  min-height:38px!important;margin:2px 0 14px!important;padding:8px 16px!important;
+  border-radius:999px!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-hero{
+  min-height:236px!important;max-height:340px!important;
+  padding:clamp(20px,3vw,36px)!important;
+  border-radius:19px!important;display:flex!important;align-items:flex-end!important;
+  isolation:isolate!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-hero.sf73-with-cover{
+  min-height:270px!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-hero .sf73-cover-img{
+  object-fit:cover!important;object-position:center 36%!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-hero::before{
+  background:linear-gradient(0deg,rgba(8,7,12,.92),rgba(8,7,12,.08) 88%)!important;
+  z-index:1!important;pointer-events:none!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf73-hero-info{
+  position:relative!important;z-index:2!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-hero h3{
+  font-size:clamp(26px,3.2vw,46px)!important;
+  text-wrap:balance!important;line-height:1.07!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-desc{
+  color:#e2dbe5!important;line-height:1.6!important;font-size:14px!important;
+  margin:17px 0!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-actions{
+  display:flex!important;align-items:center!important;flex-wrap:wrap!important;
+  gap:10px!important;margin:16px 0 22px!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-columns{
+  grid-template-columns:minmax(0,1.6fr) minmax(260px,.86fr)!important;
+  gap:18px!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail :is(.sf71-feed,.sf71-room-list){
+  padding:clamp(16px,2vw,24px)!important;
+  border-radius:17px!important;min-width:0!important;
+}
+
+/* Sem o menu secundário, cada diálogo ganha o espaço disponível. */
+#sf43ProfileModal.sf125-profile .sf43-profile-modal,
+#lbModal.sf125-ranking .sf35-ranking-modal{
+  box-sizing:border-box!important;
+}
+#sf43ProfileModal.sf125-profile .sf43-profile-modal{
+  width:min(1180px,calc(100vw - 26px))!important;
+  max-width:1180px!important;
+}
+#lbModal.sf125-ranking .sf35-ranking-modal{
+  width:min(1100px,calc(100vw - 26px))!important;
+  max-width:1100px!important;
+}
+
+/* Layout próprio para celular, sem menus de desktop dentro de janelas. */
+@media(max-width:1050px){
+  .sf5-community-layer.sf126-fan-layer .sf126-club-layout{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf126-club-side{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer:has(#sf71ClubDetail:not([hidden])) .sf126-club-side{
+    display:none!important;
+  }
+  .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-columns{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
+@media(max-width:650px){
+  .sf5-community-layer.sf126-fan-layer .sf126-fan-shell{
+    width:100vw!important;height:100dvh!important;max-height:100dvh!important;
+    border:0!important;border-radius:0!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf126-fan-shell .sf5-community-top{
+    padding:10px 14px!important;min-height:64px!important;
+    max-height:64px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf126-fan-shell .sf5-community-scroll{
+    padding:0 14px 26px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf126-club-layout{
+    display:block!important;margin-top:14px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer #sf71ClubList:not([hidden]){
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-card{
+    min-height:0!important;max-width:none!important;border-radius:13px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-art{
+    flex-basis:104px!important;height:104px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-copy{
+    padding:11px 10px 5px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-copy strong{
+    font-size:14px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-copy p{
+    -webkit-line-clamp:2!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-meta{
+    font-size:10px!important;gap:6px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-card>button{
+    align-self:stretch!important;margin:7px 9px 10px!important;
+    padding:9px 6px!important;max-width:none!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf126-club-side{
+    grid-template-columns:minmax(0,1fr)!important;margin-top:16px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-hero,
+  .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-hero.sf73-with-cover{
+    min-height:205px!important;padding:17px!important;
+  }
+  .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-hero h3{
+    font-size:clamp(24px,6vw,32px)!important;
+  }
+  .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-detail-columns{
+    display:flex!important;flex-direction:column!important;
+  }
+  .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-room-list{
+    order:-1!important;width:100%!important;
+  }
+  .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf71-feed{
+    width:100%!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-search{
+    gap:8px!important;flex-wrap:wrap!important;
+  }
+  .sf5-community-layer.sf126-fan-layer .sf71-club-search input{
+    flex:1 1 160px!important;
+  }
+}
+@media(max-width:360px){
+  .sf5-community-layer.sf126-fan-layer #sf71ClubList:not([hidden]){
+    grid-template-columns:1fr!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .sf5-community-layer.sf126-fan-layer .sf71-club-card{
+    transition:none!important;transform:none!important;
+  }
+}
