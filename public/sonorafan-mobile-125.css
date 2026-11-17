@@ -1,0 +1,301 @@
+/* SonoraFan Mobile 125 — dedicado: 3 grupos de tamanho, navegação por toque,
+ * scroll e áreas seguras. Este arquivo vem depois do tema desktop.
+ * Não modifica o iframe do YouTube ou o sincronismo de playback.
+ */
+@media(max-width:1180px){
+ #screen-lobby.sf125-platform .sf28-lobby-app.sf125-app{
+  grid-template-columns:196px minmax(0,1fr)!important;
+ }
+ #screen-lobby.sf125-platform .sf125-sidebar{padding-inline:8px}
+ #screen-lobby.sf125-platform .sf125-side-nav button{
+  min-height:45px;padding:10px 10px;font-size:12px;gap:8px;
+ }
+ #screen-lobby.sf125-platform .sf125-sidebar-brand img{max-width:180px}
+ #screen-lobby.sf125-platform .sf107-content{
+  grid-template-columns:minmax(0,1fr) minmax(200px,235px)!important;gap:12px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-lobby-pillars{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #screen-lobby.sf125-platform .sf107-room-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #screen-lobby.sf125-platform .sf125-lobby-hero{min-height:255px}
+ #sf43ProfileModal.sf125-profile .sf108-duo{grid-template-columns:1fr!important}
+}
+@media(max-width:860px){
+ /* Tablet: menu bottom; no redundant left menu or horizontal top nav. */
+ #screen-lobby.sf125-platform .sf28-lobby-app.sf125-app{
+  display:block!important;width:100%!important;max-width:100%!important;
+  height:100dvh!important;overflow:hidden!important;
+ }
+ #screen-lobby.sf125-platform .sf125-sidebar{display:none!important}
+ #screen-lobby.sf125-platform .sf28-lobby-main.sf125-main{height:100dvh!important;max-height:100dvh!important}
+ #screen-lobby.sf125-platform .sf125-toolbar>.sf107-logo{
+  display:block!important;flex:0 0 auto!important;
+  width:clamp(120px,23vw,170px)!important;height:42px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar{
+  min-height:64px!important;max-height:64px!important;
+  padding:8px 14px!important;gap:11px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-top-actions{
+  min-width:0!important;gap:8px!important;max-width:calc(100% - 120px)!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-search{
+  width:100%!important;min-width:0!important;max-width:290px!important;
+  min-height:41px!important;padding-inline:10px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-profile-avatar{
+  width:34px!important;height:34px!important;flex-basis:34px!important;
+ }
+ #screen-lobby.sf125-platform .sf107-dashboard{
+  padding:0 17px calc(110px + env(safe-area-inset-bottom))!important;
+ }
+ #screen-lobby.sf125-platform .sf125-lobby-hero{
+  min-height:240px;padding:27px 23px;border-radius:0 0 16px 16px;
+ }
+ #screen-lobby.sf125-platform .sf125-hero-copy h1{font-size:clamp(30px,4.6vw,45px)!important}
+ #screen-lobby.sf125-platform .sf107-content{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ }
+ #screen-lobby.sf125-platform .sf107-side-col{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;
+ }
+ #screen-lobby.sf125-platform .sf107-side-col>#sf107Featured{
+  grid-column:1/-1;
+ }
+ #screen-lobby.sf125-platform .sf125-mobile-bar{
+  display:flex!important;align-items:stretch;justify-content:space-around;
+  position:fixed;z-index:900;bottom:0;left:0;right:0;
+  min-height:calc(65px + env(safe-area-inset-bottom));
+  padding:6px 6px calc(7px + env(safe-area-inset-bottom));
+  background:rgba(10,10,13,.97);border-top:1px solid #5a3d60;
+  backdrop-filter:blur(15px);
+  box-shadow:0 -8px 26px #0008;
+ }
+ #screen-lobby.sf125-platform .sf125-mobile-bar button{
+  display:flex;flex:1 1 0;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;min-width:0;min-height:48px;
+  padding:5px 2px;border:0;border-radius:12px;background:transparent;
+  color:#e9e8ed;font:650 clamp(9px,1.2vw,11px)/1.1 Inter,system-ui,sans-serif;
+  cursor:pointer;touch-action:manipulation;
+ }
+ #screen-lobby.sf125-platform .sf125-mobile-bar button.is-active{
+  color:var(--sf125-lime);
+ }
+ #screen-lobby.sf125-platform .sf125-mobile-bar .sf125-nav-icon{font-size:22px;flex:none}
+ #screen-lobby.sf125-platform .sf107-mobile-nav,
+ #screen-lobby.sf125-platform .sf34-mobile-lobby-nav{display:none!important}
+ #screen-lobby.sf125-platform:has(+ .modal-overlay.active) .sf125-mobile-bar{display:none!important}
+ /* Modal screens use their own internal vertical scroll and no body clipping. */
+ #sf43ProfileModal.sf125-profile.sf108-profile{
+  align-items:stretch!important;justify-content:stretch!important;
+ }
+ #sf43ProfileModal.sf125-profile .sf43-profile-modal{
+  width:calc(100vw - 14px)!important;max-width:none!important;
+  height:calc(100dvh - 14px)!important;max-height:calc(100dvh - 14px)!important;
+  margin:7px!important;border-radius:16px!important;overflow:hidden!important;
+ }
+ #sf43ProfileModal.sf125-profile .sf43-profile-body.sf108-ready{
+  max-height:calc(100dvh - 14px)!important;
+  padding:12px 12px calc(25px + env(safe-area-inset-bottom))!important;
+  overscroll-behavior:contain!important;
+ }
+ #sf43ProfileModal.sf125-profile .sf108-hero{min-height:140px!important}
+ #sf43ProfileModal.sf125-profile .sf108-identity{
+  display:flex!important;align-items:flex-start!important;gap:14px!important;
+  padding:13px!important;
+ }
+ #sf43ProfileModal.sf125-profile .sf112-tabs{
+  position:sticky!important;top:-12px!important;z-index:20!important;
+ }
+ .sf5-community-layer.sf125-community .sf5-community-shell.sf110-community-shell{
+  width:calc(100vw - 14px)!important;max-width:none!important;
+  height:calc(100dvh - 14px)!important;max-height:calc(100dvh - 14px)!important;
+  margin:7px!important;border-radius:16px!important;
+ }
+ .sf5-community-layer.sf125-community .sf5-community-top{min-height:78px!important}
+ .sf5-community-layer.sf125-community .sf110-columns{grid-template-columns:1fr!important}
+ .sf5-community-layer.sf125-community .sf71-club-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #lbModal.sf125-ranking .sf35-ranking-modal{
+  width:calc(100vw - 14px)!important;max-height:calc(100dvh - 14px)!important;
+  margin:7px!important;padding:20px!important;border-radius:16px!important;
+ }
+ #screen-room.sf113-room .sf118-controls-dock{
+  padding-bottom:12px!important;
+ }
+}
+@media(max-width:600px){
+ #screen-lobby.sf125-platform .sf125-toolbar{
+  gap:8px!important;min-height:58px!important;max-height:58px!important;
+  padding:8px 10px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar>.sf107-logo{
+  width:clamp(94px,26vw,136px)!important;height:35px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-top-actions{gap:3px!important;max-width:calc(100% - 96px)!important}
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-search{
+  min-height:35px!important;padding:3px 9px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-search input{
+  font-size:11px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar #sf107ProfileLabel{display:none!important}
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-profile{
+  padding:3px!important;border:0!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-profile-avatar{
+  width:31px!important;height:31px!important;flex-basis:31px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-top-actions>button{
+  padding:4px!important;font-size:14px!important;
+ }
+ #screen-lobby.sf125-platform .sf107-dashboard{
+  padding:0 12px calc(110px + env(safe-area-inset-bottom))!important;gap:13px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-lobby-hero{
+  min-height:230px;padding:20px 17px;
+  background-position:center,59% center;
+ }
+ #screen-lobby.sf125-platform .sf125-lobby-hero::before{
+  right:12%;top:11px;font-size:43px;opacity:.6;
+ }
+ #screen-lobby.sf125-platform .sf125-hero-copy{max-width:100%;min-width:0}
+ #screen-lobby.sf125-platform .sf125-kicker{font-size:10px}
+ #screen-lobby.sf125-platform .sf125-hero-copy h1{
+  font-size:clamp(28px,7.4vw,41px)!important;line-height:1.05!important;
+  max-width:420px!important;margin:12px 0!important;
+ }
+ #screen-lobby.sf125-platform .sf125-hero-copy p{
+  font-size:12px;max-width:350px;line-height:1.35;
+ }
+ #screen-lobby.sf125-platform .sf125-hero-actions{gap:7px}
+ #screen-lobby.sf125-platform :is(.sf125-cta,.sf125-outline){
+  min-height:42px;padding:9px 16px;font-size:12px;
+ }
+ #screen-lobby.sf125-platform .sf125-lobby-pillars{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-mini-feature{
+  padding:10px;min-height:80px;align-items:flex-start;gap:5px;
+ }
+ #screen-lobby.sf125-platform .sf125-mini-feature>span{
+  font-size:21px;flex-basis:25px;
+ }
+ #screen-lobby.sf125-platform .sf125-mini-feature strong{font-size:11px}
+ #screen-lobby.sf125-platform .sf125-mini-feature small{font-size:9px}
+ #screen-lobby.sf125-platform .sf107-quick{flex-wrap:wrap!important;min-height:0!important;padding:10px!important}
+ #screen-lobby.sf125-platform .sf107-quick>strong{display:none!important}
+ #screen-lobby.sf125-platform .sf107-quick>button{flex:1 1 auto!important;min-width:110px!important}
+ #screen-lobby.sf125-platform .sf107-room-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
+ }
+ #screen-lobby.sf125-platform .sf107-room-card{min-width:0!important}
+ #screen-lobby.sf125-platform .sf107-room-card .sf107-card-copy strong{
+  font-size:12px!important;white-space:normal!important;
+ }
+ #screen-lobby.sf125-platform .sf107-module{padding:12px!important}
+ #screen-lobby.sf125-platform .sf107-module-head h2{font-size:16px!important}
+ #screen-lobby.sf125-platform .sf107-side-col{grid-template-columns:minmax(0,1fr)!important}
+ #screen-lobby.sf125-platform .sf107-side-col>#sf107Featured{grid-column:auto}
+ #screen-lobby.sf125-platform .sf107-style-list{
+  display:flex!important;gap:6px!important;flex-wrap:nowrap!important;
+  overflow-x:auto!important;scroll-snap-type:x proximity;padding-bottom:3px;
+ }
+ #screen-lobby.sf125-platform .sf107-style{
+  flex:0 0 auto!important;min-width:max-content!important;scroll-snap-align:start;
+ }
+ #screen-lobby.sf125-platform .sf125-mobile-bar{
+  min-height:calc(65px + env(safe-area-inset-bottom));
+ }
+ #screen-lobby.sf125-platform .sf125-mobile-bar button{font-size:9px}
+ #screen-lobby.sf125-platform .sf125-mobile-bar .sf125-nav-icon{font-size:21px}
+ /* Modal/profile dense columns stack into actual mobile cards */
+ #sf43ProfileModal.sf125-profile .sf108-identity{
+  flex-wrap:wrap!important;
+ }
+ #sf43ProfileModal.sf125-profile .sf43-profile-heading strong{
+  font-size:21px!important;
+ }
+ #sf43ProfileModal.sf125-profile .sf108-duo,
+ #sf43ProfileModal.sf125-profile .sf108-milestones,
+ #sf43ProfileModal.sf125-profile .sf108-studio-content{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ }
+ #sf43ProfileModal.sf125-profile .sf112-mix-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
+ }
+ #sf43ProfileModal.sf125-profile .sf112-tabs{
+  overflow-x:auto!important;scrollbar-width:none;
+ }
+ #sf43ProfileModal.sf125-profile .sf112-tabs button{
+  flex:0 0 auto!important;min-width:80px!important;min-height:42px!important;
+ }
+ .sf5-community-layer.sf125-community .sf5-community-top{
+  padding:10px 13px!important;
+ }
+ .sf5-community-layer.sf125-community .sf5-community-top h2{font-size:19px!important}
+ .sf5-community-layer.sf125-community .sf110-hero{
+  min-height:120px!important;padding:14px!important;
+ }
+ .sf5-community-layer.sf125-community .sf110-hero h2{font-size:26px!important}
+ .sf5-community-layer.sf125-community .sf110-dashboard{
+  padding:9px!important;
+ }
+ .sf5-community-layer.sf125-community .sf110-card{padding:12px!important}
+ .sf5-community-layer.sf125-community .sf71-club-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ .sf5-community-layer.sf125-community .sf71-detail-columns{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ .sf5-community-layer.sf125-community .sf71-social-tabs{
+  width:100%;overflow-x:auto;max-width:100%;
+ }
+ .sf5-community-layer.sf125-community .sf71-club-toolbar,
+ .sf5-community-layer.sf125-community .sf71-club-search{
+  flex-wrap:wrap;
+ }
+ #lbModal.sf125-ranking .sf125-ranking-podium{
+  gap:6px!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ }
+ #lbModal.sf125-ranking .sf125-rank-podium{
+  min-height:145px!important;padding:13px 6px!important;gap:6px!important;
+ }
+ #lbModal.sf125-ranking .sf125-rank-podium.sf125-rank-1{min-height:163px!important}
+ #lbModal.sf125-ranking .sf125-rank-podium>strong{
+  font-size:11px!important;word-break:break-word;
+ }
+ #lbModal.sf125-ranking .sf125-rank-podium>em{font-size:12px!important}
+ #lbModal.sf125-ranking .sf125-rank-podium>small{font-size:9px!important}
+ #lbModal.sf125-ranking #lbList .lb-row{
+  padding:10px 8px!important;font-size:11px!important;gap:6px;
+ }
+ /* ROOM controls remain usable on phones without double scroll.
+    Do not force iframe height; the v119 player does that. */
+ #screen-room.sf113-room .sf118-controls-dock .sf117-control-row{
+  display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+ }
+ #screen-room.sf113-room .sf118-controls-dock .volume-control{
+  flex:1 1 150px!important;min-width:130px!important;
+ }
+ #screen-room.sf113-room .sf118-controls-dock #volumeSlider{
+  flex:1 1 70px!important;min-width:70px!important;
+ }
+}
+@media(max-width:380px){
+ #screen-lobby.sf125-platform .sf125-hero-copy h1{
+  font-size:27px!important;
+ }
+ #screen-lobby.sf125-platform .sf107-room-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ #screen-lobby.sf125-platform .sf125-mini-feature{min-height:78px}
+ #screen-lobby.sf125-platform .sf125-mini-feature small{font-size:9px}
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-search input{
+  font-size:10px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-mobile-bar button{font-size:8px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #screen-lobby.sf125-platform .sf28-lobby-content{
+  scroll-behavior:auto!important;
+ }
+}
