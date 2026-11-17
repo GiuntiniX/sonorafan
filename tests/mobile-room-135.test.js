@@ -26,10 +26,10 @@ test('v135 mobile tabs contain queue, player, chat and unified music/favorites',
   assert.match(room,/class="sf34-add-mobile sf135-add-music"/);
   assert.match(room,/aria-label="Adicionar música: buscar ou escolher das favoritas"/);
   assert.match(room,/aria-controls="sf76MusicSheet"/);
-  assert.match(html,/sonorafan-mobile-room-135\.css\?v=135/);
+  assert.match(html,/sonorafan-mobile-room-135\.css\?v=137/);
   assert.match(css,/#screen-room\.sf113-room #mTabs\.mtabs/);
-  assert.match(html,/sonorafan-mobile-room-136\.css\?v=136/);
-  assert.match(html,/sonorafan-mobile-room-136\.js\?v=136/);
+  assert.match(html,/sonorafan-mobile-room-136\.css\?v=137/);
+  assert.match(html,/sonorafan-mobile-room-136\.js\?v=137/);
   assert.match(css,/body\[data-tab="chat"\]/);
   assert.match(css,/#chatMessagesInner/);
   assert.match(css,/#sf113AddMusic/);
