@@ -7,7 +7,7 @@
  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const safeId=s=>/^[a-f0-9-]{24,36}$/i.test(String(s||''));
  const coverFallback=['/art-44/festival-crowd.webp','/art-33/poster-rock.webp','/art-33/poster-electro.webp'];
- const state={open:0,conversations:[],clubs:[],friends:[],events:[],loading:true,errors:[]};
+ const state={open:0,conversations:[],clubs:[],friends:[],events:[],loading:true,errors:[],lastLoaded:0};
  let renderQueued=false;
  const scheduleRender=()=>{
    if(renderQueued)return;
@@ -170,7 +170,10 @@
    if(act==='create'){showDetails('fanclubs');$('sf71CreateClub')?.click();return;}
    if(act==='back'){back();}
  }
- async function load(){
+ async function load(force=false){
+   if(!force&&state.lastLoaded&&Date.now()-state.lastLoaded<45000){
+     state.loading=false;scheduleRender();return;
+   }
    const current=++state.open;
    const endpoints=[
      ['/api/chat53/inbox','conversations'],['/api/fan-clubs?mine=true','clubs'],
@@ -185,7 +188,7 @@
        scheduleRender();
      }catch(e){if(current===state.open){state.errors.push(key);scheduleRender();}}
    }));
-   if(current===state.open){state.loading=false;scheduleRender();}
+   if(current===state.open){state.loading=false;state.lastLoaded=Date.now();scheduleRender();}
  }
  function open(initial='overview'){
    if(typeof original!=='function')return;
@@ -207,8 +210,9 @@
    goBack.type='button';goBack.id='sf110Back';goBack.hidden=true;
    goBack.textContent='← Visão geral';goBack.addEventListener('click',back);
    s.querySelector('.sf5-community-top')?.insertBefore(goBack,s.querySelector('.sf5-community-top .sf5-close'));
-   state.conversations=[];state.clubs=[];state.friends=[];state.events=[];
-   state.loading=true;state.errors=[];
+   const fresh=Date.now()-state.lastLoaded<45000;
+   if(!fresh){state.conversations=[];state.clubs=[];state.friends=[];state.events=[];}
+   state.loading=!fresh;state.errors=[];
    const p=document.createElement('div');p.className='sf110-dashboard';
    scroller.insertBefore(p,scroller.firstChild);
    p.addEventListener('click',click);
@@ -240,10 +244,10 @@
    }
    window.sf5OpenCommunity=()=>open('overview');
    document.addEventListener('sf71:created',()=>{
-     if(shell())load();
+     if(shell()){state.lastLoaded=0;load(true);}
    });
    document.addEventListener('visibilitychange',()=>{
-     if(!document.hidden&&shell()&&!shell().classList.contains('sf110-show-details'))load();
+     if(!document.hidden&&shell()&&!shell().classList.contains('sf110-show-details'))load(true);
    });
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
