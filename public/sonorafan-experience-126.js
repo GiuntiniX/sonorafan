@@ -7,7 +7,7 @@
  const $=id=>document.getElementById(id);
  const q=(sel,root=document)=>root.querySelector(sel);
  const qa=(sel,root=document)=>Array.from(root.querySelectorAll(sel));
- const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;',"'":'&#39;'}[x]));
+ const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
  const validClub=id=>/^[a-f0-9-]{36}$/i.test(String(id||''));
  const make=(tag,className,content)=>{const x=document.createElement(tag);x.className=className;if(content!==undefined)x.textContent=content;return x;};
  const lobbyRoot=()=>q('#screen-lobby.sf125-platform');
