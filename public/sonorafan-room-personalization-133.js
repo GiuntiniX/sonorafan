@@ -17,6 +17,17 @@
     const enabled=screen.classList.contains('active') &&
       !!screen.dataset.roomTheme && screen.dataset.roomTheme!=='geral';
     root.classList.toggle('sf133-themed-room',enabled);
+    // A mesma escolha visual recebe uma sobreposição ilustrada no painel
+    // global de músicas. A identidade continua vindo do sistema sf88.
+    const id=enabled?String(screen.dataset.roomTheme||''):'';
+    const safe=/^(?:indie|metal|emo|mpb|eletronica|rock|pop|rap|funk|pagode|sertanejo|reggae|jazz|forro)$/.test(id);
+    if(safe){
+      root.dataset.sf143Theme=id;
+      root.style.setProperty('--sf143-body-scene','url("/themes/atmospheres/'+id+'.svg")');
+    }else{
+      delete root.dataset.sf143Theme;
+      root.style.removeProperty('--sf143-body-scene');
+    }
     for(const [source,target] of keys){
       const value=enabled?screen.style.getPropertyValue(source).trim():'';
       if(value)root.style.setProperty(target,value);
