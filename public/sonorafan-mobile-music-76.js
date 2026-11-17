@@ -36,7 +36,8 @@
         <div class="sf76-content" id="sf76MusicContent">
           <section id="sf76SearchPane" role="tabpanel" aria-label="Buscar música">
             <div id="sf76RequestHost"></div>
-            <p class="sf76-tip">Escolha um resultado e confirme para adicionar à fila colaborativa.</p>
+            <p class="sf76-tip">Encontre sua música e escolha um resultado para adicionar à fila colaborativa.</p>
+            <div id="sf76InlineResultsHost" class="sf134-inline-results" aria-label="Músicas encontradas na busca"></div>
           </section>
           <section id="sf76FavoritesPane" role="tabpanel" aria-label="Músicas favoritas" hidden>
             <label class="sf76-search-label" for="sf76FavoriteSearch">Encontre uma favorita</label>
@@ -89,7 +90,7 @@
     event.preventDefault();event.stopPropagation();event.stopImmediatePropagation?.();
     if(text.length<2){status('Digite pelo menos duas letras para buscar.',true);return;}
     if(typeof handleSearchInput==='function')handleSearchInput(text);
-    status('Escolha um resultado na janela de pesquisa.');
+    status('Os resultados aparecem abaixo do campo de busca.');
   }
   function takeRequestCard(){
     const card=$('sf10RequestCard');const host=$('sf76RequestHost');
@@ -143,8 +144,12 @@
       const selected=button.dataset.sf76Tab===tab;
       button.setAttribute('aria-selected',String(selected));button.classList.toggle('is-active',selected);
     });
-    if(tab==='favorites')loadFavorites();
-    else requestAnimationFrame(()=>$('songUrl')?.focus({preventScroll:true}));
+    if(tab==='favorites') {
+      window.sf78CloseInline?.();
+      loadFavorites();
+    } else {
+      requestAnimationFrame(()=>$('songUrl')?.focus({preventScroll:true}));
+    }
     const locked=$('screen-room')?.classList.contains('sf129-guest-locked');
     const submit=$('addBtn');if(submit)submit.disabled=!!locked;
     document.querySelectorAll('#sf76MusicSheet .song-preview-confirm').forEach(b=>b.disabled=!!locked);
