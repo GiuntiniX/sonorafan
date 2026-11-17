@@ -434,9 +434,26 @@
  #screen-room.sf113-room .room-layout .player-column .player-frame{
   aspect-ratio:16/9!important;max-height:unset!important;
  }
- #screen-room.sf113-room .sf129-guest-locked #sf113AddMusic{
+ #screen-room.sf113-room.sf129-guest-locked #sf113AddMusic{
   opacity:.55!important;cursor:not-allowed!important;
  }
+}
+/* Login mobile/tablet: não deixar a grade desktop reabrir em 621–800 px. */
+@media(max-width:800px){
+ #loginScreen.sf123-login-screen .sf123-login-layout{
+  display:flex!important;flex-direction:column!important;
+  min-height:100dvh!important;max-height:none!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-form{
+  width:min(100%,550px)!important;min-height:100dvh!important;
+  padding:30px 24px!important;margin:0 auto!important;
+  border-right:0!important;box-shadow:none!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-art{
+  position:fixed!important;inset:0!important;opacity:.18!important;
+  pointer-events:none!important;
+ }
+ #loginScreen.sf123-login-screen .sf129-art-caption{display:none!important}
 }
 @media(max-width:620px){
  #screen-lobby .sf107-clubs-actions{width:100%!important;justify-content:stretch!important}
