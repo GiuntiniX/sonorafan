@@ -225,3 +225,10 @@
 #sf95Overlay .sf141-diagnostics ul{padding-left:17px;margin:0;display:grid;gap:5px;font-size:11px;overflow-wrap:anywhere}
 @media(max-width:640px){#sf95Overlay .sf141-party{padding:10px}#sf95Overlay .sf141-party-heading>button{width:100%}#sf95Overlay .sf141-party-choices button{min-height:48px;flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){#sf95Overlay .sf141-party *{transition:none!important;animation:none!important}}
+
+
+/* v142: diagnóstico administrativo compacto em desktop, tablet e mobile. */
+#sf95Overlay .sf100-metrics{grid-template-columns:repeat(auto-fit,minmax(116px,1fr))}
+#sf95Overlay .sf100-event button[data-sf100-action="calendar"]{background:#342b52;border-color:#7367a3}
+@media(max-width:700px){#sf95Overlay .sf100-event{align-items:stretch}
+#sf95Overlay .sf100-event button[data-sf100-action="calendar"]{min-height:44px}}
