@@ -1,0 +1,463 @@
+/* SonoraFan Mobile 126 — adaptação dedicada dos mockups.
+   Mantém player, fila, chat e pesquisa funcionais, com foco na ergonomia touch.
+*/
+@media(max-width:1280px){
+ #screen-lobby.sf126-lobby .sf28-lobby-app.sf125-app{
+  grid-template-columns:208px minmax(0,1fr)!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-sidebar{
+  padding:12px 9px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-side-nav button{
+  font-size:13px!important;gap:9px!important;padding:10px 11px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-dashboard{
+  padding:0 18px 30px!important;gap:16px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-lobby-pillars{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-content{
+  grid-template-columns:minmax(0,1fr) minmax(230px,265px)!important;
+  gap:14px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-module{padding:15px!important}
+ #screen-lobby.sf126-lobby .sf107-room-grid{
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,185px),1fr))!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-card,
+ #screen-lobby.sf126-lobby .sf126-create-room-card{min-height:210px!important}
+ #screen-lobby.sf126-lobby .sf125-lobby-hero{
+  padding:28px!important;min-height:293px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-hero-copy h1{
+  font-size:clamp(35px,3.4vw,48px)!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-layout{
+  grid-template-columns:minmax(0,1fr) 215px!important;gap:12px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf71-club-card .sf71-club-art{
+  height:128px!important;flex-basis:128px!important;
+ }
+}
+@media(max-width:920px){
+ #screen-lobby.sf126-lobby .sf28-lobby-app.sf125-app{
+  display:block!important;height:100dvh!important;max-height:100dvh!important;
+  grid-template-columns:1fr!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-sidebar{display:none!important}
+ #screen-lobby.sf126-lobby .sf125-main{
+  height:100dvh!important;max-height:100dvh!important;
+  width:100%!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-toolbar{
+  min-height:65px!important;max-height:65px!important;
+  padding:8px 16px!important;gap:9px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-toolbar>.sf107-logo{
+  display:block!important;width:145px!important;max-width:145px!important;
+  flex:0 0 145px!important;height:45px!important;object-fit:contain!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-top-actions{max-width:calc(100% - 154px)!important;min-width:0!important;gap:8px!important}
+ #screen-lobby.sf126-lobby .sf107-search{
+  width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-dashboard{
+  padding:0 18px calc(100px + env(safe-area-inset-bottom))!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-content{
+  grid-template-columns:minmax(0,1fr)!important;gap:14px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-side-col{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ #screen-lobby.sf126-lobby #sf107Featured{
+  grid-column:1/-1!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mobile-bar{
+  display:flex!important;align-items:stretch!important;justify-content:space-around!important;
+  position:fixed!important;inset:auto 0 0 0!important;z-index:1000!important;
+  min-height:calc(70px + env(safe-area-inset-bottom))!important;
+  padding:6px 8px calc(8px + env(safe-area-inset-bottom))!important;
+  background:#0c0b0eee!important;border-top:1px solid #735176!important;
+  backdrop-filter:blur(16px)!important;
+  box-shadow:0 -9px 29px #0008!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mobile-bar button{
+  flex:1 1 0!important;min-width:0!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;gap:3px!important;
+  border:0!important;min-height:46px!important;
+  color:#eee!important;background:transparent!important;
+  font-size:10px!important;font-weight:750!important;border-radius:12px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mobile-bar button.is-active{
+  color:var(--sf126-lime)!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mobile-bar .sf125-nav-icon{
+  color:inherit!important;font-size:22px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-mobile-nav,
+ #screen-lobby.sf126-lobby .sf34-mobile-lobby-nav{display:none!important}
+ /* Dedicated Fan Clubs full-screen sheet */
+ .sf5-community-layer.sf126-fan-layer{padding:0!important;align-items:stretch!important}
+ .sf5-community-layer.sf126-fan-layer .sf126-fan-shell{
+  width:100vw!important;height:100dvh!important;max-height:100dvh!important;
+  border:0!important;border-radius:0!important;
+  padding-left:0!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf125-modal-rail{display:none!important}
+ .sf5-community-layer.sf126-fan-layer .sf5-community-scroll{
+  width:100%!important;padding:0 16px calc(26px + env(safe-area-inset-bottom))!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-layout{
+  grid-template-columns:minmax(0,1fr)!important;gap:15px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-side{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:12px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-side-card:first-child{
+  grid-column:1/-1!important;
+ }
+ .sf5-community-layer.sf126-fan-layer #sf71ClubList{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf71-detail-columns{
+  grid-template-columns:1fr!important;
+ }
+}
+@media(max-width:640px){
+ #screen-lobby.sf126-lobby .sf125-toolbar{
+  min-height:59px!important;max-height:59px!important;
+  padding:7px 10px!important;gap:7px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-toolbar>.sf107-logo{
+  width:clamp(100px,27vw,136px)!important;max-width:136px!important;
+  flex-basis:clamp(100px,27vw,136px)!important;height:38px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-top-actions{
+  max-width:calc(100% - 112px)!important;gap:4px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-search{
+  min-height:37px!important;padding:6px 10px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-search input{
+  font-size:12px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-profile-avatar{
+  width:32px!important;height:32px!important;flex-basis:32px!important;
+ }
+ #screen-lobby.sf126-lobby #sf107ProfileLabel{display:none!important}
+ #screen-lobby.sf126-lobby .sf107-more summary{padding:5px!important;font-size:13px!important}
+ #screen-lobby.sf126-lobby .sf107-dashboard{
+  padding:0 12px calc(110px + env(safe-area-inset-bottom))!important;
+  gap:12px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-lobby-hero{
+  min-height:310px!important;padding:21px 19px!important;
+  background-position:center,57% center!important;
+  border-radius:0 0 17px 17px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-lobby-hero::before{
+  top:16px!important;right:9%!important;font-size:46px!important;opacity:.62!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-lobby-hero::after{
+  right:-10%!important;bottom:5%!important;height:80px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-kicker{font-size:10px!important}
+ #screen-lobby.sf126-lobby .sf125-hero-copy h1{
+  font-size:clamp(29px,7.8vw,41px)!important;line-height:1.06!important;
+  margin:12px 0!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-hero-copy p{
+  font-size:12px!important;line-height:1.38!important;max-width:330px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-hero-actions,
+ #screen-lobby.sf126-lobby .sf126-hero-extra{
+  gap:7px!important;margin-top:11px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-cta,
+ #screen-lobby.sf126-lobby .sf125-outline,
+ #screen-lobby.sf126-lobby .sf126-hero-link{
+  min-height:41px!important;padding:9px 14px!important;
+  font-size:11px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-lobby-pillars{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mini-feature{
+  min-height:94px!important;padding:11px 9px!important;
+  align-items:flex-start!important;gap:6px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mini-feature>span{
+  font-size:23px!important;flex-basis:22px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mini-feature strong{
+  font-size:12px!important;line-height:1.15!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mini-feature small{
+  font-size:10px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-module{
+  padding:14px 12px!important;border-radius:15px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-module-head h2{
+  font-size:20px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-module-head button{
+  font-size:11px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-card,
+ #screen-lobby.sf126-lobby .sf126-create-room-card{
+  aspect-ratio:.92!important;min-height:195px!important;max-height:310px!important;
+  padding:0!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-card .sf107-card-copy{
+  bottom:13px!important;left:10px!important;right:8px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-card .sf107-card-copy strong{
+  font-size:14px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-card .sf107-card-copy small{
+  font-size:10px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-card .sf107-play{
+  width:28px!important;height:28px!important;top:8px!important;
+  bottom:auto!important;right:8px!important;
+ }
+ #screen-lobby.sf126-lobby .sf126-create-room-card{
+  padding:12px!important;gap:7px!important;
+ }
+ #screen-lobby.sf126-lobby .sf126-card-symbol{
+  width:37px;height:37px;font-size:22px;
+ }
+ #screen-lobby.sf126-lobby .sf126-create-room-card strong{font-size:14px!important}
+ #screen-lobby.sf126-lobby .sf126-create-room-card>span:nth-child(3){font-size:10px!important}
+ #screen-lobby.sf126-lobby .sf126-create-room-card b{font-size:11px!important}
+ #screen-lobby.sf126-lobby .sf107-club-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-club{min-height:201px!important}
+ #screen-lobby.sf126-lobby .sf107-club>img{
+  height:111px!important;flex-basis:111px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-club>span{padding:10px!important}
+ #screen-lobby.sf126-lobby .sf107-club strong{font-size:13px!important}
+ #screen-lobby.sf126-lobby .sf107-club small{font-size:10px!important}
+ #screen-lobby.sf126-lobby .sf107-clubs-actions{flex-wrap:wrap!important}
+ #screen-lobby.sf126-lobby .sf107-club-create{font-size:11px!important}
+ #screen-lobby.sf126-lobby .sf107-side-col{
+  grid-template-columns:1fr!important;
+ }
+ #screen-lobby.sf126-lobby #sf107Featured{grid-column:auto!important}
+ #screen-lobby.sf126-lobby .sf125-mobile-bar button{
+  font-size:9px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-mobile-bar .sf125-nav-icon{
+  font-size:22px!important;
+ }
+ /* Fan Clubs — mobile */
+ .sf5-community-layer.sf126-fan-layer .sf5-community-top{
+  min-height:60px!important;max-height:none!important;
+  padding:9px 15px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf5-community-top h2{
+  font-size:19px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-hero{
+  min-height:215px!important;padding:22px 15px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-hero h1{
+  font-size:34px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-hero p{
+  font-size:12px!important;line-height:1.4!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-hero-actions{
+  gap:8px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer :is(.sf126-primary,.sf126-outline){
+  min-height:41px!important;font-size:11px!important;padding:9px 12px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf5-community-scroll{
+  padding:0 11px calc(28px + env(safe-area-inset-bottom))!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-layout{gap:14px!important}
+ .sf5-community-layer.sf126-fan-layer .sf71-club-toolbar strong{font-size:18px!important}
+ .sf5-community-layer.sf126-fan-layer #sf71ClubList{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf71-club-art{
+  height:109px!important;flex-basis:109px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf71-club-copy{
+  padding:10px 9px 4px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf71-club-copy strong{font-size:14px!important}
+ .sf5-community-layer.sf126-fan-layer .sf71-club-copy>span{font-size:11px!important}
+ .sf5-community-layer.sf126-fan-layer .sf71-club-meta{font-size:10px!important}
+ .sf5-community-layer.sf126-fan-layer .sf71-club-card>button{
+  min-height:37px!important;margin:7px 9px 11px!important;padding:8px 11px!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-side{
+  grid-template-columns:1fr!important;
+ }
+ .sf5-community-layer.sf126-fan-layer .sf126-club-side-card:first-child{
+  grid-column:auto!important;
+ }
+ /* Busca: tela mobile, lista scrollável, confirmação fixa visível */
+ #sf77MusicModal.sf77-overlay{
+  padding:0!important;align-items:end!important;
+ }
+ #sf77MusicModal .sf77-dialog{
+  width:100%!important;max-height:calc(100dvh - env(safe-area-inset-top) - 8px)!important;
+  min-height:min(620px,calc(100dvh - 8px))!important;
+  height:min(760px,calc(100dvh - env(safe-area-inset-top) - 8px))!important;
+  border-radius:19px 19px 0 0!important;border-bottom:0!important;
+ }
+ #sf77MusicModal .sf77-header{
+  min-height:113px!important;padding:18px 18px 14px!important;
+ }
+ #sf77MusicModal .sf77-header h2{
+  font-size:23px!important;
+ }
+ #sf77MusicModal .sf77-header p{font-size:11px!important}
+ #sf77MusicModal .sf77-search-area{
+  padding:14px 16px 12px!important;
+ }
+ #sf77MusicModal .sf77-search-field{
+  min-height:51px!important;
+ }
+ #sf77MusicModal .sf77-search-field input{min-height:49px!important;font-size:16px!important}
+ #sf77MusicModal .sf77-toolbar{
+  flex-wrap:wrap!important;
+ }
+ #sf77MusicModal .sf77-toolbar>span{
+  font-size:11px!important;
+ }
+ #sf77MusicModal .sf77-favorites{
+  min-height:40px!important;padding:8px 13px!important;
+ }
+ #sf77MusicModal .sf77-main{
+  padding:12px 13px calc(12px + env(safe-area-inset-bottom))!important;
+ }
+ #sf77MusicModal .sf77-result{
+  min-height:80px!important;padding:9px!important;gap:9px!important;
+ }
+ #sf77MusicModal .sf77-result img{
+  width:74px!important;height:57px!important;flex-basis:74px!important;
+ }
+ #sf77MusicModal .sf77-result-copy strong{font-size:12px!important}
+ #sf77MusicModal .sf77-result-copy small{font-size:10px!important}
+ #sf77MusicModal .sf77-result-action{
+  min-width:40px!important;min-height:39px!important;padding:8px!important;font-size:11px!important;
+ }
+ #sf77MusicModal .sf77-picked-card{gap:10px!important;padding:12px!important}
+ #sf77MusicModal .sf77-picked-card img{
+  width:105px!important;height:79px!important;
+ }
+ #sf77MusicModal .sf77-picked-copy strong{font-size:14px!important}
+ #sf77MusicModal .sf77-picked-copy small{font-size:11px!important}
+ #sf77MusicModal .sf77-actions{
+  position:sticky!important;bottom:0!important;z-index:5!important;
+  flex-direction:column!important;
+  padding:12px 0 calc(9px + env(safe-area-inset-bottom))!important;
+  margin-top:auto!important;background:#101012!important;
+  box-shadow:0 -12px 20px #101012e8!important;
+ }
+ #sf77MusicModal .sf77-add{
+  min-height:52px!important;font-size:15px!important;
+ }
+ #sf77MusicModal .sf77-favorite{display:none!important}
+ #sf77MusicModal .sf77-footer{display:none!important}
+ /* Additional music/favorites sheet used on phones */
+ .sf76-sheet .sf76-panel{
+  background:#141317!important;border-color:var(--sf126-ui-pink)!important;
+ }
+ .sf76-sheet .sf76-head,
+ .sf76-sheet .sf76-switch{
+  background:#141317!important;
+ }
+ .sf76-sheet .sf76-head small{color:var(--sf126-ui-lime)!important}
+ .sf76-sheet .sf76-switch button.is-active{
+  background:var(--sf126-ui-lime)!important;
+  color:#111!important;border-color:var(--sf126-ui-lime)!important;
+ }
+ .sf76-sheet .sf76-track{
+  background:#1b191f!important;border:1px solid #65596b!important;
+ }
+ .sf76-sheet .sf76-track>button{
+  background:var(--sf126-ui-lime)!important;color:#111!important;
+  border-color:var(--sf126-ui-lime)!important;border-radius:999px!important;
+ }
+ .sf76-sheet .sf76-foot{
+  background:#131217!important;border-top-color:#5c5060!important;
+ }
+ .sf76-sheet .sf76-moved-request #addBtn{
+  background:var(--sf126-ui-lime)!important;color:#111!important;
+  border-radius:999px!important;
+ }
+ /* Dialogs with room creation and Fan Club */
+ #createRoomModal .sf35-create-modal{
+  width:calc(100vw - 14px)!important;max-height:calc(100dvh - 14px)!important;
+  padding:0 16px 16px!important;
+ }
+ #createRoomModal .sf35-create-hero{
+  min-height:136px!important;margin:0 -16px 13px!important;
+  padding:16px!important;
+ }
+ #createRoomModal .sf35-create-hero h3{font-size:25px!important}
+ #createRoomModal .sf35-create-hero img{
+  width:100px!important;height:100px!important;
+ }
+ #createRoomModal .sf10-stepper{gap:6px!important}
+ #createRoomModal .sf10-stepper span{font-size:11px!important}
+ #createRoomModal .modal-actions{
+  bottom:-16px!important;margin:16px -16px -16px!important;
+  padding:12px 16px calc(13px + env(safe-area-inset-bottom))!important;
+ }
+ #sf71Modal .sf71-modal{
+  width:calc(100vw - 14px)!important;max-height:calc(100dvh - 14px)!important;
+  padding:0 15px 18px!important;
+ }
+ #sf71Modal .sf71-modal header{
+  padding:17px 15px!important;margin:0 -15px 14px!important;
+ }
+ #sf71Modal .sf71-modal header h3{font-size:22px!important}
+ #sf71Modal .sf71-modal-actions{
+  position:sticky!important;bottom:0!important;padding-top:10px!important;
+  padding-bottom:calc(9px + env(safe-area-inset-bottom))!important;background:#131216!important;
+ }
+}
+@media(max-width:385px){
+ #screen-lobby.sf126-lobby .sf107-search input{
+  font-size:11px!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-grid,
+ #screen-lobby.sf126-lobby .sf107-club-grid{
+  grid-template-columns:1fr!important;
+ }
+ #screen-lobby.sf126-lobby .sf107-room-card,
+ #screen-lobby.sf126-lobby .sf126-create-room-card{
+  min-height:212px!important;aspect-ratio:1.4!important;
+ }
+ .sf5-community-layer.sf126-fan-layer #sf71ClubList{
+  grid-template-columns:1fr!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-lobby-hero{
+  min-height:332px!important;
+ }
+ #screen-lobby.sf126-lobby .sf125-hero-copy h1{
+  font-size:29px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #screen-lobby.sf126-lobby .sf28-lobby-content,
+ .sf5-community-layer.sf126-fan-layer .sf5-community-scroll{
+  scroll-behavior:auto!important;
+ }
+}
