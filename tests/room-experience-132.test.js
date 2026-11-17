@@ -8,13 +8,13 @@ const load=p=>fs.readFileSync(path.join(root,p),'utf8');
 const html=load('public/index.html');
 const css=load('public/sonorafan-room-experience-132.css');
 
-test('v132 landing preview uses the actual approved K-pop room image',()=>{
- const asset=path.join(root,'public/art-132/sonorafan-room-kpop.avif');
+test('v134 landing preview displays the approved K-pop image at higher resolution',()=>{
+ const asset=path.join(root,'public/art-134/sonorafan-kpop-home-hq.avif');
  const b=fs.readFileSync(asset);
- assert.ok(b.length>10000,'image has valid non-empty visual data');
+ assert.ok(b.length>100000,'high resolution image must not be an aggressively compressed thumbnail');
  assert.equal(b.toString('ascii',4,12).slice(0,4),'ftyp','AVIF file signature');
  assert.match(html,/class="sf121-room-preview sf132-landing-preview"/);
- assert.match(html,/class="sf132-room-illustration" src="\/art-132\/sonorafan-room-kpop\.avif"/);
+ assert.match(html,/class="sf132-room-illustration" src="\/art-134\/sonorafan-kpop-home-hq\.avif"/);
  assert.match(html,/sonorafan-room-experience-132\.css\?v=132/);
  assert.match(css,/#landingScreen\.sf121-home \.sf121-room-preview \.sf132-room-illustration/);
 });
