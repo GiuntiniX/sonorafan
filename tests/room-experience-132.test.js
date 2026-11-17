@@ -28,7 +28,12 @@ test('v132 room has one official queue, one song search and one favorite selecto
     assert.equal((room.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
  }
  assert.ok(room.indexOf('id="sf113AddMusic"')<room.indexOf('id="queueList"'));
- assert.match(room,/id="sf116Favorites"[^>]*onclick="toggleFavorites\(\)"/);
+ assert.match(room,/id="sf116Favorites"[^>]*hidden/);
+ assert.match(room,/id="sf113AddMusic"[^>]*aria-haspopup="dialog"/);
+ const unified=load("public/sonorafan-mobile-music-76.js");
+ assert.match(unified,/window\.sf76OpenMusic=open/);
+ assert.match(unified,/\[data-sf76-tab\]/);
+ assert.match(unified,/window\.sf80QueueSong\(song\)/);
  const js=load('public/sonorafan-room-redesign-113.js');
  assert.match(js,/\$\('sf113AddMusic'\)\?\.addEventListener\('click', openSongSearch\)/);
  assert.match(html,/function addFavoriteToQueue\(id\)/);
