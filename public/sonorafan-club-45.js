@@ -40,10 +40,15 @@
       <div class="sf45-mission-state"><span>${done ? 'Recompensa resgatada automaticamente' : 'Missão em andamento'}</span><span>${progress}/${target}</span></div>
     </article>`;
   }
-  function renderAchievement(a) {
+  function renderAchievement(a,lifetime) {
+    const current=Math.max(0,Number(lifetime?.[a.field])||0);
+    const target=Math.max(0,Number(a.at)||0);
+    const remaining=Math.max(0,target-current);
+    const detail=a.unlocked?'Conquistada · '+a.description:
+      (target&&remaining?'Faltam '+remaining+' '+(remaining===1?'ação':'ações')+' · ':'')+a.description;
     return `<article class="sf45-achievement ${a.unlocked ? '' : 'sf45-locked'}">
       <span class="sf45-achievement-emoji">${clean(a.unlocked ? (a.icon || '🏅') : '🔒')}</span>
-      <strong>${clean(a.name)}</strong><small>${clean(a.unlocked ? a.description : 'Bloqueada · ' + a.description)}</small>
+      <strong>${clean(a.name)}</strong><small>${clean(detail)}</small>
     </article>`;
   }
   function renderLeaderboard(items) {
@@ -66,6 +71,8 @@
     const missions = Array.isArray(data.missions) ? data.missions : [];
     const badges = Array.isArray(data.badges) ? data.badges : [];
     const achievements = Array.isArray(data.achievements) ? data.achievements : [];
+    const rankedAchievements=achievements.slice().sort((a,b)=>Number(b.unlocked)-Number(a.unlocked) ||
+      String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
     const newBadges = new Set(achievements.map(x => x.name));
     const legacyBadges = badges.filter(x => !newBadges.has(x));
     const content = el('sf45ClubContent');
@@ -87,7 +94,7 @@
         </section>
         <section class="sf45-section">
           <div class="sf45-section-title"><h4>🏅 Medalhas</h4><small>${achievements.filter(a=>a.unlocked).length} de ${achievements.length} novas</small></div>
-          <div class="sf45-achievements">${achievements.map(renderAchievement).join('')}</div>
+          <div class="sf45-achievements">${rankedAchievements.map(a=>renderAchievement(a,data.lifetime)).join('')}</div>
           <p class="sf45-legacy"><strong>Medalhas históricas preservadas:</strong> ${legacyBadges.length ? legacyBadges.map(clean).join(' · ') : 'Você está começando sua coleção.'}</p>
         </section>
       </div>
