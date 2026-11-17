@@ -283,6 +283,9 @@
          <div><strong>${d.totals?.['player-error']||0}</strong><span>Falhas player</span></div>
          <div><strong>${d.totals?.['sync-drift']||0}</strong><span>Sincronização</span></div>
          <div><strong>${d.totals?.['video-unavailable']||0}</strong><span>Indisponíveis</span></div>
+         <div><strong>${d.totals?.['player-buffering']||0}</strong><span>Buffer prolongado</span></div>
+         <div><strong>${d.totals?.['connection-lost']||0}</strong><span>Conexões perdidas</span></div>
+         <div><strong>${d.totals?.['connection-restored']||0}</strong><span>Reconexões</span></div>
          </div><h5>Atividade recente (sem PII)</h5><div class="sf100-log">
            ${(d.recent||[]).slice(0,20).map(e=>`<div><strong>${esc(e.event)}</strong><span>${esc(e.device)} · ${date(e.at)}</span></div>`).join('')||'<p>Sem eventos registrados.</p>'}
          </div><section class="sf141-diagnostics">
@@ -318,6 +321,30 @@
    }catch(e){if(manual)notice(e.message,true);}
  }
  const telemetry=(event)=>{post('/api/studio100/telemetry',{event,device:dev(),roomSlug:roomSlug()}).catch(()=>{});};
+ let connectionLost=false,bufferingStarted=0,lastBufferReport=0,lastConnectionReport=0;
+ function playerHealthTick(){
+   if(document.hidden||!roomActive()||!socketClient()?.connected){
+     bufferingStarted=0;return;
+   }
+   const player=window.sf100PlayerSnapshot?.()?.player;
+   if(!player?.getPlayerState){bufferingStarted=0;return;}
+   let status;
+   try{status=Number(player.getPlayerState());}catch(_){bufferingStarted=0;return;}
+   if(status!==3){bufferingStarted=0;return;}
+   const now=Date.now();
+   if(!bufferingStarted){bufferingStarted=now;return;}
+   if(now-bufferingStarted>=16000&&now-lastBufferReport>120000){
+     lastBufferReport=now;telemetry('player-buffering');
+   }
+ }
+ function connectionHealth(lost){
+   if(!roomActive()||document.hidden)return;
+   const now=Date.now();
+   if(lost){connectionLost=true;if(now-lastConnectionReport>60000){
+     lastConnectionReport=now;telemetry('connection-lost');
+   }}
+   else if(connectionLost){connectionLost=false;telemetry('connection-restored');}
+ }
  function playerError(e,id){
    const code=Number(e?.data);
    telemetry('player-error');
@@ -576,6 +603,8 @@
      if(state.section==='events'&&$('sf100Section'))renderSection();
    });
    socketClient()?.on('isAdmin',isAdmin=>{state.admin=!!isAdmin;});
+   socketClient()?.on('disconnect',()=>connectionHealth(true));
+   socketClient()?.on('connect',()=>connectionHealth(false));
    api('/api/admin/studio100/quality').then(d=>{
      state.qualityAllowed=true;state.quality=d;
      const studioTab=q('#sf95Overlay [data-sf95-tab="studio"]');
@@ -591,6 +620,7 @@
    setInterval(()=>{if(!document.hidden&&roomActive()&&Date.now()-state.lastAutoSync>30000)requestSync(false);},30000);
    setInterval(()=>{if(!document.hidden&&state.prefs.alerts)checkAlerts();},90000);
    setInterval(updateCountdown,15000);
+   setInterval(playerHealthTick,8000);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
