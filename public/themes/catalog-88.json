@@ -13,7 +13,7 @@
   {
     "id": "indie",
     "name": "Indie / Festival",
-    "description": "Festival noturno, estrelas, guitarras e flores",
+    "description": "Pôster de festival alternativo, luz coral e traços de palco indie",
     "primary": "#c256e7",
     "secondary": "#fb8074",
     "bg": "#170e27",
@@ -24,7 +24,7 @@
   {
     "id": "metal",
     "name": "Heavy Metal",
-    "description": "Caveiras, fogo, correntes e jaquetas de patches",
+    "description": "Raios incandescentes, aço, fumaça e contraste de arena pesada",
     "primary": "#ed3a39",
     "secondary": "#ff9035",
     "bg": "#130b0c",
@@ -35,7 +35,7 @@
   {
     "id": "emo",
     "name": "Emo",
-    "description": "Preto e branco, corações partidos, dados e desenhos",
+    "description": "Colagem noturna, coração costurado e desenho de zine underground",
     "primary": "#ef54a5",
     "secondary": "#f3e6ec",
     "bg": "#101014",
@@ -46,7 +46,7 @@
   {
     "id": "mpb",
     "name": "MPB",
-    "description": "Violão, flores tropicais e brasilidade",
+    "description": "Sol dourado, folhagens tropicais e textura brasileira orgânica",
     "primary": "#efb34f",
     "secondary": "#7aca88",
     "bg": "#182d23",
@@ -57,7 +57,7 @@
   {
     "id": "eletronica",
     "name": "Eletrônica",
-    "description": "DJ, synthwave, lasers e neon",
+    "description": "Horizonte synthwave, lasers ciano e pista futurista de neon",
     "primary": "#15d7f8",
     "secondary": "#b34dff",
     "bg": "#0c1027",
@@ -68,7 +68,7 @@
   {
     "id": "rock",
     "name": "Rock Clássico",
-    "description": "Guitarras elétricas, raios e amplificadores",
+    "description": "Guitarra no palco, faíscas âmbar e energia de show ao vivo",
     "primary": "#f04b42",
     "secondary": "#edbb57",
     "bg": "#1f1213",
@@ -79,7 +79,7 @@
   {
     "id": "pop",
     "name": "Pop",
-    "description": "Estrelas, brilho, formas vibrantes e glamour",
+    "description": "Universo brilhante, estrelas cromadas e reflexos de palco pop",
     "primary": "#f264d7",
     "secondary": "#ffb654",
     "bg": "#271127",
@@ -90,7 +90,7 @@
   {
     "id": "rap",
     "name": "Rap / Hip-Hop",
-    "description": "Microfones, grafite, coroas e cidade",
+    "description": "Cidade em contraluz, grafite e movimento do hip-hop de rua",
     "primary": "#f8a434",
     "secondary": "#ec6667",
     "bg": "#1c1721",
@@ -101,7 +101,7 @@
   {
     "id": "funk",
     "name": "Funk",
-    "description": "Graves, caixas de som, luzes e festa",
+    "description": "Paredão de caixas, ondas de grave e festa elétrica brasileira",
     "primary": "#ff4ba9",
     "secondary": "#27d3d4",
     "bg": "#1a1030",
@@ -112,7 +112,7 @@
   {
     "id": "pagode",
     "name": "Pagode / Samba",
-    "description": "Pandeiro, roda de amigos e samba",
+    "description": "Roda de samba, pandeiro dourado e calor de fim de tarde",
     "primary": "#f5bb55",
     "secondary": "#52ca9c",
     "bg": "#122b27",
@@ -123,7 +123,7 @@
   {
     "id": "sertanejo",
     "name": "Sertanejo",
-    "description": "Chapéu, violão, estrada e pôr do sol",
+    "description": "Estrada ao entardecer, céu âmbar e violão de estrada",
     "primary": "#ee9850",
     "secondary": "#deb96c",
     "bg": "#342019",
@@ -134,7 +134,7 @@
   {
     "id": "reggae",
     "name": "Reggae",
-    "description": "Vinil, raízes, leão e pôr do sol",
+    "description": "Sol caribenho, folhagem tropical e ritmo roots acolhedor",
     "primary": "#e7c742",
     "secondary": "#48b875",
     "bg": "#14271f",
@@ -145,7 +145,7 @@
   {
     "id": "jazz",
     "name": "Jazz / Blues",
-    "description": "Saxofone, neon, clubes e noite azul",
+    "description": "Clube de jazz noturno, metal dourado e iluminação azul veludo",
     "primary": "#d4ad72",
     "secondary": "#7ba2cf",
     "bg": "#131c2b",
@@ -156,7 +156,7 @@
   {
     "id": "forro",
     "name": "Forró",
-    "description": "Sanfona, bandeirinhas e festa junina",
+    "description": "Bandeirinhas, sanfona, luz quente e festa junina contemporânea",
     "primary": "#ed8b4c",
     "secondary": "#efca6a",
     "bg": "#322019",
