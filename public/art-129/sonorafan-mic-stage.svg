@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="Silhueta musical com microfone em palco neon">
+<defs>
+<linearGradient id="b" x2="1" y2="1"><stop stop-color="#1b082b"/><stop offset=".52" stop-color="#40114a"/><stop offset="1" stop-color="#100614"/></linearGradient>
+<radialGradient id="g"><stop stop-color="#ff40bc" stop-opacity=".72"/><stop offset="1" stop-color="#ff40bc" stop-opacity="0"/></radialGradient>
+<radialGradient id="o"><stop stop-color="#ff8600" stop-opacity=".73"/><stop offset="1" stop-color="#ff8600" stop-opacity="0"/></radialGradient>
+<linearGradient id="spot" x2=".5" y2="1"><stop stop-color="#ffc55c" stop-opacity=".5"/><stop offset="1" stop-color="#f94cde" stop-opacity="0"/></linearGradient>
+</defs><rect width="1200" height="675" fill="url(#b)"/>
+<ellipse cx="240" cy="260" rx="420" ry="370" fill="url(#g)"/>
+<ellipse cx="800" cy="300" rx="500" ry="440" fill="url(#o)"/>
+<path d="M40 50L250 560L450 580L190 50Z" fill="url(#spot)" opacity=".7"/>
+<path d="M930 35L600 580L1170 575L1050 40Z" fill="url(#spot)" opacity=".55"/>
+<path d="M0 75H1200" stroke="#c4ff00" opacity=".7" stroke-width="4"/>
+<g fill="none" stroke="#b64bd3" opacity=".55"><circle cx="900" cy="330" r="205" stroke-width="4"/><circle cx="900" cy="330" r="160" stroke-width="2"/><circle cx="900" cy="330" r="105" stroke-width="2"/></g>
+<path d="M680 565Q655 515 683 463L750 368Q794 321 791 283Q788 235 752 222Q714 203 678 222Q638 244 625 285L615 350L572 394L589 442L634 431Q624 485 599 536L580 675H914L880 556L825 514L779 444Q803 402 811 372L814 332Q843 299 831 259Q817 199 779 179Q717 136 653 176Q593 213 582 280L553 399L576 457L642 448Z" fill="#0b0815" stroke="#40122a" stroke-width="6"/>
+<path d="M748 264Q768 238 792 255Q819 272 817 310L797 336L760 310Z" fill="#210b22"/>
+<path d="M754 365Q828 349 912 361" stroke="#1a0a1d" stroke-width="28" fill="none" stroke-linecap="round"/>
+<rect x="897" y="341" width="105" height="47" rx="23" fill="#0c0916" stroke="#ff60ce" stroke-width="7" transform="rotate(-12 950 365)"/>
+<path d="M988 359L1120 320" stroke="#0b0815" stroke-width="13" stroke-linecap="round"/>
+<path d="M1120 318L1138 540" stroke="#0b0815" stroke-width="12"/>
+<g stroke="#ff74d7" opacity=".75" stroke-width="3" fill="none"><path d="M990 266Q1050 293 1000 321"/><path d="M1013 230Q1116 286 1034 354"/><path d="M1048 180Q1175 288 1072 379"/></g>
+<path d="M0 595Q175 538 270 575T530 579T830 594T1200 565V675H0Z" fill="#120816" opacity=".94"/>
+<g fill="#c4ff00" opacity=".7"><circle cx="94" cy="207" r="6"/><circle cx="148" cy="265" r="3"/><circle cx="381" cy="154" r="4"/><circle cx="1114" cy="100" r="4"/></g>
+</svg>
