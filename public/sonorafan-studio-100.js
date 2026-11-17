@@ -6,6 +6,7 @@
  const state={section:'mixtapes',room:null,profile:null,mixtapes:[],selected:null,matches:[],events:[],clubs:[],prefs:{match:false,alerts:false},
    loading:false,error:'',info:'',admin:false,quality:null,qualityAllowed:false,qualityDenied:false,lastAutoSync:0,lastAutoReport:0,
    seenAlerts:new Set(),alertsPrimed:false,activePanel:false};
+ let party={active:false,round:0,choices:[],votes:[0,0],endsAt:0},partyBusy=false;
  const safeId=x=>/^[a-f0-9-]{36}$/i.test(String(x));
  const ytId=x=>/^[a-zA-Z0-9_-]{11}$/.test(String(x));
  const roomActive=()=>!!$('screen-room')?.classList.contains('active');
@@ -148,11 +149,25 @@
        'Começa em '+Math.floor(seconds/3600)+'h '+Math.ceil((seconds%3600)/60)+'min';
    });
  }
+ function partyPanel(){
+   if(!roomActive()||!state.room?.slug)return '';
+   const live=party.active&&party.endsAt>Date.now();
+   const count=(Number(party.votes?.[0])||0)+(Number(party.votes?.[1])||0);
+   return `<section class="sf141-party" aria-label="Modo Festa">
+     <div class="sf141-party-heading"><div><strong>✦ Modo Festa</strong>
+     <small>${live?'Rodada '+party.round+' · ~'+Math.max(1,Math.ceil((party.endsAt-Date.now())/60000))+' min restantes':'Votação rápida de estilos musicais'}</small></div>
+     ${state.admin?`<button type="button" data-sf100-action="party" data-party="${live?'next':'start'}">${live?'Nova rodada':'Iniciar rodada'}</button>`:''}</div>
+     ${live?`<div class="sf141-party-choices">${party.choices.map((choice,i)=>`<button type="button" data-sf100-action="party" data-party="vote" data-option="${i}">${esc(choice)} <span>${Number(party.votes?.[i]||0)} votos</span></button>`).join('')}</div>
+     <p>${count} votos registrados · Escolha uma vibe, sem alterar a fila.</p>`:'<p>O responsável pela sala pode iniciar a próxima rodada sem interromper a música.</p>'}
+     ${live&&state.admin?'<button type="button" class="sf141-party-stop" data-sf100-action="party" data-party="stop">Encerrar festa</button>':''}
+   </section>`;
+ }
  function events(host){
    const names={indie:'Noite Indie',rock2000:'Rock 2000',discoveries:'Descobertas',pop:'Pop Club',electronic:'Eletrônica'};
    const canCreate=roomActive()&&!state.room?.isPrivate&&!!state.room&&state.admin;
    host.innerHTML=`<div class="sf100-section-top"><div><h4>Sessões temáticas</h4><p>Encontros com tema, duração e contagem regressiva. Aproveita o sistema de eventos do SonoraFan.</p></div>
      <button type="button" data-sf100-action="refresh">↻ Atualizar</button></div>
+    ${partyPanel()}
     ${canCreate?`<details class="sf100-collapse"><summary>＋ Agendar uma sessão nesta sala (responsável)</summary>
      <form id="sf100SessionForm" class="sf100-form">
       <label>Título<input name="title" placeholder="Sexta de descobertas" required maxlength="70" minlength="3"></label>
