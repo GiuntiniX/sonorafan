@@ -26,23 +26,23 @@
 #createRoomModal .sf35-create-hero p{
  max-width:560px!important;
 }
-#createRoomModal .sf129-mode-intro{
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-intro{
  display:flex;align-items:flex-start;gap:11px;
  padding:12px 14px;margin:12px 0!important;border-radius:14px;
  background:#211827;border:1px solid #604462;color:#f8f4fa;
 }
-#createRoomModal .sf129-mode-intro>span{font-size:21px;flex:0 0 27px}
-#createRoomModal .sf129-mode-intro strong{display:block;font-size:13px;font-weight:850}
-#createRoomModal .sf129-mode-intro small{display:block;line-height:1.5;margin-top:4px;font-size:11px;color:#cec1d0}
-#createRoomModal .sf129-mode-label{
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-intro>span{font-size:21px;flex:0 0 27px}
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-intro strong{display:block;font-size:13px;font-weight:850}
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-intro small{display:block;line-height:1.5;margin-top:4px;font-size:11px;color:#cec1d0}
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-label{
  display:flex;align-items:center;gap:7px;margin:18px 0 8px!important;
  color:#fbf8fa!important;font-weight:850!important;font-size:13px!important;
 }
-#createRoomModal .sf129-mode-label::before{content:'♧';font-size:18px;color:#c4ff00}
-#createRoomModal .kind-picker.sf129-mode-picker{
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-label::before{content:'♧';font-size:18px;color:#c4ff00}
+:is(#createRoomModal,#roomCfgModal) .kind-picker.sf129-mode-picker{
  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;
 }
-#createRoomModal .sf129-mode-card{
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-card{
  display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:flex-start!important;
  min-width:0!important;min-height:98px!important;gap:5px!important;
  border-radius:15px!important;border:1.5px solid #654969!important;
@@ -50,29 +50,29 @@
  color:#f7eff8!important;cursor:pointer;text-align:left;
  transition:border-color .18s,background .18s,box-shadow .18s;
 }
-#createRoomModal .sf129-mode-card>span{font-size:22px!important;line-height:1.1}
-#createRoomModal .sf129-mode-card>b{font-size:14px!important;line-height:1.22;white-space:normal}
-#createRoomModal .sf129-mode-card>small{font-size:11px!important;line-height:1.45;color:#cdb9d2!important;white-space:normal}
-#createRoomModal .sf129-mode-card.on{
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-card>span{font-size:22px!important;line-height:1.1}
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-card>b{font-size:14px!important;line-height:1.22;white-space:normal}
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-card>small{font-size:11px!important;line-height:1.45;color:#cdb9d2!important;white-space:normal}
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-card.on{
  background:#3a2350!important;border-color:var(--sf129-pink)!important;
  box-shadow:0 0 0 1px #ef3cdb33,0 6px 28px #ef3cdb12!important;
 }
-#createRoomModal .sf129-mode-card.sf129-mode-owner.on{
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-card.sf129-mode-owner.on{
  background:#263016!important;border-color:var(--sf129-lime)!important;
  box-shadow:0 0 0 1px #c4ff0044,0 6px 30px #c4ff0016!important;
 }
-#createRoomModal .sf129-mode-card.sf129-mode-owner.on:after{
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-card.sf129-mode-owner.on:after{
  content:'✓ Selecionado';font-size:10px;font-weight:850;
  color:#c4ff00;align-self:flex-end;
 }
-#createRoomModal .sf129-mode-note{
+:is(#createRoomModal,#roomCfgModal) .sf129-mode-note{
  display:flex;align-items:center;min-height:34px;
  margin:9px 0 16px!important;padding:9px 12px!important;
  font-size:11px!important;line-height:1.4!important;
  color:#e5dbe7!important;background:#17131a;
  border-left:3px solid #c4ff00;border-radius:5px 10px 10px 5px;
 }
-#createRoomModal .sf17-create-summary{
+:is(#createRoomModal,#roomCfgModal) .sf17-create-summary{
  border-color:#76546a!important;background:#19141e!important;
  padding:12px 14px!important;
 }
@@ -232,7 +232,7 @@
   margin:0 -15px 16px!important;padding:18px!important;min-height:124px!important;
  }
  #createRoomModal .sf35-create-hero img{display:none!important}
- #createRoomModal .sf129-mode-card{min-height:104px!important;padding:11px!important}
+ :is(#createRoomModal,#roomCfgModal) .sf129-mode-card{min-height:104px!important;padding:11px!important}
  #createRoomModal .modal-actions{
   margin:15px -15px -16px!important;padding:10px 15px!important;bottom:-16px!important;
  }
@@ -242,19 +242,19 @@
   font-size:clamp(27px,7vw,35px)!important;
  }
  #loginScreen.sf123-login-screen .sf123-login-intro{font-size:13px!important}
- #createRoomModal .kind-picker.sf129-mode-picker{
+ :is(#createRoomModal,#roomCfgModal) .kind-picker.sf129-mode-picker{
   grid-template-columns:1fr!important;
  }
- #createRoomModal .sf129-mode-card{
+ :is(#createRoomModal,#roomCfgModal) .sf129-mode-card{
   min-height:70px!important;display:grid!important;
   grid-template-columns:30px 1fr!important;gap:3px 9px!important;
  }
- #createRoomModal .sf129-mode-card>span{grid-row:1/3!important}
- #createRoomModal .sf129-mode-card>small{grid-column:2!important}
- #createRoomModal .sf129-mode-card.sf129-mode-owner.on:after{grid-column:2!important}
+ :is(#createRoomModal,#roomCfgModal) .sf129-mode-card>span{grid-row:1/3!important}
+ :is(#createRoomModal,#roomCfgModal) .sf129-mode-card>small{grid-column:2!important}
+ :is(#createRoomModal,#roomCfgModal) .sf129-mode-card.sf129-mode-owner.on:after{grid-column:2!important}
 }
 @media(prefers-reduced-motion:reduce){
- #createRoomModal .sf129-mode-card,
+ :is(#createRoomModal,#roomCfgModal) .sf129-mode-card,
  #loginScreen.sf123-login-screen *{transition:none!important;animation:none!important}
 }
 
