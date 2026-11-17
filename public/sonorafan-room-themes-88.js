@@ -37,6 +37,9 @@
    }
    const label=$('sf88ThemeName');
    if(label)label.textContent=chosen.name;
+   const switcher=$('sf88RoomThemeButton');
+   if(switcher)switcher.setAttribute('aria-label','Personalizar aparência: '+chosen.name+(personalOverride?' (tema pessoal)':' (tema da sala)'));
+   if(switcher)switcher.setAttribute('aria-expanded',String($('sf88ThemeOverlay')?.hidden===false));
    const status=$('sf88ThemeStatus');
    if(status)status.textContent=personalOverride?'Tema pessoal · '+chosen.name:'Tema da sala · '+chosen.name;
    const hero=$('sf33EmptyPlayerArt');
@@ -112,18 +115,21 @@
    if(!['room','create','edit'].includes(mode))mode='room';
    const el=$('sf88ThemeOverlay');
    if(!el)return;
+   if(!el.hidden){close();return;}
    previousFocus=document.activeElement;
    modalMode=mode;
    modalChoice=safe(mode==='create'?createChoice:mode==='edit'?editChoice:personalOverride||sharedTheme);
    drawModal();
    el.hidden=false;
    el.classList.add('is-open');
+   $('sf88RoomThemeButton')?.setAttribute('aria-expanded','true');
    $('sf88ThemeClose')?.focus({preventScroll:true});
  }
  function close(){
    const el=$('sf88ThemeOverlay');
    if(!el||el.hidden)return;
    el.hidden=true;el.classList.remove('is-open');
+   $('sf88RoomThemeButton')?.setAttribute('aria-expanded','false');
    if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});
  }
  function mini(id,type){
@@ -182,7 +188,15 @@
    $('sf88ThemeClose')?.addEventListener('click',close);
    overlay?.addEventListener('click',event=>{if(event.target===overlay)close();});
    document.addEventListener('keydown',event=>{
-     if(overlay?.hidden===false && event.key==='Escape'){event.preventDefault();close();}
+     if(!overlay||overlay.hidden)return;
+     if(event.key==='Escape'){event.preventDefault();close();return;}
+     if(event.key!=='Tab')return;
+     const controls=[...overlay.querySelectorAll('button:not(:disabled):not([hidden]),[tabindex="0"]')]
+       .filter(node=>!node.closest('[hidden]')&&node.getClientRects().length);
+     if(!controls.length)return;
+     const first=controls[0],last=controls[controls.length-1];
+     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
    });
    $('sf88ThemePersonal')?.addEventListener('click',applyPersonal);
    $('sf88ThemeShared')?.addEventListener('click',()=>{
