@@ -49,6 +49,7 @@
           <section id="sf76FavoritesPane" role="tabpanel" aria-label="Músicas favoritas" hidden>
             <label class="sf76-search-label" for="sf76FavoriteSearch">Encontre uma favorita</label>
             <input type="search" id="sf76FavoriteSearch" placeholder="Música ou artista..." autocomplete="off">
+            <form class="sf76-create-genre" id="sf76CreateGenre"><label for="sf76NewGenre">Nova coleção ou gênero</label><div><input id="sf76NewGenre" maxlength="28" type="text" placeholder="Ex.: Indie, MPB..." required><button type="submit">＋ Criar</button></div></form>
             <div class="sf76-genres" id="sf76FavoriteGenres" role="group" aria-label="Filtrar favoritas por gênero"></div>
             <div class="sf76-list" id="sf76FavoritesList" aria-live="polite"></div>
           </section>
@@ -64,7 +65,26 @@
     $('sf76ViewQueue').addEventListener('click',()=>{close();if(typeof setTab==='function')setTab('queue');document.querySelector('#screen-room .room-layout')?.scrollTo({top:0,behavior:'instant'});});
     $('sf76FavoriteSearch').addEventListener('input',e=>{state.search=e.target.value;drawFavorites();});
     $('sf76FavoriteGenres').addEventListener('click',e=>{const btn=e.target.closest('[data-sf76-genre]');if(!btn)return;state.filter=btn.dataset.sf76Genre;drawFavorites();});
-    $('sf76FavoritesList').addEventListener('click',e=>{const button=e.target.closest('[data-sf76-add]');if(!button)return;const entry=state.favorites.find(x=>x.id===button.dataset.sf76Add);if(entry)submitFavorite(entry);});
+    $('sf76FavoritesList').addEventListener('click',e=>{
+      const button=e.target.closest('[data-sf76-add],[data-sf76-remove]');if(!button||state.busy)return;
+      const entry=state.favorites.find(x=>x.id===(button.dataset.sf76Add||button.dataset.sf76Remove));
+      if(!entry)return;
+      if(button.hasAttribute('data-sf76-add'))submitFavorite(entry);
+      else if(confirm('Remover esta música dos favoritos?'))removeFavoriteFromSheet(entry);
+    });
+    $('sf76FavoritesList').addEventListener('change',e=>{
+      const field=e.target.closest('[data-sf76-assign]');if(!field||state.busy)return;
+      const entry=state.favorites.find(x=>x.id===field.dataset.sf76Assign);
+      if(entry)assignFavoriteGenre(entry,field.value);
+    });
+    $('sf76CreateGenre').addEventListener('submit',e=>{
+      e.preventDefault();if(state.busy)return;
+      const field=$('sf76NewGenre'),name=field.value.trim();if(!name)return;
+      mutateFavorite(async()=>{
+        const data=await favoritesApi('/api/favorite-genres',{method:'POST',body:JSON.stringify({name})});
+        state.genres.push(data.genre);state.filter=data.genre.id;field.value='';
+      },'Coleção criada. Em Todas, escolha o gênero de cada música.');
+    });
     const runMobileSearch=(immediate=false)=>{
       const query=String($('sf138SearchQuery')?.value||'').trim();
       if(query.length<2){status('Digite pelo menos duas letras para buscar.',true);return;}
@@ -187,6 +207,37 @@
     document.querySelectorAll('#sf76MusicSheet .song-preview-confirm').forEach(b=>b.disabled=!!locked);
     const info=$('sf76MusicStatus');if(locked&&info)status('🔒 Somente o anfitrião pode adicionar músicas nesta sala.',true);
   }
+  async function favoritesApi(url,options={}){
+    const response=await fetch(url,{credentials:'include',...options,headers:{...(options.body?{'Content-Type':'application/json'}:{}),...(options.headers||{})}});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||'Não foi possível salvar a alteração.');
+    return data;
+  }
+  async function mutateFavorite(operation,message){
+    if(state.busy)return;state.busy=true;
+    const panel=$('sf76FavoritesPane');
+    panel?.querySelectorAll('button,input,select').forEach(control=>control.disabled=true);
+    try{await operation();status(message);drawFavorites();}
+    catch(error){status(error.message||'Erro ao atualizar favoritos.',true);drawFavorites();}
+    finally{state.busy=false;panel?.querySelectorAll('button,input,select').forEach(control=>control.disabled=false);}
+  }
+  async function removeFavoriteFromSheet(entry){
+    await mutateFavorite(async()=>{
+      await favoritesApi('/api/favorites/'+encodeURIComponent(entry.id),{method:'DELETE'});
+      state.favorites=state.favorites.filter(song=>song.id!==entry.id);
+      const shared=cachedFavorites();if(Array.isArray(shared))shared.splice(0,shared.length,...state.favorites);
+    },'Música removida dos favoritos.');
+  }
+  async function assignFavoriteGenre(entry,genreId){
+    if(genreId&&!state.genres.some(g=>g.id===genreId)){status('Gênero inválido.',true);drawFavorites();return;}
+    if((entry.genreId||'')===genreId)return;
+    await mutateFavorite(async()=>{
+      await favoritesApi('/api/favorites/'+encodeURIComponent(entry.id)+'/genre',{method:'PATCH',body:JSON.stringify({genreId})});
+      entry.genreId=genreId;
+      const shared=cachedFavorites(),existing=Array.isArray(shared)?shared.find(x=>x.id===entry.id):null;
+      if(existing)existing.genreId=genreId;
+    },'Música movida para a coleção escolhida.');
+  }
   async function loadFavorites(){
     const sequence=++state.searchRequest;
     const list=$('sf76FavoritesList');if(!list)return;
@@ -209,6 +260,7 @@
   function drawFavorites(){
     const chips=$('sf76FavoriteGenres'),list=$('sf76FavoritesList');if(!chips||!list)return;
     const all=state.favorites;
+    if(state.filter!=='all'&&state.filter!=='none'&&!state.genres.some(g=>g.id===state.filter))state.filter='all';
     const options=[{id:'all',name:'Todas'},{id:'none',name:'Sem gênero'},...state.genres];
     const known=new Set(state.genres.map(g=>g.id));
     chips.innerHTML=options.map(g=>{
@@ -221,11 +273,19 @@
       return (state.filter==='all'||genre===state.filter) && (!q||`${t.title||''} ${t.artist||''}`.toLocaleLowerCase('pt-BR').includes(q));
     });
     if(!visible.length){list.innerHTML='<p class="sf76-empty">Nenhuma música nesta seleção. Você pode buscar outra faixa na aba Buscar música.</p>';return;}
-    list.innerHTML=visible.map(t=>`<article class="sf76-track">
+    list.innerHTML=visible.map(t=>`<article class="sf76-track" data-sf76-track="${escapeHtml(t.id)}">
       <img src="https://img.youtube.com/vi/${encodeURIComponent(t.id)}/mqdefault.jpg" alt="" loading="lazy">
-      <div class="sf76-track-copy"><strong>${escapeHtml(t.title||'Música')}</strong><small>${escapeHtml(t.artist||'Artista')}</small></div>
-      <button type="button" data-sf76-add="${escapeHtml(t.id)}" aria-label="Adicionar ${escapeHtml(t.title||'música')} à fila">＋ Adicionar</button>
-    </article>`).join('');
+      <div class="sf76-track-copy"><strong>${escapeHtml(t.title||'Música')}</strong><small>${escapeHtml(t.artist||'Artista')}</small>
+        <label class="sf76-assign"><span>Gênero / coleção</span><select data-sf76-assign="${escapeHtml(t.id)}" aria-label="Mudar gênero de ${escapeHtml(t.title||'música')}">
+          <option value="" ${!known.has(t.genreId)?'selected':''}>Sem gênero</option>
+          ${state.genres.map(g=>`<option value="${escapeHtml(g.id)}" ${t.genreId===g.id?'selected':''}>${escapeHtml(g.name)}</option>`).join('')}
+        </select></label>
+      </div>
+      <div class="sf76-track-actions">
+        <button type="button" data-sf76-add="${escapeHtml(t.id)}" aria-label="Adicionar ${escapeHtml(t.title||'música')} à fila">＋ Adicionar</button>
+        <button type="button" class="sf76-remove" data-sf76-remove="${escapeHtml(t.id)}" aria-label="Remover ${escapeHtml(t.title||'música')} dos favoritos">♡ Remover</button>
+      </div>
+    </article>`).join(''););
   }
   async function submitFavorite(favorite){
     if(state.busy)return;
