@@ -113,7 +113,7 @@ function fixture(){
     'const pass=rect.width>280&&rect.height>300&&rect.left>=-2&&rect.right<=innerWidth+2&&foot.bottom<=innerHeight+3',
     '&&metrics.start==="1"&&metrics.denied==="1"&&metrics.next==="2"&&metrics.owner&&metrics.live&&metrics.private&&metrics.hasPassword',
     '&&metrics.hasTheme&&metrics.genreErrorHidden&&metrics.backVisible&&metrics.submitVisible&&metrics.nextHidden',
-    '&&!metrics.leftVisible===false',
+    '&&(compact?!metrics.leftVisible:metrics.leftVisible)',
     '&&(!compact?metrics.rightVisible:!metrics.rightVisible)',
     '&&(phone?rect.width>=innerWidth-2:true)',
     '&&metrics.scrollClient>50&&metrics.scrollOverflow==="auto";',
