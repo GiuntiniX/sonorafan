@@ -419,6 +419,23 @@
        if(!target||typeof joinRoom!=='function')return notice('Abra a sala pelo lobby.',true);
        q('#sf95Overlay [data-sf95-close]')?.click();joinRoom(target);return;
      }
+     if(act==='party'){
+       if(partyBusy)return;
+       const client=socketClient(),operation=button.dataset.party;
+       if(!client?.connected)return notice('Conexão com a sala indisponível.',true);
+       partyBusy=true;button.disabled=true;
+       try{
+         const reply=await new Promise((resolve,reject)=>{
+           const timer=setTimeout(()=>reject(Error('A sala não respondeu.')),7000);
+           client.emit('sf141:partyAction',{action:operation,option:Number(button.dataset.option)},response=>{
+             clearTimeout(timer);resolve(response);
+           });
+         });
+         if(!reply?.ok)throw Error(reply?.error||'Não foi possível registrar a ação.');
+       }catch(err){notice(err.message,true);}
+       finally{partyBusy=false;if(button.isConnected)button.disabled=false;}
+       return;
+     }
      if(act==='rsvp'){await post('/api/social/events/'+encodeURIComponent(id)+'/rsvp',{going:button.dataset.going==='true'});return refresh();}
      if(act==='browser-alerts')return browserPermission();
      if(act==='check-alerts')return checkAlerts(true);
@@ -481,7 +498,17 @@
        }
      },1500);
    };
-   socketClient()?.on('roomState',data=>{state.room=data;});
+   socketClient()?.on('roomState',data=>{
+     const previous=state.room?.slug;
+     state.room=data;
+     if(previous!==data.slug)party=data.sf141Party||{active:false,round:0,choices:[],votes:[0,0],endsAt:0};
+     else if(data.sf141Party)party=data.sf141Party;
+     if(state.section==='events'&&$('sf100Section')&&!partyBusy)renderSection();
+   });
+   socketClient()?.on('sf141:partyState',data=>{
+     party=data||{active:false,round:0,choices:[],votes:[0,0],endsAt:0};
+     if(state.section==='events'&&$('sf100Section'))renderSection();
+   });
    socketClient()?.on('isAdmin',isAdmin=>{state.admin=!!isAdmin;});
    api('/api/admin/studio100/quality').then(d=>{
      state.qualityAllowed=true;state.quality=d;
