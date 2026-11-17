@@ -39,7 +39,7 @@ test('v134 high-quality artwork is loaded on the homepage',()=>{
   assert.equal(image.toString('ascii',4,8),'ftyp');
   assert.match(html,/src="\/art-134\/sonorafan-kpop-home-hq\.avif"/);
   assert.match(html,/sonorafan-search-inline-134\.css\?v=134\.1/);
-  assert.match(html,/sonorafan-mobile-music-76\.js\?v=138\.1/);
+  assert.match(html,/sonorafan-mobile-music-76\.js\?v=139\.0/);
   assert.match(html,/sonorafan-inline-search-78\.js\?v=134\.1/);
 });
 function fixture(){
