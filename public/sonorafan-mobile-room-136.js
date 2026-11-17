@@ -68,4 +68,33 @@
   screen.addEventListener('focusout',event=>{
     if(event.target.matches('input,textarea,[contenteditable="true"]'))schedule();
   },{passive:true});
+  // Gestos suaves entre abas existentes; nunca interfere com vídeo ou campos.
+  const layout=document.getElementById('roomLayout');
+  const order=['queue','player','chat'];
+  let gesture=null;
+  const blocked=target=>Boolean(target?.closest?.(
+    'button,a,input,select,textarea,iframe,video,[contenteditable],'+
+    '.sf76-sheet,.modal-overlay,[role="dialog"],.sf78-popover,[data-no-room-swipe]'
+  ));
+  layout?.addEventListener('touchstart',event=>{
+    gesture=null;
+    if(!screen.classList.contains('active') ||
+       !window.matchMedia('(max-width:768px)').matches ||
+       event.touches.length!==1 || blocked(event.target) ||
+       document.querySelector('.sf76-sheet:not([hidden]),#sf88ThemeOverlay:not([hidden]),.modal-overlay.active'))return;
+    const touch=event.touches[0];
+    if(touch.clientX<28 || touch.clientX>window.innerWidth-28)return;
+    gesture={x:touch.clientX,y:touch.clientY,time:Date.now()};
+  },{passive:true});
+  layout?.addEventListener('touchcancel',()=>{gesture=null;},{passive:true});
+  layout?.addEventListener('touchend',event=>{
+    if(!gesture||event.changedTouches.length!==1)return;
+    const start=gesture;gesture=null;
+    if(blocked(event.target))return;
+    const touch=event.changedTouches[0],dx=touch.clientX-start.x,dy=touch.clientY-start.y;
+    if(Math.abs(dx)<85 || Math.abs(dx)<Math.abs(dy)*1.7 || Date.now()-start.time>850)return;
+    const current=order.indexOf(document.body.dataset.tab||'player');
+    const next=order[current+(dx>0?-1:1)];
+    if(next&&typeof setTab==='function')setTab(next);
+  },{passive:true});
 })();
