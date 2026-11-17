@@ -1455,6 +1455,7 @@
   <link rel="stylesheet" href="/sonorafan-backstage-130.css?v=130.2">
   <link rel="stylesheet" href="/sonorafan-room-login-fanclub-131.css?v=131.3">
   <link rel="stylesheet" href="/sonorafan-room-experience-132.css?v=132.1">
+  <link rel="stylesheet" href="/sonorafan-room-personalization-133.css?v=133.1">
 </head>
 <body>
 
@@ -2093,7 +2094,7 @@
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
         </div>
           <div class="sf116-menu" id="sf116More">
-            <button class="sf116-more-trigger" id="sf116MoreButton" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="sf116MorePanel" aria-label="Mais opções da sala" title="Mais opções">⋯</button>
+            <button class="sf116-more-trigger" id="sf116MoreButton" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="sf116MorePanel" aria-label="Abrir menu da sala" title="Abrir menu da sala"><span aria-hidden="true">☰</span></button>
             <div class="sf116-more-panel" id="sf116MorePanel" role="menu" aria-label="Mais opções da sala" hidden>
               <button type="button" role="menuitem" onclick="copyInviteLink()">♧ Convidar ouvintes</button>
               <button type="button" role="menuitem" onclick="toggleFavorites()">♡ Minhas favoritas</button>
@@ -2161,13 +2162,13 @@
               <span class="sf128-kicker">✦ SUA VEZ DE ESCOLHER</span>
               <h3 id="sf128AddTitle">Adicione a próxima música</h3>
               <p>Busque por música ou artista, ou cole um link do YouTube.</p>
-              <button class="sf113-add-song" id="sf113AddMusic" type="button" aria-label="Buscar música para adicionar à fila">
+              <button class="sf113-add-song" id="sf113AddMusic" type="button" aria-label="Buscar músicas ou escolher das favoritas" aria-haspopup="dialog" aria-controls="sf76MusicSheet">
                 <span class="sf128-search-icon" aria-hidden="true">⌕</span>
-                <span class="sf128-search-label">Buscar e adicionar música</span>
+                <span class="sf128-search-label">Adicionar música</span>
                 <span aria-hidden="true">＋</span>
               </button>
-              <button class="sf116-favorites" id="sf116Favorites" type="button" onclick="toggleFavorites()" title="Escolher músicas favoritas para a fila">♡ Escolher das favoritas</button>
-              <section class="sf5-listening-card sf128-presence" aria-label="Pessoas ouvindo ao vivo">
+              <button class="sf116-favorites" id="sf116Favorites" type="button" onclick="window.sf76OpenMusic?.('favorites')" title="Favoritas disponíveis na janela Adicionar música" aria-hidden="true" tabindex="-1" hidden>♡ Escolher das favoritas</button>
+              <section class="sf5-listening-card sf128-presence" aria-hidden="true" hidden>
                 <div class="sf5-card-heading"><span class="sf128-online-dot" aria-hidden="true"></span><span>Ouvindo ao vivo</span><span id="sf5ListenersCount" aria-label="Quantidade de ouvintes">0</span></div>
                 <div class="sf5-listeners-body" id="sf5ListenersBody" aria-label="Nomes dos participantes"></div>
               </section>
@@ -4719,7 +4720,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-queue-80.js?v=87"></script>
   
   
-  <script defer src="/sonorafan-mobile-music-76.js?v=87"></script>
+  <script defer src="/sonorafan-mobile-music-76.js?v=133.1"></script>
   
   <script defer src="/sonorafan-search-77.js?v=87"></script>
   
@@ -4746,5 +4747,6 @@ function openRoomCfg() {
   <script defer src="/sonorafan-unified-125.js?v=127.1"></script>
   <script defer src="/sonorafan-experience-126.js?v=126.1"></script>
   <script defer src="/sonorafan-room-permissions-129.js?v=129.1"></script>
+  <script defer src="/sonorafan-room-personalization-133.js?v=133.1"></script>
 </body>
 </html>
