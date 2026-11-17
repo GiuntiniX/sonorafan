@@ -37,7 +37,7 @@ test('unified music sheet opens search and favorites at all viewport widths',()=
  assert.match(css,/@media\(min-width:769px\)/);
  assert.match(css,/\.sf76-sheet:not\(\[hidden\]\)/);
  assert.match(html,/sonorafan-mobile-music-76\.js\?v=139\.0/);
- assert.match(html,/sonorafan-room-personalization-133\.css\?v=133/);
+ assert.match(html,/sonorafan-room-personalization-133\.css\?v=140\.0/);
 });
 
 test('room theme safely updates music, theme and settings dialogs with art and colors',()=>{
