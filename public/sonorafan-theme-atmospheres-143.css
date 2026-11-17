@@ -1,0 +1,263 @@
+/* SonoraFan 143 — direção de arte de sala por gênero.
+ * Mantém WebP ilustrado como base; arte SVG autoral é uma camada translúcida.
+ * Não introduz nenhum painel, botão, modal nem sobrepõe o player YouTube.
+ * Geral não recebe este sistema: aparência original permanece intacta. */
+#screen-room[data-room-theme]{
+ --sf143-scene:none;
+ --sf143-haze:rgba(110,65,152,.24);
+ --sf143-matte:#170f24;
+ --sf143-cut:16px;
+ --sf143-stroke:solid;
+ --sf143-weight:1px;
+ --sf143-light:.25;
+ --sf143-stripe:linear-gradient(105deg,transparent,rgba(255,255,255,.06),transparent);
+ --sf143-overlay:linear-gradient(110deg,rgba(12,8,20,.9),rgba(12,8,20,.5));
+ --sf143-surface:linear-gradient(160deg,color-mix(in srgb,var(--sf143-matte) 88%,#0a0810),color-mix(in srgb,var(--sf143-matte) 67%,#07070c));
+}
+
+/* Personalidades e composições exclusivas. */
+#screen-room[data-room-theme="indie"],
+.sf88-theme-card[data-theme="indie"],
+#sf88ThemeOverlay[data-sf143-preview="indie"]{
+ --sf143-scene:url("/themes/atmospheres/indie.svg");
+ --sf143-matte:#241430;--sf143-haze:rgba(232,90,204,.28);--sf143-cut:22px;
+ --sf143-overlay:linear-gradient(112deg,rgba(25,10,44,.92),rgba(67,24,77,.55));
+ --sf143-stripe:linear-gradient(125deg,rgba(244,111,184,.22),transparent 42%,rgba(255,160,106,.2));
+}
+#screen-room[data-room-theme="metal"],
+.sf88-theme-card[data-theme="metal"],
+#sf88ThemeOverlay[data-sf143-preview="metal"]{
+ --sf143-scene:url("/themes/atmospheres/metal.svg");
+ --sf143-matte:#150d11;--sf143-haze:rgba(255,47,58,.22);--sf143-cut:4px;
+ --sf143-overlay:linear-gradient(108deg,rgba(12,7,9,.95),rgba(52,11,15,.52));
+ --sf143-stripe:repeating-linear-gradient(133deg,rgba(255,83,55,.16) 0 2px,transparent 2px 20px);
+ --sf143-weight:2px;
+}
+#screen-room[data-room-theme="emo"],
+.sf88-theme-card[data-theme="emo"],
+#sf88ThemeOverlay[data-sf143-preview="emo"]{
+ --sf143-scene:url("/themes/atmospheres/emo.svg");
+ --sf143-matte:#18131d;--sf143-haze:rgba(238,120,174,.17);--sf143-cut:8px;
+ --sf143-overlay:linear-gradient(118deg,rgba(19,16,23,.95),rgba(61,34,58,.5));
+ --sf143-stripe:repeating-linear-gradient(90deg,transparent 0 19px,rgba(253,211,233,.12) 19px 20px);
+ --sf143-stroke:dashed;
+}
+#screen-room[data-room-theme="mpb"],
+.sf88-theme-card[data-theme="mpb"],
+#sf88ThemeOverlay[data-sf143-preview="mpb"]{
+ --sf143-scene:url("/themes/atmospheres/mpb.svg");
+ --sf143-matte:#14372e;--sf143-haze:rgba(242,176,80,.23);--sf143-cut:24px;
+ --sf143-overlay:linear-gradient(112deg,rgba(14,46,36,.94),rgba(40,73,47,.52));
+ --sf143-stripe:radial-gradient(ellipse at 80% 30%,rgba(249,197,99,.24),transparent 66%);
+}
+#screen-room[data-room-theme="eletronica"],
+.sf88-theme-card[data-theme="eletronica"],
+#sf88ThemeOverlay[data-sf143-preview="eletronica"]{
+ --sf143-scene:url("/themes/atmospheres/eletronica.svg");
+ --sf143-matte:#091631;--sf143-haze:rgba(20,226,255,.22);--sf143-cut:6px;
+ --sf143-overlay:linear-gradient(108deg,rgba(8,17,38,.95),rgba(25,13,76,.48));
+ --sf143-stripe:repeating-linear-gradient(0deg,transparent 0 15px,rgba(43,220,255,.08) 16px 17px);
+ --sf143-weight:2px;
+}
+#screen-room[data-room-theme="rock"],
+.sf88-theme-card[data-theme="rock"],
+#sf88ThemeOverlay[data-sf143-preview="rock"]{
+ --sf143-scene:url("/themes/atmospheres/rock.svg");
+ --sf143-matte:#2b1515;--sf143-haze:rgba(252,106,51,.24);--sf143-cut:7px;
+ --sf143-overlay:linear-gradient(118deg,rgba(32,12,12,.95),rgba(88,39,19,.47));
+ --sf143-stripe:repeating-linear-gradient(145deg,rgba(248,110,60,.14) 0 1px,transparent 1px 18px);
+ --sf143-weight:2px;
+}
+#screen-room[data-room-theme="pop"],
+.sf88-theme-card[data-theme="pop"],
+#sf88ThemeOverlay[data-sf143-preview="pop"]{
+ --sf143-scene:url("/themes/atmospheres/pop.svg");
+ --sf143-matte:#341635;--sf143-haze:rgba(255,95,216,.27);--sf143-cut:26px;
+ --sf143-overlay:linear-gradient(112deg,rgba(51,14,55,.92),rgba(84,34,116,.46));
+ --sf143-stripe:radial-gradient(circle at 90% 10%,rgba(255,224,246,.24),transparent 42%);
+}
+#screen-room[data-room-theme="rap"],
+.sf88-theme-card[data-theme="rap"],
+#sf88ThemeOverlay[data-sf143-preview="rap"]{
+ --sf143-scene:url("/themes/atmospheres/rap.svg");
+ --sf143-matte:#272022;--sf143-haze:rgba(255,168,69,.22);--sf143-cut:6px;
+ --sf143-overlay:linear-gradient(115deg,rgba(29,22,24,.95),rgba(75,35,35,.53));
+ --sf143-stripe:repeating-linear-gradient(45deg,rgba(253,177,65,.17) 0 3px,transparent 3px 22px);
+ --sf143-weight:2px;
+}
+#screen-room[data-room-theme="funk"],
+.sf88-theme-card[data-theme="funk"],
+#sf88ThemeOverlay[data-sf143-preview="funk"]{
+ --sf143-scene:url("/themes/atmospheres/funk.svg");
+ --sf143-matte:#220f35;--sf143-haze:rgba(255,74,173,.28);--sf143-cut:18px;
+ --sf143-overlay:linear-gradient(115deg,rgba(28,11,50,.93),rgba(53,20,73,.53));
+ --sf143-stripe:repeating-radial-gradient(circle at 95% 70%,rgba(56,224,217,.14) 0 3px,transparent 4px 25px);
+}
+#screen-room[data-room-theme="pagode"],
+.sf88-theme-card[data-theme="pagode"],
+#sf88ThemeOverlay[data-sf143-preview="pagode"]{
+ --sf143-scene:url("/themes/atmospheres/pagode.svg");
+ --sf143-matte:#193a35;--sf143-haze:rgba(255,193,91,.24);--sf143-cut:24px;
+ --sf143-overlay:linear-gradient(110deg,rgba(19,51,43,.92),rgba(47,91,62,.51));
+ --sf143-stripe:radial-gradient(circle at 90% 30%,rgba(255,212,123,.19),transparent 54%);
+}
+#screen-room[data-room-theme="sertanejo"],
+.sf88-theme-card[data-theme="sertanejo"],
+#sf88ThemeOverlay[data-sf143-preview="sertanejo"]{
+ --sf143-scene:url("/themes/atmospheres/sertanejo.svg");
+ --sf143-matte:#3b2523;--sf143-haze:rgba(242,157,100,.19);--sf143-cut:18px;
+ --sf143-overlay:linear-gradient(115deg,rgba(48,26,23,.93),rgba(116,56,40,.46));
+ --sf143-stripe:linear-gradient(0deg,rgba(221,144,100,.18),transparent 52%);
+}
+#screen-room[data-room-theme="reggae"],
+.sf88-theme-card[data-theme="reggae"],
+#sf88ThemeOverlay[data-sf143-preview="reggae"]{
+ --sf143-scene:url("/themes/atmospheres/reggae.svg");
+ --sf143-matte:#17332b;--sf143-haze:rgba(241,201,80,.22);--sf143-cut:21px;
+ --sf143-overlay:linear-gradient(110deg,rgba(19,50,39,.95),rgba(38,74,43,.43));
+ --sf143-stripe:linear-gradient(120deg,rgba(236,196,70,.17),transparent 45%,rgba(93,201,123,.11));
+}
+#screen-room[data-room-theme="jazz"],
+.sf88-theme-card[data-theme="jazz"],
+#sf88ThemeOverlay[data-sf143-preview="jazz"]{
+ --sf143-scene:url("/themes/atmospheres/jazz.svg");
+ --sf143-matte:#16243a;--sf143-haze:rgba(216,173,105,.18);--sf143-cut:11px;
+ --sf143-overlay:linear-gradient(112deg,rgba(12,26,45,.96),rgba(43,45,70,.52));
+ --sf143-stripe:linear-gradient(90deg,rgba(221,177,117,.1),transparent 75%);
+}
+#screen-room[data-room-theme="forro"],
+.sf88-theme-card[data-theme="forro"],
+#sf88ThemeOverlay[data-sf143-preview="forro"]{
+ --sf143-scene:url("/themes/atmospheres/forro.svg");
+ --sf143-matte:#3d261e;--sf143-haze:rgba(251,186,88,.22);--sf143-cut:15px;
+ --sf143-overlay:linear-gradient(108deg,rgba(50,29,23,.93),rgba(107,58,34,.49));
+ --sf143-stripe:repeating-linear-gradient(120deg,rgba(255,209,124,.13) 0 2px,transparent 2px 26px);
+}
+
+/* Galeria de temas: cada miniatura preserva a imagem original e recebe
+ * uma ilustração própria por cima, sem novos cards ou conteúdo duplicado. */
+#sf88ThemeOverlay .sf88-theme-card[data-theme]:not([data-theme="geral"]){
+ border-color:color-mix(in srgb,var(--sf88-primary,#a973b9) 40%,#696075);
+ background:linear-gradient(155deg,#271d33,#15121d);isolation:isolate;
+ box-shadow:0 9px 24px rgba(0,0,0,.2);
+}
+#sf88ThemeOverlay .sf88-theme-card[data-theme]:not([data-theme="geral"])::after{
+ content:"";position:absolute;inset:0 0 auto;height:auto;aspect-ratio:2/1;
+ pointer-events:none;z-index:1;background-image:var(--sf143-scene);
+ background-repeat:no-repeat;background-position:center;background-size:cover;
+}
+#sf88ThemeOverlay .sf88-theme-card img{
+ aspect-ratio:2/1;object-position:center center;
+ filter:saturate(1.15) contrast(1.08);
+}
+#sf88ThemeOverlay .sf88-theme-card[data-theme] strong{
+ font-family:'Space Grotesk',Inter,system-ui,sans-serif;letter-spacing:.01em;
+}
+#sf88ThemeOverlay .sf88-theme-card[data-theme]:not([data-theme="geral"]):hover{
+ transform:translateY(-4px);box-shadow:0 16px 30px rgba(0,0,0,.33);
+}
+#sf88ThemeOverlay .sf88-theme-card.is-selected{
+ border-color:#ffdeff;box-shadow:0 0 0 2px rgba(246,199,255,.62),0 12px 32px #0007!important;
+}
+#sf88ThemeOverlay .sf88-theme-card.is-selected::after{opacity:1}
+#sf88ThemeOverlay .sf88-theme-card:focus-visible{outline:3px solid #fff!important;outline-offset:3px}
+
+/* Prévia e miniatura de criação: mesma arte, sem bloquear os botões. */
+#sf88ThemeOverlay[data-sf143-preview]:not([data-sf143-preview="geral"]) .sf88-preview{position:relative;isolation:isolate}
+#sf88ThemeOverlay[data-sf143-preview]:not([data-sf143-preview="geral"]) .sf88-preview::after{
+ content:"";position:absolute;top:0;left:0;width:110px;height:58px;z-index:1;
+ background:var(--sf143-scene) center/cover no-repeat;
+ border-radius:9px;pointer-events:none;
+}
+#sf88ThemeOverlay[data-sf143-preview]:not([data-sf143-preview="geral"]) .sf88-preview img{filter:saturate(1.2) contrast(1.05)}
+#sf88CreateTheme[data-sf143-theme] .sf88-mini img,
+#sf88EditTheme[data-sf143-theme] .sf88-mini img{filter:saturate(1.12) contrast(1.04)}
+
+/* Identidade aplicada SOMENTE ao interior das salas temáticas.
+ * Galeria Geral mantém fielmente as regras originais. */
+#screen-room[data-room-theme] #roomLayout .queue-header,
+#screen-room[data-room-theme] #roomLayout .premium-chat-heading,
+#screen-room[data-room-theme] #roomLayout .sf128-add-panel{
+ background-image:var(--sf143-overlay),var(--sf143-scene),var(--sf88-art)!important;
+ background-size:cover!important;background-position:center!important;
+ border-color:color-mix(in srgb,var(--sf88-primary) 56%,var(--sf143-matte))!important;
+}
+#screen-room[data-room-theme] #roomLayout .queue-column,
+#screen-room[data-room-theme] #roomLayout .chat-column,
+#screen-room[data-room-theme] #roomLayout .player-column{
+ border-radius:var(--sf143-cut)!important;
+ border-color:color-mix(in srgb,var(--sf88-primary) 36%,var(--sf143-matte))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 7px 30px rgba(0,0,0,.17)!important;
+}
+#screen-room[data-room-theme] #roomLayout .player-section{
+ border-color:color-mix(in srgb,var(--sf88-primary) 56%,var(--sf143-matte))!important;
+ box-shadow:0 0 0 var(--sf143-weight) color-mix(in srgb,var(--sf88-primary) 22%,transparent),
+            0 12px 45px var(--sf143-haze)!important;
+ border-radius:var(--sf143-cut)!important;
+}
+#screen-room[data-room-theme] #roomLayout .queue-item.current{
+ border-inline-start:4px var(--sf143-stroke) var(--sf88-secondary)!important;
+ background-image:var(--sf143-stripe),linear-gradient(105deg,color-mix(in srgb,var(--sf88-primary) 23%,var(--sf143-matte)),color-mix(in srgb,var(--sf143-matte) 78%,transparent))!important;
+ box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sf88-primary) 19%,transparent)!important;
+}
+#screen-room[data-room-theme] #sf33EmptyPlayerArt:not([hidden]){
+ background-image:linear-gradient(90deg,color-mix(in srgb,var(--sf143-matte) 34%,transparent),transparent),var(--sf143-scene),var(--sf88-art)!important;
+ background-size:cover!important;background-position:center!important;
+}
+#screen-room[data-room-theme] #sf44QueueIdle{
+ background-image:linear-gradient(95deg,rgba(0,0,0,.25),transparent),var(--sf143-scene),var(--sf88-art)!important;
+ background-size:cover!important;background-position:center!important;
+}
+#screen-room[data-room-theme] .sf34-chat .chat-messages,
+#screen-room[data-room-theme] #chatMessages,
+#screen-room[data-room-theme] #chatMessagesInner{
+ background-image:none!important;/* O texto e suas bolhas permanecem legíveis. */
+}
+#screen-room[data-room-theme] .sf34-chat .chat-input-bar{
+ border-color:color-mix(in srgb,var(--sf88-primary) 50%,var(--sf143-matte))!important;
+ border-radius:clamp(9px,var(--sf143-cut),20px)!important;
+ box-shadow:0 0 0 1px var(--sf143-haze)!important;
+}
+#screen-room[data-room-theme] #roomLayout .sf128-add-panel #sf113AddMusic{
+ border-radius:clamp(8px,var(--sf143-cut),16px)!important;
+ box-shadow:0 3px 18px var(--sf143-haze)!important;
+}
+#screen-room[data-room-theme] #roomLayout .queue-header,
+#screen-room[data-room-theme] #roomLayout .premium-chat-heading{
+ text-shadow:0 1px 6px rgba(0,0,0,.75);
+}
+/* Gêneros com geometria angular, grafite e tipografia de impacto. */
+#screen-room:is([data-room-theme="metal"],[data-room-theme="rock"],[data-room-theme="rap"]) #roomLayout .queue-header,
+#screen-room:is([data-room-theme="metal"],[data-room-theme="rock"],[data-room-theme="rap"]) #roomLayout .premium-chat-heading{
+ font-family:'Space Grotesk',Inter,system-ui,sans-serif!important;
+ font-weight:900!important;letter-spacing:.055em!important;
+}
+#screen-room[data-room-theme="emo"] #roomLayout .queue-item.current{
+ border:1px dashed var(--sf88-secondary)!important;border-inline-start:4px solid var(--sf88-primary)!important;
+}
+#screen-room[data-room-theme="jazz"] #roomLayout .queue-header,
+#screen-room[data-room-theme="jazz"] #roomLayout .premium-chat-heading{
+ font-family:Georgia,serif!important;font-style:italic;letter-spacing:.025em!important;
+}
+#screen-room:is([data-room-theme="mpb"],[data-room-theme="pagode"],[data-room-theme="reggae"]) #roomLayout .queue-item.current{
+ border-radius:18px!important;
+}
+/* Janelas globais seguem o gênero ativo sem precisar criar um segundo tema. */
+body.sf133-themed-room[data-sf143-theme] .sf76-sheet .sf76-head,
+body.sf133-themed-room[data-sf143-theme] #sf88ThemeOverlay .sf88-modal-head{
+ background-image:linear-gradient(105deg,rgba(15,11,24,.86),rgba(28,16,33,.55)),var(--sf143-body-scene,var(--sf133-art))!important;
+ background-size:cover!important;background-position:center!important;
+}
+/* Pequenas telas: mantemos gestos, scroll, controles e área útil do vídeo. */
+@media(max-width:768px){
+ #sf88ThemeOverlay .sf88-theme-card[data-theme]:not([data-theme="geral"]):hover{transform:none}
+ #sf88ThemeOverlay[data-sf143-preview] .sf88-preview::after{width:74px;height:48px}
+ #screen-room[data-room-theme] #roomLayout .player-column,
+ #screen-room[data-room-theme] #roomLayout .chat-column,
+ #screen-room[data-room-theme] #roomLayout .queue-column{box-shadow:none!important}
+ #screen-room[data-room-theme] #roomLayout .player-section{box-shadow:0 5px 18px var(--sf143-haze)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #sf88ThemeOverlay .sf88-theme-card[data-theme]{transform:none!important;transition:none!important}
+ #screen-room[data-room-theme] #roomLayout *{animation-duration:0.01ms!important}
+}
