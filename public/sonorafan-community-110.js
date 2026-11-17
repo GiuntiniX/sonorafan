@@ -8,6 +8,12 @@
  const safeId=s=>/^[a-f0-9-]{24,36}$/i.test(String(s||''));
  const coverFallback=['/art-44/festival-crowd.webp','/art-33/poster-rock.webp','/art-33/poster-electro.webp'];
  const state={open:0,conversations:[],clubs:[],friends:[],events:[],loading:true,errors:[]};
+ let renderQueued=false;
+ const scheduleRender=()=>{
+   if(renderQueued)return;
+   renderQueued=true;
+   requestAnimationFrame(()=>{renderQueued=false;if(panel())render();});
+ };
  const shell=()=>document.querySelector('.sf5-community-layer .sf5-community-shell.sf110-community-shell');
  const panel=()=>document.querySelector('.sf5-community-layer .sf110-dashboard');
  async function request(path){
@@ -176,13 +182,17 @@
        const body=await request(url);
        if(current!==state.open)return;
        state[key]=key==='clubs'?(Array.isArray(body?.clubs)?body.clubs:[]):Array.isArray(body)?body:[];
-       render();
-     }catch(e){if(current===state.open){state.errors.push(key);render();}}
+       scheduleRender();
+     }catch(e){if(current===state.open){state.errors.push(key);scheduleRender();}}
    }));
-   if(current===state.open){state.loading=false;render();}
+   if(current===state.open){state.loading=false;scheduleRender();}
  }
  function open(initial='overview'){
    if(typeof original!=='function')return;
+   if(shell()){
+     if(initial!=='overview')showDetails(initial);
+     return;
+   }
    original();
    const layer=document.querySelector('.sf5-community-layer');
    const s=layer?.querySelector('.sf5-community-shell');
