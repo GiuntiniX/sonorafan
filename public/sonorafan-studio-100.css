@@ -206,3 +206,22 @@
   border:1px solid #a46dbe;border-radius:8px;
   background:#4a3260;color:#fff;cursor:pointer;font:750 11px system-ui
 }
+
+
+/* v141 — party rounds and quality inspection in the existing Studio, never in player. */
+#sf95Overlay .sf141-party{display:grid;gap:10px;padding:13px;margin:0 0 14px;border:1px solid color-mix(in srgb,var(--sf88-primary,#ae70ce) 44%,#4d4567);border-radius:13px;background:linear-gradient(130deg,#241833,#181b30)}
+#sf95Overlay .sf141-party-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+#sf95Overlay .sf141-party-heading>div{display:grid;gap:3px;min-width:0}
+#sf95Overlay .sf141-party-heading strong{font-size:14px;color:#fff}
+#sf95Overlay .sf141-party-heading small{font-size:11px;color:#cfbfdb}
+#sf95Overlay .sf141-party-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#sf95Overlay .sf141-party-choices button{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:46px;text-align:left}
+#sf95Overlay .sf141-party-choices span{opacity:.78;white-space:nowrap;font-size:10px}
+#sf95Overlay .sf141-party p,#sf95Overlay .sf141-diagnostics p{font-size:11px;color:#d4c9e0;line-height:1.5;margin:0}
+#sf95Overlay .sf141-party-stop{justify-self:start}
+#sf95Overlay .sf141-diagnostics{display:grid;gap:8px;margin-top:16px;padding:12px;border:1px solid #625474;border-radius:12px;background:#1c1729}
+#sf95Overlay .sf141-diagnostics h5{margin:0;font-size:13px;color:#fff}
+#sf95Overlay .sf141-diagnostics strong{font-size:12px;color:#e7d6fb}
+#sf95Overlay .sf141-diagnostics ul{padding-left:17px;margin:0;display:grid;gap:5px;font-size:11px;overflow-wrap:anywhere}
+@media(max-width:640px){#sf95Overlay .sf141-party{padding:10px}#sf95Overlay .sf141-party-heading>button{width:100%}#sf95Overlay .sf141-party-choices button{min-height:48px;flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){#sf95Overlay .sf141-party *{transition:none!important;animation:none!important}}
