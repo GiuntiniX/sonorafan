@@ -57,7 +57,7 @@ function simulateViewport(visualHeight){
  const elements={'screen-room':screen,'sf136MobileWelcome':welcome,'queueCount':count,'chatInput':chatInput};
  const subscriptions=[];
  const context={
-  document:{documentElement:docRoot,body,
+  document:{documentElement:docRoot,body:Object.assign(body,{dataset:{tab:'player'}}),
     getElementById:id=>elements[id]||null,
     querySelector:()=>null,addEventListener:()=>{},hidden:false},
   window:{
