@@ -36,7 +36,7 @@ test('unified music sheet opens search and favorites at all viewport widths',()=
  assert.doesNotMatch(js,/if\(tab==='search' && typeof window\.sf77OpenSearch/);
  assert.match(css,/@media\(min-width:769px\)/);
  assert.match(css,/\.sf76-sheet:not\(\[hidden\]\)/);
- assert.match(html,/sonorafan-mobile-music-76\.js\?v=134/);
+ assert.match(html,/sonorafan-mobile-music-76\.js\?v=138/);
  assert.match(html,/sonorafan-room-personalization-133\.css\?v=133/);
 });
 
@@ -91,8 +91,10 @@ function fixture(){
    button.click();
    const sheet=document.getElementById('sf76MusicSheet');
    state.sheetOpen=!!sheet&&!sheet.hidden;
-   state.requestMoved=sheet.contains(document.getElementById('sf10RequestCard'));
+   state.requestMoved=innerWidth<=768 ? !sheet.contains(document.getElementById('sf10RequestCard')) : sheet.contains(document.getElementById('sf10RequestCard'));
    state.searchTab=sheet.querySelector('[data-sf76-tab="search"]').getAttribute('aria-selected')==='true';
+   state.mobileSearchReady=innerWidth>768 || (sheet.querySelector('#sf138SearchQuery')?.getBoundingClientRect().height>30);
+   state.oneDialog=!document.getElementById('sf77MusicModal') || document.getElementById('sf77MusicModal').hidden;
    state.hiddenListener=getComputedStyle(document.querySelector('.sf128-presence')).display==='none';
    state.hiddenSecondCTA=getComputedStyle(document.getElementById('sf116Favorites')).display==='none';
    state.themed=document.body.classList.contains('sf133-themed-room');
