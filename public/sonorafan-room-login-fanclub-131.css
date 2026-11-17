@@ -1,0 +1,472 @@
+/* SONORAFAN v131 — layout padrão da sala, login festival e Fan Clubs.
+ * Apenas camada de apresentação: preserva o player YouTube, socket, temas,
+ * votação, busca, favoritos, chat e permissões das v128/v129. */
+
+/* 1. Criar Fan Club: botão legível em qualquer tema e breakpoint. */
+#screen-lobby.sf125-platform .sf107-clubs-actions .sf107-club-create,
+#screen-lobby.sf126-lobby .sf107-clubs-actions .sf107-club-create,
+#screen-lobby .sf107-clubs-actions [data-sf107="club-create"]{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;width:auto!important;min-width:154px!important;
+ max-width:100%!important;min-height:43px!important;
+ padding:10px 18px!important;margin:0!important;
+ font:850 12px/1.25 Inter,system-ui,sans-serif!important;
+ letter-spacing:0!important;text-indent:0!important;text-transform:none!important;
+ white-space:nowrap!important;overflow:visible!important;
+ background:#c4ff00!important;color:#10120a!important;
+ -webkit-text-fill-color:#10120a!important;
+ border:1px solid #c4ff00!important;border-radius:999px!important;
+ box-shadow:0 6px 21px #c4ff0033!important;
+ visibility:visible!important;opacity:1!important;
+ cursor:pointer!important;filter:none!important;
+}
+#screen-lobby .sf107-clubs-actions [data-sf107="club-create"]:hover{
+ background:#d9ff67!important;box-shadow:0 8px 25px #c4ff0050!important;
+}
+#screen-lobby .sf107-clubs-actions [data-sf107="clubs"]{
+ display:inline-flex!important;align-items:center;justify-content:center;
+ flex:0 0 auto;min-height:43px!important;padding:10px 17px!important;
+ border-radius:999px!important;border:1px solid #735375!important;
+ background:#251829!important;color:#e9dcef!important;
+ -webkit-text-fill-color:#e9dcef!important;
+ font:800 12px/1.2 Inter,system-ui,sans-serif!important;
+ white-space:nowrap!important;
+}
+#screen-lobby .sf107-clubs-header{gap:10px!important}
+#screen-lobby .sf107-clubs-actions{align-items:center!important;gap:9px!important}
+.sf5-community-layer.sf126-fan-layer .sf126-club-hero-actions :is(button,.sf126-outline){
+ min-height:44px!important;width:auto!important;min-width:155px!important;
+ padding:10px 17px!important;border-radius:999px!important;
+ font:850 12px/1.25 Inter,system-ui,sans-serif!important;
+ white-space:nowrap!important;letter-spacing:0!important;
+ text-indent:0!important;opacity:1!important;visibility:visible!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf126-club-hero-actions [data-sf126-club="create"]{
+ color:#10110b!important;-webkit-text-fill-color:#10110b!important;
+ background:#c4ff00!important;border:1px solid #c4ff00!important;
+ box-shadow:0 5px 19px #c4ff002e!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf126-club-hero-actions [data-sf126-club="discover"]{
+ background:#271a2e!important;color:#fff!important;
+ -webkit-text-fill-color:#fff!important;border:1px solid #a05c9d!important;
+}
+.sf5-community-layer.sf126-fan-layer .sf71-action-primary:not([hidden]){
+ font-weight:850!important;min-height:42px!important;
+ padding:10px 16px!important;color:#141414!important;-webkit-text-fill-color:#141414!important;
+}
+
+/* 2. Login real (HTML editável) e ilustração de palco em imagem WebP.
+   A foto permanece atrás do layout; controles e textos são DOM reais. */
+#loginScreen.sf123-login-screen{
+ --sf131-ink:#fff;--sf131-lime:#c4ff00;
+ background:#0d0912!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-layout{
+ display:grid!important;
+ grid-template-columns:minmax(355px,38%) minmax(0,62%)!important;
+ max-width:2100px!important;background:#110b15!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-form{
+ position:relative!important;z-index:2!important;
+ min-width:0!important;
+ padding:clamp(32px,3vw,54px) clamp(25px,4.8vw,78px)!important;
+ background:
+ radial-gradient(ellipse at 5% 1%,#5c1f512b,transparent 48%),
+ linear-gradient(105deg,#130c18 2%,#100d15 87%,#180c1b 100%)!important;
+ border-right:1px solid #7a2b69!important;
+ box-shadow:7px 0 32px #06030c3a!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-form h1{
+ max-width:540px!important;font-size:clamp(29px,2.65vw,44px)!important;
+ line-height:1.09!important;letter-spacing:-.037em!important;
+ margin:13px 0 15px!important;color:#fff!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-intro{
+ font-size:clamp(12px,1.1vw,15px)!important;max-width:430px!important;
+ color:#efe5f0!important;line-height:1.52!important;margin:0 0 19px!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-kicker{color:#c4ff00!important}
+#loginScreen.sf123-login-screen .sf123-login-form .sf123-auth-field{
+ width:min(100%,430px)!important;min-height:49px!important;height:49px!important;
+ margin-bottom:11px!important;background:#251528!important;
+ border:1.3px solid #bd5fbc!important;border-radius:13px!important;
+ box-shadow:inset 0 1px 7px #0005!important;
+}
+#loginScreen.sf123-login-screen .sf123-auth-field input{
+ min-height:45px!important;height:45px!important;padding:9px 8px!important;
+ font-size:14px!important;color:#fff!important;
+}
+#loginScreen.sf123-login-screen .sf123-auth-field:focus-within{
+ border-color:#e46ce8!important;box-shadow:0 0 0 2px #cb51db33!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-options{
+ width:min(100%,430px)!important;margin:2px 0 16px!important;
+ color:#e5d9e8!important;
+}
+#loginScreen.sf123-login-screen #loginBtn{
+ width:min(100%,430px)!important;min-height:49px!important;
+ background:#c4ff00!important;color:#111!important;
+ font-size:14px!important;box-shadow:0 6px 21px #c4ff0038!important;
+}
+#loginScreen.sf123-login-screen .sf123-switch-signup{
+ width:min(100%,430px)!important;min-height:47px!important;
+ border:1.5px solid #ff9100!important;border-radius:999px!important;
+ color:#ffad27!important;font-size:13px!important;
+ background:#1b0d1d!important;
+}
+#loginScreen.sf123-login-screen .sf123-auth-divider{width:min(100%,430px)!important}
+#loginScreen.sf123-login-screen .sf123-login-art{
+ position:relative!important;min-width:0!important;min-height:0!important;
+ background:#17091d url('/art-44/festival-stage.webp') center 42%/cover no-repeat!important;
+ isolation:isolate!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-art img{
+ display:block!important;position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;object-fit:cover!important;
+ object-position:center 44%!important;
+ filter:saturate(1.3) contrast(1.1)!important;
+ image-rendering:auto!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-art::before{
+ content:''!important;position:absolute!important;inset:0!important;z-index:1!important;
+ background:
+ radial-gradient(ellipse at 52% 15%,#f63ad74d,transparent 56%),
+ linear-gradient(90deg,#170a1890 0%,transparent 19%,transparent 80%,#15081950 100%)!important;
+ pointer-events:none!important;
+}
+#loginScreen.sf123-login-screen .sf123-login-art::after{
+ content:''!important;position:absolute!important;inset:0!important;z-index:1!important;
+ background:linear-gradient(0deg,#090411f5 0%,#13051e77 26%,transparent 54%,#15051c18 94%)!important;
+ pointer-events:none!important;
+}
+#loginScreen.sf123-login-screen .sf129-art-caption{
+ z-index:2!important;left:clamp(26px,5vw,90px)!important;
+ right:clamp(18px,3vw,48px)!important;bottom:clamp(24px,5.6vw,85px)!important;
+ max-width:620px!important;gap:11px!important;
+}
+#loginScreen.sf123-login-screen .sf129-art-caption>span{
+ letter-spacing:.14em!important;color:#c4ff00!important;
+ font-size:clamp(10px,1vw,12px)!important;
+}
+#loginScreen.sf123-login-screen .sf129-art-caption>strong{
+ font-size:clamp(28px,3.25vw,57px)!important;line-height:1.05!important;
+ letter-spacing:-.045em!important;max-width:595px!important;
+ color:#fff!important;text-shadow:0 4px 27px #000!important;
+}
+#loginScreen.sf123-login-screen .sf129-art-caption>small{
+ font-size:clamp(12px,1.1vw,17px)!important;line-height:1.45!important;
+ max-width:550px!important;color:#fff!important;
+}
+
+/* 3. Sala padrão: player/video dominante no centro, fila + chat na direita.
+   A ambientação de cada tema continua controlada por --sf113-* e --sf88-art. */
+@media(min-width:1161px){
+ #screen-room.sf113-room .app .room-layout{
+  display:grid!important;
+  grid-template-columns:minmax(175px,19%) minmax(0,1fr) minmax(292px,28%)!important;
+  grid-template-rows:minmax(0,52%) minmax(0,48%)!important;
+  gap:12px!important;
+  padding:12px clamp(12px,1.25vw,22px)!important;
+  overflow:hidden!important;min-height:0!important;
+  height:100%!important;
+ }
+ #screen-room.sf113-room .room-layout .sf113-now-card{
+  grid-column:1!important;grid-row:1/3!important;
+  display:flex!important;flex-direction:column!important;
+  min-height:0!important;height:100%!important;
+  padding:16px 14px!important;gap:11px!important;
+ }
+ #screen-room.sf113-room .room-layout .player-column.sf34-player-column{
+  grid-column:2!important;grid-row:1/3!important;
+ }
+}
+@media(min-width:769px) and (max-width:1160px){
+ #screen-room.sf113-room .app .room-layout{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(265px,32%)!important;
+  grid-template-rows:minmax(0,52%) minmax(0,48%)!important;
+  gap:10px!important;padding:10px!important;
+  overflow:hidden!important;height:100%!important;
+  min-height:0!important;
+ }
+ #screen-room.sf113-room .room-layout .sf113-now-card{
+  display:none!important;
+ }
+ #screen-room.sf113-room .room-layout .player-column.sf34-player-column{
+  grid-column:1!important;grid-row:1/3!important;
+ }
+}
+@media(min-width:769px){
+ #screen-room.sf113-room .room-layout .player-column.sf34-player-column{
+  display:flex!important;flex-direction:column!important;
+  min-height:0!important;height:100%!important;max-height:100%!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;
+  border:1px solid var(--sf113-stroke,#703e79)!important;
+  border-radius:18px!important;box-shadow:0 14px 34px #0006!important;
+  background:#100914!important;
+ }
+ #screen-room.sf113-room .room-layout .player-column.sf34-player-column>.player-section{
+  display:flex!important;flex-direction:column!important;
+  flex:1 1 0!important;height:auto!important;min-height:0!important;
+  width:100%!important;overflow:hidden!important;
+  border:0!important;border-radius:17px 17px 0 0!important;
+ }
+ #screen-room.sf113-room .room-layout .player-column.sf34-player-column .player-frame{
+  flex:1 1 auto!important;min-height:0!important;
+  height:auto!important;max-height:none!important;
+  width:100%!important;aspect-ratio:auto!important;
+  border-radius:16px 16px 0 0!important;
+  overflow:hidden!important;
+  background:#0c0610!important;
+ }
+ #screen-room.sf113-room .room-layout .player-column.sf34-player-column .progress-section{
+  flex:0 0 auto!important;min-height:86px!important;
+  max-height:158px!important;margin:0!important;
+  border-top:1px solid #6e3978!important;
+  background:linear-gradient(110deg,#2e102e,#170d1d)!important;
+  padding:10px 12px!important;
+ }
+ #screen-room.sf113-room .room-layout .queue-column.sf34-queue.sf128-queue{
+  grid-column:3!important;grid-row:1!important;
+  height:100%!important;min-height:0!important;max-height:100%!important;
+  overflow:hidden!important;
+  display:flex!important;flex-direction:column!important;
+  border:1.5px solid var(--sf113-stroke,#d34fc7)!important;
+  border-radius:17px!important;
+  box-shadow:0 0 23px #c22cbc22!important;
+  background:#170d1d!important;
+ }
+ #screen-room.sf113-room .room-layout .sf5-bottom-row{
+  display:contents!important;
+ }
+ #screen-room.sf113-room .room-layout .chat-column.sf34-chat{
+  grid-column:3!important;grid-row:2!important;
+  height:100%!important;min-height:0!important;max-height:100%!important;
+  overflow:hidden!important;
+  display:flex!important;flex-direction:column!important;
+  margin:0!important;
+  border:1.5px solid var(--sf113-stroke,#d34fc7)!important;
+  border-radius:17px!important;
+  background:#170d1c!important;box-shadow:0 0 20px #c92fc421!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-queue-workspace{
+  display:flex!important;flex-direction:column!important;
+  flex:1 1 auto!important;min-height:0!important;
+  grid-template-columns:none!important;
+  overflow:hidden!important;gap:0!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;gap:6px 8px!important;
+  flex:0 0 auto!important;min-height:0!important;
+  padding:9px 11px!important;
+  border:0!important;border-bottom:1px solid #62435f!important;
+  background:linear-gradient(110deg,#251229,#1d1123)!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel .sf128-kicker,
+ #screen-room.sf113-room .room-layout .sf128-add-panel>h3,
+ #screen-room.sf113-room .room-layout .sf128-add-panel>p{
+  display:none!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel #sf113AddMusic{
+  grid-column:1!important;grid-row:1!important;
+  width:100%!important;min-width:0!important;
+  min-height:43px!important;min-height:43px!important;
+  padding:9px 11px!important;margin:0!important;
+  display:inline-flex!important;
+  background:#c4ff00!important;color:#10120b!important;
+  border:1px solid #c4ff00!important;border-radius:12px!important;
+  font:850 12px/1.2 Inter,system-ui,sans-serif!important;
+  white-space:normal!important;box-shadow:0 5px 14px #c4ff0028!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel #sf116Favorites{
+  grid-column:2!important;grid-row:1!important;
+  width:auto!important;min-width:42px!important;min-height:43px!important;
+  border:1px solid #6e496c!important;border-radius:12px!important;
+  padding:9px 11px!important;margin:0!important;font-size:11px!important;
+  white-space:nowrap!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel .sf128-presence{
+  grid-column:1/-1!important;grid-row:2!important;
+  display:flex!important;flex-direction:row!important;
+  align-items:center!important;gap:8px!important;
+  height:29px!important;min-height:0!important;max-height:29px!important;
+  margin:1px 0 0!important;padding:4px 0 0!important;
+  border:0!important;border-top:1px solid #573852!important;
+  background:transparent!important;box-shadow:none!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-presence .sf5-card-heading{
+  display:flex!important;align-items:center!important;gap:5px!important;
+  flex:0 0 auto!important;font-size:10px!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-presence #sf5ListenersCount{
+  margin-left:2px!important;font-size:10px!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-presence #sf5ListenersBody{
+  flex:1 1 auto!important;min-width:0!important;max-height:25px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  display:flex!important;flex-flow:row nowrap!important;gap:4px!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-presence #sf5ListenersBody>*{
+  padding:3px 6px!important;max-width:98px!important;font-size:9px!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-queue-tracks{
+  display:flex!important;flex-direction:column!important;
+  flex:1 1 0!important;height:auto!important;min-height:0!important;
+  overflow:hidden!important;
+  border:0!important;border-radius:0!important;
+  padding:0 0 5px!important;background:transparent!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-tracks-title{
+  padding:8px 11px 3px!important;font-size:11px!important;gap:7px!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-tracks-title small{
+  font-size:9px!important;
+ }
+ #screen-room.sf113-room .room-layout .premium-queue-summary{
+  padding:2px 11px!important;font-size:10px!important;
+ }
+ #screen-room.sf113-room .room-layout #sf39QueueInsight{
+  padding:6px 8px!important;margin:4px 8px!important;
+  font-size:10px!important;
+ }
+ #screen-room.sf113-room .room-layout #queueList.queue-list{
+  flex:1 1 0!important;min-height:0!important;
+  height:auto!important;max-height:none!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  padding:3px 8px 8px!important;
+  scrollbar-width:thin!important;
+ }
+ #screen-room.sf113-room .room-layout #queueList .queue-item{
+  min-height:56px!important;margin-bottom:5px!important;
+  border-radius:10px!important;padding:7px!important;
+ }
+ #screen-room.sf113-room .room-layout .queue-header{
+  flex:0 0 auto!important;min-height:45px!important;
+  padding:9px 11px!important;gap:8px!important;
+  background:linear-gradient(100deg,#2d102d,#1e1125)!important;
+  border-bottom:1px solid #634466!important;
+ }
+ #screen-room.sf113-room .room-layout .queue-header>span:first-child{
+  font-size:13px!important;color:#fff!important;
+ }
+ #screen-room.sf113-room .room-layout .chat-column.sf34-chat .premium-chat-heading{
+  min-height:42px!important;padding:10px 12px!important;
+  border-bottom:1px solid #614061!important;
+  color:#fff!important;font-size:13px!important;
+ }
+ #screen-room.sf113-room .room-layout .chat-column.sf34-chat .chat-panel{
+  flex:1 1 0!important;min-height:0!important;max-height:none!important;
+  overflow:hidden!important;
+ }
+ #screen-room.sf113-room .room-layout .chat-column.sf34-chat .chat-messages{
+  flex:1 1 0!important;min-height:0!important;max-height:none!important;
+  overflow:hidden!important;
+ }
+ #screen-room.sf113-room .room-layout .chat-column.sf34-chat .chat-input-bar{
+  flex:0 0 auto!important;min-height:46px!important;
+  margin:0!important;padding:7px!important;
+ }
+}
+@media(min-width:769px) and (max-width:1160px){
+ #screen-room.sf113-room .room-layout .queue-column.sf34-queue.sf128-queue{
+  grid-column:2!important;grid-row:1!important;
+ }
+ #screen-room.sf113-room .room-layout .chat-column.sf34-chat{
+  grid-column:2!important;grid-row:2!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel #sf116Favorites{
+  max-width:45px!important;overflow:hidden!important;
+  color:transparent!important;position:relative!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel #sf116Favorites::after{
+  content:"♡";position:absolute;inset:0;display:grid;place-items:center;
+  color:#f7eaf6!important;font-size:20px;
+ }
+}
+@media(min-width:1161px) and (max-width:1365px){
+ #screen-room.sf113-room .room-layout .sf113-now-card .sf113-now-body{
+  flex-direction:column!important;align-items:flex-start!important;
+ }
+ #screen-room.sf113-room .room-layout .sf113-now-body img{
+  width:min(100%,125px)!important;height:auto!important;aspect-ratio:1!important;
+ }
+ #screen-room.sf113-room .room-layout .sf113-now-card .sf113-now-copy strong{
+  font-size:15px!important;
+ }
+}
+/* 4. Celular continua usando abas Player/Fila/Chat com controles fixos;
+ * não fazemos a fila sumir por causa de uma grade de desktop. */
+@media(max-width:768px){
+ #screen-room.sf113-room .room-layout .queue-column.sf34-queue.sf128-queue{
+  grid-column:auto!important;grid-row:auto!important;
+  height:auto!important;max-height:none!important;
+  display:flex;flex-direction:column;
+  border-radius:14px!important;
+  margin-bottom:10px!important;
+ }
+ #screen-room.sf113-room .room-layout .queue-column.sf34-queue.sf128-queue .sf128-queue-workspace{
+  display:flex!important;flex-direction:column!important;
+  height:auto!important;max-height:none!important;
+  overflow:visible!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel{
+  background:linear-gradient(115deg,#2c1430,#1a1326)!important;
+  border:0!important;border-bottom:1px solid #603d62!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-add-panel #sf113AddMusic{
+  display:flex!important;min-height:49px!important;
+  background:#c4ff00!important;color:#111!important;
+  border:1px solid #c4ff00!important;
+ }
+ #screen-room.sf113-room .room-layout .sf128-queue-tracks{
+  display:flex!important;flex-direction:column!important;
+  max-height:none!important;height:auto!important;
+ }
+ #screen-room.sf113-room .room-layout #queueList.queue-list{
+  min-height:140px!important;max-height:min(48dvh,440px)!important;
+  overflow-y:auto!important;
+ }
+ #screen-room.sf113-room .room-layout .chat-column.sf34-chat{
+  max-height:calc(100dvh - 145px)!important;
+  overflow:hidden!important;
+ }
+ #screen-room.sf113-room .room-layout .player-column .player-frame{
+  aspect-ratio:16/9!important;max-height:unset!important;
+ }
+ #screen-room.sf113-room .sf129-guest-locked #sf113AddMusic{
+  opacity:.55!important;cursor:not-allowed!important;
+ }
+}
+@media(max-width:620px){
+ #screen-lobby .sf107-clubs-actions{width:100%!important;justify-content:stretch!important}
+ #screen-lobby .sf107-clubs-actions [data-sf107="club-create"]{
+  flex:1 1 auto!important;min-width:0!important;font-size:12px!important;
+ }
+ #screen-lobby .sf107-clubs-actions [data-sf107="clubs"]{
+  flex:0 0 auto!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-layout{
+  display:flex!important;flex-direction:column!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-form{
+  width:min(100%,540px)!important;min-height:100dvh!important;
+  margin:auto!important;padding:28px 22px!important;
+  border:0!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-art{
+  position:fixed!important;inset:0!important;opacity:.19!important;
+  pointer-events:none!important;
+ }
+ #loginScreen.sf123-login-screen .sf129-art-caption{display:none!important}
+ #loginScreen.sf123-login-screen .sf123-login-form .sf123-auth-field,
+ #loginScreen.sf123-login-screen #loginBtn,
+ #loginScreen.sf123-login-screen .sf123-switch-signup{
+  width:100%!important;max-width:420px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #screen-room.sf113-room *,#screen-lobby .sf107-clubs-actions button{
+  animation:none!important;transition:none!important;
+ }
+}
