@@ -83,18 +83,29 @@
      const swatch=document.createElement('i');swatch.style.background=color;palette.append(swatch);
    }
    b.append(img,name,check,detail,palette);
-   b.addEventListener('click',()=>{modalChoice=theme.id;drawModal();});
+   b.addEventListener('click',()=>{modalChoice=theme.id;updateSelection();});
    return b;
+ }
+ function updateSelection(){
+   const grid=$('sf88ThemeCards');
+   grid?.querySelectorAll('.sf88-theme-card').forEach(button=>{
+     const chosen=button.dataset.theme===modalChoice;
+     button.classList.toggle('is-selected',chosen);
+     button.setAttribute('aria-selected',String(chosen));
+     const check=button.querySelector('.sf88-card-check');
+     if(check)check.textContent=chosen?'✓':'';
+   });
+   const selected=find(modalChoice);
+   const art=$('sf88ThemePreviewArt');
+   if(art&&art.getAttribute('src')!==selected.art)art.src=selected.art;
+   const text=$('sf88ThemePreviewCopy');
+   if(text)text.textContent=selected.name+' · '+selected.description;
  }
  function drawModal(){
    const grid=$('sf88ThemeCards');
    if(!grid)return;
    grid.replaceChildren(...themes.map(t=>card(t,modalMode)));
-   const selected=find(modalChoice);
-   const art=$('sf88ThemePreviewArt');
-   if(art)art.src=selected.art;
-   const text=$('sf88ThemePreviewCopy');
-   if(text)text.textContent=selected.name+' · '+selected.description;
+   updateSelection();
    const title=$('sf88ThemeModalTitle');
    if(title)title.textContent=modalMode==='create'?'Tema da nova sala':modalMode==='edit'?'Personalizar o tema da sala':'Escolha sua atmosfera';
    const personal=$('sf88ThemePersonal');
