@@ -9,12 +9,14 @@ const css=fs.readFileSync(path.join(folder,'sonorafan-room-redesign-113.css'),'u
 const js=fs.readFileSync(path.join(folder,'sonorafan-room-redesign-113.js'),'utf8');
 const room=html.slice(html.indexOf('id="screen-room"'),html.indexOf('id="premiumMiniPlayer"'));
 
-test('v116 room contains a compact header, favorites shortcut and real three-dot menu',()=>{
+test('v133 room keeps the functional menu and moves favorites into the unified music dialog',()=>{
   assert.doesNotMatch(room,/<nav class="sf113-nav"/);
   for(const id of ['sf116MoreButton','sf116MorePanel','sf113AddMusic','sf116Favorites','queueCount']) {
     assert.equal(room.split('id="'+id+'"').length,2,'missing or duplicate '+id);
   }
-  assert.match(room,/id="sf116Favorites"[^>]*onclick="toggleFavorites\(\)"/);
+  assert.match(room,/id="sf116Favorites"[^>]*hidden/);
+  assert.match(room,/id="sf113AddMusic"[^>]*aria-haspopup="dialog"/);
+  assert.match(room,/id="sf116MoreButton"[^>]*☰/);
   assert.match(room,/id="sf116MoreButton"[^>]*aria-expanded="false"/);
   assert.match(room,/id="sf116MorePanel"[^>]*role="menu"[^>]*hidden/);
   assert.doesNotMatch(room,/<details class="sf113-menu"/);
