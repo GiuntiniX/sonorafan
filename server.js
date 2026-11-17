@@ -67,6 +67,19 @@ app.get('/api/client-version',(req,res)=>{
   res.set('Cache-Control','no-store');
   res.json({mobile:'137.1',commit:process.env.RENDER_GIT_COMMIT||null});
 });
+// Compatibilidade com páginas/atalhos ainda em cache das marcas v54/v64.
+// Os binários obsoletos podem ser retirados sem quebrar URLs legadas.
+const legacyBrandImages = Object.freeze({
+  '/brand-54/sonorafan-icon-192.png': '/brand-144/sonorafan-icon-192.png',
+  '/brand-54/sonorafan-icon-512.png': '/brand-144/sonorafan-icon-512.png',
+  '/brand-64/sonorafan-favicon-64.png': '/brand-144/sonorafan-icon-192.png',
+  '/brand-64/sonorafan-icon-192.png': '/brand-144/sonorafan-icon-192.png',
+  '/brand-64/sonorafan-icon-512.png': '/brand-144/sonorafan-icon-512.png',
+  '/brand-64/sonorafan-logo-transparent.png': '/brand-144/sonorafan-logo.svg'
+});
+app.get(Object.keys(legacyBrandImages), (req, res) => {
+  res.redirect(301, legacyBrandImages[req.path]);
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/profile108/avatar', express.json({limit:'240kb'}));
 app.use(express.json());

@@ -53,7 +53,7 @@ test('service worker intercepts only public artwork and bypasses private request
  assert.equal(intercepted('https://app.example/sonorafan-studio-100.js'),false);
  assert.equal(intercepted('https://app.example/'),false);
  assert.equal(intercepted('https://img.youtube.com/vi/dQw4w9WgXcQ/default.jpg'),false);
- assert.equal(intercepted('https://app.example/brand-64/sonorafan-icon-192.png'),true);
+ assert.equal(intercepted('https://app.example/brand-144/sonorafan-icon-192.png'),true);
  assert.equal(intercepted('https://app.example/art-44/vinyl-room.webp'),true);
  assert.equal(intercepted('https://app.example/art-44/vinyl-room.webp',{headers:{has:()=>true}}),false);
 });
