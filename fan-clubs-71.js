@@ -98,13 +98,15 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       .map(r=>({slug:r.slug,name:r.name,listenerCount:Number(r.listenerCount)||0,
         isPlaying:!!r.isPlaying,track:r.queue?.[r.currentIndex] ? {title:clean(r.queue[r.currentIndex].title,150),artist:clean(r.queue[r.currentIndex].artist,90)} : null}));
   }
-  function clubEvents(data){
+  function clubEvents(data,me){
     if(!socialEvents)return [];
     const now=Date.now(),slugs=new Set(cleanRooms(data).map(r=>r.slug));
     return [...socialEvents.values()].filter(e=>slugs.has(e.roomSlug)&&e.startAt>=now-3600000)
       .sort((a,b)=>a.startAt-b.startAt).slice(0,5)
-      .map(e=>({id:e.id,title:clean(e.title,70),roomName:clean(e.roomName,80),startAt:e.startAt,
-        attendees:Array.isArray(e.attendees)?e.attendees.length:0}));
+      .map(e=>({id:e.id,title:clean(e.title,70),roomName:clean(e.roomName,80),roomSlug:e.roomSlug,
+        theme:clean(e.theme||'indie',35),durationMinutes:Number(e.durationMinutes)||90,
+        startAt:e.startAt,attendees:Array.isArray(e.attendees)?e.attendees.length:0,
+        going:!!me?.id&&Array.isArray(e.attendees)&&e.attendees.includes(me.id)}));
   }
   function memberView(id){
     const person=[...users.entries()].find(([email])=>publicUserId(email)===id);
@@ -221,7 +223,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.get('/api/fan-clubs/:id',rateLimit(75,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const {data}=await readClub(req.params.id);
-      res.json({club:{...overview(data,req.params.id,me),rooms:cleanRooms(data),events:clubEvents(data),
+      res.json({club:{...overview(data,req.params.id,me),rooms:cleanRooms(data),events:clubEvents(data,me),
         members:member(data,me)?unique(data.memberIds).slice(0,50).map(memberView):[],
         blockedMembers:ownerOrAdmin(data,me)?unique(data.blockedIds).slice(0,50).map(memberView):[]}});
     }catch(e){error(res,e);}
