@@ -216,8 +216,38 @@
        <button type="button" data-sf100-action="share-card">▣ Cartão da música atual</button></div>
      <p class="sf100-fineprint">No mobile, a navegação e a fila já existentes continuam prioritárias. O visual não muda a reprodução das músicas.</p>`;
  }
+ function inspectConflicts(){
+   const issues=[];
+   const ids=new Set();
+   document.querySelectorAll('[id]').forEach(el=>{
+     if(ids.has(el.id)&&!issues.some(x=>x.code==='duplicate-id'&&x.id===el.id))
+       issues.push({code:'duplicate-id',id:el.id,message:'ID duplicado: '+el.id});
+     ids.add(el.id);
+   });
+   const visible=el=>{
+     if(!el||!el.getClientRects().length)return false;
+     const css=getComputedStyle(el);
+     return !el.hidden&&css.display!=='none'&&css.visibility!=='hidden'&&Number(css.opacity)!==0;
+   };
+   for(const selector of ['#screen-room.active','#screen-lobby.active','#sf95Overlay','#sf88ThemeOverlay','#sf76MusicSheet']){
+     const el=document.querySelector(selector);if(!visible(el))continue;
+     if(el.scrollWidth>el.clientWidth+12)
+       issues.push({code:'overflow',message:'Conteúdo ultrapassa largura: '+selector});
+   }
+   const activeModals=['#sf95Overlay','#sf88ThemeOverlay','#sf76MusicSheet','#sf71Modal']
+     .map(selector=>document.querySelector(selector)).filter(visible);
+   if(activeModals.length>1)
+     issues.push({code:'modals',message:activeModals.length+' janelas simultâneas; verificar sobreposição'});
+   for(const selector of ['#screen-room .player-info','#sf136MobileWelcome','.sf137-menu-version']){
+     const el=document.querySelector(selector);
+     if(el&&el.hidden&&getComputedStyle(el).display!=='none')
+       issues.push({code:'hidden',message:'Elemento oculto ainda ocupa espaço: '+selector});
+   }
+   return issues.slice(0,20);
+ }
  function quality(host){
    const d=state.quality;
+   const issues=state.qualityAllowed&&!state.loading&&!state.qualityDenied?inspectConflicts():[];
    host.innerHTML=`<div class="sf100-section-top"><div><h4>Central de qualidade</h4><p>Diagnóstico agregado: sem endereços de e-mail, dados pessoais ou identificação de dispositivos.</p></div>
      <button type="button" data-sf100-action="refresh">↻ Atualizar</button></div>
      ${state.loading?htmlMsg('Buscando indicadores','Acesso administrativo protegido.') :
@@ -232,7 +262,12 @@
          <div><strong>${d.totals?.['video-unavailable']||0}</strong><span>Indisponíveis</span></div>
          </div><h5>Atividade recente (sem PII)</h5><div class="sf100-log">
            ${(d.recent||[]).slice(0,20).map(e=>`<div><strong>${esc(e.event)}</strong><span>${esc(e.device)} · ${date(e.at)}</span></div>`).join('')||'<p>Sem eventos registrados.</p>'}
-         </div>`:htmlMsg('Indicadores protegidos','Abra a central para consultar o ambiente.')}`;
+         </div><section class="sf141-diagnostics">
+           <h5>Diagnóstico da interface</h5>
+           <p>Verificação local de IDs repetidos, rolagem horizontal e janelas concorrentes. Não coleta conteúdo das conversas.</p>
+           <strong>${issues.length?issues.length+' pontos para revisar':'Nenhum conflito encontrado nesta tela'}</strong>
+           ${issues.length?'<ul>'+issues.map(i=>'<li>'+esc(i.message)+'</li>').join('')+'</ul>':''}
+         </section>`:htmlMsg('Indicadores protegidos','Abra a central para consultar o ambiente.')}`;
  }
  async function requestSync(manual=false){
    const client=socketClient(), snapshot=window.sf100PlayerSnapshot?.();
