@@ -136,3 +136,15 @@
 .sf71-detail-actions [data-sf73-change-cover]:focus-visible,.sf71-detail-actions [data-sf73-remove-cover]:focus-visible,#sf71Modal button:focus-visible{outline:2px solid #ffcc94;outline-offset:3px}
 @media(max-width:560px){#sf71Modal .sf71-modal{width:min(100%,calc(100vw - 16px));padding:16px;max-height:calc(100dvh - 24px)}.sf71-detail-hero.sf73-with-cover{min-height:205px;padding:18px}.sf71-detail-actions [data-sf73-change-cover]{flex:1}}
 @media(prefers-reduced-motion:reduce){#sf71Modal *,#sf71ClubDetail .sf73-cover-img{transition:none!important}}
+
+
+/* v140 — compartilhamento de música no mural sem duplicar o composer. */
+.sf71-panel .sf140-post-tools{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:9px}
+.sf71-panel .sf140-post-tools button{
+ min-height:40px;padding:8px 12px;border:1px solid rgba(203,145,239,.5);
+ background:rgba(129,62,166,.19);color:inherit;border-radius:10px;
+ font:700 12px/1.3 inherit;cursor:pointer;touch-action:manipulation;
+}
+.sf71-panel .sf140-post-tools button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.sf71-panel .sf140-post-tools small{font-size:11px;opacity:.75}
+@media(max-width:600px){.sf71-panel .sf140-post-tools{align-items:stretch;flex-direction:column}.sf71-panel .sf140-post-tools button{width:100%}}
