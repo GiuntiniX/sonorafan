@@ -117,7 +117,7 @@
 #loginScreen.sf123-login-screen .sf123-auth-divider{width:min(100%,430px)!important}
 #loginScreen.sf123-login-screen .sf123-login-art{
  position:relative!important;min-width:0!important;min-height:0!important;
- background:#17091d url('/art-132/sonorafan-login-guitarrista.avif') center 42%/cover no-repeat!important;
+ background:#17091d url('/art-132/sonorafan-login-guitarrista.avif?v=2') center 42%/cover no-repeat!important;
  isolation:isolate!important;
 }
 #loginScreen.sf123-login-screen .sf123-login-art img{
