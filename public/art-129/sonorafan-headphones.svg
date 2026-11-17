@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="Fones de ouvido e ondas de som em neon">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#160620"/><stop offset=".52" stop-color="#421155"/><stop offset="1" stop-color="#0e0818"/></linearGradient><linearGradient id="head" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fc40e2"/><stop offset=".48" stop-color="#ffb442"/><stop offset="1" stop-color="#c4ff00"/></linearGradient><radialGradient id="glow"><stop stop-color="#e741c6" stop-opacity=".68"/><stop offset="1" stop-color="#e741c6" stop-opacity="0"/></radialGradient><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="25"/></filter></defs>
+<rect width="1200" height="900" fill="url(#bg)"/>
+<ellipse cx="620" cy="405" rx="525" ry="380" fill="url(#glow)"/>
+<g opacity=".34" fill="none" stroke="#ff7e31"><circle cx="604" cy="440" r="330" stroke-width="3"/><circle cx="604" cy="440" r="385" stroke-width="2"/><circle cx="604" cy="440" r="448" stroke-width="1"/></g>
+<g fill="#c4ff00" opacity=".8"><circle cx="165" cy="210" r="9"/><circle cx="1013" cy="280" r="6"/><circle cx="1047" cy="680" r="7"/></g>
+<path d="M295 485V390Q296 195 480 144Q602 103 724 144Q905 203 907 390V487" stroke="#ff5edb" stroke-width="82" fill="none" stroke-linecap="round" filter="url(#shadow)" opacity=".65"/>
+<path d="M295 485V390Q296 195 480 144Q602 103 724 144Q905 203 907 390V487" stroke="#3b193b" stroke-width="106" fill="none" stroke-linecap="round"/>
+<path d="M295 485V390Q296 195 480 144Q602 103 724 144Q905 203 907 390V487" stroke="url(#head)" stroke-width="45" fill="none" stroke-linecap="round"/>
+<path d="M280 454Q243 455 242 499V688Q244 733 285 737L397 743Q437 741 437 702V474Q435 436 391 437Z" fill="#161023" stroke="#ff6aab" stroke-width="20"/>
+<path d="M918 454Q957 455 958 499V688Q954 735 910 737L801 743Q760 743 760 704V473Q762 434 804 436Z" fill="#161023" stroke="#c4ff00" stroke-width="20"/>
+<path d="M347 481V701M850 480V701" stroke="url(#head)" stroke-width="26" stroke-linecap="round" opacity=".8"/>
+<g stroke="url(#head)" stroke-linecap="round"><path d="M140 525V588" stroke-width="13"/><path d="M175 486V625" stroke-width="13"/><path d="M1015 480V639" stroke-width="13"/><path d="M1052 527V587" stroke-width="13"/></g>
+<path d="M118 790Q316 718 505 790T905 786T1160 764" fill="none" stroke="#ff80cd" stroke-width="4" opacity=".65"/>
+</svg>
