@@ -73,6 +73,7 @@ function fixture() {
   setTab('player');
   window.fetch=async(url)=>{
     if(String(url).includes('/api/favorites')) return {ok:true,json:async()=>[{id:'dQw4w9WgXcQ',title:'Favorita teste',artist:'Artista'}]};
+    if(String(url).includes('/api/search-youtube'))return {ok:true,json:async()=>({items:[{id:'dQw4w9WgXcQ',title:'Metallica teste',artist:'Metallica'}]})};
     if(String(url).includes('/api/favorite-genres'))return {ok:true,json:async()=>({genres:[]})};
     if(String(url).includes('/api/video-info'))return {ok:true,json:async()=>({embeddable:true,duration:180})};
     throw Error('Unexpected API '+url);
@@ -107,6 +108,12 @@ function fixture() {
       window.sf77OpenSearch('Metallica');
       metric.redirected=sheet.hidden===false && document.getElementById('sf77MusicModal').hidden &&
         document.getElementById('sf138SearchQuery')?.value==='Metallica';
+      const field=document.getElementById('sf138SearchQuery');
+      field.dispatchEvent(new Event('input',{bubbles:true}));
+      await new Promise(r=>setTimeout(r,450));
+      metric.inlineResults=!!sheet.querySelector('#sf76InlineResultsHost .sf78-row');
+      metric.inlineInSameModal=!!sheet.querySelector('#sf78InlineSearch.sf134-inline') &&
+        document.getElementById('sf77MusicModal').hidden;
       const favorites=sheet.querySelector('[data-sf76-tab="favorites"]');
       favorites.click();
       await new Promise(r=>setTimeout(r,100));
@@ -142,6 +149,7 @@ function fixture() {
   inline+links+'</head><body>'+room+pre+
   '<script src="./sonorafan-mobile-music-76.js"></script>'+
   '<script src="./sonorafan-search-77.js"></script>'+
+  '<script src="./sonorafan-inline-search-78.js"></script>'+
   '<script src="./sonorafan-room-redesign-113.js"></script>'+
   '<script src="./sonorafan-mobile-room-136.js"></script>'+
   post+'</body></html>';
