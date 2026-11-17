@@ -199,7 +199,17 @@
          ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><button type="button" data-sf140-share-song>♫ Compartilhar música da sala</button><small>Revise a mensagem antes de publicar</small></div><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Compartilhe uma música, uma descoberta ou um assunto sobre o artista…" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </section><aside class="sf71-room-list"><div class="sf71-rooms-head"><h4>Salas do Fan Club</h4>${c.owner?'<button type="button" data-sf71-addroom>＋ Vincular sala</button>':''}</div>
          <div>${c.rooms?.length?c.rooms.map(r=>roomHtml(r,c.owner)).join(''):'<p class="sf71-empty">Nenhuma sala vinculada ainda.</p>'}</div>
-         ${(c.events||[]).length?`<div class="sf71-club-events"><h4>Próximos encontros</h4>${c.events.map(ev=>`<div class="sf71-club-event"><strong>${esc(ev.title)}</strong><small>${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)}</small></div>`).join('')}<button type="button" data-sf71-events>Ver agenda e confirmar presença</button></div>`:''}
+         <div class="sf71-club-events"><h4>Programação do Fan Club</h4>
+           ${(c.events||[]).length?c.events.map(ev=>`<div class="sf71-club-event">
+             <strong>${esc(ev.title)}</strong>
+             <small>${esc(new Date(Number(ev.startAt)).toLocaleString('pt-BR'))} · ${esc(ev.roomName)} · ${Math.max(0,Number(ev.attendees)||0)} confirmados</small>
+             <div class="sf141-event-actions">
+               <button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${ev.going?'false':'true'}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button>
+               <button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Entrar na sala</button>
+             </div>
+           </div>`).join(''):'<p class="sf71-empty">Nenhum encontro programado para as salas deste Fan Club.</p>'}
+           <button type="button" data-sf71-events>Ver agenda completa</button>
+         </div>
          ${membersHtml(d)}
        </aside></div>`;
      if(c.joined){await loadPosts(id);if(state.activeId===id)startLive(id);}
@@ -243,6 +253,23 @@
      await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/cover',{method:'DELETE'});await openDetail(id);},'Capa removida.');return;
    }
    if(t.matches('[data-sf71-back]')){showList();await loadClubs();return;}
+   if(t.hasAttribute('data-sf141-club-rsvp')){
+     const eventId=t.dataset.sf141ClubRsvp;
+     if(!/^[a-f0-9-]{36}$/i.test(eventId))return;
+     await action(async()=>{
+       t.disabled=true;
+       await post('/api/social/events/'+encodeURIComponent(eventId)+'/rsvp',{going:t.dataset.going==='true'});
+       await openDetail(id);
+     },'Presença atualizada na programação.');
+     return;
+   }
+   if(t.hasAttribute('data-sf141-club-room')){
+     const slug=t.dataset.sf141ClubRoom;
+     if(!state.detail?.club?.rooms?.some(r=>r.slug===slug))return;
+     document.querySelector('.sf5-community-layer .sf5-close')?.click();
+     if(typeof joinRoom==='function')joinRoom(slug);
+     return;
+   }
    if(t.hasAttribute('data-sf71-events')){window.sfSocialSwitchTab?.('events');return;}
    if(t.hasAttribute('data-sf140-share-song')){
      const room=typeof currentRoomData!=='undefined'?currentRoomData:null;
