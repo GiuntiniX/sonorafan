@@ -535,10 +535,12 @@
    };
    socketClient()?.on('roomState',data=>{
      const previous=state.room?.slug;
+     const oldRound=party.round,oldActive=party.active,oldVotes=(party.votes||[]).join(',');
      state.room=data;
      if(previous!==data.slug)party=data.sf141Party||{active:false,round:0,choices:[],votes:[0,0],endsAt:0};
      else if(data.sf141Party)party=data.sf141Party;
-     if(state.section==='events'&&$('sf100Section')&&!partyBusy)renderSection();
+     const changed=previous!==data.slug||oldRound!==party.round||oldActive!==party.active||oldVotes!==(party.votes||[]).join(',');
+     if(changed&&state.section==='events'&&$('sf100Section')&&!partyBusy)renderSection();
    });
    socketClient()?.on('sf141:partyState',data=>{
      party=data||{active:false,round:0,choices:[],votes:[0,0],endsAt:0};
