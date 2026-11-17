@@ -23,8 +23,8 @@
       case 'rooms':qs('#sf107Popular')?.scrollIntoView({block:'start',behavior:'smooth'});break;
       case 'profile':(typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('profile'):window.sf5OpenProfile?.());break;
       case 'library':(typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('library'):qs('[data-sf107="favorites"]')?.click());break;
-      case 'community':if(typeof window.sf110OpenCommunity==='function')window.sf110OpenCommunity('overview');else window.sf5OpenCommunity?.();break;
-      case 'clubs':if(typeof window.sf107OpenFanClub==='function')window.sf107OpenFanClub();else window.sf110OpenCommunity?.('fanclubs');break;
+      case 'community':if(typeof window.sf126OpenClubs==='function')window.sf126OpenClubs();else window.sf110OpenCommunity?.('fanclubs');break;
+      case 'clubs':if(typeof window.sf126OpenClubs==='function')window.sf126OpenClubs();else window.sf110OpenCommunity?.('fanclubs');break;
       case 'ranking':window.openLeaderboard?.();break;
       case 'club-ranking':window.sf45OpenClub?.();break;
       case 'create':window.showCreateRoom?.();break;
@@ -39,7 +39,7 @@
     }
   }
   window.sf125Navigate=go;
-  const nav=[['lobby','⌂','Início'],['rooms','♫','Salas'],['community','♧','Comunidade'],
+  const nav=[['lobby','⌂','Início'],['rooms','♫','Salas'],
     ['clubs','♧','Fan Clubs'],['ranking','♜','Ranking'],['profile','♙','Meu Perfil']];
   function navButton([action,icon,label],side=false){
     return '<button type="button" data-sf125-go="'+action+'"'+(action==='lobby'?' class="is-active" aria-current="page"':'')+'>'+
