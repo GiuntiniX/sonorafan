@@ -245,7 +245,7 @@
 /* Janelas globais seguem o gênero ativo sem precisar criar um segundo tema. */
 body.sf133-themed-room[data-sf143-theme] .sf76-sheet .sf76-head,
 body.sf133-themed-room[data-sf143-theme] #sf88ThemeOverlay .sf88-modal-head{
- background-image:linear-gradient(105deg,rgba(15,11,24,.86),rgba(28,16,33,.55)),var(--sf143-body-scene,var(--sf133-art))!important;
+ background-image:linear-gradient(105deg,rgba(15,11,24,.86),rgba(28,16,33,.55)),var(--sf143-body-scene,var(--sf133-art)),var(--sf133-art)!important;
  background-size:cover!important;background-position:center!important;
 }
 /* Pequenas telas: mantemos gestos, scroll, controles e área útil do vídeo. */
