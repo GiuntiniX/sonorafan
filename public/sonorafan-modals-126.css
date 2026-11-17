@@ -1,0 +1,373 @@
+/* SonoraFan 126 — todos os modais no mesmo sistema visual do Lobby.
+   Foco: Busca/Adicionar Música, Favoritos, Criar Sala, Criar Fan Club.
+   Reaproveita handlers e formulários. Player de vídeo não é alterado.
+*/
+:root{--sf126-ui-bg:#101012;--sf126-ui-card:#1a171d;--sf126-ui-ink:#fff;
+--sf126-ui-muted:#c1bac6;--sf126-ui-lime:#c4ff00;--sf126-ui-orange:#ff8200;
+--sf126-ui-pink:#ee3ccf;--sf126-ui-yellow:#ffe000;--sf126-ui-edge:#62535e;}
+/* Modal de adicionar música (busca real do YouTube). */
+#sf77MusicModal.sf77-overlay{
+ --sf77-accent:var(--sf126-ui-lime);
+ font:500 14px/1.45 Inter,system-ui,sans-serif!important;
+ color:#fff!important;background:transparent!important;
+}
+#sf77MusicModal .sf77-backdrop{
+ background:#050508e9!important;backdrop-filter:blur(11px)!important;
+}
+#sf77MusicModal .sf77-dialog{
+ width:min(920px,calc(100vw - 30px))!important;
+ max-height:min(830px,calc(100dvh - 30px))!important;
+ min-height:min(565px,calc(100dvh - 30px))!important;
+ background:#111114!important;background-image:none!important;
+ border:1.5px solid var(--sf126-ui-pink)!important;
+ border-radius:22px!important;
+ box-shadow:0 26px 90px #000e,0 0 0 2px #d534bd20!important;
+ overflow:hidden!important;
+}
+#sf77MusicModal .sf77-header{
+ padding:29px 33px 25px!important;align-items:flex-start!important;
+ min-height:157px!important;flex:0 0 auto!important;
+ position:relative;isolation:isolate;overflow:hidden;
+ background:
+  linear-gradient(90deg,#100f12 0%,#100e12e8 47%,#230d22b8 100%),
+  url('/art-121/preview-guitar.webp') right 42%/cover no-repeat!important;
+ border-bottom:1px solid #685466!important;
+}
+#sf77MusicModal .sf77-header::after{
+ content:'';position:absolute;z-index:-1;pointer-events:none;
+ inset:auto -4% -47px auto;width:47%;height:150px;
+ background:url('/art-125/neon-waves.svg') center/cover no-repeat;
+ opacity:.8;
+}
+#sf77MusicModal .sf77-heading-copy{position:relative;z-index:2;max-width:660px}
+#sf77MusicModal .sf77-eyebrow{
+ color:var(--sf126-ui-lime)!important;font-size:11px!important;
+ letter-spacing:.08em!important;margin-bottom:9px!important;
+}
+#sf77MusicModal .sf77-header h2{
+ color:#fff!important;font-size:clamp(25px,2.5vw,35px)!important;
+ line-height:1.1!important;letter-spacing:-.04em!important;
+ margin:0 0 9px!important;font-weight:900!important;
+}
+#sf77MusicModal .sf77-header p{
+ color:#e3e0e6!important;font-size:13px!important;line-height:1.4!important;
+}
+#sf77MusicModal .sf77-close{
+ background:#1c1720!important;color:#fff!important;
+ border:1px solid #807580!important;border-radius:50%!important;
+ width:42px!important;height:42px!important;flex:0 0 42px!important;
+ font-size:22px!important;cursor:pointer!important;z-index:2;
+}
+#sf77MusicModal .sf77-close:hover{
+ border-color:var(--sf126-ui-lime)!important;color:var(--sf126-ui-lime)!important;
+}
+#sf77MusicModal .sf77-search-area{
+ padding:22px 32px 16px!important;background:#141316!important;
+}
+#sf77MusicModal .sf77-search-area>label{
+ color:#fff!important;font-size:14px!important;font-weight:850!important;
+ margin-bottom:10px!important;
+}
+#sf77MusicModal .sf77-search-field{
+ background:#0d0d11!important;border:1.5px solid #807582!important;
+ min-height:58px!important;border-radius:15px!important;
+ padding:0 18px!important;
+}
+#sf77MusicModal .sf77-search-field:focus-within{
+ border-color:var(--sf126-ui-lime)!important;
+ box-shadow:0 0 0 3px #c4ff0027!important;
+}
+#sf77MusicModal .sf77-search-field>span:first-child{
+ color:var(--sf126-ui-lime)!important;font-size:26px!important;
+}
+#sf77MusicModal .sf77-search-field input{
+ font-size:15px!important;min-height:56px!important;
+ color:#fff!important;
+}
+#sf77MusicModal .sf77-search-field input::placeholder{
+ color:#a7a4ad!important;
+}
+#sf77MusicModal .sf77-toolbar{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ margin-top:13px!important;gap:12px!important;
+}
+#sf77MusicModal .sf77-toolbar>span{
+ font-size:12px!important;color:#bbb8c0!important;
+}
+#sf77MusicModal .sf77-favorites{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ background:#19161a!important;color:#fff!important;
+ border:1px solid var(--sf126-ui-pink)!important;
+ border-radius:999px!important;padding:10px 17px!important;min-height:41px!important;
+ font-size:12px!important;font-weight:800!important;
+}
+#sf77MusicModal .sf77-favorites:hover{
+ border-color:var(--sf126-ui-lime)!important;color:var(--sf126-ui-lime)!important;
+}
+#sf77MusicModal .sf77-main{
+ min-height:230px!important;
+ background:#101012!important;padding:15px 26px 22px!important;
+ scrollbar-color:#756778 #131116!important;
+}
+#sf77MusicModal .sf77-results{
+ display:flex!important;flex-direction:column!important;gap:11px!important;
+ padding:0!important;
+}
+#sf77MusicModal .sf77-result{
+ display:flex!important;gap:14px!important;align-items:center!important;
+ min-height:101px!important;padding:12px!important;
+ border:1px solid #5a4a59!important;border-radius:15px!important;
+ background:#1c191e!important;color:#fff!important;
+}
+#sf77MusicModal .sf77-result:nth-child(4n+2){border-color:#816d52!important}
+#sf77MusicModal .sf77-result:nth-child(4n+3){border-color:#685267!important}
+#sf77MusicModal .sf77-result:hover,
+#sf77MusicModal .sf77-result:focus-visible{
+ border-color:var(--sf126-ui-lime)!important;
+ background:#252127!important;transform:translateY(-1px)!important;
+ outline:none!important;
+}
+#sf77MusicModal .sf77-result img{
+ width:120px!important;height:76px!important;flex:0 0 120px!important;
+ border-radius:10px!important;object-fit:cover!important;
+}
+#sf77MusicModal .sf77-result-copy strong{
+ font-size:15px!important;line-height:1.35!important;color:#fff!important;
+}
+#sf77MusicModal .sf77-result-copy small{
+ font-size:12px!important;color:#bbb6c0!important;
+}
+#sf77MusicModal .sf77-result-action{
+ background:var(--sf126-ui-lime)!important;color:#141414!important;
+ border:1px solid var(--sf126-ui-lime)!important;border-radius:999px!important;
+ min-height:40px!important;padding:9px 17px!important;
+ font-size:12px!important;font-weight:900!important;
+}
+#sf77MusicModal .sf77-empty{
+ border:1px dashed #77717a!important;background:#181619!important;
+ border-radius:15px!important;min-height:190px!important;
+}
+#sf77MusicModal .sf77-empty span{color:var(--sf126-ui-lime)!important}
+#sf77MusicModal .sf77-empty p{color:#c9c3ce!important;font-size:14px!important}
+#sf77MusicModal .sf77-selection{padding:8px!important;}
+#sf77MusicModal .sf77-back{
+ color:#fff!important;background:#1b171d!important;
+ border:1px solid #655665!important;border-radius:999px!important;
+ padding:10px 15px!important;
+}
+#sf77MusicModal .sf77-picked-card{
+ border:1px solid var(--sf126-ui-pink)!important;
+ border-radius:16px!important;background:#201821!important;padding:16px!important;
+}
+#sf77MusicModal .sf77-picked-card img{
+ width:166px!important;height:109px!important;border-radius:12px!important;
+}
+#sf77MusicModal .sf77-picked-label{
+ color:var(--sf126-ui-lime)!important;letter-spacing:.08em!important;
+}
+#sf77MusicModal .sf77-picked-copy strong{font-size:19px!important}
+#sf77MusicModal .sf77-picked-copy small{font-size:13px!important;color:#bbb3c0!important}
+#sf77MusicModal .sf77-picked-note{
+ background:#1d1b21!important;border:1px solid #5c525e!important;
+ color:#d6ccd6!important;font-size:13px!important;
+}
+#sf77MusicModal .sf77-actions{display:flex!important;gap:12px!important}
+#sf77MusicModal .sf77-add{
+ flex:1 1 auto!important;min-height:54px!important;
+ background:var(--sf126-ui-lime)!important;color:#141414!important;
+ border:1px solid var(--sf126-ui-lime)!important;
+ border-radius:999px!important;font-size:15px!important;font-weight:900!important;
+}
+#sf77MusicModal .sf77-favorite{
+ min-height:54px!important;
+ border:1px solid var(--sf126-ui-pink)!important;border-radius:999px!important;
+ background:#1d191f!important;color:#fff!important;font-size:14px!important;
+}
+#sf77MusicModal .sf77-footnote{color:#b9b5bf!important;font-size:12px!important}
+#sf77MusicModal .sf77-footer{
+ border-top:1px solid #58515c!important;background:#111012!important;
+ color:#a8a1ac!important;padding:13px 32px!important;font-size:11px!important;
+}
+/* Criação de sala preserva stepper, gênero e opções de privacidade */
+#createRoomModal.active{
+ background:#050508e6!important;backdrop-filter:blur(10px)!important;
+}
+#createRoomModal .sf35-create-modal{
+ width:min(810px,calc(100vw - 28px))!important;max-width:810px!important;
+ max-height:calc(100dvh - 34px)!important;overflow:auto!important;
+ padding:0 25px 23px!important;
+ border:1.5px solid var(--sf126-ui-pink)!important;border-radius:21px!important;
+ background:#141315!important;color:#fff!important;
+ box-shadow:0 22px 80px #000d!important;
+}
+#createRoomModal .sf35-create-hero{
+ position:relative;isolation:isolate;min-height:176px!important;
+ margin:0 -25px 20px!important;padding:25px!important;
+ background:linear-gradient(90deg,#111013 5%,#151015ba 64%,#16101673),
+ url('/art-44/festival-crowd.webp') center 45%/cover no-repeat!important;
+ border-bottom:1px solid #6a5369!important;
+ border-radius:20px 20px 0 0!important;
+}
+#createRoomModal .sf35-create-hero .sf35-kicker{
+ color:var(--sf126-ui-lime)!important;font-weight:850!important;font-size:11px!important;
+}
+#createRoomModal .sf35-create-hero h3{
+ color:#fff!important;font-size:clamp(25px,3vw,36px)!important;
+ font-weight:900!important;letter-spacing:-.04em!important;line-height:1.12!important;
+}
+#createRoomModal .sf35-create-hero p{color:#e4e1e8!important;font-size:13px!important;line-height:1.45!important}
+#createRoomModal .sf35-create-hero img{
+ border:2px solid var(--sf126-ui-orange)!important;border-radius:16px!important;
+ object-fit:cover!important;
+}
+#createRoomModal .sf10-stepper{
+ padding:10px 0!important;gap:8px!important;
+}
+#createRoomModal .sf10-stepper span{
+ border:1px solid #69606a!important;border-radius:999px!important;
+ background:#1d1a1e!important;color:#fff!important;
+}
+#createRoomModal .sf10-stepper span.is-active,
+#createRoomModal .sf10-stepper span.active{
+ background:var(--sf126-ui-lime)!important;color:#111!important;border-color:var(--sf126-ui-lime)!important;
+}
+#createRoomModal label,
+#createRoomModal legend{color:#fff!important;font-weight:780!important}
+#createRoomModal input:not([type=radio]):not([type=checkbox]),
+#createRoomModal textarea,#createRoomModal select{
+ background:#0c0c10!important;color:#fff!important;border:1px solid #746875!important;
+ border-radius:12px!important;min-height:46px!important;
+}
+#createRoomModal input:focus-visible,
+#createRoomModal textarea:focus-visible{border-color:var(--sf126-ui-lime)!important;outline:2px solid #c4ff0055!important}
+#createRoomModal .sf109-genre-option{
+ background:#1b181f!important;border-color:#5e525f!important;border-radius:13px!important;
+}
+#createRoomModal .sf109-genre-option:has(input:checked){
+ background:#292d1a!important;border-color:var(--sf126-ui-lime)!important;color:var(--sf126-ui-lime)!important;
+}
+#createRoomModal .sf17-create-hint{
+ background:#1d1a20!important;border:1px solid #635366!important;
+ border-radius:14px!important;
+}
+#createRoomModal .modal-actions{
+ position:sticky;bottom:-23px;z-index:7;
+ margin:21px -25px -23px!important;padding:14px 25px!important;
+ background:#131215!important;border-top:1px solid #4b414c!important;
+}
+#createRoomModal .modal-actions .btn-primary{
+ background:var(--sf126-ui-lime)!important;color:#111!important;
+ border:1px solid var(--sf126-ui-lime)!important;border-radius:999px!important;
+ min-height:45px!important;font-weight:850!important;
+}
+#createRoomModal .modal-actions .btn-secondary{
+ border-radius:999px!important;border:1px solid #7a707c!important;
+ background:#211e23!important;color:#fff!important;
+}
+/* Fan Club creation and management dialogs (native v71 handlers). */
+#sf71Modal.sf71-modal-overlay{
+ background:#050508e9!important;backdrop-filter:blur(11px)!important;
+}
+#sf71Modal .sf71-modal{
+ width:min(650px,calc(100vw - 26px))!important;max-width:650px!important;
+ border:1.5px solid var(--sf126-ui-pink)!important;border-radius:22px!important;
+ background:#131216!important;box-shadow:0 30px 80px #000e!important;
+ padding:0 23px 22px!important;
+}
+#sf71Modal .sf71-modal header{
+ position:relative;isolation:isolate;min-height:105px;
+ background:linear-gradient(90deg,#110f14e5,#270d23a8),
+ url('/art-44/festival-crowd.webp') center/cover no-repeat;
+ margin:0 -23px 17px!important;padding:20px 23px!important;
+ border-bottom:1px solid #775375;border-radius:21px 21px 0 0;
+}
+#sf71Modal .sf71-modal header h3{
+ color:#fff!important;font-size:clamp(22px,2.6vw,32px)!important;
+ letter-spacing:-.04em!important;font-weight:900!important;
+}
+#sf71Modal .sf71-modal header button{
+ color:#fff!important;background:#211d25!important;border:1px solid #a29aa4!important;
+ border-radius:50%!important;min-width:38px!important;min-height:38px!important;
+}
+#sf71Modal .sf71-modal-form{gap:14px!important}
+#sf71Modal .sf71-modal-form>label{color:#eee!important;font-size:13px!important}
+#sf71Modal .sf71-modal-form :is(input,select,textarea){
+ background:#0d0d10!important;color:#fff!important;
+ border:1px solid #706473!important;border-radius:13px!important;
+ min-height:46px!important;font-size:14px!important;padding:12px 14px!important;
+}
+#sf71Modal .sf71-modal-form :is(input,select,textarea):focus-visible{
+ border-color:var(--sf126-ui-lime)!important;outline:2px solid #bfff0030!important;
+}
+#sf71Modal .sf71-modal-actions{
+ display:flex!important;justify-content:flex-end!important;gap:10px!important;
+}
+#sf71Modal .sf71-modal-actions button{
+ padding:12px 19px!important;min-height:44px!important;border-radius:999px!important;
+}
+#sf71Modal .sf71-modal-actions button[type=submit]{
+ background:var(--sf126-ui-lime)!important;color:#111!important;
+ border:1px solid var(--sf126-ui-lime)!important;font-weight:900!important;
+}
+/* Favoritos, avatar, configurações e modais clássicos. Não interfere em Login/Cadastro. */
+body.sf125-global .modal-overlay:not(#signupModal):not(#adminPanel) .modal{
+ --accent:var(--sf126-ui-lime);
+ background:#141316!important;color:#fff!important;
+ border:1px solid #635762!important;border-radius:18px!important;
+}
+body.sf125-global .modal-overlay:not(#signupModal):not(#adminPanel) .modal h3{
+ color:#fff!important;font-weight:900!important;letter-spacing:-.035em!important;
+}
+body.sf125-global .modal-overlay:not(#signupModal):not(#adminPanel) .modal .sf35-kicker{
+ color:var(--sf126-ui-lime)!important;
+}
+body.sf125-global .modal-overlay:not(#signupModal):not(#adminPanel) .modal button.btn-primary{
+ background:var(--sf126-ui-lime)!important;color:#111!important;
+ border-color:var(--sf126-ui-lime)!important;border-radius:999px!important;
+}
+body.sf125-global .modal-overlay:not(#signupModal):not(#adminPanel) .modal button.btn-secondary{
+ border:1px solid #7d747f!important;background:#1d1b20!important;
+ color:#fff!important;border-radius:999px!important;
+}
+#favoritesModal .sf35-favorites-modal,
+#avatarModal .modal,
+#roomCfgModal .modal,
+#pwModal .modal{
+ width:min(750px,calc(100vw - 24px))!important;
+ max-height:calc(100dvh - 26px)!important;overflow:auto!important;
+ background:#121115!important;border:1px solid #755879!important;
+}
+#favoritesModal .sf35-favorites-modal{
+ border-color:var(--sf126-ui-pink)!important;
+}
+#favoritesModal :is(.sf35-fav-item,.favorite-item,.sf67-favorite-card){
+ background:#1d1a20!important;border:1px solid #5a505f!important;border-radius:12px!important;
+}
+#favoritesModal button:not(.btn-secondary):not(.sf35-close){
+ border-radius:999px!important;
+}
+#sf88ThemeOverlay .sf88-modal{
+ background:#131216!important;border-color:var(--sf126-ui-pink)!important;
+ color:#fff!important;box-shadow:0 24px 70px #000b!important;
+}
+#sf88ThemeOverlay .sf88-modal-head{
+ background:linear-gradient(90deg,#110d14e9,#241019ab),
+ url('/art-44/festival-crowd.webp') center/cover no-repeat!important;
+ border-bottom:1px solid #70566a!important;
+}
+.sf15-overlay .sf15-panel,.sf53-inbox-overlay .sf53-inbox-panel,
+.sf76-sheet .sf76-panel{
+ background:#141216!important;color:#fff!important;
+ border-color:#825982!important;
+}
+/* Distinct modal states and keyboard access. */
+#sf77MusicModal :is(button,input):focus-visible,
+#sf71Modal :is(button,input,textarea,select):focus-visible,
+#createRoomModal :is(button,input,textarea,select):focus-visible{
+ outline:3px solid var(--sf126-ui-lime)!important;outline-offset:3px!important;
+}
+@media(prefers-reduced-motion:reduce){
+ #sf77MusicModal *,#sf71Modal *,#createRoomModal *{
+  transition:none!important;animation:none!important;
+ }
+}
