@@ -19,7 +19,7 @@ test('mobile does not show oversized legacy song form',()=>{
  const css=read('public/sonorafan-layout-fix-87.css');
  assert.match(css,/@media\(max-width:768px\)[\s\S]*#screen-room #sf10RequestCard\{display:none!important\}/);
  const html=read('public/index.html');
- assert.match(html,/class="sf34-add-mobile"/);
+ assert.match(html,/class="sf34-add-mobile(?:\s[^"]*)?"/);
  assert.match(html,/sf76OpenMusic/);
 });
 
