@@ -56,7 +56,7 @@ function fixture(){
   'const node=document.createElement("output");node.id="sf125Overlays";node.dataset.sf125Status="fail";',
   'node.textContent=JSON.stringify({diagnostic:"no metrics",errors:window.__sf125Errors||[],profile:!!document.getElementById("sf43ProfileModal"),rank:!!document.getElementById("lbModal"),community:!!document.querySelector(".sf5-community-layer")});',
   'document.body.append(node);},1300);',
-  '</script>'].join('\\n');
+  '</script>'].join('\n');
  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+inline+styles+
    '</head><body>'+profile+ranking+community+boot+
    '<script src="./sonorafan-unified-125.js"></script>'+check+guard+'</body></html>';
