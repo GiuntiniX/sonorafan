@@ -14,7 +14,7 @@ const mobile=load('sonorafan-mobile-125.css');
 test('v125 foundation and v127/v128 overrides are linked in dependency order',()=>{
   assert.match(html,/sonorafan-unified-125\.css\?v=125/);
   assert.match(html,/sonorafan-mobile-125\.css\?v=125/);
-  assert.match(html,/sonorafan-unified-125\.js\?v=127\.1/);
+  assert.match(html,/sonorafan-unified-125\.js\?v=144\.0/);
   assert.match(html,/sonorafan-fanclubs-navigation-127\.css\?v=127\.1/);
   assert.match(html,/sonorafan-room-queue-128\.css\?v=128\.1/);
   assert.ok(html.indexOf('sonorafan-unified-125.css')>html.indexOf('sonorafan-chat-neon-124.css'));
@@ -23,8 +23,8 @@ test('v125 foundation and v127/v128 overrides are linked in dependency order',()
   assert.ok(html.indexOf('sonorafan-unified-125.js')>html.indexOf('sonorafan-room-redesign-113.js'));
   assert.doesNotThrow(()=>new vm.Script(js));
 });
-test('brand original remains used, theme never replaces the standard logo',()=>{
- assert.match(js,/\/brand-64\/sonorafan-logo-transparent\.png/);
+test('approved brand is retained by the existing theme navigation',()=>{
+ assert.match(js,/\/brand-144\/sonorafan-logo\.svg/);
  assert.match(html,/sf113-brand" aria-label="SonoraFan"/);
  assert.match(html,/sf54-brand-image/);
  assert.doesNotMatch(js,/svg[^>]*SonoraFan|data:image|createObjectURL/);
