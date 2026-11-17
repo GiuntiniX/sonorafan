@@ -254,8 +254,8 @@
      }
      const snippet='♫ Estou ouvindo: '+String(track.title||'Música').slice(0,100)+
        ' — '+String(track.artist||'Artista').slice(0,70)+
-       '\\nhttps://www.youtube.com/watch?v='+track.id;
-     field.value=(field.value.trim()?field.value.trim()+'\\n\\n':'')+snippet;
+       '\nhttps://www.youtube.com/watch?v='+track.id;
+     field.value=(field.value.trim()?field.value.trim()+'\n\n':'')+snippet;
      field.value=field.value.slice(0,600);
      field.focus({preventScroll:true});
      field.scrollIntoView({block:'nearest',behavior:'smooth'});
