@@ -29,7 +29,11 @@ test('approved logo is transparent, retains brand colors and has no external ass
 test('favicon and PWA use consistent mark with non-SVG installation fallback',()=>{
  const html=read('public/index.html');
  const manifest=JSON.parse(read('public/manifest.json'));
- assert.match(html,/rel="icon" href="\/brand-144\/sonorafan-mark\.svg"/);
+ assert.ok(html.includes('rel="icon" href="/brand-144/terra-favicon.svg?v=147.0"'));
+ assert.ok(!html.includes('rel="alternate icon" href="/brand-144/sonorafan-icon-192.png"'));
+ const favicon=read('public/brand-144/terra-favicon.svg');
+ for(const color of ['#c4ff00','#ff9815','#f20b19','#8c0aff']) assert.ok(favicon.includes(color));
+ assert.ok(favicon.includes('viewBox="277 0 210 180"'));
  assert.match(html,/rel="apple-touch-icon" href="\/brand-144\/sonorafan-icon-192\.png"/);
  assert.ok(manifest.icons.some(x=>x.src==='/brand-144/sonorafan-mark.svg'));
  assert.ok(manifest.icons.some(x=>x.type==='image/png'&&x.sizes==='192x192'));
