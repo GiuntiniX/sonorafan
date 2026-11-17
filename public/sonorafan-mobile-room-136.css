@@ -3,14 +3,30 @@
    A v135 posicionava #mTabs fixed e acrescentava padding-bottom a uma .app de 100dvh:
    em navegadores Android isso deslocava a barra para baixo da área visível. */
 @media (max-width:768px) {
+  /* O body legado usava min/max-height:100vh, maior que a viewport visível no
+     Chrome Android com barra de endereço. Corrige a raiz, não só a barra. */
+  html:has(body.sf137-mobile-room),
+  body.sf137-mobile-room {
+    height:var(--sf137-viewport-height,100dvh)!important;
+    min-height:var(--sf137-viewport-height,100dvh)!important;
+    max-height:var(--sf137-viewport-height,100dvh)!important;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+  }
+  body.sf137-mobile-room #screen-room.sf113-room.active {
+    flex:0 0 auto!important;
+    height:var(--sf137-viewport-height,100dvh)!important;
+    min-height:0!important;
+    max-height:var(--sf137-viewport-height,100dvh)!important;
+  }
   #screen-room.sf113-room.active {
     animation:none!important;
     display:flex!important;
     flex-direction:column!important;
     position:relative!important;
     width:100%!important;
-    height:var(--sf136-mobile-vh,100dvh)!important;
-    max-height:var(--sf136-mobile-vh,100dvh)!important;
+    height:var(--sf137-viewport-height,100dvh)!important;
+    max-height:var(--sf137-viewport-height,100dvh)!important;
     min-height:0!important;
     overflow:hidden!important;
     box-sizing:border-box!important;
@@ -59,6 +75,11 @@
   #screen-room.sf113-room .sf113-brand img {
     display:block!important;width:auto!important;
     height:28px!important;max-width:112px!important;object-fit:contain!important;
+  }
+  /* O convite e configurações já estão no menu ☰, evitando 7 ícones no topo. */
+  #screen-room.sf113-room .sf113-invite,
+  #screen-room.sf113-room #sf64RoomSidebarToggle {
+    display:none!important;
   }
   #screen-room.sf113-room #cfgBtn,
   #screen-room.sf113-room #adminBadge {
