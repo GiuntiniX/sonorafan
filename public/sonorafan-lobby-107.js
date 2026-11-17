@@ -413,7 +413,7 @@
       <div class="sf107-content">
         <div class="sf107-main-col">
           <section class="sf107-module">
-            <header class="sf107-module-head"><h2>▷ Continuar ouvindo</h2><button type="button" data-sf107="favorites">Ver favoritas ›</button></header>
+            <header class="sf107-module-head"><h2>▷ Continuar ouvindo</h2><button type="button" data-sf107="scroll">Ver salas ›</button></header>
             <div class="sf107-recent-list" id="sf107Recent"></div>
           </section>
           <section class="sf107-module" id="sf107Popular">
@@ -478,7 +478,6 @@
           <div class="sf107-more-list">
             <button type="button" data-sf107="ranking">♛ Ranking</button>
             <button type="button" data-sf107="journey">✦ Minha Jornada</button>
-            <button type="button" data-sf107="library">▣ Minha Biblioteca</button>
             <button type="button" data-sf107="account">⚙ Conta e segurança</button>
             <button type="button" data-sf107="help">? Ajuda / Tour</button>
             <button type="button" data-sf107="admin" id="sf107Admin" hidden>⚙ Administração</button>
