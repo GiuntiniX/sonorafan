@@ -12,7 +12,7 @@ const v125=read('sonorafan-unified-125.js');
 
 test('v126 scripts/styles are loaded in production order, and scripts parse',()=>{
  for(const name of ['sonorafan-experience-126.js','sonorafan-experience-126.css','sonorafan-modals-126.css','sonorafan-mobile-126.css']){
-  assert.ok(html.includes('/'+name+'?v=126'),name+' is not linked');
+  assert.ok(html.includes('/'+name+'?v=126.1'),name+' is not linked');
  }
  assert.ok(html.indexOf('sonorafan-mobile-126.css')>html.indexOf('sonorafan-mobile-125.css'));
  assert.ok(html.indexOf('sonorafan-experience-126.js')>html.indexOf('sonorafan-unified-125.js'));
