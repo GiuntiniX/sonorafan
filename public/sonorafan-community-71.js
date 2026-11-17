@@ -196,7 +196,7 @@
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 ${c.coverVersion?'Trocar':'Adicionar'} capa</button>${c.coverVersion?'<button type="button" data-sf73-remove-cover>Remover capa</button>':''}<input id="sf73DetailCover" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher imagem de capa" hidden>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns"><section class="sf71-feed"><div class="sf71-rooms-head"><h4>Conversa da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
-         ${c.joined?`<form id="sf71PostForm"><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Compartilhe uma música, uma descoberta ou um assunto sobre o artista…" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
+         ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><button type="button" data-sf140-share-song>♫ Compartilhar música da sala</button><small>Revise a mensagem antes de publicar</small></div><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Compartilhe uma música, uma descoberta ou um assunto sobre o artista…" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </section><aside class="sf71-room-list"><div class="sf71-rooms-head"><h4>Salas do Fan Club</h4>${c.owner?'<button type="button" data-sf71-addroom>＋ Vincular sala</button>':''}</div>
          <div>${c.rooms?.length?c.rooms.map(r=>roomHtml(r,c.owner)).join(''):'<p class="sf71-empty">Nenhuma sala vinculada ainda.</p>'}</div>
          ${(c.events||[]).length?`<div class="sf71-club-events"><h4>Próximos encontros</h4>${c.events.map(ev=>`<div class="sf71-club-event"><strong>${esc(ev.title)}</strong><small>${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)}</small></div>`).join('')}<button type="button" data-sf71-events>Ver agenda e confirmar presença</button></div>`:''}
@@ -244,6 +244,24 @@
    }
    if(t.matches('[data-sf71-back]')){showList();await loadClubs();return;}
    if(t.hasAttribute('data-sf71-events')){window.sfSocialSwitchTab?.('events');return;}
+   if(t.hasAttribute('data-sf140-share-song')){
+     const room=typeof currentRoomData!=='undefined'?currentRoomData:null;
+     const track=room?.queue?.[Math.max(0,Number(room.currentIndex)||0)];
+     const field=$('sf71PostText');
+     if(!field)return;
+     if(!track||!/^[A-Za-z0-9_-]{11}$/.test(String(track.id||''))){
+       status('Entre em uma sala com uma música tocando para compartilhar.',true);return;
+     }
+     const snippet='♫ Estou ouvindo: '+String(track.title||'Música').slice(0,100)+
+       ' — '+String(track.artist||'Artista').slice(0,70)+
+       '\\nhttps://www.youtube.com/watch?v='+track.id;
+     field.value=(field.value.trim()?field.value.trim()+'\\n\\n':'')+snippet;
+     field.value=field.value.slice(0,600);
+     field.focus({preventScroll:true});
+     field.scrollIntoView({block:'nearest',behavior:'smooth'});
+     status('Música inserida. Revise e publique no mural quando quiser.');
+     return;
+   }
    if(t.hasAttribute('data-sf71-refresh')){await loadPosts(id);return;}
    if(t.hasAttribute('data-sf71-room')){const slug=t.dataset.sf71Room;document.querySelector('.sf5-community-layer .sf5-close')?.click();if(typeof joinRoom==='function')joinRoom(slug);return;}
    if(t.hasAttribute('data-sf71-addroom')){await chooseRoom();return;}
