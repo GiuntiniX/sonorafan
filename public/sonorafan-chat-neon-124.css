@@ -1,0 +1,286 @@
+/* ==========================================================================
+   SonoraFan / Chat Neon v124
+   Tema exclusivo da coluna de chat dentro da sala.
+   Mantém intocados: temas de gênero, player, fila, mensagens, socket e handlers.
+   Ajustes futuros de identidade do chat devem ser feitos NESTE ARQUIVO.
+   ========================================================================== */
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon{
+  --sf124-bg:#141414;
+  --sf124-panel:#18171d;
+  --sf124-panel-raised:#211a28;
+  --sf124-stroke:#4b3550;
+  --sf124-text:#f8f8fa;
+  --sf124-muted:#c1bac8;
+  --sf124-lime:#c4ff00;
+  --sf124-orange:#ff8200;
+  --sf124-pink:#e879e8;
+  --sf124-yellow:#ffdb13;
+  background:var(--sf124-bg)!important;
+  background-image:none!important;
+  color:var(--sf124-text)!important;
+  border:1px solid #b35cbe!important;
+  border-radius:17px!important;
+  box-shadow:0 12px 34px #0006,inset 0 1px 0 #fff1!important;
+  isolation:isolate;
+}
+/* Tema de gênero nunca deve inserir artes embaixo das mensagens. */
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon :is(.chat-panel,.chat-messages,.chat-messages-inner){
+  background-color:var(--sf124-bg)!important;
+  background-image:none!important;
+  background-attachment:initial!important;
+  box-shadow:none!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages::before,
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages::after,
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages-inner::before,
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages-inner::after{
+  background-image:none!important;
+  pointer-events:none!important;
+}
+/* Cabeçalho sólido e compacto: linha neon de acento, sem pôster do gênero. */
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .premium-chat-heading{
+  display:flex!important;align-items:center!important;
+  gap:8px!important;min-height:54px!important;
+  flex:0 0 auto!important;
+  padding:11px 14px!important;
+  color:#fff!important;font:800 14px/1.3 Inter,system-ui,sans-serif!important;
+  background:linear-gradient(105deg,#211324,#18171d 80%)!important;
+  background-image:linear-gradient(105deg,#211324,#18171d 80%)!important;
+  border-bottom:2px solid transparent!important;
+  border-image:linear-gradient(90deg,var(--sf124-lime),var(--sf124-orange) 50%,var(--sf124-pink)) 1!important;
+  text-shadow:none!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .premium-online-dot{
+  background:var(--sf124-lime)!important;
+  box-shadow:0 0 8px #c4ff0077!important;
+  flex:0 0 auto!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .sf53-inbox-shortcut{
+  margin-left:auto!important;max-width:52%!important;min-height:30px!important;
+  border:1px solid #725579!important;
+  background:#271c2f!important;color:#f6ecfa!important;
+  border-radius:999px!important;
+  font-size:10px!important;white-space:nowrap!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .sf53-inbox-shortcut:hover{
+  border-color:var(--sf124-pink)!important;background:#392441!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .sf53-unread:not([hidden]){
+  background:var(--sf124-lime)!important;color:#151515!important;
+}
+/* Presença pequena para sobrar espaço às conversas. */
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .premium-presence{
+  flex:0 0 auto!important;max-height:48px!important;min-height:0!important;
+  padding:5px 10px!important;
+  background:#18151d!important;background-image:none!important;
+  border-bottom:1px solid #3e3046!important;overflow:hidden!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .premium-presence :is(span,button){
+  font-size:10px!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .premium-presence-empty{
+  color:var(--sf124-muted)!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .users-panel{
+  padding:5px 10px!important;
+  flex:0 0 auto!important;
+  min-height:28px!important;
+  background:#1b1720!important;background-image:none!important;
+  border-bottom:1px solid #3e3046!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .users-panel .user-count{
+  display:inline-flex!important;max-width:100%!important;
+  min-height:23px!important;align-items:center!important;gap:5px!important;
+  padding:3px 9px!important;border:1px solid #543a5b!important;
+  border-radius:999px!important;
+  background:#271b2b!important;
+  color:#e8dced!important;
+  font-size:10px!important;font-weight:700!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .users-panel .user-count .icon{
+  color:var(--sf124-pink)!important;font-size:12px!important;
+}
+/* A rolagem continua no INNER, conforme correção 114. */
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-panel{
+  flex:1 1 0!important;min-height:0!important;
+  display:flex!important;flex-direction:column!important;
+  overflow:hidden!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages{
+  flex:1 1 0!important;min-height:0!important;
+  position:relative!important;overflow:hidden!important;
+  background:#141414!important;background-image:none!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages-inner{
+  flex:1 1 auto!important;min-height:0!important;height:100%!important;
+  width:100%!important;overflow-x:hidden!important;overflow-y:auto!important;
+  scrollbar-width:thin!important;
+  scrollbar-color:#764778 transparent!important;
+  overscroll-behavior:contain!important;
+  padding:14px 12px!important;gap:9px!important;
+  background:transparent!important;background-image:none!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages-inner::-webkit-scrollbar{width:5px}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages-inner::-webkit-scrollbar-thumb{
+  border-radius:9px;background:#784481;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg{
+  min-width:0!important;max-width:100%!important;
+  border-radius:12px!important;
+  padding:9px 11px!important;
+  transition:border-color .18s ease,background-color .18s ease!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg:not(.msg-system):not(.msg-music){
+  background:#24202b!important;background-image:none!important;
+  border:1px solid #46374c!important;
+  box-shadow:none!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg:not(.msg-system):not(.msg-music):hover{
+  background:#2d2533!important;border-color:#84528c!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-system{
+  background:#1a181d!important;background-image:none!important;
+  border:1px solid #333037!important;opacity:1!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-system .msg-text{
+  color:#bcb6c2!important;font-size:11px!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-music{
+  background:#26192c!important;background-image:none!important;
+  border:1px solid #7c477b!important;
+  border-left:3px solid var(--sf124-pink)!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon :is(.msg-user,.sf51-user-link){
+  color:var(--sf124-lime)!important;font-weight:800!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-text{
+  color:var(--sf124-text)!important;
+  font-size:12px!important;line-height:1.55!important;
+  overflow-wrap:anywhere!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-time{
+  color:var(--sf124-muted)!important;opacity:1!important;font-size:10px!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-music .music-info{
+  color:#f5e9fa!important;
+}
+/* As ações de resposta, reação e moderação continuam acessíveis ao toque. */
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-actions{
+  opacity:1!important;max-width:100%!important;
+  flex-wrap:wrap!important;gap:4px!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-actions button{
+  min-height:27px!important;border-radius:8px!important;
+  color:#ddd1e3!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-actions button:hover{
+  background:#46314c!important;color:#fff!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-like-btn.liked{
+  background:#483043!important;color:var(--sf124-pink)!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .new-msg-pill{
+  background:var(--sf124-lime)!important;color:#151515!important;
+  border:0!important;box-shadow:0 7px 20px #0007!important;
+  font-weight:850!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .sf53-reply-preview:not([hidden]){
+  background:#28202c!important;
+  border-left:3px solid var(--sf124-orange)!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .sf53-reply-preview :is(small,span,strong){
+  color:#f4edf4!important;
+}
+/* Composer permanece fixo, sem interceptar o painel de emojis. */
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar{
+  position:relative!important;flex:0 0 auto!important;
+  z-index:5!important;display:flex!important;align-items:center!important;
+  gap:7px!important;padding:10px!important;margin:0!important;
+  border-top:1px solid #654166!important;
+  background:#19171d!important;background-image:none!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar #chatInput{
+  flex:1 1 0!important;min-width:0!important;width:0!important;
+  min-height:39px!important;max-width:100%!important;
+  padding:9px 12px!important;
+  border:1px solid #68496a!important;border-radius:11px!important;
+  background:#28212d!important;background-image:none!important;
+  color:#fff!important;font:500 12px/1.4 Inter,system-ui,sans-serif!important;
+  box-shadow:none!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar #chatInput::placeholder{
+  color:#c2b4c6!important;opacity:1!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar #chatInput:focus{
+  border-color:var(--sf124-lime)!important;
+  box-shadow:0 0 0 2px #c4ff002c!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar > .emoji-btn{
+  display:grid!important;place-items:center!important;
+  flex:0 0 35px!important;width:35px!important;height:38px!important;
+  padding:5px!important;border:1px solid #68496a!important;
+  border-radius:10px!important;
+  background:#2b2230!important;background-image:none!important;
+  color:#fff!important;font-size:18px!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar > button:not(.emoji-btn){
+  flex:0 0 auto!important;min-height:39px!important;
+  padding:8px 13px!important;border-radius:10px!important;
+  border:1px solid var(--sf124-orange)!important;
+  background:var(--sf124-orange)!important;background-image:none!important;
+  color:#161313!important;font:850 12px/1.2 Inter,system-ui,sans-serif!important;
+  box-shadow:none!important;cursor:pointer!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar > button:not(.emoji-btn):hover{
+  background:#ffae3d!important;filter:brightness(1.04)!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .typing-indicator{
+  background:#28212c!important;color:#f1e6f1!important;
+  border-color:#73537a!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .emoji-panel{
+  z-index:60!important;left:0!important;bottom:calc(100% + 4px)!important;
+  max-width:min(280px,calc(100vw - 32px))!important;
+  background:#211925!important;background-image:none!important;
+  border:1px solid #81558a!important;
+  box-shadow:0 12px 35px #000b!important;
+}
+#screen-room.sf113-room .sf34-chat.sf124-chat-neon .emoji-item:hover{
+  background:#56355f!important;
+}
+/* Não alterar a altura calculada nem as abas mobile (sonorafan-room-ux-93). */
+@media(max-width:768px){
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon .premium-chat-heading{
+    min-height:45px!important;padding:8px 10px!important;font-size:12px!important;
+  }
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon .premium-presence{
+    padding:4px 8px!important;max-height:40px!important;
+  }
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon .users-panel{
+    padding:4px 8px!important;min-height:27px!important;
+  }
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages-inner{
+    padding:10px 9px!important;gap:6px!important;
+  }
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar{
+    padding:8px!important;gap:6px!important;
+  }
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar > button:not(.emoji-btn){
+    padding:8px 10px!important;min-height:38px!important;
+  }
+}
+@media(max-width:380px){
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon .sf53-inbox-shortcut{
+    max-width:45%!important;font-size:9px!important;padding:5px 7px!important;
+  }
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar #chatInput{
+    min-height:37px!important;padding:7px 8px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon *,
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon *::before,
+  #screen-room.sf113-room .sf34-chat.sf124-chat-neon *::after{
+    animation:none!important;scroll-behavior:auto!important;transition:none!important;
+  }
+}
