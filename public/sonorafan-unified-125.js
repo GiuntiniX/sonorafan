@@ -58,11 +58,9 @@
     sidebar.innerHTML='<div class="sf125-sidebar-brand"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="214" height="66" decoding="async"></div>'+
       '<nav class="sf125-side-nav" aria-label="Áreas da plataforma">'+nav.map(x=>navButton(x,true)).join('')+'</nav>'+
       '<div class="sf125-sidebar-separator"></div><span class="sf125-sidebar-caption">Criar</span>'+
-      '<nav class="sf125-side-nav sf125-side-secondary" aria-label="Criação e biblioteca">'+
+      '<nav class="sf125-side-nav sf125-side-secondary" aria-label="Criar salas e Fan Clubs">'+
       '<button type="button" data-sf125-go="create"><span class="sf125-nav-icon">＋</span><span>Criar Sala</span></button>'+
-      '<button type="button" data-sf125-go="create-club"><span class="sf125-nav-icon">♧</span><span>Criar Fan Club</span></button>'+
-      '<button type="button" data-sf125-go="library"><span class="sf125-nav-icon">♫</span><span>Minha Biblioteca</span></button>'+
-      '<button type="button" data-sf125-go="favorites"><span class="sf125-nav-icon">♡</span><span>Favoritos</span></button></nav>'+
+      '<button type="button" data-sf125-go="create-club"><span class="sf125-nav-icon">♧</span><span>Criar Fan Club</span></button></nav>'+
       '<div class="sf125-sidebar-art" aria-hidden="true"></div>';
     app.insertBefore(sidebar,qs('.sf28-lobby-main',app));
     const main=qs('.sf28-lobby-main',app);
