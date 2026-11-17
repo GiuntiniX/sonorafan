@@ -45,8 +45,8 @@ test('preview clearly marked as mockup; scalable concert art and original brand 
  assert.match(landing,/src="\/art-129\/sonorafan-stage\.svg"/);
  assert.match(landing,/src="\/brand-64\/sonorafan-logo-transparent.png"/);
  assert.match(landing,/src="\/avatars-108\/rock.svg"/);
- assert.match(landing,/src="\/art-121\/highlight-singer.webp"/);
- assert.match(landing,/src="\/art-121\/discover-headphones.webp"/);
+ assert.match(landing,/src="\/art-129\/sonorafan-mic-stage\.svg"/);
+ assert.match(landing,/src="\/art-129\/sonorafan-headphones\.svg"/);
 });
 
 test('approved near-black background and neon features, responsive layout',()=>{
