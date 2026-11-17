@@ -7,9 +7,11 @@
   if (!screen || !$('sf113VisualStage')) return;
   const KEY = 'sonorafan:room-player-view:v113';
   const FALLBACK = '/art-44/vinyl-room.webp';
-  let mode = 'visual';
+  // O vídeo é a experiência padrão; a escolha explícita anterior é respeitada.
+  let mode = 'video';
   try {
-    if (localStorage.getItem(KEY) === 'video') mode = 'video';
+    const saved = localStorage.getItem(KEY);
+    if (saved === 'visual' || saved === 'video') mode = saved;
   } catch (_) {}
 
   function setView(next, persist = true) {
