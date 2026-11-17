@@ -28,7 +28,7 @@
       case 'ranking':window.openLeaderboard?.();break;
       case 'club-ranking':window.sf45OpenClub?.();break;
       case 'create':window.showCreateRoom?.();break;
-      case 'create-club':window.sf107OpenFanClub?.();setTimeout(()=>$('sf71CreateClub')?.click(),180);break;
+      case 'create-club':if(typeof window.sf126OpenClubs==='function')window.sf126OpenClubs();else window.sf110OpenCommunity?.('fanclubs');setTimeout(()=>$('sf71CreateClub')?.click(),180);break;
       case 'invite':qs('[data-sf107="invite"]')?.click();break;
       case 'notifications':window.sf15OpenNotifications?.();break;
       case 'account':window.sf92OpenAccount?.();break;
