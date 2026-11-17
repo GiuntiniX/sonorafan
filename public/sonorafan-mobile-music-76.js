@@ -285,7 +285,7 @@
         <button type="button" data-sf76-add="${escapeHtml(t.id)}" aria-label="Adicionar ${escapeHtml(t.title||'música')} à fila">＋ Adicionar</button>
         <button type="button" class="sf76-remove" data-sf76-remove="${escapeHtml(t.id)}" aria-label="Remover ${escapeHtml(t.title||'música')} dos favoritos">♡ Remover</button>
       </div>
-    </article>`).join(''););
+    </article>`).join('');
   }
   async function submitFavorite(favorite){
     if(state.busy)return;
