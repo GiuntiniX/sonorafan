@@ -92,7 +92,8 @@
     if (backdrop) backdrop.hidden = true;
   }
   function openSongSearch() {
-    if (isMobile() && typeof window.sf76OpenMusic === 'function') {
+    // v133: uma só janela com abas de busca e favoritas em todas as telas.
+    if (typeof window.sf76OpenMusic === 'function') {
       window.sf76OpenMusic('search');
       return;
     }
