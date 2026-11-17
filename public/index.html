@@ -2369,7 +2369,7 @@
         <div class="sf35-create-copy">
           <span class="sf35-kicker">✳ SEU SOM, SUA COMUNIDADE</span>
           <h3 id="sf35CreateTitle">Crie seu espaço musical</h3>
-          <p class="sf10-create-desc">Todo mundo é DJ: cada pessoa pode adicionar músicas e construir a fila com você.</p>
+          <p class="sf10-create-desc">Escolha sua vibe, defina a privacidade e controle quem pode adicionar músicas.</p>
         </div>
         <img src="/art-33/poster-indie.webp" alt="" width="160" height="160" loading="lazy" decoding="async">
       </header>
@@ -2389,8 +2389,8 @@
       </div>
       <div class="sf10-step-two"><div id="sf88CreateTheme" aria-label="Tema visual da nova sala"></div><div id="createCfg" class="cfg"></div></div>
       <div class="sf17-create-hint">
-        <strong>Playlist colaborativa para todos</strong>
-        <span>Todos os participantes podem adicionar músicas. Personalize a sala e escolha se aceita faixas comuns, vídeos longos ou lives.</span>
+        <strong>Escolha quem controla a playlist</strong>
+        <span>Você decide: todos os participantes podem colaborar ou somente o anfitrião adiciona músicas. O modo anfitrião é ideal para lives e shows.</span>
       </div>
       <div id="adminRoomOptions" style="display:none;margin-top:6px;text-align:left;">
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 0;cursor:pointer;">
@@ -3482,13 +3482,19 @@
         <div class="cfg-lbl">Cor da sala</div><div class="cfg-row">${CFG_COLORS.map(c => `<button type="button" class="cfg-c ${s.color === c ? 'on' : ''}" style="background:${c}" onclick="${pick('color', c)}"></button>`).join('')}</div>
         <input class="cfg-in" id="${k}Desc" maxlength="80" placeholder="Descrição curta (opcional)" value="${escapeHtml(s.description || '')}">
         <input class="cfg-in" id="${k}Welcome" maxlength="200" placeholder="Boas-vindas ou regras" value="${escapeHtml(s.welcome || '')}">
-        <div class="sf20-all-djs"><span>🎧</span><div><strong>Todo mundo é DJ!</strong><small>Cada pessoa pode escolher e adicionar músicas à playlist compartilhada.</small></div></div>
+        <div class="sf129-mode-intro"><span aria-hidden="true">${s.addMode === 'owner' ? '🔒' : '🎧'}</span><div><strong>${s.addMode === 'owner' ? 'Playlist do anfitrião' : 'Todo mundo é DJ!'}</strong><small>${s.addMode === 'owner' ? 'Só quem criou a sala adiciona músicas e controla os pulos. Os convidados podem ouvir e conversar.' : 'Os participantes escolhem músicas e constroem a fila juntos.'}</small></div></div>
         <div class="cfg-lbl">Formato de conteúdo</div>
         <div class="kind-picker sf17-room-format-grid">
           <button type="button" class="kind-tile ${!s.allowLong && !s.allowLive ? 'on' : ''}" onclick="${pick('allowLong', '')};${pick('allowLive', '')}"><span>🎵</span><b>Padrão</b><small>Faixas e vídeos comuns</small></button>
           <button type="button" class="kind-tile ${s.allowLong && !s.allowLive ? 'on' : ''}" onclick="${pick('allowLong', '1')};${pick('allowLive', '')}"><span>🎬</span><b>Longform</b><small>Sets, shows longos e podcasts</small></button>
           <button type="button" class="kind-tile ${s.allowLive ? 'on' : ''}" onclick="${pick('allowLong', '1')};${pick('allowLive', '1')}"><span>🔴</span><b>Live</b><small>Aceita transmissões e vídeos longos</small></button>
         </div>
+        <div class="cfg-lbl sf129-mode-label" id="sf129ModeLabel-${k}">Quem pode adicionar músicas?</div>
+        <div class="kind-picker sf129-mode-picker" role="group" aria-labelledby="sf129ModeLabel-${k}">
+          <button type="button" class="kind-tile sf129-mode-card ${s.addMode !== 'owner' ? 'on' : ''}" aria-pressed="${s.addMode !== 'owner'}" onclick="${pick('addMode','all')}"><span aria-hidden="true">♫</span><b>Colaborativa</b><small>Todos participam da playlist</small></button>
+          <button type="button" class="kind-tile sf129-mode-card sf129-mode-owner ${s.addMode === 'owner' ? 'on' : ''}" aria-pressed="${s.addMode === 'owner'}" onclick="${pick('addMode','owner')}"><span aria-hidden="true">🔒</span><b>Somente o anfitrião</b><small>Só o criador adiciona músicas · ideal para lives</small></button>
+        </div>
+        <p class="sf129-mode-note" role="status">${s.addMode === 'owner' ? '🔴 Modo anfitrião: sua transmissão não será interrompida pelos votos para pular.' : '✦ Todos escolhem músicas; a fila distribui as escolhas de forma justa.'}</p>
         <div class="cfg-lbl">Quem pode entrar?</div>
         <div class="kind-picker">
           <button type="button" class="kind-tile ${!s.isPrivate ? 'on' : ''}" onclick="${pick('isPrivate', '')}"><span>🌍</span><b>Pública</b><small>Aparece no lobby</small></button>
@@ -3497,12 +3503,12 @@
         ${s.isPrivate ? `<input class="cfg-in" id="${k}Pw" type="password" maxlength="30" placeholder="Senha (opcional)" value="${escapeHtml(s.password || '')}">` : ''}
         <select class="cfg-in" id="${k}Slow">${[0, 5, 10, 30, 60].map(v => `<option value="${v}" ${+s.slowMode === v ? 'selected' : ''}>${v ? 'Modo lento: ' + v + 's' : 'Chat sem limite'}</option>`).join('')}</select>
         <div class="sf17-create-summary">
-          <strong>Todos podem colaborar com músicas.</strong>
+          <strong>${s.addMode === 'owner' ? 'Só o anfitrião controla a playlist.' : 'Todos podem colaborar com músicas.'}</strong>
           <span>${s.allowLive ? 'Aceita lives e vídeos longos.' : (s.allowLong ? 'Aceita vídeos longos.' : 'Aceita músicas e vídeos comuns.')}</span>
         </div>`;
     }
 function readCfg(k) {
-      const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: 'all', isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value, allowLong: !!s.allowLong, allowLive: !!s.allowLive };
+      const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: s.addMode === 'owner' ? 'owner' : 'all', isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value, allowLong: !!s.allowLong, allowLive: !!s.allowLive };
       const pw = $(k + 'Pw'); if (pw && pw.value) out.password = pw.value;
       return out;
     }
