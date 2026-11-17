@@ -546,6 +546,7 @@
  }
  function init(){
    applyLook();eventsBinding();
+   window.sf100DownloadEventCalendar=saveCalendarEvent;
    window.sf100RenderStudio=(host)=>{render(host);refresh();};
    window.sf100OpenMixtape=id=>{
      if(!safeId(id))return;
