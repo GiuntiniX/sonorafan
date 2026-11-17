@@ -22,7 +22,7 @@ test('v133 keeps one visible music CTA, one real queue, no duplicate listening s
  }
  assert.match(room,/id="sf116Favorites"[^>]*hidden/);
  assert.match(room,/class="sf5-listening-card sf128-presence"[^>]*hidden/);
- assert.match(room,/id="sf116MoreButton"[^>]*☰/);
+ assert.match(room,/id="sf116MoreButton"[^>]*>\\s*<span[^>]*>☰/);
  assert.match(room,/id="sf113AddMusic"[^>]*aria-haspopup="dialog"/);
  assert.match(css,/#screen-room\.sf113-room #roomLayout \.sf128-add-panel \.sf128-presence/);
  assert.match(css,/#screen-room\.sf113-room #roomLayout #sf116Favorites/);
