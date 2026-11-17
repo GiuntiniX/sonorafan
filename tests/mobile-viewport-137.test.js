@@ -26,8 +26,8 @@ test('v137 eliminates conflicting root 100vh, fixed tabs and duplicate bottom pa
 });
 test('mobile build preserves cache controls without exposing technical version to users',()=>{
  assert.match(html,/sonorafan-mobile-room-135\.css\?v=137/);
- assert.match(html,/sonorafan-mobile-room-136\.css\?v=139\.1/);
- assert.match(html,/sonorafan-mobile-room-136\.js\?v=139\.1/);
+ assert.match(html,/sonorafan-mobile-room-136\.css\?v=140\.0/);
+ assert.match(html,/sonorafan-mobile-room-136\.js\?v=140\.0/);
  assert.doesNotMatch(html,/Interface mobile v137\.1/);
  assert.match(server,/get\('\/api\/client-version'/);
  assert.match(server,/res\.set\('Cache-Control','no-store, no-cache, must-revalidate'\)/);
