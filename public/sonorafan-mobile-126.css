@@ -1,6 +1,8 @@
 /* SonoraFan Mobile 126 — adaptação dedicada dos mockups.
    Mantém player, fila, chat e pesquisa funcionais, com foco na ergonomia touch.
 */
+:root{--sf126-mobile-lime:#c4ff00;}
+
 @media(max-width:1280px){
  #screen-lobby.sf126-lobby .sf28-lobby-app.sf125-app{
   grid-template-columns:208px minmax(0,1fr)!important;
