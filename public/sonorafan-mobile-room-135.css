@@ -1,0 +1,263 @@
+/* SonoraFan 135 — correção dedicada da navegação e chat mobile.
+   Preserva o player, os temas, a fila única, o chat existente e a janela sf76.
+   Estas regras vêm APÓS as camadas 76–134 para resolver conflitos de especificidade. */
+
+@media (max-width: 768px) {
+  #screen-room.sf113-room {
+    --sf135-tabs-height: calc(69px + env(safe-area-inset-bottom, 0px));
+  }
+  #screen-room.sf113-room > .app {
+    min-height: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    display: grid !important;
+    grid-template-rows: 56px minmax(0, 1fr) !important;
+    padding-bottom: var(--sf135-tabs-height) !important;
+    overflow: hidden !important;
+  }
+  #screen-room.sf113-room #roomLayout.room-layout {
+    display: block !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 9px 10px 15px !important;
+    scroll-padding-bottom: 18px !important;
+    overscroll-behavior: contain;
+    box-sizing: border-box !important;
+  }
+  #screen-room.sf113-room #roomLayout > .sf5-bottom-row {
+    display: contents !important;
+  }
+  #screen-room.sf113-room #roomLayout > .sf113-now-card,
+  #screen-room.sf113-room #roomLayout > .sf5-section-title,
+  #screen-room.sf113-room .premium-mini-player {
+    display: none !important;
+  }
+  /* Um painel visível de cada vez, sem depender de regras antigas de grid. */
+  #screen-room.sf113-room #roomLayout > .queue-column.sf34-queue,
+  #screen-room.sf113-room #roomLayout > .player-column.sf34-player-column,
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column.sf34-chat {
+    display: none !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+  body[data-tab="queue"] #screen-room.sf113-room #roomLayout > .queue-column.sf34-queue {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: calc(100dvh - 180px) !important;
+    overflow: visible !important;
+  }
+  body[data-tab="player"] #screen-room.sf113-room #roomLayout > .player-column.sf34-player-column {
+    display: grid !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  body[data-tab="chat"] #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column.sf34-chat {
+    display: flex !important;
+    flex-direction: column !important;
+    height: max(260px, calc(100dvh - 56px - var(--sf135-tabs-height) - 20px)) !important;
+    min-height: 260px !important;
+    max-height: max(260px, calc(100dvh - 56px - var(--sf135-tabs-height) - 20px)) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    border: 1px solid var(--sf113-stroke, #784080) !important;
+    border-radius: 16px !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column .premium-chat-heading {
+    flex: 0 0 auto !important;
+    min-height: 43px !important;
+    padding: 9px 10px !important;
+    box-sizing: border-box !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column .premium-presence {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    max-height: 44px !important;
+    overflow: hidden !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column .users-panel {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    max-height: 52px !important;
+    overflow: hidden !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column .chat-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column .chat-messages {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column #chatMessagesInner {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+  }
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column .chat-input-bar {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    min-height: 56px !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 8px 8px 10px !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
+    background: var(--sf113-surface, #24152e) !important;
+    z-index: 2 !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column #chatInput {
+    min-width: 0 !important;
+    flex: 1 1 0 !important;
+    font-size: 16px !important;
+  }
+
+  /* Barra inferior: Fila / Player / Chat / Música, com último botão destacado.
+     Inbox permanece no menu hambúrguer, não disputando a largura do telefone. */
+  #screen-room.sf113-room #mTabs.mtabs {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.38fr) !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    height: var(--sf135-tabs-height) !important;
+    min-height: var(--sf135-tabs-height) !important;
+    max-height: var(--sf135-tabs-height) !important;
+    padding: 5px 8px calc(7px + env(safe-area-inset-bottom,0px)) !important;
+    gap: 5px !important;
+    z-index: 400 !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    border-top: 1px solid color-mix(in srgb, var(--sf88-primary, #d04edb) 65%, #33223b) !important;
+    background: color-mix(in srgb, var(--sf88-panel, #1c1029) 94%, #0b0811) !important;
+    box-shadow: 0 -8px 24px #0009 !important;
+  }
+  #screen-room.sf113-room #mTabs::after { display: none !important; }
+  #screen-room.sf113-room #mTabs > button:not([data-t]):not(.sf34-add-mobile) {
+    display: none !important;
+  }
+  #screen-room.sf113-room #mTabs > button[data-t] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 45px !important;
+    padding: 7px 3px !important;
+    background: #ffffff0b !important;
+    border: 1px solid #a65db62b !important;
+    border-radius: 10px !important;
+    color: #e9dcec !important;
+    font: 800 clamp(10px,2.7vw,13px)/1.1 Inter,system-ui,sans-serif !important;
+    text-align: center;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    touch-action: manipulation;
+  }
+  #screen-room.sf113-room #mTabs > button[data-t].on {
+    border-color: var(--sf88-primary, #bf63df) !important;
+    background: color-mix(in srgb, var(--sf88-primary, #9e4bc4) 25%, #23172d) !important;
+    color: #fff !important;
+    box-shadow: inset 0 2px 0 var(--sf88-primary, #d369ec) !important;
+  }
+  #screen-room.sf113-room #mTabs > .sf34-add-mobile {
+    display: flex !important;
+    flex: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 45px !important;
+    height: auto !important;
+    padding: 7px 4px !important;
+    gap: 3px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid #c4ff00 !important;
+    border-radius: 11px !important;
+    background: #c4ff00 !important;
+    color: #14140a !important;
+    font: 900 clamp(11px,2.8vw,13px)/1.1 Inter,system-ui,sans-serif !important;
+    white-space: nowrap !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    cursor: pointer !important;
+    box-shadow: 0 0 13px #c4ff003d !important;
+    touch-action: manipulation;
+  }
+  #screen-room.sf113-room #mTabs > .sf34-add-mobile span { color: inherit !important; }
+  #screen-room.sf113-room #mTabs > .sf34-add-mobile:disabled {
+    opacity: .44 !important;
+    cursor: not-allowed !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf128-add-panel #sf113AddMusic {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 51px !important;
+    width: 100% !important;
+    background: #c4ff00 !important;
+    border-color: #c4ff00 !important;
+    color: #14140a !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 14px #c4ff0026 !important;
+  }
+  #screen-room.sf113-room #roomLayout .sf128-queue-tracks {
+    min-height: 180px !important;
+  }
+
+  /* Teclado aberto: libera espaço ao chat e deixa o campo de mensagem visível. */
+  body.sf93-keyboard-open #screen-room.sf113-room #mTabs.mtabs {
+    display: none !important;
+  }
+  body.sf93-keyboard-open #screen-room.sf113-room > .app {
+    padding-bottom: 0 !important;
+  }
+  body.sf93-keyboard-open[data-tab="chat"] #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column.sf34-chat {
+    height: max(205px, calc(var(--sf93-visible-height,100dvh) - 116px)) !important;
+    max-height: max(205px, calc(var(--sf93-visible-height,100dvh) - 116px)) !important;
+  }
+}
+@media (max-width: 360px) {
+  #screen-room.sf113-room #mTabs.mtabs {
+    gap: 3px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+  }
+  #screen-room.sf113-room #mTabs > button[data-t] { font-size: 10px !important; }
+  #screen-room.sf113-room #mTabs > .sf34-add-mobile { font-size: 10px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #screen-room.sf113-room #mTabs *,
+  #screen-room.sf113-room #roomLayout .sf5-bottom-row > .chat-column {
+    animation: none !important;
+    transition: none !important;
+  }
+}
