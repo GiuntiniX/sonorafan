@@ -96,6 +96,8 @@
      if(check)check.textContent=chosen?'✓':'';
    });
    const selected=find(modalChoice);
+   const overlay=$('sf88ThemeOverlay');
+   if(overlay)overlay.dataset.sf143Preview=selected.id;
    const art=$('sf88ThemePreviewArt');
    if(art&&art.getAttribute('src')!==selected.art)art.src=selected.art;
    const text=$('sf88ThemePreviewCopy');
@@ -147,13 +149,14 @@
    const target=$(id);
    if(!target)return;
    const theme=find(type==='create'?createChoice:editChoice);
+   target.dataset.sf143Theme=theme.id;
    target.replaceChildren();
    const title=document.createElement('div');title.className='sf88-mini-head';
    title.textContent='🎨 Tema visual da sala';
    const row=document.createElement('div');row.className='sf88-mini';
    const picture=document.createElement('img');picture.src=theme.art;picture.alt='';picture.loading='lazy';
    const data=document.createElement('div');const name=document.createElement('strong');name.textContent=theme.name;
-   const detail=document.createElement('small');detail.textContent='Imagens e cores do chat, player e fila';
+   const detail=document.createElement('small');detail.textContent=theme.description;
    data.append(name,detail);
    const choose=document.createElement('button');choose.type='button';
    choose.textContent='Escolher tema';choose.addEventListener('click',()=>open(type));
