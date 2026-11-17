@@ -1524,6 +1524,23 @@ io.on('connection', (socket) => {
     } catch (e) { console.error('Erro ao configurar rádio:', e.message); }
   });
 
+  // Permissões individualizadas: o navegador só recebe o estado de acesso da sessão.
+  // A validação real continua no handler addSong; não confiamos no botão desativado.
+  socket.on('getPlaylistPermission', (_input = {}, acknowledge) => {
+    if (typeof acknowledge !== 'function') return;
+    const room = currentRoom && rooms.get(currentRoom);
+    if (!room) return acknowledge({ joined: false, canAdd: false, ownerOnly: false });
+    const ownerOnly = room.addMode === 'owner' || room.musicMode === 'owner';
+    const isOwner = room.ownerEmail
+      ? !!socket.userEmail && room.ownerEmail === socket.userEmail
+      : !!socket.isAdmin;
+    acknowledge({
+      joined: true, slug: room.slug, ownerOnly,
+      canAdd: !ownerOnly || isOwner,
+      mode: ownerOnly ? 'owner' : 'collaborative'
+    });
+  });
+
   socket.on('addSong', (song, acknowledge) => {
     const reply = (ok, details = {}) => {
       if(ok)musicOps.queueAccepted++;else musicOps.queueRejected++;
