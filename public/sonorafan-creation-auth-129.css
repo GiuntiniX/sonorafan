@@ -257,3 +257,10 @@
  #createRoomModal .sf129-mode-card,
  #loginScreen.sf123-login-screen *{transition:none!important;animation:none!important}
 }
+
+/* Em playlist exclusiva a audiência acompanha, mas não vota para retirar faixas. */
+#screen-room.sf113-room.sf129-owner-mode .sf128-queue-tracks .queue-votes,
+#screen-room.sf113-room.sf129-owner-mode .sf128-queue-tracks .sf52-vote-controls,
+#screen-room.sf113-room.sf129-guest-locked #skipBtn{
+ display:none!important;
+}
