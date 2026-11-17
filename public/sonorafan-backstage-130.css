@@ -30,6 +30,10 @@
  border:1.5px solid #d34aab!important;border-radius:25px!important;
  box-shadow:0 22px 85px #000f,0 0 0 1px #f256c61c,0 0 52px #ec28ac22!important;
  position:relative!important;isolation:isolate!important;
+ /* O slideUp legado usa translateY e scale com overshoot; ele deslocava o CTA
+    alguns pixels para fora da área útil em tablets e alturas pequenas. */
+ animation:none!important;transform:none!important;
+ box-sizing:border-box!important;
 }
 #createRoomModal.sf130-backstage-overlay .sf35-create-modal.sf130-backstage-modal::before{
  content:'';position:absolute;inset:0;pointer-events:none;z-index:6;border-radius:24px;
@@ -42,6 +46,7 @@
  radial-gradient(ellipse at 45% -18%,#741f7445,transparent 42%),
  linear-gradient(180deg,#1a1120 0%,#100c14 44%,#0f0b12 100%)!important;
  border-left:1px solid #813b79;border-right:1px solid #813b79;
+ max-height:100%!important;box-sizing:border-box!important;
 }
 
 /* Uma capa de festival de cada lado, sem menus ou controles duplicados. */
