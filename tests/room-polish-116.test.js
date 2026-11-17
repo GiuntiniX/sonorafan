@@ -16,7 +16,7 @@ test('v133 room keeps the functional menu and moves favorites into the unified m
   }
   assert.match(room,/id="sf116Favorites"[^>]*hidden/);
   assert.match(room,/id="sf113AddMusic"[^>]*aria-haspopup="dialog"/);
-  assert.match(room,/id="sf116MoreButton"[^>]*☰/);
+  assert.match(room,/id="sf116MoreButton"[^>]*>\\s*<span[^>]*>☰/);
   assert.match(room,/id="sf116MoreButton"[^>]*aria-expanded="false"/);
   assert.match(room,/id="sf116MorePanel"[^>]*role="menu"[^>]*hidden/);
   assert.doesNotMatch(room,/<details class="sf113-menu"/);
