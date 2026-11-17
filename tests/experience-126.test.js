@@ -19,9 +19,9 @@ test('v126 scripts/styles are loaded in production order, and scripts parse',()=
  assert.doesNotThrow(()=>new vm.Script(v126));
  assert.doesNotThrow(()=>new vm.Script(v125));
 });
-test('default logo remains unchanged and no fake rooms, followers, clubs or XP enter production',()=>{
- assert.match(html,/src="\/brand-64\/sonorafan-logo-transparent\.png"/);
- assert.match(v125,/\/brand-64\/sonorafan-logo-transparent\.png/);
+test('approved SonoraFan logo is consistent and no fake rooms, followers, clubs or XP enter production',()=>{
+ assert.match(html,/src="\/brand-144\/sonorafan-logo\.svg"/);
+ assert.match(v125,/\/brand-144\/sonorafan-logo\.svg/);
  assert.match(v126,/window\.sf71LoadFanClubs/);
  assert.match(v126,/window\.sf71OpenFanClub/);
  assert.doesNotMatch(v126,/const (?:clubs|roomList|users)\s*=\s*\[\s*\{.*?(?:members|listenerCount|xp)/s);

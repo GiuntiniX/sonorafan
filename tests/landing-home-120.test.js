@@ -43,7 +43,7 @@ test('preview clearly marked as mockup; scalable concert art and original brand 
  assert.match(landing,/Prévia ilustrativa/);
  assert.match(landing,/sf121-room-preview/);
  assert.match(landing,/src="\/art-129\/sonorafan-stage\.svg"/);
- assert.match(landing,/src="\/brand-64\/sonorafan-logo-transparent.png"/);
+ assert.match(landing,/src="\/brand-144\/sonorafan-logo\.svg"/);
  assert.match(landing,/src="\/avatars-108\/rock.svg"/);
  assert.match(landing,/src="\/art-129\/sonorafan-mic-stage\.svg"/);
  assert.match(landing,/src="\/art-129\/sonorafan-headphones\.svg"/);

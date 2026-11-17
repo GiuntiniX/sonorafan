@@ -463,7 +463,7 @@
     host.prepend(main);
     const top=document.createElement('header');top.className='sf107-top';
     top.innerHTML=`
-      <img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="205" height="63" class="sf107-logo">
+      <img src="/brand-144/sonorafan-logo.svg" alt="SonoraFan" width="1260" height="426" class="sf107-logo">
       <nav aria-label="Navegação do lobby">
         <button type="button" class="active" data-sf107="top">⌂ Lobby</button>
         <button type="button" data-sf107="scroll">♫ Salas</button>

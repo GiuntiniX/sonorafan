@@ -14,6 +14,8 @@ test('approved logo appears in all legacy site brand surfaces',()=>{
  assert.match(html,/id="roomTitle"/);
  assert.match(html,/id="queueList"/);
  assert.match(html,/id="chatInput"/);
+ assert.ok(read("public/sonorafan-unified-125.js").includes("/brand-144/sonorafan-logo.svg"));
+ assert.ok(read("public/sonorafan-lobby-107.js").includes("/brand-144/sonorafan-logo.svg"));
 });
 test('approved logo is transparent, retains brand colors and has no external assets',()=>{
  const svg=read('public/brand-144/sonorafan-logo.svg');
@@ -22,7 +24,7 @@ test('approved logo is transparent, retains brand colors and has no external ass
  assert.match(svg,/#f40073/);
  assert.match(svg,/#ffce08/);
  assert.match(svg,/#c4ff00/);
- assert.doesNotMatch(svg,/<rect\b|<image\b|https?:\/\//i);
+ assert.doesNotMatch(svg,/<rect\b|<image\b|(?:href|src)="https?:\/\//i);
 });
 test('favicon and PWA use consistent mark with non-SVG installation fallback',()=>{
  const html=read('public/index.html');

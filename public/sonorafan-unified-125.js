@@ -55,7 +55,7 @@
     const sidebar=document.createElement('aside');
     sidebar.id='sf125Sidebar';sidebar.className='sf125-sidebar';
     sidebar.setAttribute('aria-label','Navegação principal');
-    sidebar.innerHTML='<div class="sf125-sidebar-brand"><img src="/brand-64/sonorafan-logo-transparent.png" alt="SonoraFan" width="214" height="66" decoding="async"></div>'+
+    sidebar.innerHTML='<div class="sf125-sidebar-brand"><img src="/brand-144/sonorafan-logo.svg" alt="SonoraFan" width="1260" height="426" decoding="async"></div>'+
       '<nav class="sf125-side-nav" aria-label="Áreas da plataforma">'+nav.map(x=>navButton(x,true)).join('')+'</nav>'+
       '<div class="sf125-sidebar-separator"></div><span class="sf125-sidebar-caption">Criar</span>'+
       '<nav class="sf125-side-nav sf125-side-secondary" aria-label="Criar salas e Fan Clubs">'+

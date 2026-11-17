@@ -12,10 +12,10 @@ const start=html.indexOf('<!-- ===== SONORAFAN 123 • LOGIN');
 const end=html.indexOf('<!-- ===== SONORAFAN 12 ADMIN CONTROL CENTER',start);
 const form=html.slice(start,end);
 
-test('login and registration reproduce the approved mockups with the existing logo',()=>{
+test('login and registration reproduce the approved mockups with the approved v144 logo',()=>{
  assert.ok(start>=0&&end>start,'auth screens missing');
  assert.match(html,/sonorafan-auth-123\.css\?v=123/);
- assert.equal((form.match(/src="\/brand-64\/sonorafan-logo-transparent\.png"/g)||[]).length,2);
+ assert.equal((form.match(/src="\/brand-144\/sonorafan-logo\.svg"/g)||[]).length,2);
  assert.match(form,/class="sf123-login-layout"/);
  assert.match(form,/class="sf123-login-art"/);
  assert.match(form,/class="modal sf26-signup-shell sf123-signup-layout"/);
