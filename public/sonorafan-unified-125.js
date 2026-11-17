@@ -230,12 +230,14 @@
       return Boolean(qs('.sf110-community-shell',layer));
     }
     ensureCommunityRail();
-    // Native community is constructed on demand; wait for it and attach once.
-    if(typeof MutationObserver==='function'){
-      const observer=new MutationObserver(()=>{
-        if(ensureCommunityRail())observer.disconnect();
-      });
-      observer.observe(document.body,{childList:true,subtree:true});
+    // Native community is constructed on demand: hook its existing open handlers.
+    // Avoid a permanent body-wide MutationObserver while rooms or chat update.
+    for(const name of ['sf110OpenCommunity','sf5OpenCommunity']){
+      const previous=window[name];
+      if(typeof previous!=='function'||previous.sf125Wrapped)continue;
+      const wrapped=function(){const result=previous.apply(this,arguments);ensureCommunityRail();return result;};
+      wrapped.sf125Wrapped=true;
+      window[name]=wrapped;
     }
   }
   function init(){
