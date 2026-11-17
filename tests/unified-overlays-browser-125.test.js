@@ -27,7 +27,7 @@ function fixture(){
   'window.sf110OpenCommunity=()=>{};',
   '</script>'].join('\n');
  const check=['<script>',
-  'window.addEventListener("load",()=>setTimeout(()=>{',
+  'setTimeout(()=>{',
   'const $=s=>document.querySelector(s);',
   'const profile=$("#sf43ProfileModal");profile.classList.add("active");',
   'const rank=$("#lbModal"),prail=$("#sf43ProfileModal .sf125-modal-rail"),',
@@ -47,7 +47,7 @@ function fixture(){
   ':metrics.modalRailVisible&&metrics.profilePadding>=190&&metrics.rankPadding>=190&&metrics.communityPadding>=190);',
   'const out=document.createElement("output");out.id="sf125Overlays";out.dataset.sf125Status=pass?"ok":"fail";',
   'out.textContent=JSON.stringify(metrics);document.body.append(out);',
-  '},260));',
+  '},650);',
   '</script>'].join('\n');
  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+inline+styles+
    '</head><body>'+profile+ranking+community+boot+
