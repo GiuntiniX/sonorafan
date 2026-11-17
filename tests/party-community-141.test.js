@@ -49,9 +49,9 @@ test('existing studio hosts party and admin-only conflict diagnostic',()=>{
  assert.match(studio,/sf141:partyState/);
  assert.match(studio,/state\.qualityAllowed&&!state\.loading&&!state\.qualityDenied/);
  assert.match(studio,/function inspectConflicts\(\)[\s\S]*?duplicate-id/);
- assert.match(html,/sonorafan-studio-100\.js\?v=141\.0/);
- assert.match(html,/sonorafan-community-71\.js\?v=141\.0/);
- assert.match(html,/sonorafan-community-110\.js\?v=141\.0/);
+ assert.match(html,/sonorafan-studio-100\.js\?v=142\.0/);
+ assert.match(html,/sonorafan-community-71\.js\?v=142\.0/);
+ assert.match(html,/sonorafan-community-110\.js\?v=142\.0/);
  assert.doesNotMatch(html,/Interface mobile v137\.1/);
 });
 test('community retains fresh data while returning to dashboard',()=>{
