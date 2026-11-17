@@ -35,6 +35,13 @@
         </div>
         <div class="sf76-content" id="sf76MusicContent">
           <section id="sf76SearchPane" role="tabpanel" aria-label="Buscar música">
+            <div class="sf138-mobile-search" id="sf138MobileSearch" role="search">
+              <label for="sf138SearchQuery">Busque pelo nome da música ou artista</label>
+              <div class="sf138-search-row">
+                <input type="search" id="sf138SearchQuery" placeholder="Ex.: Metallica, K-pop, sua música..." autocomplete="off" enterkeyhint="search" spellcheck="false" aria-controls="sf78InlineResults">
+                <button type="button" id="sf138SearchSubmit">Buscar</button>
+              </div>
+            </div>
             <div id="sf76RequestHost"></div>
             <p class="sf76-tip">Encontre sua música e escolha um resultado para adicionar à fila colaborativa.</p>
             <div id="sf76InlineResultsHost" class="sf134-inline-results" aria-label="Músicas encontradas na busca"></div>
@@ -58,6 +65,20 @@
     $('sf76FavoriteSearch').addEventListener('input',e=>{state.search=e.target.value;drawFavorites();});
     $('sf76FavoriteGenres').addEventListener('click',e=>{const btn=e.target.closest('[data-sf76-genre]');if(!btn)return;state.filter=btn.dataset.sf76Genre;drawFavorites();});
     $('sf76FavoritesList').addEventListener('click',e=>{const button=e.target.closest('[data-sf76-add]');if(!button)return;const entry=state.favorites.find(x=>x.id===button.dataset.sf76Add);if(entry)submitFavorite(entry);});
+    const runMobileSearch=(immediate=false)=>{
+      const query=String($('sf138SearchQuery')?.value||'').trim();
+      if(query.length<2){status('Digite pelo menos duas letras para buscar.',true);return;}
+      // A busca rápida oficial já exibe os resultados no sf76InlineResultsHost.
+      // Não abre o modal antigo sf77 nem move o formulário do desktop.
+      if($('songUrl'))$('songUrl').value=query;
+      if(typeof window.sf78SearchFromField==='function')window.sf78SearchFromField(query,immediate);
+      else status('A busca está indisponível. Atualize a página.',true);
+    };
+    $('sf138SearchQuery').addEventListener('input',()=>runMobileSearch(false));
+    $('sf138SearchQuery').addEventListener('keydown',e=>{
+      if(e.key==='Enter'){e.preventDefault();e.stopPropagation();runMobileSearch(true);}
+    });
+    $('sf138SearchSubmit').addEventListener('click',()=>runMobileSearch(true));
     document.addEventListener('keydown',e=>{
       if(layer.hidden)return;
       if(e.key==='Escape'){e.preventDefault();close();return;}
@@ -116,7 +137,15 @@
     buildSheet();
     state.lastFocus=document.activeElement;
     const layer=$('sf76MusicSheet');
-    takeRequestCard();
+    if(!layer.hidden){
+      switchTab(tab);
+      return; // impedimos que o mesmo toque reinicialize a janela.
+    }
+    if(smallScreen()){
+      // No celular o campo de busca tem DOM próprio. O cartão sf10 ficava
+      // invisível ou era movido por outros controladores de modal.
+      restoreRequestCard();
+    } else takeRequestCard();
     layer.hidden=false;
     document.body.classList.add('sf76-sheet-active');
     layer.classList.toggle('sf133-owner-locked',$('screen-room')?.classList.contains('sf129-guest-locked'));
@@ -148,7 +177,10 @@
       window.sf78CloseInline?.();
       loadFavorites();
     } else {
-      requestAnimationFrame(()=>$('songUrl')?.focus({preventScroll:true}));
+      requestAnimationFrame(()=>{
+        const target=smallScreen() ? $('sf138SearchQuery') : $('songUrl');
+        target?.focus({preventScroll:true});
+      });
     }
     const locked=$('screen-room')?.classList.contains('sf129-guest-locked');
     const submit=$('addBtn');if(submit)submit.disabled=!!locked;
