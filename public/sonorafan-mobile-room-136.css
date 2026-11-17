@@ -247,3 +247,15 @@
   #screen-room.sf113-room #sf136MobileWelcome,
   #screen-room.sf113-room #mTabs * {transition:none!important;animation:none!important}
 }
+
+
+/* v139 — evita overflow horizontal e preserva alvos durante rotação de tela. */
+@media(max-width:768px){
+ #screen-room.sf113-room > .app > #mTabs.mtabs{touch-action:manipulation}
+ #screen-room.sf113-room > .app > #mTabs.mtabs > button:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+ #screen-room.sf113-room #roomLayout{min-width:0;overscroll-behavior:contain}
+ .sf76-sheet:not([hidden]) .sf76-panel{max-height:calc(100dvh - env(safe-area-inset-top,0px) - 8px)}
+}
+@media(min-width:769px) and (max-width:1024px){
+ #sf88ThemeOverlay .sf88-modal{max-width:min(94vw,900px)}
+}
