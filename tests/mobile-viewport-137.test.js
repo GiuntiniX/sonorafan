@@ -59,7 +59,7 @@ function simulateViewport(visualHeight){
  const context={
   document:{documentElement:docRoot,body,
     getElementById:id=>elements[id]||null,
-    querySelector:()=>null},
+    querySelector:()=>null,addEventListener:()=>{},hidden:false},
   window:{
     innerHeight:820,innerWidth:390,
     visualViewport:{height:visualHeight,addEventListener:()=>{}},
