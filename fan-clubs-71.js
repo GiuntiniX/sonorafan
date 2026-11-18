@@ -231,13 +231,19 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.post('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
-      await db.runTransaction(async tx=>{
+      const newlyJoined=await db.runTransaction(async tx=>{
         const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();if(unique(data.blockedIds).includes(me.id))throwHttp(403,'A participação nesta comunidade está restrita.');
-        const members=unique(data.memberIds);if(members.includes(me.id))return;
+        const members=unique(data.memberIds);if(members.includes(me.id))return false;
         if(members.length>=300)throwHttp(409,'Esta comunidade atingiu o limite atual de membros.');
         tx.update(ref,{memberIds:[...members,me.id],updatedAt:Date.now()});
-      });publish(req.params.id,'members');res.json({joined:true});
+        return true;
+      });
+      if(newlyJoined && gamification45?.award) {
+        try{await gamification45.award(me.email,'club',req.params.id);}
+        catch(e){console.warn('[Fan Clubs] progress:',e?.message);}
+      }
+      publish(req.params.id,'members');res.json({joined:true});
     }catch(e){error(res,e);}
   });
   app.delete('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
