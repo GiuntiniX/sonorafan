@@ -3,7 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id), panel=$('sfFanClubsPanel');if(!panel)return;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,onlyMusic:false,feedFilter:'all',feedSearch:'',posts:[],activePane:'mural',polls:[],tracks:[],contributors:[],reports:[],commentsOpen:null};
+ const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],activePane:'mural',polls:[],contributors:[],reports:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
  const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
  const byId=id=>state.clubs.find(c=>c.id===id);
@@ -177,15 +177,10 @@
    const blocked=(d.club.blockedMembers||[]).map(m=>`<div class="sf71-member"><span>⛔</span><strong>${esc(m.name)}</strong><button type="button" data-sf71-unblock="${esc(m.id)}">Desbloquear</button></div>`).join('');
    return `<details class="sf71-members"><summary>Participantes (${d.club.memberCount})</summary><div class="sf71-members-list">${members}${blocked}</div></details>`;
  }
- function musicCard(p){
- const id=p.musicVideoId;if(!id||!/^[A-Za-z0-9_-]{11}$/.test(id))return '';
- return `<div class="sf160-music-card"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/mqdefault.jpg"><div><strong>♫ Música compartilhada</strong><a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">Ouvir no YouTube ↗</a></div></div>`;
- }
- function postHtml(p){const mix=String(p.text||'').match(/[?&]mix=([a-f0-9-]{36})/i);
+ function postHtml(p){
  return `<article class="sf71-post ${p.pinned?'sf151-pinned':''}" data-sf71-post="${esc(p.id)}">
  ${p.pinned?'<span class="sf151-pin-label">📌 Publicação fixada</span>':''}
- <div class="sf71-post-head"><strong>♫ ${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(p.text)}</p>${musicCard(p)}
- ${mix?`<button type="button" data-sf71-mix="${esc(mix[1])}">♫ Abrir mixtape compartilhada</button>`:''}
+ <div class="sf71-post-head"><strong>♫ ${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(p.text)}</p>
  <div class="sf151-post-actions"><button type="button" data-sf151-like="${esc(p.id)}" aria-pressed="${!!p.liked}">♡ ${Math.max(0,Number(p.likeCount)||0)} curtidas</button>
  <button type="button" data-sf160-comments="${esc(p.id)}" aria-expanded="${state.commentsOpen===p.id}">💬 Comentários</button>
  <button type="button" data-sf160-report="${esc(p.id)}">⚑ Denunciar</button>
@@ -198,7 +193,6 @@
  const box=$('sf71Posts');if(!box)return;
  const q=state.feedSearch.toLocaleLowerCase('pt-BR');
  let posts=state.posts.filter(p=>!q||[p.text,p.authorName].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q)));
- if(state.feedFilter==='music'||state.onlyMusic)posts=posts.filter(p=>p.musicVideoId||/[?&]mix=/.test(String(p.text||'')));
  if(state.feedFilter==='pinned')posts=posts.filter(p=>p.pinned);
  if(state.feedFilter==='popular')posts=[...posts].sort((a,b)=>(b.likeCount||0)-(a.likeCount||0));
  box.innerHTML=posts.length?posts.map(postHtml).join(''):'<p class="sf71-empty">Nenhuma publicação neste filtro.</p>';
@@ -214,17 +208,15 @@
  async function loadExtras(id){
  try{
  const prefix='/api/fan-clubs/'+encodeURIComponent(id);
- const [p,m,contributors,reports]=await Promise.all([api(prefix+'/polls'),api(prefix+'/music'),api(prefix+'/contributors'),
+ const [p,contributors,reports]=await Promise.all([api(prefix+'/polls'),api(prefix+'/contributors'),
  state.detail?.club?.canDelete?api(prefix+'/reports'):Promise.resolve({reports:[]})]);
- if(state.activeId!==id)return;state.polls=p.polls||[];state.tracks=m.tracks||[];
+ if(state.activeId!==id)return;state.polls=p.polls||[];
  state.contributors=contributors.ranking||[];state.reports=reports.reports||[];renderExtras();
- }catch(e){if(state.activeId===id&&$('sf160Extras'))$('sf160Extras').textContent='Não foi possível carregar as enquetes e músicas.';}
+ }catch(e){if(state.activeId===id&&$('sf160Extras'))$('sf160Extras').textContent='Não foi possível carregar as informações da comunidade.';}
  }
  function renderExtras(){
  const el=$('sf160Extras');if(!el)return;const c=state.detail?.club;
- if(state.activePane==='music'){
- el.innerHTML=`<section class="sf160-extra-panel"><h4>♫ Mais compartilhadas</h4><p>Recomendações reais do mural.</p><div class="sf160-music-grid">${state.tracks.length?state.tracks.map((t,i)=>`<a class="sf160-track" href="https://www.youtube.com/watch?v=${t.videoId}" target="_blank" rel="noopener noreferrer"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${t.videoId}/mqdefault.jpg"><span><strong>#${i+1} · ${t.shares} compartilhamentos</strong><small>${t.likes} curtidas · Ouvir ↗</small></span></a>`).join(''):'<p>Nenhuma música compartilhada ainda.</p>'}</div></section>`;
- }else if(state.activePane==='polls'){
+ if(state.activePane==='polls'){
  el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>🗳 Enquetes</h4>${c?.canDelete?'<button type="button" data-sf160-create-poll>＋ Criar</button>':''}</div>${state.polls.length?state.polls.map(p=>`<article class="sf160-poll"><strong>${esc(p.question)}</strong><div class="sf160-poll-options">${p.options.map((v,i)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${i}" ${p.voted?'disabled':''}>${esc(v)} <small>${p.counts[i]||0} votos</small></button>`).join('')}</div>${p.voted?'<small>Voto registrado</small>':''}${p.canDelete?`<button type="button" data-sf160-delete-poll="${esc(p.id)}">Excluir enquete</button>`:''}</article>`).join(''):'<p>Sem enquetes por enquanto.</p>'}</section>`;
  }else if(state.activePane==='events'){el.innerHTML='<section class="sf160-extra-panel"><h4>📅 Programação</h4><p>Veja as sessões da comunidade na coluna lateral.</p><button type="button" data-sf71-events>Ver agenda</button></section>';}
  else if(state.activePane==='members'){
@@ -251,13 +243,13 @@
        <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} ${c.coverVersion?'sf73-with-cover':''}">${imageCover(c)}<div class="sf71-detail-symbol" aria-hidden="true">♫</div><div class="sf73-hero-info"><span>FAN CLUB NÃO OFICIAL</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${c.memberCount} participantes</p></div></div>
        <p class="sf71-detail-desc">${esc(c.description||'Um lugar para reunir fãs, músicas e boas conversas.')}</p>
        ${c.rules?`<details class="sf71-rule sf160-rules"><summary>📋 Regras da comunidade</summary><p>${esc(c.rules)}</p></details>`:''}
-       <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['mural','Mural'],['music','Músicas'],['polls','Enquetes'],['events','Eventos'],['members','Membros']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='mural'}">${label}</button>`).join('')}</nav>
+       <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['mural','Mural'],['polls','Enquetes'],['events','Eventos'],['members','Membros']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='mural'}">${label}</button>`).join('')}</nav>
         <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
          <button type="button" data-sf71-events>📅 Ver eventos</button>
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 ${c.coverVersion?'Trocar':'Adicionar'} capa</button>${c.coverVersion?'<button type="button" data-sf73-remove-cover>Remover capa</button>':''}<input id="sf73DetailCover" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher imagem de capa" hidden>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Conversa da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
-         ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><button type="button" data-sf140-share-song>♫ Compartilhar música da sala</button><small>Revise a mensagem antes de publicar</small></div><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Compartilhe uma música, uma descoberta ou um assunto sobre o artista…" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="music">Recomendações musicais</option><option value="pinned">Fixados</option><option value="popular">Mais curtidos</option></select></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
+         ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="pinned">Fixados</option><option value="popular">Mais curtidos</option></select></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </div><div id="sf160Extras" aria-live="polite"></div></section><aside class="sf71-room-list"><div class="sf71-rooms-head"><h4>Salas do Fan Club</h4>${c.owner?'<button type="button" data-sf71-addroom>＋ Vincular sala</button>':''}</div>
          <div>${c.rooms?.length?c.rooms.map(r=>roomHtml(r,c.owner)).join(''):'<p class="sf71-empty">Nenhuma sala vinculada ainda.</p>'}</div>
          <div class="sf71-club-events"><h4>Programação do Fan Club</h4>
@@ -326,14 +318,6 @@
  if(!confirm('Excluir enquete?'))return;
  await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/polls/'+encodeURIComponent(t.dataset.sf160DeletePoll),{method:'DELETE'});await loadExtras(id);},'Enquete removida.');return;
  }
-   if(t.hasAttribute('data-sf150-music-filter')){
-     state.onlyMusic=!state.onlyMusic;await loadPosts(id);return;
-   }
-   if(t.hasAttribute('data-sf71-mix')){
-     const mixId=t.dataset.sf71Mix;
-     document.querySelector('.sf5-community-layer .sf5-close')?.click();
-     window.sf100OpenMixtape?.(mixId);return;
-   }
    if(t.hasAttribute('data-sf75-delete-club')){
      const club=state.detail?.club;
      if(!club?.canDelete)return;
@@ -382,24 +366,6 @@
      return;
    }
    if(t.hasAttribute('data-sf71-events')){window.sfSocialSwitchTab?.('events');return;}
-   if(t.hasAttribute('data-sf140-share-song')){
-     const room=typeof currentRoomData!=='undefined'?currentRoomData:null;
-     const track=room?.queue?.[Math.max(0,Number(room.currentIndex)||0)];
-     const field=$('sf71PostText');
-     if(!field)return;
-     if(!track||!/^[A-Za-z0-9_-]{11}$/.test(String(track.id||''))){
-       status('Entre em uma sala com uma música tocando para compartilhar.',true);return;
-     }
-     const snippet='♫ Estou ouvindo: '+String(track.title||'Música').slice(0,100)+
-       ' — '+String(track.artist||'Artista').slice(0,70)+
-       '\nhttps://www.youtube.com/watch?v='+track.id;
-     field.value=(field.value.trim()?field.value.trim()+'\n\n':'')+snippet;
-     field.value=field.value.slice(0,600);
-     field.focus({preventScroll:true});
-     field.scrollIntoView({block:'nearest',behavior:'smooth'});
-     status('Música inserida. Revise e publique no mural quando quiser.');
-     return;
-   }
    if(t.hasAttribute('data-sf151-like')){
      const postId=t.dataset.sf151Like;
      await action(async()=>{
@@ -460,7 +426,7 @@
      catch(err){status(err.message,true);}finally{submit.disabled=false;}
    });
    $('sf71ClubDetail')?.addEventListener('input',e=>{if(e.target.id==='sf160FeedSearch'){state.feedSearch=e.target.value.trim();renderFeed();}});
-   $('sf71ClubDetail')?.addEventListener('change',e=>{if(e.target.id==='sf160FeedFilter'){state.feedFilter=e.target.value;state.onlyMusic=false;renderFeed();}});
+   $('sf71ClubDetail')?.addEventListener('change',e=>{if(e.target.id==='sf160FeedFilter'){state.feedFilter=e.target.value;renderFeed();}});
    window.sf71LoadFanClubs=()=>{showList();loadClubs();};
    window.sf71OpenFanClub=id=>{if(/^[a-f0-9-]{36}$/.test(String(id||'')))openDetail(id);};
    window.sf71StopLive=stopLive;
