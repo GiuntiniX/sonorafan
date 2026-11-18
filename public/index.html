@@ -1472,6 +1472,7 @@
   <link rel="stylesheet" href="/sonorafan-theme-gallery-162.css?v=163.0">
   <link rel="stylesheet" href="/sonorafan-theme-button-166.css?v=166.0">
   <link rel="stylesheet" href="/sonorafan-ranking-60.css?v=600.0">
+  <link rel="stylesheet" href="/admin-control-13.css?v=13.0">
 </head>
 <body>
 
@@ -1737,6 +1738,10 @@
           <button type="button" data-sf12-nav="users">♙ <span>Usuários</span></button>
           <button type="button" data-sf12-nav="rooms">◉ <span>Salas</span></button>
           <button type="button" data-sf12-nav="queues">♫ <span>Filas musicais</span></button>
+          <button type="button" data-sf12-nav="reports">⚑ <span>Denúncias</span></button>
+          <button type="button" data-sf12-nav="music">♫ <span>Música & Insights</span></button>
+          <button type="button" data-sf12-nav="system">◈ <span>Saúde do sistema</span></button>
+          <button type="button" data-sf12-nav="insights">✧ <span>Alertas</span></button>
           <button type="button" data-sf12-nav="moderation">⬡ <span>Moderação</span></button>
           <button type="button" data-sf12-nav="audit">▤ <span>Auditoria</span></button>
           <button type="button" data-sf12-nav="settings">⚙ <span>Operação</span></button>
@@ -1749,6 +1754,15 @@
           <p id="sf12AdminNotice" class="sf12-admin-notice" role="status" aria-live="polite"></p>
           <section class="sf12-admin-view active" data-sf12-view="overview">
             <div class="sf12-metrics" id="sf12Metrics" aria-label="Indicadores da plataforma"><p>Carregando indicadores...</p></div>
+            <div class="sf13-top-grid">
+              <div class="sf12-card sf13-chart-card">
+                <div class="sf12-card-head"><div><span class="sf13-card-kicker">ENGAJAMENTO AO VIVO</span><h3>Audiência da sala — amostras desta sessão</h3><p>Ouvintes nas salas, coletados somente enquanto este painel está aberto.</p></div><div class="sf13-periods" role="group" aria-label="Janela de amostras"><button type="button" data-sf13-period="30" aria-pressed="false">30 min</button><button type="button" data-sf13-period="60" aria-pressed="true">1 hora</button><button type="button" data-sf13-period="120" aria-pressed="false">2 horas</button></div></div>
+                <div id="sf13OverviewChart" aria-live="polite"><div class="sf13-skeleton-empty">Aguardando dados reais...</div></div><div class="sf13-inline-meta"><span class="sf13-live-marker">Atualização a cada 30 segundos</span><span id="sf13SampleCount">0 amostras</span></div>
+              </div>
+              <div class="sf12-card"><span class="sf13-card-kicker">MONITORAMENTO OPERACIONAL</span><h3>Estado atual</h3><div class="sf13-op-list" id="sf13Operations"><div class="sf13-skeleton-empty">Carregando...</div></div><div class="sf13-inline-meta" style="margin-top:12px"><span>Conexões: <strong id="sf13CurrentUsers">—</strong></span><span>Salas ocupadas: <strong id="sf13CurrentRooms">—</strong></span></div></div>
+            </div>
+            <div class="sf12-card"><div class="sf12-card-head"><div><h3>Salas populares agora</h3><p>Ordenadas pelo número atual de ouvintes, não por dados históricos.</p></div><button type="button" data-sf12-goto="rooms">Administrar salas</button></div><div id="sf13TopRooms" class="sf12-stack"></div></div>
+
             <div class="sf12-grid-two">
               <div class="sf12-card"><div class="sf12-card-head"><div><h3>Salas em atividade</h3><p>Panorama da comunidade neste momento</p></div><button type="button" data-sf12-goto="rooms">Ver salas →</button></div><div id="sf12LiveRooms" class="sf12-stack"></div></div>
               <div class="sf12-card"><div class="sf12-card-head"><div><h3>Atividade administrativa</h3><p>Últimas ações registradas</p></div><button type="button" data-sf12-goto="audit">Auditoria →</button></div><div id="sf12RecentAudit" class="sf12-stack"></div></div>
@@ -1759,6 +1773,27 @@
           <section class="sf12-admin-view" data-sf12-view="rooms"><div class="sf12-toolbar"><label><span>Buscar sala</span><input id="sf12RoomSearch" type="search" placeholder="Nome, slug ou responsável..."></label><label><span>Visualizar</span><select id="sf12RoomStatus"><option value="all">Todas</option><option value="occupied">Com ouvintes</option><option value="private">Privadas</option><option value="locked">Chat travado</option></select></label><button type="button" id="sf12RefreshRooms">↻ Atualizar</button></div><div id="sf12RoomsTable" class="sf12-data-list"></div></section>
           <section class="sf12-admin-view" data-sf12-view="queues"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Filas compartilhadas</h3><p>Acompanhe a música atual e o tamanho de cada fila</p></div></div><div id="sf12QueuesList"></div></div></section>
           <section class="sf12-admin-view" data-sf12-view="moderation"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Sanções ativas</h3><p>Silenciamentos e banimentos temporários registrados</p></div></div><div id="sf12ModerationList"></div></div><div class="sf12-card sf53-admin-card"><div class="sf12-card-head"><div><h3>Denúncias do chat</h3><p>Mensagens públicas e privadas denunciadas pelos participantes.</p></div><button type="button" id="sf53RefreshReports">↻ Atualizar</button></div><div id="sf53AdminReports" aria-live="polite"></div></div></section>
+          <section class="sf12-admin-view" data-sf12-view="reports">
+            <div class="sf12-card"><div class="sf12-card-head"><div><span class="sf13-card-kicker">CENTRAL DE MODERAÇÃO</span><h3>Denúncias registradas no chat</h3><p>Consulta limitada aos 100 registros mais recentes da API. Decisões são auditadas pelo servidor.</p></div><button type="button" data-sf12-goto="reports">↻ Atualizar</button></div>
+              <div id="sf13ReportStats" class="sf13-summary-grid"></div>
+              <div class="sf13-report-filters" role="group" aria-label="Filtrar denúncias"><button type="button" data-sf13-filter="open" aria-pressed="true">Pendentes</button><button type="button" data-sf13-filter="resolved" aria-pressed="false">Resolvidas</button><button type="button" data-sf13-filter="all" aria-pressed="false">Todas</button></div>
+              <p id="sf13ReportsNotice" class="sf13-note" role="status" aria-live="polite"></p><div id="sf13ReportItems" class="sf13-results"></div>
+            </div>
+          </section>
+          <section class="sf12-admin-view" data-sf12-view="music">
+            <div class="sf13-note">Os indicadores abaixo são contadores operacionais disponíveis no servidor. Não equivalem a músicas reproduzidas historicamente nem a métricas de retenção.</div>
+            <div id="sf13MusicStats" class="sf13-summary-grid"></div>
+            <div class="sf12-card"><div class="sf12-card-head"><div><h3>Salas e atividade musical</h3><p>Filas atuais, ordenadas pelo número de faixas.</p></div><button type="button" data-sf12-goto="queues">Gerenciar filas</button></div><div id="sf13MusicRooms" class="sf12-stack"></div></div>
+          </section>
+          <section class="sf12-admin-view" data-sf12-view="system">
+            <div class="sf13-note">Verificações pontuais do processo e da sessão atual. Tempo de resposta do navegador não representa latência média global nem SLA de produção.</div>
+            <div class="sf12-card"><div class="sf12-card-head"><div><h3>Serviços e conectividade</h3><p>Leituras em tempo real dos endpoints existentes.</p></div><button type="button" data-sf12-goto="system">↻ Verificar</button></div><div class="sf13-op-list" id="sf13SystemChecks"></div><p class="sf13-note" id="sf13SystemUpdated" role="status"></p></div>
+          </section>
+          <section class="sf12-admin-view" data-sf12-view="insights">
+            <div class="sf13-note">Alertas baseados em regras simples e transparentes. Não há classificação por IA nem histórico persistente nesta versão.</div>
+            <div class="sf12-card"><div class="sf12-card-head"><div><h3>Sinais que merecem atenção</h3><p>Falhas de busca, recusas na fila e ausência de ouvintes.</p></div></div><div class="sf13-op-list" id="sf13InsightsList"></div></div>
+            <div class="sf12-card"><div class="sf12-card-head"><div><h3>Salas mais movimentadas agora</h3></div><button type="button" data-sf12-goto="rooms">Ver salas</button></div><div class="sf12-stack" id="sf13InsightsRooms"></div></div>
+          </section>
           <section class="sf12-admin-view" data-sf12-view="audit"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Histórico de ações</h3><p>Registro de operações administrativas</p></div><button type="button" id="sf12RefreshAudit">↻ Atualizar</button></div><div id="sf12AuditList"></div></div></section>
           <section class="sf12-admin-view" data-sf12-view="settings"><div class="sf12-card"><h3>Comunicação e manutenção</h3><p>Estas ações afetam a comunidade e exigem confirmação.</p><div class="sf12-settings-grid"><button type="button" data-sf12-action="broadcast">📣 Enviar comunicado</button><button type="button" data-sf12-action="export">⇩ Exportar informações</button><button type="button" data-sf12-action="clear-chats">⌫ Limpar todos os chats</button><button type="button" data-sf12-action="clear-rooms">⚠ Encerrar todas as salas criadas</button></div></div><div class="sf12-card"><h3>Política de acesso</h3><p>As APIs administrativas exigem uma sessão válida da conta <strong>admin@sonora.com</strong>. Donos de salas continuam gerenciando apenas suas próprias salas.</p></div></section>
         </div>
@@ -4790,7 +4825,8 @@ function openRoomCfg() {
   
   <script defer src="/social-stage3.js?v=139.1"></script>
   
-  <script defer src="/admin-control-12.js"></script>
+  <script defer src="/admin-control-12.js?v=13.0"></script>
+  <script defer src="/admin-control-13.js?v=13.0"></script>
   
   <script defer src="/visual-stage4.js"></script>
   <script src="/room-stage5.js"></script>
