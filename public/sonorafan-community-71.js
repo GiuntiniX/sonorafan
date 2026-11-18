@@ -3,7 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id), panel=$('sfFanClubsPanel');if(!panel)return;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,onlyMusic:false,feedFilter:'all',feedSearch:'',posts:[],activePane:'mural',polls:[],tracks:[],commentsOpen:null};
+ const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,onlyMusic:false,feedFilter:'all',feedSearch:'',posts:[],activePane:'mural',polls:[],tracks:[],contributors:[],reports:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
  const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
  const byId=id=>state.clubs.find(c=>c.id===id);
@@ -188,6 +188,7 @@
  ${mix?`<button type="button" data-sf71-mix="${esc(mix[1])}">♫ Abrir mixtape compartilhada</button>`:''}
  <div class="sf151-post-actions"><button type="button" data-sf151-like="${esc(p.id)}" aria-pressed="${!!p.liked}">♡ ${Math.max(0,Number(p.likeCount)||0)} curtidas</button>
  <button type="button" data-sf160-comments="${esc(p.id)}" aria-expanded="${state.commentsOpen===p.id}">💬 Comentários</button>
+ <button type="button" data-sf160-report="${esc(p.id)}">⚑ Denunciar</button>
  ${p.canPin?`<button type="button" data-sf151-pin="${esc(p.id)}" data-pinned="${!!p.pinned}">${p.pinned?'Desafixar':'📌 Fixar'}</button>`:''}
  ${p.editable?`<button type="button" data-sf71-delete-post="${esc(p.id)}">Excluir</button>`:''}</div>
  ${state.commentsOpen===p.id?`<section class="sf160-comments" data-comments-for="${esc(p.id)}">Carregando comentários…</section>`:''}</article>`;}
@@ -212,8 +213,11 @@
  }
  async function loadExtras(id){
  try{
- const [p,m]=await Promise.all([api('/api/fan-clubs/'+encodeURIComponent(id)+'/polls'),api('/api/fan-clubs/'+encodeURIComponent(id)+'/music')]);
- if(state.activeId!==id)return;state.polls=p.polls||[];state.tracks=m.tracks||[];renderExtras();
+ const prefix='/api/fan-clubs/'+encodeURIComponent(id);
+ const [p,m,contributors,reports]=await Promise.all([api(prefix+'/polls'),api(prefix+'/music'),api(prefix+'/contributors'),
+ state.detail?.club?.canDelete?api(prefix+'/reports'):Promise.resolve({reports:[]})]);
+ if(state.activeId!==id)return;state.polls=p.polls||[];state.tracks=m.tracks||[];
+ state.contributors=contributors.ranking||[];state.reports=reports.reports||[];renderExtras();
  }catch(e){if(state.activeId===id&&$('sf160Extras'))$('sf160Extras').textContent='Não foi possível carregar as enquetes e músicas.';}
  }
  function renderExtras(){
@@ -223,7 +227,15 @@
  }else if(state.activePane==='polls'){
  el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>🗳 Enquetes</h4>${c?.canDelete?'<button type="button" data-sf160-create-poll>＋ Criar</button>':''}</div>${state.polls.length?state.polls.map(p=>`<article class="sf160-poll"><strong>${esc(p.question)}</strong><div class="sf160-poll-options">${p.options.map((v,i)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${i}" ${p.voted?'disabled':''}>${esc(v)} <small>${p.counts[i]||0} votos</small></button>`).join('')}</div>${p.voted?'<small>Voto registrado</small>':''}${p.canDelete?`<button type="button" data-sf160-delete-poll="${esc(p.id)}">Excluir enquete</button>`:''}</article>`).join(''):'<p>Sem enquetes por enquanto.</p>'}</section>`;
  }else if(state.activePane==='events'){el.innerHTML='<section class="sf160-extra-panel"><h4>📅 Programação</h4><p>Veja as sessões da comunidade na coluna lateral.</p><button type="button" data-sf71-events>Ver agenda</button></section>';}
- else if(state.activePane==='members'){el.innerHTML='<section class="sf160-extra-panel"><h4>👥 Participantes</h4><p>A lista de membros e as opções de moderação ficam na coluna lateral.</p></section>';}
+ else if(state.activePane==='members'){
+ const rank=state.contributors;
+ el.innerHTML=`<section class="sf160-extra-panel"><h4>🏆 Destaques do Fan Club</h4><p>Atividade real recente, não XP ou pontuação global.</p>
+ ${rank.length?rank.map((v,i)=>`<div class="sf160-rank"><strong>#${i+1} ${esc(v.name)}</strong><small>${v.posts} posts · ${v.comments} respostas · ${v.likesReceived} curtidas recebidas</small></div>`).join(''):'<p>A comunidade ainda não tem contribuições suficientes.</p>'}
+ <h4>👥 Participantes (${c?.memberCount||0})</h4>
+ ${(c?.members||[]).map(m=>`<div class="sf160-member"><strong>${esc(m.avatar||'🎧')} ${esc(m.name)}</strong>${m.id===c.ownerId?'<small> Criador</small>':''}</div>`).join('')}
+ ${c?.canDelete?`<div class="sf160-moderation"><h4>⚑ Moderação</h4><p>Denúncias recebidas (somente administradores)</p>${state.reports.length?state.reports.map(r=>`<div class="sf160-report"><strong>${esc(r.reason)}</strong><small>${esc(r.status)}</small>${r.status==='open'?`<button type="button" data-sf160-resolve="${esc(r.id)}">Marcar como resolvida</button>`:''}</div>`).join(''):'<p>Nenhuma denúncia recebida.</p>'}</div>`:''}
+ </section>`;
+ }
  else el.innerHTML='';
  }
  function switchPane(pane){
@@ -286,6 +298,15 @@
  if(t.hasAttribute('data-sf160-delete-comment')){
  if(!confirm('Remover comentário?'))return;
  const cid=t.dataset.sf160DeleteComment;await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/comments/'+encodeURIComponent(cid),{method:'DELETE'});await loadComments(id,state.commentsOpen);},'Comentário removido.');return;
+ }
+ if(t.hasAttribute('data-sf160-report')){
+ const postId=t.dataset.sf160Report;
+ modal('Denunciar publicação','<p>Informe o motivo. Apenas a moderação poderá consultar a denúncia.</p><label>Motivo<input name="reason" minlength="6" maxlength="200" required></label>',async fd=>{
+ await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/report',{reason:fd.get('reason')});return true;
+ },()=>status('Denúncia enviada à moderação.'));return;
+ }
+ if(t.hasAttribute('data-sf160-resolve')){
+ await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/reports/'+encodeURIComponent(t.dataset.sf160Resolve)+'/resolve',{});await loadExtras(id);},'Denúncia resolvida.');return;
  }
  if(t.hasAttribute('data-sf160-create-poll')){
  modal('Nova enquete',`<label>Pergunta<input name="question" maxlength="140" minlength="8" required></label><label>Opção 1<input name="option1" required maxlength="80"></label><label>Opção 2<input name="option2" required maxlength="80"></label><label>Opção 3 (opcional)<input name="option3" maxlength="80"></label><label>Opção 4 (opcional)<input name="option4" maxlength="80"></label>`,async fd=>{
