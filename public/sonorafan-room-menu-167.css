@@ -1,0 +1,84 @@
+/* SonoraFan 167 — Menu da Sala: dois acessos, uma única superfície. */
+#screen-room .sf167-room-menu{position:relative;display:flex;align-items:center;flex:0 0 auto;z-index:70}
+#screen-room #sf167MenuTrigger{
+  position:relative;isolation:isolate;display:inline-flex!important;align-items:center;
+  justify-content:center;gap:9px;width:auto!important;min-width:124px!important;
+  min-height:40px!important;padding:8px 13px!important;
+  border:1px solid rgba(255,170,233,.60)!important;border-radius:13px!important;
+  background:linear-gradient(112deg,#482064 0%,#842c88 51%,#a73f72 100%)!important;
+  box-shadow:0 0 0 1px #e776e51f,inset 0 1px 0 #ffffff42,0 5px 20px #5a197b65!important;
+  color:#fff!important;font:800 12px/1.2 Inter,system-ui,sans-serif!important;
+  white-space:nowrap;cursor:pointer;overflow:hidden;
+  transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease!important;
+}
+#screen-room #sf167MenuTrigger .sf167-icon{position:relative;display:grid;place-items:center;flex:none;font-size:18px;line-height:1;filter:drop-shadow(0 0 6px #ffd5ee)}
+#screen-room #sf167MenuTrigger .sf167-arrow{font-size:12px;display:inline-block;transition:transform .22s ease;opacity:.85}
+#screen-room #sf167MenuTrigger[aria-expanded="true"] .sf167-arrow{transform:rotate(180deg)}
+#screen-room #sf167MenuTrigger::before{
+ content:"";position:absolute;inset:-75%;pointer-events:none;z-index:-1;
+ background:conic-gradient(from 0deg,transparent 5%,#ffffff2f 18%,transparent 33%,transparent 70%,#ffb4d72a 85%,transparent 95%);
+ animation:sf167Glint 9s linear infinite;
+}
+#screen-room #sf167MenuTrigger:hover,
+#screen-room #sf167MenuTrigger[aria-expanded="true"]{
+ transform:translateY(-1px)!important;border-color:#ffe5fd!important;
+ box-shadow:0 0 0 1px #ffc9e44a,0 0 24px #d457c28c,0 10px 26px #2a09289c!important;
+}
+#screen-room #sf167MenuTrigger:active{transform:scale(.98)!important}
+#screen-room #sf167MenuTrigger:focus-visible,
+#screen-room #sf167MenuPanel button:focus-visible{outline:3px solid #ffe6a0!important;outline-offset:3px!important}
+#screen-room #sf167MenuPanel[hidden]{display:none!important}
+#screen-room #sf167MenuPanel{
+ position:fixed;top:var(--sf167-y,70px);right:var(--sf167-right,12px);
+ width:min(290px,calc(100vw - 24px));max-height:min(400px,calc(100dvh - 90px));
+ padding:12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;
+ border:1px solid #e7a0e174;border-radius:17px;
+ background:linear-gradient(155deg,rgba(39,19,55,.98),rgba(18,12,29,.99))!important;
+ box-shadow:0 20px 60px #080512dc,0 0 30px #c750a73f,inset 0 1px 0 #ffffff26;
+ backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+ z-index:10070;transform-origin:top right;
+ animation:sf167Reveal .22s cubic-bezier(.2,.8,.2,1) both;
+}
+#screen-room .sf167-menu-heading{padding:5px 9px 10px;border-bottom:1px solid #ad7bc43e;color:#f7d9ff;font-size:10px;letter-spacing:.11em;font-weight:850}
+#screen-room #sf167MenuPanel .sf167-menu-action{
+ display:flex!important;align-items:center;gap:11px;width:100%;
+ min-height:57px;text-align:left;padding:9px 10px;border:1px solid transparent;
+ border-radius:12px;background:#ffffff06;color:#fff;cursor:pointer;
+ font:650 12px/1.3 Inter,system-ui,sans-serif;
+ transition:background .18s,border-color .18s,transform .18s;
+}
+#screen-room #sf167MenuPanel .sf167-menu-action:hover{
+ background:linear-gradient(105deg,#a146a532,#e85a9830);
+ border-color:#d481d35b;transform:translateX(2px)
+}
+#screen-room .sf167-menu-symbol{
+ width:36px;height:36px;flex:none;display:grid;place-items:center;
+ background:linear-gradient(135deg,#9744a5,#55317f);border:1px solid #ebafff63;
+ border-radius:10px;font-size:19px;box-shadow:0 0 12px #d96bd33a
+}
+#screen-room .sf167-menu-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+#screen-room .sf167-menu-copy strong{font-size:12px;color:white}
+#screen-room .sf167-menu-copy small{font-size:10px;color:#cdb5da;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+@keyframes sf167Glint{to{transform:rotate(360deg)}}
+@keyframes sf167Reveal{from{opacity:0;transform:translateY(-7px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:768px){
+ #screen-room .sf167-room-menu{display:flex!important;z-index:70!important}
+ #screen-room #sf167MenuTrigger{min-width:0!important;min-height:36px!important;padding:7px 9px!important;gap:5px;font-size:11px!important;border-radius:11px!important}
+ #screen-room #sf167MenuTrigger .sf167-icon{font-size:15px}
+ #screen-room #sf167MenuPanel{
+  top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+  left:12px!important;right:12px!important;width:auto!important;
+  max-height:min(360px,70dvh);transform-origin:bottom center;
+  animation:sf167MobileReveal .23s cubic-bezier(.2,.8,.2,1) both;
+ }
+}
+@media(max-width:380px){
+ #screen-room #sf167MenuTrigger{padding:6px 7px!important;font-size:10px!important}
+ #screen-room #sf167MenuTrigger .sf167-icon{font-size:14px}
+}
+@keyframes sf167MobileReveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){
+ #screen-room #sf167MenuTrigger,#screen-room #sf167MenuTrigger::before,
+ #screen-room #sf167MenuPanel,#screen-room #sf167MenuPanel button,
+ #screen-room #sf167MenuTrigger .sf167-arrow{animation:none!important;transition:none!important}
+}
