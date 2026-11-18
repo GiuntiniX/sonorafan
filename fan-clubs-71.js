@@ -100,7 +100,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   function cleanRooms(data){
     return unique(data.roomSlugs).map(slug=>rooms.get(slug)).filter(r=>r&&!r.isPrivate)
       .map(r=>({slug:r.slug,name:r.name,listenerCount:Number(r.listenerCount)||0,
-        isPlaying:!!r.isPlaying,track:r.queue?.[r.currentIndex] ? {title:clean(r.queue[r.currentIndex].title,150),artist:clean(r.queue[r.currentIndex].artist,90)} : null}));
+        isPlaying:!!r.isPlaying,track:r.queue?.[r.currentIndex] ? {title:clean(r.queue[r.currentIndex].title,150),artist:clean(r.queue[r.currentIndex].artist,90),
+         videoId:/^[A-Za-z0-9_-]{11}$/.test(String(r.queue[r.currentIndex].id||''))?r.queue[r.currentIndex].id:null} : null}));
   }
   function clubEvents(data,me){
     if(!socialEvents)return [];
