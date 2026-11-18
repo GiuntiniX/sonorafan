@@ -1471,6 +1471,7 @@
   <link rel="stylesheet" href="/sonorafan-theme-integration-161.css?v=161.0">
   <link rel="stylesheet" href="/sonorafan-theme-gallery-162.css?v=163.0">
   <link rel="stylesheet" href="/sonorafan-room-menu-168.css?v=168.0">
+  <link rel="stylesheet" href="/sonorafan-admin-launch-169.css?v=169.0">
   <link rel="stylesheet" href="/sonorafan-ranking-60.css?v=600.0">
   <link rel="stylesheet" href="/admin-control-13.css?v=13.1">
 </head>
@@ -2157,7 +2158,7 @@
           </div>
           <button class="sf64-room-menu-toggle" id="sf64RoomSidebarToggle" type="button" aria-controls="sf64RoomSidebar" aria-expanded="false" aria-label="Menu lateral antigo (inativo)"><span aria-hidden="true">☰</span><span id="sf64RoomSidebarToggleLabel">Menu</span></button>
 
-          <button class="admin-toggle-btn" onclick="toggleAdmin()" title="Admin" id="adminBtnRoom" style="display:none;">🎛️</button>
+          <button class="admin-toggle-btn sf169-admin-launch" onclick="toggleAdmin()" title="Abrir Central Administrativa" aria-label="Abrir Admin Control Center" id="adminBtnRoom" style="display:none;" data-sf169-authorized="false"><span class="sf169-admin-mark" aria-hidden="true">♛</span><span class="sf169-admin-copy"><strong>Admin</strong><small>Control Center</small></span><span class="sf169-admin-chevron" aria-hidden="true">›</span></button>
 
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
         </div>
@@ -3422,11 +3423,42 @@
     }
 
     function checkAdmin() {
-      const isAdmin = !!currentUser && String(currentUser.email || '').toLowerCase() === 'admin@sonora.com';
-      ['adminBtn','adminBtnRoom'].forEach(id => { const el = $(id); if(el) el.style.display = isAdmin ? 'flex' : 'none'; });
-      $('adminBadge').classList.toggle('hidden', !isAdmin);
-      const adminRemoveBtn = $('adminRemoveBtn');
-      if (adminRemoveBtn) adminRemoveBtn.style.display = isAdmin ? 'flex' : 'none';
+      const email = String(currentUser?.email || '').toLowerCase();
+      const eligible = email === 'admin@sonora.com';
+      const state = window.sf169AdminAccess || (window.sf169AdminAccess = { email:'', pending:false, authorized:false, token:0 });
+      const apply = authorized => {
+        const show = !!authorized && eligible && String(currentUser?.email || '').toLowerCase() === email;
+        ['adminBtn','adminBtnRoom'].forEach(id => {
+          const element = $(id);
+          if (!element) return;
+          element.style.display = show ? 'flex' : 'none';
+          if (id === 'adminBtnRoom') element.dataset.sf169Authorized = String(show);
+        });
+        $('adminBadge')?.classList.toggle('hidden',!show);
+        const remove = $('adminRemoveBtn');
+        if(remove) remove.style.display = show ? 'flex' : 'none';
+      };
+      if (!eligible) {
+        state.email='';state.token++;state.pending=false;state.authorized=false;
+        apply(false);return;
+      }
+      if(state.email===email && state.authorized){apply(true);return;}
+      apply(false);
+      if(state.email===email && state.pending)return;
+      state.email=email;state.pending=true;
+      const token=++state.token;
+      fetch('/api/admin/access',{credentials:'include',cache:'no-store'})
+        .then(response=>response.ok?response.json():null)
+        .then(data=>{
+          if(state.token!==token || state.email!==email)return;
+          state.authorized=!!data?.authorized;
+          apply(state.authorized);
+        })
+        .catch(()=>{
+          if(state.token!==token)return;
+          state.authorized=false;apply(false);
+        })
+        .finally(()=>{if(state.token===token)state.pending=false;});
     }
 
     // ===== ADMIN (funções) =====
@@ -3486,7 +3518,7 @@
       if (tabId === 'tab-rooms') loadAdminRooms();
     }
     function toggleAdmin() {
-      if (!currentUser || String(currentUser.email || '').toLowerCase() !== 'admin@sonora.com') return toast('Painel exclusivo do administrador global', 'error');
+      if (!currentUser || String(currentUser.email || '').toLowerCase() !== 'admin@sonora.com' || !window.sf169AdminAccess?.authorized) return toast('Painel exclusivo do administrador autorizado', 'error');
       const p = $('adminPanel');
       p.classList.toggle('active');
       if (p.classList.contains('active')) { loadAdminData(); loadAdminUsers(); loadAdminQueues(); loadAdminTopSongs(); }
