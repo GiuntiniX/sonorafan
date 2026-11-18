@@ -8,11 +8,11 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 
 ## ✦ Fan Clubs 4.0 — evolução v160
 
-O Fan Club agora utiliza o mesmo guide visual escuro/indie do SonoraFan, com layout compacto, hero sem sobreposição, regras recolhíveis e navegação por **Mural, Músicas, Enquetes, Eventos e Membros**.
+O Fan Club agora utiliza o mesmo guide visual escuro/indie do SonoraFan, com layout compacto, hero sem sobreposição, regras recolhíveis e navegação por **Mural, Enquetes, Eventos e Membros**.
 
-- **Mural com filtros e busca local**: todos, recomendações, fixados e mais curtidos; busca sobre os 35 posts carregados.
+- **Mural com filtros e busca local**: todos, fixados e mais curtidos; busca sobre os 35 posts carregados.
 - **Comentários por publicação**: respostas persistentes, acesso por membro e exclusão por autor ou moderação.
-- **Cards musicais e descobertas**: URLs reais do YouTube rendem miniaturas e links, além de agregação de até 100 posts recentes por vídeo compartilhado.
+- **Separação de experiências:** Fan Clubs concentram mural, comentários, enquetes e eventos. Compartilhamento de música e mixtapes permanece nas salas/Estúdio; não há mais botão de compartilhar música nem ranking de vídeos no Fan Club. Posts antigos são preservados.
 - **Enquetes musicais**: criação e exclusão por criador/admin; membros votam uma vez por enquete, com limite de 300 votos.
 - **Destaques da comunidade**: ranking de contribuições recentes, calculado por posts, comentários e curtidas recebidas; não equivale a XP.
 - **Denúncias privadas**: membros podem denunciar uma publicação uma vez; apenas criador e administradores podem ver e resolver os relatos.
