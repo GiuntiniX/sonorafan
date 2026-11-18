@@ -197,7 +197,7 @@
         <div class="sf600-bar" role="progressbar" aria-label="Progresso para o próximo nível" aria-valuenow="${Math.min(100,Number(level.progress)||0)}" aria-valuemin="0" aria-valuemax="100">
           <span style="width:${Math.min(100,Number(level.progress)||0)}%"></span></div>
         <small>${next?'Faltam '+journeyFmt(Math.max(0,next.min-data.points))+' XP para '+esc(next.name):'Nível máximo atual alcançado.'} · XP histórico preservado</small>
-        <div class="sf600-j-actions"><button type="button" data-sf600="ranking">🏆 Ver minha posição no Ranking 6.0</button>
+        <div class="sf600-j-actions"><button type="button" data-sf600="ranking">🏆 Ver minha posição no Ranking</button>
           <button type="button" data-sf600="refresh">↻ Atualizar jornada</button></div></section>
         ${pending.length?`<section class="sf600-j-section sf600-next"><h3>✨ Próximo desafio</h3><p>${esc(pending[0].name)} · ${journeyFmt(Math.max(0,pending[0].target-pending[0].progress))} etapas restantes</p></section>`:''}
         <section class="sf600-j-section"><h3>🎯 Missões diárias e semanais</h3>
