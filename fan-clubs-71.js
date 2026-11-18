@@ -11,7 +11,7 @@ const clean = (value, max) => typeof value === 'string'
   : '';
 const unique = values => Array.from(new Set(Array.isArray(values) ? values.filter(x=>typeof x==='string') : []));
 
-function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser }) {
+function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser, gamification45 }) {
   const coverRef = id => db.collection(COVERS).doc(id);
   const refFor = id => db.collection(CLUBS).doc(id);
   // Streams are attached only after cookie-session and membership verification.
@@ -231,13 +231,19 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.post('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
-      await db.runTransaction(async tx=>{
+      const newlyJoined=await db.runTransaction(async tx=>{
         const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();if(unique(data.blockedIds).includes(me.id))throwHttp(403,'A participação nesta comunidade está restrita.');
-        const members=unique(data.memberIds);if(members.includes(me.id))return;
+        const members=unique(data.memberIds);if(members.includes(me.id))return false;
         if(members.length>=300)throwHttp(409,'Esta comunidade atingiu o limite atual de membros.');
         tx.update(ref,{memberIds:[...members,me.id],updatedAt:Date.now()});
-      });publish(req.params.id,'members');res.json({joined:true});
+        return true;
+      });
+      if(newlyJoined && gamification45?.award) {
+        try{await gamification45.award(me.email,'club',req.params.id);}
+        catch(e){console.warn('[Fan Clubs] progress:',e?.message);}
+      }
+      publish(req.params.id,'members');res.json({joined:true});
     }catch(e){error(res,e);}
   });
   app.delete('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
@@ -269,7 +275,13 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para ler o mural.');
       const snap=await ref.collection('posts').orderBy('createdAt','desc').limit(35).get();
-      res.json({posts:snap.docs.map(d=>({...d.data(),id:d.id,editable:d.data().authorId===me.id||ownerOrAdmin(data,me)}))});
+      const posts=snap.docs.map(d=>({id:d.id,...d.data(),likedBy:undefined,
+        pinned:d.id===data.pinnedPostId,likeCount:unique(d.data().likedBy).length,
+        liked:unique(d.data().likedBy).includes(me.id),
+        editable:d.data().authorId===me.id||ownerOrAdmin(data,me),
+        canPin:ownerOrAdmin(data,me)}));
+      posts.sort((a,b)=>Number(b.pinned)-Number(a.pinned)||(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+      res.json({posts});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/posts',rateLimit(12,60000),async(req,res)=>{
@@ -292,7 +304,44 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         const snap=await tx.get(postRef);if(!snap.exists)throwHttp(404,'Publicação não encontrada.');
         if(snap.data().authorId!==me.id&&!ownerOrAdmin(data,me))throwHttp(403,'Sem permissão para moderar esta publicação.');
         tx.delete(postRef);
+        if(data.pinnedPostId===req.params.postId)tx.update(ref,{pinnedPostId:null,updatedAt:Date.now()});
       });publish(req.params.id,'post');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  // 3.0 — somente a moderação pode fixar uma publicação por Fan Club.
+  app.post('/api/fan-clubs/:id/posts/:postId/pin',rateLimit(15,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente a moderação pode destacar publicações.');
+      const pinned=req.body?.pinned===true;
+      const postRef=ref.collection('posts').doc(req.params.postId);
+      await db.runTransaction(async tx=>{
+        const post=await tx.get(postRef);
+        if(!post.exists)throwHttp(404,'Publicação não encontrada.');
+        tx.update(ref,{pinnedPostId:pinned?req.params.postId:(data.pinnedPostId===req.params.postId?null:data.pinnedPostId||null),updatedAt:Date.now()});
+      });
+      publish(req.params.id,'post');res.json({success:true,pinned});
+    }catch(e){error(res,e);}
+  });
+  // Reações não concedem XP, prevenindo farm de curtidas.
+  app.post('/api/fan-clubs/:id/posts/:postId/like',rateLimit(40,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe do Fan Club para reagir.');
+      const postRef=ref.collection('posts').doc(req.params.postId);
+      const result=await db.runTransaction(async tx=>{
+        const snap=await tx.get(postRef);
+        if(!snap.exists)throwHttp(404,'Publicação não encontrada.');
+        const likedBy=unique(snap.data().likedBy);
+        const liked=!likedBy.includes(me.id);
+        const next=liked?[...likedBy,me.id]:likedBy.filter(id=>id!==me.id);
+        if(next.length>300)throwHttp(409,'Limite de reações atingido.');
+        tx.update(postRef,{likedBy:next});
+        return {liked,likeCount:next.length};
+      });
+      publish(req.params.id,'post');res.json(result);
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/rooms',rateLimit(15,60000),async(req,res)=>{

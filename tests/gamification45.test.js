@@ -101,3 +101,19 @@ test('transação mantém pontos e ranking no Firestore mesmo após reconstruir 
   await handlers['/api/gamification/me'](req,res);
   assert.equal(res.result.points,121);
 });
+
+test('v151: Fan Club tem recompensa limitada e missão semanal sem duplicar XP',()=>{
+ const now=date('2026-11-18');
+ const a=applyAction({points:0,badges:[]},'club','fan-club-a',now);
+ assert.equal(a.gained,5);
+ assert.equal(a.data.gamification.lifetime.clubs,1);
+ assert.equal(applyAction(a.data,'club','fan-club-a',now).changed,false);
+ const b=applyAction(a.data,'club','fan-club-b',now);
+ assert.equal(b.gained,30,'a segunda comunidade completa missão semanal uma única vez');
+ assert.equal(publicSnapshot(b.data,now).missions.find(m=>m.id==='weekly_clubs').claimed,true);
+ const c=applyAction(b.data,'club','fan-club-c',now);
+ assert(c.data.badges.includes('Fã de Carteirinha'));
+ const points=c.data.points;
+ assert.equal(applyAction(c.data,'club','fan-club-c',now).data.points,points);
+ assert.equal(applyAction(c.data,'club','fan-club-a',date('2026-11-19')).gained,5,'primeira participação do novo dia');
+});

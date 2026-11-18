@@ -2,6 +2,8 @@ name: SonoraFan checks
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -15,6 +17,8 @@ jobs:
       - name: Check frontend and backend syntax
         run: |
           node --check server.js
+          node --check fan-clubs-71.js
+          node --check gamification-45.js
           node --check public/sonorafan-queue-80.js
           node --check public/sonorafan-search-77.js
           node --check public/sonorafan-inline-search-78.js

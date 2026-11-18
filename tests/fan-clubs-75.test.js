@@ -3,9 +3,9 @@ const assert=require('node:assert/strict');
 const {test}=require('node:test');
 const {installFanClubs71,clean}=require('../fan-clubs-71');
 
-function mock(){
- const docs=new Map(),routes=[];
- function ref(key){return {key, async get(){const d=docs.get(key);return {exists:!!d,data:()=>d?structuredClone(d):undefined,ref:this};},
+function mock(gamification45){
+ const docs=new Map(),routes=[];let autoPostId=0;
+ function ref(key){return {key,id:key.split('/').at(-1), async get(){const d=docs.get(key);return {exists:!!d,data:()=>d?structuredClone(d):undefined,ref:this};},
    async create(data){if(docs.has(key))throw Error('exists');docs.set(key,structuredClone(data));},
    async set(data){docs.set(key,structuredClone(data));},
    async update(data){docs.set(key,{...docs.get(key),...structuredClone(data)});},
@@ -13,7 +13,7 @@ function mock(){
    collection(name){return collection(`${key}/${name}`)},doc(id){return ref(`${key}/${id}`)} };
  }
  function collection(key){return {
-   doc(id){return ref(`${key}/${id}`)},
+   doc(id){return ref(`${key}/${id||('auto-'+(++autoPostId))}`)},
    orderBy(field,direction='asc'){return query(key,field,direction)},
    where(field,op,value){return query(key,null,'asc',{field,op,value})}
  };}
@@ -33,7 +33,7 @@ function mock(){
  const publicUserId=email=>({ 'ana@exemplo.com':'a'.repeat(24),'leo@exemplo.com':'b'.repeat(24),'admin@sonora.com':'c'.repeat(24)})[email];
  const notifications=[];
  const app={};for(const method of ['get','post','delete'])app[method]=(path,...funcs)=>routes.push({method,path,handler:funcs.at(-1)});
- installFanClubs71({app,db,users,rooms:room,sessionEmail:req=>req.email,publicUserId,adminEmails:owners,rateLimit:()=>((req,res,next)=>next?.()),sf15Notify:async(email,data)=>{notifications.push({email,...data});}});
+ installFanClubs71({app,db,users,rooms:room,sessionEmail:req=>req.email,publicUserId,adminEmails:owners,rateLimit:()=>((req,res,next)=>next?.()),sf15Notify:async(email,data)=>{notifications.push({email,...data});},gamification45});
  async function call(method,path,body={},email='ana@exemplo.com',query={}){
    const match=routes.find(r=>r.method===method&&new RegExp('^'+r.path.replace(/:[^/]+/g,'[^/]+')+'$').test(path));assert.ok(match,method+' '+path);
    const params={};const template=match.path.split('/'),actual=path.split('/');template.forEach((part,i)=>{if(part.startsWith(':'))params[part.slice(1)]=actual[i];});
@@ -188,4 +188,41 @@ test('deletion closes SSE member subscriptions and denies further writes',async(
   assert.match(s.writes.join(''),/event: deleted/);
   assert.equal((await m.call('post',`/api/fan-clubs/${id}/posts`,{text:'Depois da exclusão'})).code,404);
   assert.equal((await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com')).code,404);
+});
+
+test('v151: somente moderação fixa posts; o destaque é único e pode ser removido',async()=>{
+ const m=mock(),id=await create(m);
+ await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com');
+ const a=(await m.call('post',`/api/fan-clubs/${id}/posts`,{text:'Primeira música'})).data.post;
+ const b=(await m.call('post',`/api/fan-clubs/${id}/posts`,{text:'Segunda música'},'leo@exemplo.com')).data.post;
+ assert.equal((await m.call('post',`/api/fan-clubs/${id}/posts/${a.id}/pin`,{pinned:true},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',`/api/fan-clubs/${id}/posts/${a.id}/pin`,{pinned:true})).code,200);
+ let posts=(await m.call('get',`/api/fan-clubs/${id}/posts`)).data.posts;
+ assert.equal(posts[0].id,a.id);assert.equal(posts[0].pinned,true);
+ assert.equal((await m.call('post',`/api/fan-clubs/${id}/posts/${b.id}/pin`,{pinned:true})).code,200);
+ posts=(await m.call('get',`/api/fan-clubs/${id}/posts`)).data.posts;
+ assert.equal(posts.filter(p=>p.pinned).length,1);assert.equal(posts[0].id,b.id);
+ await m.call('delete',`/api/fan-clubs/${id}/posts/${b.id}`,'','leo@exemplo.com');
+ posts=(await m.call('get',`/api/fan-clubs/${id}/posts`)).data.posts;
+ assert.equal(posts.some(p=>p.pinned),false);
+});
+
+test('v151: reação é exclusiva de membros e não revela IDs nem concede XP',async()=>{
+ const awards=[],m=mock({award:async(...args)=>{awards.push(args);}}),id=await create(m);
+ const a=(await m.call('post',`/api/fan-clubs/${id}/posts`,{text:'Descoberta indie'})).data.post;
+ const url=`/api/fan-clubs/${id}/posts/${a.id}/like`;
+ assert.equal((await m.call('post',url,{},'leo@exemplo.com')).code,403);
+ await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com');
+ assert.deepEqual(awards,[[ 'leo@exemplo.com', 'club', id ]]);
+ assert.deepEqual((await m.call('post',url,{},'leo@exemplo.com')).data,{liked:true,likeCount:1});
+ let p=(await m.call('get',`/api/fan-clubs/${id}/posts`,{},'leo@exemplo.com')).data.posts[0];
+ assert.equal(p.likeCount,1);assert.equal(p.liked,true);
+ assert.equal(JSON.stringify(p).includes('likedBy'),false);
+ assert.equal(JSON.stringify(p).includes('b'.repeat(24)),false);
+ assert.deepEqual((await m.call('post',url,{},'leo@exemplo.com')).data,{liked:false,likeCount:0});
+ assert.equal(awards.length,1,'curtidas não concedem XP');
+ await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com');
+ assert.equal(awards.length,1,'reentrada idempotente não gera XP');
+ await m.call('post',`/api/fan-clubs/${id}/moderation`,{userId:'b'.repeat(24),action:'block'});
+ assert.equal((await m.call('post',url,{},'leo@exemplo.com')).code,403);
 });

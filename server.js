@@ -825,7 +825,7 @@ app.post('/api/social/invite-friend',rateLimit(8,60000),async(req,res)=>{
 // 53.0 — mensagens privadas, caixa de entrada e privacidade persistidos no Firestore.
 installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit });
 // Comunidades permanentes de fãs: membros e mural protegidos pela sessão.
-installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify,
+installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, gamification45,
   rawCoverParser: express.raw({type:['image/webp','image/jpeg','image/png'],limit:'256kb'}) });
 
 // Administração de denúncias 53.0 — protegida por requireAdmin já aplicado em /api/admin.
