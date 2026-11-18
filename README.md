@@ -6,6 +6,15 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
+## ✦ Fan Clubs 3.0 — evolução v151
+
+- **Mural em destaque:** somente criadores e administradores globais podem fixar uma publicação por Fan Club. A exclusão de um post fixado remove o destaque.
+- **Reações de membros:** curtidas com alternância, contagem persistente e atualização por eventos do mural; IDs dos participantes não são expostos pela API de leitura.
+- **Gamificação conectada:** o primeiro novo ingresso elegível em Fan Club concede 5 XP no dia; a missão semanal **Conexão entre fãs** concede 30 XP por participação em duas comunidades diferentes. A medalha **Fã de Carteirinha** reconhece 3 comunidades distintas contabilizadas na progressão.
+- **Prevenção de abuso:** ingressos repetidos não pontuam na mesma chamada, reações não geram XP, verificações de permissão ocorrem no servidor e os pontos continuam na coleção existente.
+- **Qualidade:** testes novos de moderação, privacidade, curtidas, idempotência, missões e medalhas; GitHub Actions agora roda também nos Pull Requests.
+- **Disponibilização:** publicar a branch de recurso, revisar a CI e validar fluxo de Fan Clubs em desktop/mobile antes do merge para `main`.
+
 ## ✦ Experience Evolution — v150
 
 Evolução incremental sobre os módulos existentes; preserva player YouTube, fila colaborativa, chat, autenticação, Fan Clubs e permissões:
