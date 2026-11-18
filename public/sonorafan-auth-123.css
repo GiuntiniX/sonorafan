@@ -466,21 +466,3 @@
  #signupModal.sf123-signup-screen .sf123-signup-intro h2 { font-size:clamp(25px,2.7vw,36px)!important; }
  #signupModal.sf123-signup-screen .sf123-signup-crowd { height:20%; }
 }
-
-/* v178 — identidade oficial sobre a fotografia do guitarrista no login.
-   Restrito ao painel ilustrativo: sem interferência no formulário/cadastro. */
-#loginScreen.sf123-login-screen .sf123-login-art .sf178-login-art-brand{
- position:absolute;z-index:3;top:clamp(16px,3vw,44px);right:clamp(16px,3vw,46px);
- width:min(49%,330px);padding:13px 16px;border-radius:16px;
- background:linear-gradient(115deg,rgba(7,6,15,.90),rgba(7,6,15,.55));
- box-shadow:0 10px 36px rgba(0,0,0,.24);
- pointer-events:none;
-}
-#loginScreen.sf123-login-screen .sf123-login-art .sf178-login-art-brand img{
- display:block!important;position:static!important;inset:auto!important;
- width:100%!important;height:auto!important;max-width:100%!important;
- object-fit:contain!important;filter:none!important;opacity:1!important;
-}
-@media(max-width:800px){
- #loginScreen.sf123-login-screen .sf123-login-art .sf178-login-art-brand{display:none!important;}
-}
