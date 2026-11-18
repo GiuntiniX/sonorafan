@@ -251,7 +251,7 @@
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
    .then(items=>{
      if(!Array.isArray(items)||items.length===0)return;
-     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&(t.id==='geral' ? t.art==='/themes/final-172/indie.webp'&&t.thumbnail==='/themes/final-172/indie-thumb.webp' : t.art==='/themes/illustrations/'+t.id+'.webp'));
+     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&(t.id==='geral' ? t.art==='/themes/final-172/indie.webp'&&t.thumbnail==='/themes/final-172/indie-thumb.webp' : (t.id==='sertanejo' ? t.art==='/themes/hd-175/sertanejo.svg'&&t.thumbnail===t.art : t.art==='/themes/illustrations/'+t.id+'.webp')));
      if(!valid.length)return;
      themes=valid;byId=new Map(themes.map(x=>[x.id,x]));
      createChoice=safe(createChoice);editChoice=safe(editChoice);
