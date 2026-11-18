@@ -281,7 +281,7 @@
    if(state.commentsOpen&&posts.some(p=>p.id===state.commentsOpen))loadComments(state.activeId,state.commentsOpen);
  }
  function topicUrl(clubId,topicId){
-   return location.origin+location.pathname+location.search+'#fanclub/'+encodeURIComponent(clubId)+'/topic/'+encodeURIComponent(topicId);
+   return location.origin+location.pathname+'#fanclub/'+encodeURIComponent(clubId)+'/topic/'+encodeURIComponent(topicId);
  }
  function renderFocusedPost(){
    const box=$('sf71Posts'),post=state.focusPost;if(!box||!post)return;
@@ -551,11 +551,23 @@
    await resetForumSearch(id);return;
  }
  if(t.hasAttribute('data-sf180-edit-post')){
-   const p=state.posts.find(p=>p.id===t.dataset.sf180EditPost);
+   const p=state.focusPost?.id===t.dataset.sf180EditPost?state.focusPost:
+     state.posts.find(p=>p.id===t.dataset.sf180EditPost);
    if(!p?.authorCanEdit)return;
-   modal('Editar publicação',`<label>Seu texto<textarea name="text" minlength="3" maxlength="600" rows="5" required>${esc(p.text)}</textarea></label><small>A categoria continua a mesma para preservar a organização do fórum.</small>`,async fd=>{
-     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(p.id)+'/edit',{text:String(fd.get('text')||'')});return true;
-   },async()=>{await loadPosts(id);status('Publicação editada.');});return;
+   modal('Editar discussão',`<label>Título<input name="title" maxlength="110" minlength="6" required value="${esc(p.title||'')}"></label>
+     <label>Tags (até cinco, separadas por vírgula)<input name="tags" maxlength="140" value="${esc((p.tags||[]).join(', '))}"></label>
+     <label>Texto<textarea name="text" minlength="3" maxlength="600" rows="5" required>${esc(p.text)}</textarea></label>
+     <small>Categoria e autoria são preservadas.</small>`,async fd=>{
+     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(p.id)+'/edit',{
+       text:String(fd.get('text')||''),title:String(fd.get('title')||''),
+       tags:String(fd.get('tags')||'').split(',').map(t=>t.trim()).filter(Boolean)
+     });return true;
+   },async()=>{
+     if(state.focusPost?.id===p.id)await openTopic(id,p.id,false);
+     else if(state.forumSearch)await searchForum(id);
+     else await loadPosts(id);
+     status('Discussão editada.');
+   });return;
  }
  if(t.hasAttribute('data-sf180-resolve')){
    const p=state.posts.find(p=>p.id===t.dataset.sf180Resolve);
