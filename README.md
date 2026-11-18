@@ -6,6 +6,45 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
+## ✦ Meu Perfil 6.0 — Minha Jornada e Estúdio de Avatares
+
+O Meu Perfil integra **Minha Jornada, Biblioteca, DNA musical, Comunidade e Avatares** na mesma janela, preservando todos os dados existentes. A antiga identidade de gamificação "SonoraFan Club" foi renomeada na experiência do usuário para **Minha Jornada**, evitando confusão com os **Fan Clubs**, que são comunidades e fóruns.
+
+### Navegação e compatibilidade
+
+- **Meu Perfil:** bio e gostos musicais, além do resumo do progresso, sem modal extra.
+- **Minha Jornada:** XP, nível, progresso, missões diárias/semanais, medalhas históricas e novas, histórico real de eventos, seleção de até três medalhas, marcos de participação e quatro trilhas visuais de especialização (DJ, Explorador, Especialista e Comunidade).
+- **Minha Biblioteca:** preserva mixtapes, favoritos, artistas e salas previamente implementados.
+- **Meu DNA:** continua baseado em contribuições reais, não presume tempo de audição.
+- **Comunidade:** participação nos Fan Clubs, pontuação de reputação e respostas aceitas; integra o Fórum 6.0 sem reintroduzir compartilhamento de músicas.
+- **Avatares:** seção dedicada com 40 personagens ilustrados originais, filtros por estilo e busca por texto.
+
+Os atalhos antigos `window.sf45OpenClub()` redirecionam para `window.sf112OpenProfile('achievements')` sem exigir migração ou alterar as rotas históricas. O Ranking 6.0 continua acessível pelo perfil, mas não duplica a pontuação.
+
+### Personagens e identidade
+
+O catálogo compartilhado `avatar-catalog-60.js` contém oito personagens originais existentes e 32 novas ilustrações vetoriais locais em `public/avatars-108/`. Os estilos incluem músicas urbanas e brasileiras, robôs, cyberpunk, personagens cósmicos, fantasias, visuais tropicais e diversas apresentações de gênero. **Qualquer pessoa pode escolher qualquer personagem** sem informação obrigatória sobre gênero. O endpoint autenticado `GET /api/profile108/characters` lista o catálogo e o endpoint legado `POST /api/profile108/avatar` valida estritamente os 40 IDs; caminhos externos ou arbitrários não são aceitos. Upload de foto JPEG otimizada continua disponível.
+
+### Gamificação preservada e ampliada
+
+- XP histórico continua em `points/{email}`, com níveis e missões originais intactos.
+- O catálogo recebe oito medalhas cosméticas adicionais associadas a limiares de participação validada (músicas, salas, votos, curtidas e Fan Clubs), sem XP extra automático.
+- Marcos já comprovados por contadores históricos são reconhecidos na leitura sem alterar documentos legados.
+- Especializações são visualizações distintas dos contadores de atividades verificadas; não concedem XP nem reputação sem validação.
+- Reputação do Fórum continua segregada do XP musical, e a vitrine de medalhas usa a API de preferências do Ranking 6.0.
+- Design mantém a identidade dark/indie com destaques verde-limão, navegação mobile, foco de teclado, textos alternativos e preferência de movimento reduzido.
+
+### Arquivos e testes
+
+- `public/sonorafan-profile-library-112.js` — Minha Jornada e Comunidade
+- `public/sonorafan-profile-108.js` — galeria de 40 avatares
+- `sonorafan-profile-108.js` — validação e API do catálogo
+- `public/sonorafan-profile-60.css` — layout integrado e responsivo
+- `tests/profile-60.test.js` — integridade dos desenhos, compatibilidade, conquistas e acessibilidade
+- `.github/workflows/sonorafan-checks.yml` — verificações de sintaxe e testes
+
+O código e os testes automatizados não substituem a verificação do deploy no Render nem a inspeção manual em desktop e dispositivos móveis.
+
 ## ✦ Ranking 6.0 — temporadas, conquistas e Hall da Fama
 
 O antigo modal de 420 px foi substituído por uma central responsiva em cinco seções: **Ranking, Meu progresso, Conquistas, Desafios e Hall da Fama**. O mesmo guide dark/roxo/lima do SonoraFan é preservado.
