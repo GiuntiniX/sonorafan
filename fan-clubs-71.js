@@ -478,6 +478,64 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     }catch(e){error(res,e);}
   });
   // Descobertas reais de URLs do YouTube compartilhadas no mural; sem dados inventados.
+  // Banco de ideias: propostas votadas, separadas do mural de conversas.
+  app.get('/api/fan-clubs/:id/ideas',rateLimit(40,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ver ideias.');
+      const snap=await ref.collection('ideas').orderBy('createdAt','desc').limit(60).get();
+      const ideas=snap.docs.map(d=>({id:d.id,title:d.data().title,description:d.data().description,
+        authorName:d.data().authorName,createdAt:d.data().createdAt,
+        votes:unique(d.data().voterIds).length,voted:unique(d.data().voterIds).includes(me.id),
+        status:d.data().status||'open',canManage:canModerate(data,me)}))
+        .sort((x,y)=>y.votes-x.votes||y.createdAt-x.createdAt);
+      res.json({ideas});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/ideas',rateLimit(8,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const title=clean(req.body?.title,100),description=clean(req.body?.description,300);
+    if(title.length<6)return res.status(400).json({error:'Descreva a ideia em pelo menos 6 caracteres.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para sugerir ideias.');
+      const doc=ref.collection('ideas').doc();
+      await doc.create({title,description,authorId:me.id,authorName:me.name,
+        voterIds:[],status:'open',createdAt:Date.now()});
+      publish(req.params.id,'post');res.status(201).json({id:doc.id});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/ideas/:ideaId/vote',rateLimit(20,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para votar.');
+      const target=ref.collection('ideas').doc(req.params.ideaId);
+      const result=await db.runTransaction(async tx=>{
+        const snap=await tx.get(target);if(!snap.exists)throwHttp(404,'Ideia não encontrada.');
+        if(snap.data().status!=='open')throwHttp(409,'Votação encerrada.');
+        const prev=unique(snap.data().voterIds),voted=!prev.includes(me.id);
+        const next=voted?[...prev,me.id]:prev.filter(id=>id!==me.id);
+        if(next.length>300)throwHttp(409,'Limite de participantes atingido.');
+        tx.update(target,{voterIds:next});
+        return {voted,votes:next.length};
+      });
+      publish(req.params.id,'post');res.json(result);
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/ideas/:ideaId/status',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const status=req.body?.status;
+    if(!['open','planned','done','closed'].includes(status))return res.status(400).json({error:'Status inválido.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação altera o status.');
+      const target=ref.collection('ideas').doc(req.params.ideaId);
+      const snap=await target.get();if(!snap.exists)throwHttp(404,'Ideia não encontrada.');
+      await target.update({status,updatedAt:Date.now()});publish(req.params.id,'post');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
   // Ranking editorial: contribuições reais, sem inventar XP nem exibir emails.
   app.get('/api/fan-clubs/:id/contributors',rateLimit(30,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
@@ -600,7 +658,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         for(const doc of snap.docs)await doc.ref.delete();
         if(batch===99)throwHttp(503,'A limpeza ainda não terminou. Repita a exclusão.');
       }
-      for(const sub of ['comments','polls','reports']){
+      for(const sub of ['comments','polls','reports','ideas']){
         const col=ref.collection(sub);
         for(let batch=0;batch<50;batch++){
           const snap=await col.orderBy('createdAt','desc').limit(100).get();
