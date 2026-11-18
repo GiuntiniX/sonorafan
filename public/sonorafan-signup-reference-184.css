@@ -12,10 +12,12 @@
 #signupModal.sf184-image-ready .sf123-form-grid>.sf123-form-group:nth-child(4){left:45.65%!important;top:46.8%!important;width:17.6%!important}
 #signupModal.sf184-image-ready .sf123-form-grid>.sf123-form-group:nth-child(5){left:64.47%!important;top:46.8%!important;width:16.7%!important}
 #signupModal.sf184-image-ready .sf123-form-group>.form-label{display:none!important}
-#signupModal.sf184-image-ready .sf123-auth-field{width:100%!important;height:100%!important;min-height:0!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
-#signupModal.sf184-image-ready .sf123-auth-field:focus-within{background:#fffaf1!important;box-shadow:0 0 0 2px #f50087!important}
+#signupModal.sf184-image-ready .sf123-auth-field{width:100%!important;height:100%!important;min-height:0!important;padding:0!important;margin:0!important;background:#fff!important;border:0!important;border-radius:10px!important;outline:none!important;box-shadow:none!important;overflow:hidden!important}
+#signupModal.sf184-image-ready .sf123-auth-field:focus-within{background:#fff!important;border:0!important;outline:none!important;box-shadow:none!important}
 #signupModal.sf184-image-ready .sf123-field-icon{visibility:hidden!important;width:10%!important;flex:none!important}
 #signupModal.sf184-image-ready .sf123-auth-field input{width:100%!important;height:100%!important;min-height:0!important;background:transparent!important;border:0!important;color:#251522!important;-webkit-text-fill-color:#251522!important;font-size:clamp(10px,1.05cqw,16px)!important;padding:0 2%!important}
+#signupModal.sf184-image-ready .sf123-auth-field input:focus{background:transparent!important;border:0!important;outline:none!important;box-shadow:none!important}
+#signupModal.sf184-image-ready .sf123-auth-field input:-webkit-autofill,#signupModal.sf184-image-ready .sf123-auth-field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px #fff inset!important;box-shadow:0 0 0 1000px #fff inset!important;caret-color:#251522!important}
 #signupModal.sf184-image-ready .sf123-auth-field input::placeholder{opacity:0!important;-webkit-text-fill-color:transparent!important}
 #signupModal.sf184-image-ready .sf123-eye{min-width:10%!important;height:100%!important;background:transparent!important;color:transparent!important;font-size:0!important}
 #signupModal.sf184-image-ready .sf123-genres{position:absolute!important;left:44.25%!important;top:61.45%!important;width:39%!important;margin:0!important;padding:0!important;z-index:11!important;pointer-events:auto!important}
