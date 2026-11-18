@@ -465,6 +465,73 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       res.json({tracks});
     }catch(e){error(res,e);}
   });
+  // Ranking editorial: contribuições reais, sem inventar XP nem exibir emails.
+  app.get('/api/fan-clubs/:id/contributors',rateLimit(30,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ver as contribuições.');
+      const [posts,comments]=await Promise.all([
+        ref.collection('posts').orderBy('createdAt','desc').limit(100).get(),
+        ref.collection('comments').orderBy('createdAt','desc').limit(100).get()
+      ]);
+      const scores=new Map(),members=new Set(unique(data.memberIds));
+      for(const p of posts.docs){
+        const d=p.data();if(!members.has(d.authorId))continue;
+        const entry=scores.get(d.authorId)||{id:d.authorId,name:clean(d.authorName,40),posts:0,comments:0,likesReceived:0};
+        entry.posts++;entry.likesReceived+=unique(d.likedBy).length;scores.set(d.authorId,entry);
+      }
+      for(const c of comments.docs){
+        const d=c.data();if(!members.has(d.authorId))continue;
+        const entry=scores.get(d.authorId)||{id:d.authorId,name:clean(d.authorName,40),posts:0,comments:0,likesReceived:0};
+        entry.comments++;scores.set(d.authorId,entry);
+      }
+      const ranking=[...scores.values()].map(v=>({...v,score:v.posts*2+v.comments+v.likesReceived}))
+        .sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'pt-BR')).slice(0,10);
+      res.json({ranking,metric:'Contribuições recentes (posts, respostas e curtidas recebidas)'});
+    }catch(e){error(res,e);}
+  });
+  // Denúncias têm status interno e somente a moderação pode consultar/resolver.
+  app.post('/api/fan-clubs/:id/posts/:postId/report',rateLimit(6,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const reason=clean(req.body?.reason,200);
+    if(reason.length<6)return res.status(400).json({error:'Descreva o motivo da denúncia.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para denunciar.');
+      const post=await ref.collection('posts').doc(req.params.postId).get();
+      if(!post.exists)throwHttp(404,'Publicação não encontrada.');
+      const reportId=crypto.createHash('sha256').update(req.params.postId+':'+me.id).digest('hex');
+      const target=ref.collection('reports').doc(reportId);
+      const old=await target.get();
+      if(old.exists)throwHttp(409,'Você já denunciou esta publicação.');
+      await target.create({postId:req.params.postId,reporterId:me.id,reason,status:'open',createdAt:Date.now()});
+      publish(req.params.id,'post');res.status(201).json({success:true});
+    }catch(e){error(res,e);}
+  });
+  app.get('/api/fan-clubs/:id/reports',rateLimit(18,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente a moderação pode consultar denúncias.');
+      const snap=await ref.collection('reports').orderBy('createdAt','desc').limit(60).get();
+      res.json({reports:snap.docs.map(d=>({id:d.id,postId:d.data().postId,reason:d.data().reason,
+        status:d.data().status,createdAt:d.data().createdAt}))});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/reports/:reportId/resolve',rateLimit(15,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente a moderação pode resolver denúncias.');
+      const target=ref.collection('reports').doc(req.params.reportId);
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(target);if(!snap.exists)throwHttp(404,'Denúncia não encontrada.');
+        tx.update(target,{status:'resolved',resolvedAt:Date.now()});
+      });
+      res.json({success:true});
+    }catch(e){error(res,e);}
+  });
   app.post('/api/fan-clubs/:id/rooms',rateLimit(15,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const slug=String(req.body?.slug||'');const room=rooms.get(slug);
@@ -520,7 +587,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         for(const doc of snap.docs)await doc.ref.delete();
         if(batch===99)throwHttp(503,'A limpeza ainda não terminou. Repita a exclusão.');
       }
-      for(const sub of ['comments','polls']){
+      for(const sub of ['comments','polls','reports']){
         const col=ref.collection(sub);
         for(let batch=0;batch<50;batch++){
           const snap=await col.orderBy('createdAt','desc').limit(100).get();
