@@ -9,6 +9,20 @@
   const roomActive = () => Boolean($('screen-room')?.classList.contains('active'));
   const looksLikeLink = (value) => /^(?:https?:\/\/|https?:?$|https?:?\/|www\.|(?:m\.)?youtube(?:\.com)?(?:\/|\.)|youtu(?:\.be)?(?:\/|\.))/i.test(String(value || '').trim());
   const state = { open: false, sequence: 0, controller: null, timer: null, selected: null, loading: false, lastFocus: null, currentQuery: '', items: [] };
+  // Cache curto apenas em memória: resultados públicos, nunca credenciais ou sessão.
+  const sf150SearchCache=new Map(),sf150MaxCached=16,sf150Ttl=90000;
+  function sf150Cached(query){
+    const key=String(query||'').trim().toLocaleLowerCase('pt-BR');
+    const entry=sf150SearchCache.get(key);
+    if(!entry||Date.now()-entry.at>sf150Ttl){sf150SearchCache.delete(key);return null;}
+    return entry.tracks;
+  }
+  function sf150Remember(query,tracks){
+    const key=String(query||'').trim().toLocaleLowerCase('pt-BR');
+    sf150SearchCache.delete(key);
+    sf150SearchCache.set(key,{at:Date.now(),tracks:tracks.slice(0,30)});
+    if(sf150SearchCache.size>sf150MaxCached)sf150SearchCache.delete(sf150SearchCache.keys().next().value);
+  }
 
   function build() {
     if ($('sf77MusicModal')) return;
@@ -166,6 +180,14 @@
       status('Busque uma banda, um artista ou uma faixa.');
       return;
     }
+    const cached=sf150Cached(query);
+    if(cached){
+      state.items=cached;
+      if(cached.length)renderResults(cached);
+      else emptyMessage('Nenhuma faixa encontrada. Experimente outro nome.', '⌕');
+      status(cached.length?cached.length+' resultados recentes · escolha uma música':'Nenhum resultado recente.');
+      return;
+    }
     emptyMessage('Pesquisando músicas no YouTube…', '⌕');
     status('Buscando músicas…');
     const seq = state.sequence;
@@ -180,8 +202,12 @@
         if (!response.ok) throw new Error('A busca está indisponível. Tente novamente.');
         const data = await response.json();
         if (seq !== state.sequence || !state.open) return;
-        const tracks = (Array.isArray(data?.items) ? data.items : []).filter(item => validId(item?.id))
+        const uniqueIds=new Set();
+        const tracks = (Array.isArray(data?.items) ? data.items : [])
+          .filter(item => validId(item?.id) && !uniqueIds.has(item.id) && (uniqueIds.add(item.id),true))
+          .slice(0,30)
           .map(item => ({ id: item.id, title: String(item.title || 'Música'), artist: String(item.artist || 'Artista desconhecido') }));
+        sf150Remember(query,tracks);
         state.items = tracks;
         if (!tracks.length) {
           emptyMessage('Nenhuma faixa encontrada. Experimente outro nome.', '⌕');
