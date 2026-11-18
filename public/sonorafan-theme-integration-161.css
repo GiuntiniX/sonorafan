@@ -1,0 +1,54 @@
+/* SonoraFan — integração das artes ilustradas já publicadas com a experiência real.
+   Reutiliza o atlas AVIF da versão 160; não interfere em áudio, fila ou chat. */
+#screen-room[data-room-theme]:not([data-room-theme="geral"]){
+  --sf161-art:var(--sf160-atlas);
+  --sf161-position:var(--sf160-x) var(--sf160-y);
+  --sf161-shade:linear-gradient(115deg,rgba(11,8,19,.79),rgba(13,9,21,.48));
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) .sf113-visual-stage{
+  background-image:var(--sf161-shade),var(--sf161-art)!important;
+  background-size:cover,400% 400%!important;
+  background-position:center,var(--sf161-position)!important;
+  background-repeat:no-repeat!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) .sf113-visual-backdrop{
+  opacity:.13!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) .sf5-section-title,
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .queue-header,
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .premium-chat-heading{
+  background-image:linear-gradient(100deg,rgba(11,8,19,.94),rgba(11,8,19,.58)),var(--sf161-art)!important;
+  background-size:cover,400% 400%!important;
+  background-position:center,var(--sf161-position)!important;
+  background-repeat:no-repeat!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #sf33EmptyPlayerArt:not([hidden]),
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #sf44QueueIdle{
+  background-image:linear-gradient(100deg,rgba(11,8,19,.45),rgba(11,8,19,.18)),var(--sf161-art)!important;
+  background-size:cover,400% 400%!important;
+  background-position:center,var(--sf161-position)!important;
+  background-repeat:no-repeat!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #sf33EmptyPlayerArt img,
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #sf44QueueIdle img{opacity:0!important}
+/* Na criação, edição e prévia, a mesma imagem é mostrada, inclusive em mobile. */
+#sf88CreateTheme[data-sf143-theme]:not([data-sf143-theme="geral"]) .sf88-mini::before,
+#sf88EditTheme[data-sf143-theme]:not([data-sf143-theme="geral"]) .sf88-mini::before{
+  background-image:var(--sf160-atlas)!important;
+  background-size:400% 400%!important;
+  background-position:var(--sf160-x) var(--sf160-y)!important;
+}
+#sf88ThemeOverlay .sf88-theme-card[data-theme]:not([data-theme="geral"])::after{
+  background-image:var(--sf160-atlas)!important;
+  background-size:400% 400%!important;
+  background-position:var(--sf160-x) var(--sf160-y)!important;
+}
+/* Os controles do player e a leitura das mensagens não podem ser cobertos pela arte. */
+#screen-room[data-room-theme] #youtube-player,
+#screen-room[data-room-theme] .sf113-visual-details,
+#screen-room[data-room-theme] .sf113-view-switch{position:relative;z-index:2}
+@media(max-width:768px){
+ #screen-room[data-room-theme]:not([data-room-theme="geral"]) .sf113-visual-stage{
+  background-size:cover,400% 400%!important;
+ }
+}
