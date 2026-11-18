@@ -16,6 +16,7 @@ const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 const { createGamification45 } = require('./gamification-45');
+const { createRanking60 } = require('./ranking-60');
 const { installChat53 } = require('./chat-social-53');
 const { installPlatform63 } = require('./sonorafan-platform-63');
 const { installFavoriteGenres67 } = require('./favorite-genres-67');
@@ -165,6 +166,7 @@ const waitingRooms = new Map();
 
 // 45.0 — mesma coleção `points`, com progressão transacional e ranking persistente.
 const gamification45 = createGamification45({ db, app, sessionEmail, users, userPoints, io });
+const ranking60 = createRanking60({ app, db, sessionEmail, users, gamification45, rateLimit });
 // 57–63: preserve XP, chats and queue; register server-validated new experiences.
 const platform63 = installPlatform63({ app, io, db, rooms, users, sessionEmail, userPoints, gamification45 });
 installFavoriteGenres67({ app, db, sessionEmail });
@@ -826,7 +828,7 @@ app.post('/api/social/invite-friend',rateLimit(8,60000),async(req,res)=>{
 installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit });
 // Comunidades permanentes de fãs: membros e mural protegidos pela sessão.
 installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, gamification45,
-  rawCoverParser: express.raw({type:['image/webp','image/jpeg','image/png'],limit:'256kb'}) });
+  ranking60, rawCoverParser: express.raw({type:['image/webp','image/jpeg','image/png'],limit:'256kb'}) });
 
 // Administração de denúncias 53.0 — protegida por requireAdmin já aplicado em /api/admin.
 app.get('/api/admin/chat-reports', async(req,res)=>{
