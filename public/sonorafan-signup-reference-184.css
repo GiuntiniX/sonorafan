@@ -169,3 +169,64 @@
 #signupModal.sf184-image-ready .sf123-auth-field .sf123-eye:focus-visible{
  outline:2px solid #f50087!important;outline-offset:-2px!important;border-radius:6px!important
 }
+
+
+/* v184.4 — controles sobre a arte, sem preencher as palavras desenhadas. */
+@media(min-width:1050px) and (min-height:650px){
+  /* O texto dos estilos faz parte da imagem; o clique real só desenha borda. */
+  #signupModal.sf184-image-ready #signupStyles .chip,
+  #signupModal.sf184-image-ready #signupStyles .chip.selected,
+  #signupModal.sf184-image-ready #signupStyles .chip[aria-pressed="true"],
+  #signupModal.sf184-image-ready #signupStyles .chip:hover,
+  #signupModal.sf184-image-ready #signupStyles .chip:focus-visible{
+    background:transparent!important;
+    background-image:none!important;
+    color:transparent!important;
+    -webkit-text-fill-color:transparent!important;
+    font-size:0!important;
+    box-shadow:none!important;
+    text-shadow:none!important;
+  }
+  #signupModal.sf184-image-ready #signupStyles .chip.selected,
+  #signupModal.sf184-image-ready #signupStyles .chip[aria-pressed="true"]{
+    border:2px solid #f50087!important;
+    outline:0!important;
+  }
+  #signupModal.sf184-image-ready #signupStyles .chip:not(.selected):not([aria-pressed="true"]){
+    border-color:transparent!important;
+  }
+  /* Corrige o deslocamento que deixava um ✓ à esquerda da caixinha. */
+  #signupModal.sf184-image-ready .sf123-consent input{
+    left:0!important;
+    top:50%!important;
+    transform:translateY(-50%)!important;
+  }
+  #signupModal.sf184-image-ready .sf123-consent,
+  #signupModal.sf184-image-ready .sf123-consent:has(input:checked){
+    background:none!important;
+  }
+  #signupModal.sf184-image-ready .sf123-consent::before,
+  #signupModal.sf184-image-ready .sf123-consent::after,
+  #signupModal.sf184-image-ready .sf123-consent:has(input:checked)::before,
+  #signupModal.sf184-image-ready .sf123-consent:has(input:checked)::after{
+    content:none!important;display:none!important;
+  }
+  /* Sobrepõe o texto impresso e fornece um link verdadeiro e visível. */
+  #signupModal.sf184-image-ready a.sf123-back-home{
+    left:55.5%!important;top:89.15%!important;width:14.6%!important;
+    min-height:3.2%!important;height:auto!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    pointer-events:auto!important;cursor:pointer!important;z-index:20!important;
+    background:#f4e9e2!important;
+    color:#23203c!important;-webkit-text-fill-color:#23203c!important;
+    font:500 clamp(10px,.87cqw,15px)/1.1 Inter,sans-serif!important;
+    white-space:nowrap!important;text-decoration:underline!important;
+    text-underline-offset:2px!important;border-radius:2px!important;
+  }
+  #signupModal.sf184-image-ready a.sf123-back-home:hover{
+    color:#dc0079!important;-webkit-text-fill-color:#dc0079!important;
+  }
+  #signupModal.sf184-image-ready a.sf123-back-home:focus-visible{
+    outline:2px solid #f50087!important;outline-offset:2px!important;
+  }
+}
