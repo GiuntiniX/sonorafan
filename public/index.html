@@ -2568,7 +2568,22 @@
   </div>
 
   <div class="conn-banner" id="connBanner">🔄 Reconectando…</div>
-  <div class="modal-overlay" id="lbModal" onclick="if(event.target===this)this.classList.remove('active')"><div class="modal sf35-ranking-modal" style="max-width:420px;"><span class="sf35-kicker">✦ A GALERA QUE FAZ O SOM</span><h3>🏆 Ranking</h3><div id="lbList" style="margin:12px 0;"></div><div class="modal-actions"><button class="btn-secondary" onclick="$('lbModal').classList.remove('active')">OK</button></div></div></div>
+  <div class="modal-overlay sf60-overlay" id="lbModal" role="presentation" aria-hidden="true" onclick="if(event.target===this)window.sf60Ranking?.close()">
+    <section class="modal sf60-ranking-modal" role="dialog" aria-modal="true" aria-labelledby="sf60Title">
+      <header class="sf60-head"><div><span class="sf60-kicker">✦ SONORAFAN · RANKING 6.0</span>
+        <h3 id="sf60Title">🏆 Hall da Fama</h3><p>Sua evolução, suas conquistas e a energia da comunidade.</p>
+      </div><button type="button" class="sf60-close" data-sf60-close aria-label="Fechar ranking">✕</button></header>
+      <nav class="sf60-tabs" role="tablist" aria-label="Seções do ranking">
+        <button type="button" role="tab" data-sf60-tab="ranking" aria-selected="true">🏆 Ranking</button>
+        <button type="button" role="tab" data-sf60-tab="progress" aria-selected="false">⚡ Meu progresso</button>
+        <button type="button" role="tab" data-sf60-tab="medals" aria-selected="false">🎖 Conquistas</button>
+        <button type="button" role="tab" data-sf60-tab="challenges" aria-selected="false">🎯 Desafios</button>
+        <button type="button" role="tab" data-sf60-tab="hall" aria-selected="false">🌟 Hall da Fama</button>
+      </nav>
+      <p id="sf60Message" class="sf60-notice" aria-live="polite" hidden></p>
+      <div id="sf60Content" aria-live="polite"><p class="sf60-notice">Carregando ranking…</p></div>
+    </section>
+  </div>
   <div class="users-pop" id="usersPop"></div>
   <div class="theme-pop" id="themePop"></div>
   <div class="sf11-theme-panel" id="sf11ThemePanel" role="dialog" aria-label="Escolher tema visual" hidden>
@@ -4538,12 +4553,9 @@ function openRoomCfg() {
       } catch (e) {}
     }, 20000);
 
-    async function openLeaderboard() {
-      $('lbModal').classList.add('active'); $('lbList').textContent = '...';
-      try {
-        const d = await (await fetch('/api/leaderboard', { credentials: 'include' })).json();
-        $('lbList').innerHTML = (d.items || []).map((u, i) => `<div class="lb-row"><b>${['🥇', '🥈', '🥉'][i] || (i + 1) + '.'}</b><span>${escapeHtml(u.avatar || '🎧')} ${escapeHtml(u.nome)}<small style='display:block;opacity:.7;font-size:11px;'>${escapeHtml(u.level?.name || '')}</small></span><em>${u.points} XP</em></div>`).join('') || '—';
-      } catch (e) { $('lbList').textContent = '—'; }
+    function openLeaderboard() {
+      if (window.sf60Ranking?.open) window.sf60Ranking.open();
+      else toast('Ranking temporariamente indisponível.', 'error');
     }
     async function deleteMyAccount() {
       if (!confirm('Excluir sua conta?')) return;
@@ -4758,6 +4770,8 @@ function openRoomCfg() {
   
   <script defer src="/sonorafan-club-45.js?v=140.0"></script>
   
+  <link rel="stylesheet" href="/sonorafan-ranking-60.css?v=600.0">
+  <script defer src="/sonorafan-ranking-60.js?v=600.0"></script>
   <script defer src="/sonorafan-ux-50.js"></script>
   
   <script defer src="/sonorafan-social-51.js"></script>
