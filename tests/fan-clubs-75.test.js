@@ -268,3 +268,30 @@ test('v160: música do YouTube aparece somente a membros e é agregada por víde
  assert.equal(data.tracks[0].videoId,'dQw4w9WgXcQ');
  assert.equal(data.tracks[0].shares,2);
 });
+
+test('v160: denúncias são privadas e somente moderação resolve',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ const p=(await m.call('post',base+'/posts',{text:'Mensagem da comunidade'})).data.post;
+ const reportUrl=base+'/posts/'+p.id+'/report';
+ assert.equal((await m.call('post',reportUrl,{reason:'Conteúdo ofensivo'},'leo@exemplo.com')).code,403);
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ assert.equal((await m.call('post',reportUrl,{reason:'Conteúdo ofensivo'},'leo@exemplo.com')).code,201);
+ assert.equal((await m.call('post',reportUrl,{reason:'Conteúdo ofensivo'},'leo@exemplo.com')).code,409);
+ assert.equal((await m.call('get',base+'/reports',{},'leo@exemplo.com')).code,403);
+ const reports=(await m.call('get',base+'/reports')).data.reports;
+ assert.equal(reports.length,1);assert.equal(reports[0].status,'open');
+ assert.equal((await m.call('post',base+'/reports/'+reports[0].id+'/resolve',{},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',base+'/reports/'+reports[0].id+'/resolve')).code,200);
+ assert.equal((await m.call('get',base+'/reports')).data.reports[0].status,'resolved');
+});
+test('v160: ranking de contribuidores usa dados do mural, sem email nem XP fictício',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ assert.equal((await m.call('get',base+'/contributors',{},'leo@exemplo.com')).code,403);
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ const p=(await m.call('post',base+'/posts',{text:'Recomendo essa faixa'})).data.post;
+ await m.call('post',base+'/posts/'+p.id+'/comments',{text:'Gostei'},'leo@exemplo.com');
+ const ranks=(await m.call('get',base+'/contributors')).data.ranking;
+ assert.equal(ranks[0].name,'Ana Indie');assert.equal(ranks[0].posts,1);
+ assert(ranks.some(v=>v.name==='Leo Rock'&&v.comments===1));
+ assert(!JSON.stringify(ranks).includes('ana@exemplo.com'));
+});
