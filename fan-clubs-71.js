@@ -11,7 +11,7 @@ const clean = (value, max) => typeof value === 'string'
   : '';
 const unique = values => Array.from(new Set(Array.isArray(values) ? values.filter(x=>typeof x==='string') : []));
 
-function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser, gamification45 }) {
+function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser, gamification45, ranking60 }) {
   const coverRef = id => db.collection(COVERS).doc(id);
   const refFor = id => db.collection(CLUBS).doc(id);
   // Streams are attached only after cookie-session and membership verification.
@@ -560,13 +560,22 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const {ref,data}=await readClub(req.params.id);
       if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Acesso restrito.');
       const target=ref.collection('posts').doc(req.params.postId),answerRef=ref.collection('comments').doc(commentId);
-      await db.runTransaction(async tx=>{
+      const accepted=await db.runTransaction(async tx=>{
         const [post,comment]=await Promise.all([tx.get(target),tx.get(answerRef)]);
         if(!post.exists||!comment.exists||comment.data().postId!==req.params.postId)throwHttp(404,'Resposta não encontrada.');
         if((post.data().topic||'conversa')!=='duvida')throwHttp(400,'Somente dúvidas possuem resposta escolhida.');
         if(post.data().authorId!==me.id&&!canModerate(data,me))throwHttp(403,'Sem permissão para escolher a resposta.');
         tx.update(target,{bestCommentId:commentId,resolved:true,resolvedAt:Date.now()});
+        return {authorId:comment.data().authorId,questionAuthorId:post.data().authorId};
       });
+      // Reputação separada do XP musical. Uma recompensa por pergunta, com limite diário
+      // e marca de idempotência transacional no módulo de ranking.
+      if(ranking60&&accepted.authorId!==accepted.questionAuthorId){
+        const winner=[...users.keys()].find(email=>publicUserId(email)===accepted.authorId);
+        if(winner)try{
+          await ranking60.awardForumReputation(winner,req.params.id,req.params.postId,commentId);
+        }catch(err){console.warn('Reputação do fórum não atribuída:',err?.message);}
+      }
       publish(req.params.id,'post');res.json({success:true});
     }catch(e){error(res,e);}
   });
