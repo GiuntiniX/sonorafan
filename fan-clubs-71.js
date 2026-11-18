@@ -399,6 +399,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const before=req.query?.before;
       if(before!==undefined&&!/^[A-Za-z0-9_-]{1,100}$/.test(String(before)))throwHttp(400,'Cursor inválido.');
       const profile=(await forumProfileRef(ref,me).get()).data()||{};
+      const saved=req.query?.saved==='1',unread=req.query?.unread==='1';
       let query=ref.collection('posts').orderBy('createdAt','desc');
       if(before!==undefined){
         const previous=await ref.collection('posts').doc(String(before)).get();
@@ -412,6 +413,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         for(const doc of snap.docs){
           last=doc.id;scanned++;
           const p=doc.data();
+          if(saved&&!unique(profile.favorites).includes(doc.id))continue;
+          if(unread&&Number(profile.readAt?.[doc.id])>=Number(p.lastActivityAt||p.createdAt||0))continue;
           if(topic&&(p.topic||'conversa')!==topic)continue;
           if(tag&&!forumTags(p.tags).includes(tag))continue;
           if(sort==='unanswered'&&((p.topic||'conversa')!=='duvida'||p.resolved))continue;
