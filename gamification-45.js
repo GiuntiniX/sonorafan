@@ -21,7 +21,8 @@ const MISSIONS = Object.freeze([
   { id: 'daily_songs', period: 'daily', name: 'DJ colaborativo', description: 'Adicione 2 músicas diferentes hoje', target: 2, reward: 25, icon: '🎵', field: 'songs' },
   { id: 'daily_votes', period: 'daily', name: 'Sua voz na fila', description: 'Vote positivamente em 3 músicas diferentes hoje', target: 3, reward: 20, icon: '🗳️', field: 'votes' },
   { id: 'weekly_rooms', period: 'weekly', name: 'Explorador de salas', description: 'Participe de 3 salas diferentes nesta semana', target: 3, reward: 50, icon: '🧭', field: 'rooms' },
-  { id: 'weekly_songs', period: 'weekly', name: 'Curador da semana', description: 'Adicione 5 músicas diferentes nesta semana', target: 5, reward: 50, icon: '💿', field: 'songs' }
+  { id: 'weekly_songs', period: 'weekly', name: 'Curador da semana', description: 'Adicione 5 músicas diferentes nesta semana', target: 5, reward: 50, icon: '💿', field: 'songs' },
+  { id: 'weekly_clubs', period: 'weekly', name: 'Conexão entre fãs', description: 'Participe de 2 Fan Clubs diferentes nesta semana', target: 2, reward: 30, icon: '🤝', field: 'clubs' }
 ]);
 const LEGACY_BADGES = Object.freeze([{ at: 10, name: 'DJ Iniciante' }, { at: 50, name: 'DJ Expert' }, { at: 100, name: 'DJ Lendário' }]);
 const NEW_BADGES = Object.freeze([
@@ -29,7 +30,8 @@ const NEW_BADGES = Object.freeze([
   { key: 'room_explorer', name: 'Explorador Musical', description: 'Conheça 3 salas diferentes', icon: '🧭', at: 3, field: 'rooms' },
   { key: 'ten_songs', name: 'DJ da Galera', description: 'Adicione 10 músicas', icon: '⚡', at: 10, field: 'songs' },
   { key: 'ten_votes', name: 'Voz da Comunidade', description: 'Vote em 10 músicas', icon: '🗳️', at: 10, field: 'votes' },
-  { key: 'five_likes', name: 'Boas Vibrações', description: 'Curta 5 mensagens diferentes', icon: '💜', at: 5, field: 'likes' }
+  { key: 'five_likes', name: 'Boas Vibrações', description: 'Curta 5 mensagens diferentes', icon: '💜', at: 5, field: 'likes' },
+  { key: 'three_clubs', name: 'Fã de Carteirinha', description: 'Participou de 3 Fan Clubs', icon: '🤝', at: 3, field: 'clubs' }
 ]);
 
 function localPeriod(now = new Date()) {
@@ -57,12 +59,12 @@ function normalizeProgress(data, period = localPeriod()) {
     week: period.week,
     today: {
       rooms: validArray(day.rooms, 30), songs: validArray(day.songs, 30),
-      votes: validArray(day.votes, 30), likes: validArray(day.likes, 30), awardedRoom: !!day.awardedRoom
+      votes: validArray(day.votes, 30), likes: validArray(day.likes, 30), clubs: validArray(day.clubs, 15), awardedRoom: !!day.awardedRoom
     },
-    weekly: { rooms: validArray(week.rooms, 50), songs: validArray(week.songs, 80) },
+    weekly: { rooms: validArray(week.rooms, 50), songs: validArray(week.songs, 80), clubs: validArray(week.clubs, 30) },
     lifetime: {
       rooms: positiveNumber(g.lifetime?.rooms), songs: positiveNumber(g.lifetime?.songs),
-      votes: positiveNumber(g.lifetime?.votes), likes: positiveNumber(g.lifetime?.likes)
+      votes: positiveNumber(g.lifetime?.votes), likes: positiveNumber(g.lifetime?.likes), clubs: positiveNumber(g.lifetime?.clubs)
     },
     earnedDaily: g.day === period.day ? validArray(g.earnedDaily, 10) : [],
     earnedWeekly: g.week === period.week ? validArray(g.earnedWeekly, 10) : [],
@@ -104,7 +106,7 @@ function applyAction(doc, action, id, now = new Date()) {
   const pointsBefore = positiveNumber(doc?.points);
   const badges = validArray(doc?.badges, 200);
   const key = String(id || '').slice(0, 150);
-  if (!key || !['room', 'song', 'vote', 'like'].includes(action)) return { changed: false, data: doc, gained: 0, rewards: [] };
+  if (!key || !['room', 'song', 'vote', 'like', 'club'].includes(action)) return { changed: false, data: doc, gained: 0, rewards: [] };
   let gained = 0, actionCounted = false;
   let actionName = '';
   if (action === 'room') {
@@ -130,6 +132,19 @@ function applyAction(doc, action, id, now = new Date()) {
     if (!g.weekly.songs.includes(key) && g.weekly.songs.length < 80) {
       g.weekly.songs.push(key);
       g.lifetime.songs += 1;
+      actionCounted = true;
+    }
+  } else if (action === 'club') {
+    // Uma recompensa pequena por dia; clubes distintos contam na missão semanal.
+    if (!g.today.clubs.includes(key) && g.today.clubs.length < 15) {
+      if (g.today.clubs.length === 0) gained += 5;
+      g.today.clubs.push(key);
+      actionCounted = true;
+      actionName = 'Fan Club visitado';
+    }
+    if (!g.weekly.clubs.includes(key) && g.weekly.clubs.length < 30) {
+      g.weekly.clubs.push(key);
+      g.lifetime.clubs += 1;
       actionCounted = true;
     }
   } else if (action === 'vote') {
