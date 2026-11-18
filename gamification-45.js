@@ -106,10 +106,14 @@ function publicSnapshot(doc, now = new Date()) {
   const points = positiveNumber(doc?.points);
   const badges = validArray(doc?.badges, 200);
   const g = normalizeProgress(doc?.gamification, localPeriod(now));
+  // A jornada reconhece também marcos já validados antes da v6.0, sem
+  // recalcular XP nem mutar o documento histórico no simples ato de consultar.
+  const earnedByLifetime=NEW_BADGES.filter(b=>positiveNumber(g.lifetime[b.field])>=b.at).map(b=>b.name);
+  const visibleBadges=[...new Set([...badges,...earnedByLifetime])].slice(0,200);
   return {
-    points, xp: points, badges, level: levelInfo(points),
+    points, xp: points, badges:visibleBadges, level: levelInfo(points),
     day: g.day, week: g.week, missions: catalogMissions(g), lifetime: g.lifetime,
-    achievements: NEW_BADGES.map(b => ({ ...b, unlocked: badges.includes(b.name) })),
+    achievements: NEW_BADGES.map(b => ({ ...b, unlocked: visibleBadges.includes(b.name) })),
     recent: g.recent.map(e => ({ name: String(e.name || '').slice(0, 75), xp: positiveNumber(e.xp), time: String(e.time || '').slice(0, 32) }))
   };
 }
