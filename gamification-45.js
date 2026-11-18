@@ -2,6 +2,9 @@
 
 // SonoraFan Club 45.0 — progressão baseada em eventos VALIDADOS pelo servidor.
 // Os pontos legados permanecem na coleção points/{email}; nenhuma coleção nova é necessária.
+const crypto = require('crypto');
+const ranking60Id = email => crypto.createHash('sha256').update(String(email).toLowerCase()).digest('hex').slice(0,32);
+const ranking60Month = now => localPeriod(now).day.slice(0,7);
 const LEVELS = Object.freeze([
   // Os 3 títulos legados permanecem nos mesmos limites: 10/50/100 XP.
   // Depois do DJ Lendário o usuário pode continuar evoluindo no Club.
@@ -199,11 +202,31 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
   async function award(email, action, key) {
     if (!email || !action || !key) return null;
     const ref = pointsRef(email);
+    // Ranking 6.0: períodos independentes do XP legado, atualizados na MESMA transação.
+    // Pontuação só nasce de eventos validados por applyAction.
     const result = await db.runTransaction(async tx => {
+      const now=new Date(),period=localPeriod(now);
       const snap = await tx.get(ref);
       const current = snap.exists ? snap.data() : { points: 0, badges: [] };
-      const next = applyAction(current, action, key, new Date());
-      if (next.changed) tx.set(ref, next.data, { merge: true });
+      const next = applyAction(current, action, key, now);
+      if (!next.changed) return next;
+      const weekRef=db.collection('ranking60Weeks').doc(period.week).collection('players').doc(ranking60Id(email));
+      const monthRef=db.collection('ranking60Months').doc(ranking60Month(now)).collection('players').doc(ranking60Id(email));
+      // Firestore exige todas as leituras antes de qualquer escrita.
+      const [weekly,monthly]=await Promise.all([tx.get(weekRef),tx.get(monthRef)]);
+      tx.set(ref, next.data, { merge: true });
+      if(next.gained>0){
+        for(const [target,snapshot] of [[weekRef,weekly],[monthRef,monthly]]){
+          const previous=snapshot.exists?snapshot.data():{};
+          tx.set(target,{
+            email,score:positiveNumber(previous.score)+next.gained,
+            djXP:positiveNumber(previous.djXP)+(action==='song'?next.gained:0),
+            events:positiveNumber(previous.events)+1,
+            actionCounts:{...(previous.actionCounts||{}),[action]:positiveNumber(previous.actionCounts?.[action])+1},
+            updatedAt:now.toISOString()
+          },{merge:true});
+        }
+      }
       return next;
     });
     if (!result.changed) return null;
@@ -250,4 +273,4 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
   return { award, getSnapshot, getLeaderboard };
 }
 
-module.exports = { LEVELS, MISSIONS, NEW_BADGES, localPeriod, normalizeProgress, levelInfo, publicSnapshot, applyAction, createGamification45 };
+module.exports = { LEVELS, MISSIONS, NEW_BADGES, localPeriod, normalizeProgress, levelInfo, publicSnapshot, applyAction, createGamification45, ranking60Id, ranking60Month };
