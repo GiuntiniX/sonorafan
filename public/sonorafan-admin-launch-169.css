@@ -1,0 +1,41 @@
+/* SonoraFan 169 — botão restrito de acesso ao Admin Control Center */
+#screen-room #adminBtnRoom.sf169-admin-launch{
+  --sf169-gold:#ffd68c;--sf169-coral:#ff9a88;
+  display:none;align-items:center;justify-content:flex-start;gap:9px;
+  height:42px!important;min-height:42px!important;width:auto!important;max-width:205px;
+  padding:6px 13px 6px 7px!important;
+  border:1px solid #f5b87b91!important;border-radius:13px!important;
+  background:linear-gradient(115deg,#4d253a,#68343b 57%,#89503f)!important;
+  color:#ffefdb!important;white-space:nowrap;position:relative;overflow:hidden;
+  font:750 12px/1.15 Inter,system-ui,sans-serif!important;
+  box-shadow:inset 0 1px 0 #ffe8bd36,0 6px 17px #12090ca5!important;
+  cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease!important;
+}
+#screen-room #adminBtnRoom.sf169-admin-launch[data-sf169-authorized="true"]{display:inline-flex!important}
+#screen-room #adminBtnRoom.sf169-admin-launch[data-sf169-authorized="false"]{display:none!important}
+#screen-room #adminBtnRoom .sf169-admin-mark{
+  width:31px;height:30px;display:grid;place-items:center;flex:none;border-radius:10px;
+  background:linear-gradient(145deg,#e9a553,#d97957);
+  color:#2c1428;font-size:17px;box-shadow:inset 0 1px 0 #fff9;
+}
+#screen-room #adminBtnRoom .sf169-admin-copy{display:flex;align-items:flex-start;flex-direction:column;gap:3px}
+#screen-room #adminBtnRoom .sf169-admin-copy strong{font-size:12px;line-height:1;font-weight:850;color:#fff6e8}
+#screen-room #adminBtnRoom .sf169-admin-copy small{font-size:9px;letter-spacing:.065em;color:#f9caa5;line-height:1;text-transform:uppercase;font-weight:750}
+#screen-room #adminBtnRoom .sf169-admin-chevron{font-size:15px;color:#fed3ae;opacity:.9;margin-left:4px}
+#screen-room #adminBtnRoom:hover{transform:translateY(-1px)!important;border-color:#ffe6b4!important;background:linear-gradient(115deg,#643149,#8a473e 65%,#99604c)!important}
+#screen-room #adminBtnRoom:active{transform:translateY(0) scale(.985)!important}
+#screen-room #adminBtnRoom:focus-visible{outline:3px solid #fff1ad!important;outline-offset:3px!important}
+#screen-room #adminBtnRoom + #adminBadge{display:none!important}
+#screen-room #adminBtnRoom.sf169-admin-launch:not([data-sf169-authorized="true"]){display:none!important}
+@media(max-width:768px){
+ #screen-room #adminBtnRoom.sf169-admin-launch{min-height:36px!important;height:36px!important;padding:5px 8px 5px 5px!important;gap:5px;max-width:125px;border-radius:10px!important}
+ #screen-room #adminBtnRoom .sf169-admin-mark{width:26px;height:25px;font-size:13px;border-radius:8px}
+ #screen-room #adminBtnRoom .sf169-admin-copy strong{font-size:10px}
+ #screen-room #adminBtnRoom .sf169-admin-copy small{font-size:8px;letter-spacing:0}
+ #screen-room #adminBtnRoom .sf169-admin-chevron{display:none}
+}
+@media(max-width:400px){
+ #screen-room #adminBtnRoom.sf169-admin-launch{max-width:92px;padding:5px!important}
+ #screen-room #adminBtnRoom .sf169-admin-copy small{display:none}
+}
+@media(prefers-reduced-motion:reduce){#screen-room #adminBtnRoom.sf169-admin-launch{transition:none!important}}
