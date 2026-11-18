@@ -6,6 +6,21 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
+## ✦ Fan Clubs 4.0 — evolução v160
+
+O Fan Club agora utiliza o mesmo guide visual escuro/indie do SonoraFan, com layout compacto, hero sem sobreposição, regras recolhíveis e navegação por **Mural, Músicas, Enquetes, Eventos e Membros**.
+
+- **Mural com filtros e busca local**: todos, recomendações, fixados e mais curtidos; busca sobre os 35 posts carregados.
+- **Comentários por publicação**: respostas persistentes, acesso por membro e exclusão por autor ou moderação.
+- **Cards musicais e descobertas**: URLs reais do YouTube rendem miniaturas e links, além de agregação de até 100 posts recentes por vídeo compartilhado.
+- **Enquetes musicais**: criação e exclusão por criador/admin; membros votam uma vez por enquete, com limite de 300 votos.
+- **Destaques da comunidade**: ranking de contribuições recentes, calculado por posts, comentários e curtidas recebidas; não equivale a XP.
+- **Denúncias privadas**: membros podem denunciar uma publicação uma vez; apenas criador e administradores podem ver e resolver os relatos.
+- **Mobile**: abas compactas roláveis, controles maiores, colunas em fluxo único e suporte a movimento reduzido.
+- **Segurança**: bloqueios, acesso a membros e permissões aplicados nas rotas do servidor. Exclusões do Fan Club removem comentários, enquetes e denúncias, além de posts e capas.
+
+Validação: `npm test` e checagens de sintaxe via GitHub Actions na `main`. Confirmar o deploy do Render e testar interações em dispositivos reais antes de considerar a versão publicada ao público.
+
 ## ✦ Fan Clubs 3.0 — evolução v151
 
 - **Mural em destaque:** somente criadores e administradores globais podem fixar uma publicação por Fan Club. A exclusão de um post fixado remove o destaque.
