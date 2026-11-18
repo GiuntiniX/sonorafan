@@ -210,33 +210,68 @@
    const blocked=(d.club.blockedMembers||[]).map(m=>`<div class="sf71-member"><span>⛔</span><strong>${esc(m.name)}</strong><button type="button" data-sf71-unblock="${esc(m.id)}">Desbloquear</button></div>`).join('');
    return `<details class="sf71-members"><summary>Participantes (${d.club.memberCount})</summary><div class="sf71-members-list">${members}${blocked}</div></details>`;
  }
+ const forumTypes={
+   conversa:{icon:'💬',title:'Conversa',description:'Um papo livre com outros fãs.',css:'conversa'},
+   duvida:{icon:'❔',title:'Dúvida',description:'Pergunte à comunidade e encontre respostas.',css:'duvida'},
+   novidade:{icon:'✨',title:'Novidade',description:'Conte uma notícia ou atualização aos fãs.',css:'novidade'},
+   evento:{icon:'📅',title:'Evento',description:'Converse sobre shows e encontros.',css:'evento'},
+   ideia:{icon:'💡',title:'Ideia',description:'Compartilhe propostas com a comunidade.',css:'ideia'}
+ };
+ const topicFor=topic=>forumTypes[topic]||forumTypes.conversa;
  function postHtml(p){
- return `<article class="sf71-post ${p.pinned?'sf151-pinned':''}" data-sf71-post="${esc(p.id)}">
- ${p.pinned?'<span class="sf151-pin-label">📌 Publicação fixada</span>':''}
- <div class="sf71-post-head"><strong>${esc(({conversa:'💬',duvida:'❔',novidade:'✨',evento:'📅',ideia:'💡'})[p.topic]||'💬')} ${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(p.text)}</p>${p.hasImage?`<img class="sf170-post-image" loading="lazy" alt="Foto anexada à publicação" src="/api/fan-clubs/${encodeURIComponent(state.activeId)}/posts/${encodeURIComponent(p.id)}/image">`:''}
- <div class="sf151-post-actions"><button type="button" data-sf151-like="${esc(p.id)}" aria-pressed="${!!p.liked}">♡ ${Math.max(0,Number(p.likeCount)||0)} curtidas</button>
- <button type="button" data-sf160-comments="${esc(p.id)}" aria-expanded="${state.commentsOpen===p.id}">💬 Comentários</button>
- <button type="button" data-sf160-report="${esc(p.id)}">⚑ Denunciar</button>
- ${p.canPin?`<button type="button" data-sf151-pin="${esc(p.id)}" data-pinned="${!!p.pinned}">${p.pinned?'Desafixar':'📌 Fixar'}</button>`:''}
- ${p.editable?`<button type="button" data-sf71-delete-post="${esc(p.id)}">Excluir</button>`:''}</div>
- ${state.commentsOpen===p.id?`<section class="sf160-comments" data-comments-for="${esc(p.id)}">Carregando comentários…</section>`:''}</article>`;}
+   const type=topicFor(p.topic),question=(p.topic==='duvida');
+   return `<article class="sf71-post sf180-post sf180-type-${type.css} ${p.pinned?'sf151-pinned':''} ${p.resolved?'sf180-resolved':''}" data-sf71-post="${esc(p.id)}">
+     <div class="sf180-post-meta"><span class="sf180-topic-label">${type.icon} ${type.title}</span><small>${type.description}</small></div>
+     ${p.pinned?'<span class="sf151-pin-label">📌 Destaque da comunidade</span>':''}
+     <div class="sf71-post-head"><strong>${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div>
+     <p>${esc(p.text)}</p>${p.hasImage?`<img class="sf170-post-image" loading="lazy" alt="Foto anexada à publicação" src="/api/fan-clubs/${encodeURIComponent(state.activeId)}/posts/${encodeURIComponent(p.id)}/image">`:''}
+     ${p.editedAt?'<small class="sf180-edited">✎ Publicação editada</small>':''}
+     ${question?`<div class="sf180-question-status" role="status">${p.resolved?'✓ Dúvida respondida':'⌛ Aguardando respostas'}</div>`:''}
+     <div class="sf151-post-actions">
+       <button type="button" data-sf151-like="${esc(p.id)}" aria-pressed="${!!p.liked}">♡ ${Math.max(0,Number(p.likeCount)||0)} curtidas</button>
+       <button type="button" data-sf160-comments="${esc(p.id)}" aria-expanded="${state.commentsOpen===p.id}">💬 Respostas</button>
+       <button type="button" data-sf160-report="${esc(p.id)}">⚑ Denunciar</button>
+       ${question&&p.canResolve?`<button type="button" data-sf180-resolve="${esc(p.id)}" data-resolved="${!!p.resolved}">${p.resolved?'Reabrir dúvida':'✓ Marcar respondida'}</button>`:''}
+       ${p.canPin?`<button type="button" data-sf151-pin="${esc(p.id)}" data-pinned="${!!p.pinned}">${p.pinned?'Desafixar':'📌 Fixar'}</button>`:''}
+       ${p.authorCanEdit?`<button type="button" data-sf180-edit-post="${esc(p.id)}">✎ Editar</button>`:''}
+       ${p.editable?`<button type="button" data-sf71-delete-post="${esc(p.id)}">Excluir</button>`:''}
+     </div>
+     ${state.commentsOpen===p.id?`<section class="sf160-comments" data-comments-for="${esc(p.id)}">Carregando respostas…</section>`:''}
+   </article>`;
+ }
  function roomHtml(room,owner){return `<div class="sf71-room">${room.track?.videoId?`<img class="sf160-room-cover" loading="lazy" alt="" src="https://i.ytimg.com/vi/${room.track.videoId}/mqdefault.jpg">`:''}<div><strong>♫ ${esc(room.name)}</strong><small>${room.isPlaying?'● Tocando agora':'Sala disponível'} · ${Number(room.listenerCount)||0} ouvintes</small>${room.track?`<small>${esc(room.track.title)}</small>`:''}</div>
    <div class="sf71-room-actions"><button type="button" data-sf71-room="${esc(room.slug)}">Entrar</button>${owner?`<button type="button" data-sf71-unlink="${esc(room.slug)}" title="Desvincular sala">×</button>`:''}</div></div>`;}
  function renderFeed(){
- const box=$('sf71Posts');if(!box)return;
- const q=state.feedSearch.toLocaleLowerCase('pt-BR');
- let posts=state.posts.filter(p=>!q||[p.text,p.authorName].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q)));
- if(state.feedFilter==='pinned')posts=posts.filter(p=>p.pinned);
- if(state.feedFilter==='popular')posts=[...posts].sort((a,b)=>(b.likeCount||0)-(a.likeCount||0));
- box.innerHTML=(posts.length?posts.map(postHtml).join(''):'<p class="sf71-empty">Nenhuma publicação neste filtro.</p>')+(state.postHasMore?'<button type="button" class="sf170-load-more" data-sf170-more>Carregar publicações anteriores</button>':'');
- if(state.commentsOpen)loadComments(state.activeId,state.commentsOpen);
+   const box=$('sf71Posts');if(!box)return;
+   const q=state.feedSearch.toLocaleLowerCase('pt-BR');
+   const all=state.posts;
+   const topicOptions=['conversa','duvida','novidade','evento','ideia'];
+   const countEl=$('sf180ForumCounts');
+   if(countEl){
+     countEl.innerHTML=topicOptions.map(key=>`<button type="button" data-sf180-filter="${key}" aria-pressed="${state.feedFilter===key}">${topicFor(key).icon} ${topicFor(key).title} <strong>${all.filter(p=>(p.topic||'conversa')===key).length}</strong></button>`).join('');
+   }
+   const queryMatch=p=>!q||[p.text,p.authorName,topicFor(p.topic).title].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q));
+   let posts=all.filter(p=>queryMatch(p));
+   if(topicOptions.includes(state.feedFilter))posts=posts.filter(p=>(p.topic||'conversa')===state.feedFilter);
+   if(state.feedFilter==='pinned')posts=posts.filter(p=>p.pinned);
+   if(state.feedFilter==='popular')posts=[...posts].sort((a,b)=>(b.likeCount||0)-(a.likeCount||0)||(b.createdAt||0)-(a.createdAt||0));
+   const activeType=topicOptions.includes(state.feedFilter)?topicFor(state.feedFilter):null;
+   const empty=activeType?`Ainda não há publicações de ${activeType.title.toLowerCase()} neste filtro.`:
+     q?'Nenhuma publicação encontrada. Experimente outro termo.':'Ainda não há publicações nesta visualização.';
+   box.innerHTML=(posts.length?posts.map(postHtml).join(''):`<p class="sf180-empty" role="status">${esc(empty)}</p>`)+
+     (state.postHasMore?'<button type="button" class="sf170-load-more" data-sf170-more>Carregar publicações anteriores</button>':'');
+   const summary=$('sf180FeedSummary');
+   if(summary)summary.textContent=`${posts.length} de ${all.length} publicações carregadas${state.postHasMore?' · existem mais publicações':''}`;
+   if(state.commentsOpen&&posts.some(p=>p.id===state.commentsOpen))loadComments(state.activeId,state.commentsOpen);
  }
  async function loadComments(id,postId){
- const box=$('sf71Posts')?.querySelector('[data-comments-for="'+postId+'"]');if(!box)return;
- try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/comments');
- if(state.activeId!==id||state.commentsOpen!==postId)return;
- box.innerHTML=`<h5>Comentários</h5>${(d.comments||[]).length?d.comments.map(c=>`<div class="sf160-comment"><strong>${esc(c.authorName)}</strong><p>${esc(c.text)}</p>${c.editable?`<button type="button" data-sf160-delete-comment="${esc(c.id)}">Remover</button>`:''}</div>`).join(''):'<p>Seja o primeiro a comentar.</p>'}<form data-sf160-comment-form="${esc(postId)}"><input name="text" aria-label="Comentário" maxlength="350" minlength="2" required placeholder="Escreva uma resposta…"><button type="submit">Responder</button></form>`;
- }catch(e){box.textContent=e.message;}
+   const box=$('sf71Posts')?.querySelector('[data-comments-for="'+postId+'"]');if(!box)return;
+   try{
+     const d=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/comments');
+     if(state.activeId!==id||state.commentsOpen!==postId)return;
+     const postData=state.posts.find(p=>p.id===postId),choose=postData?.topic==='duvida'&&postData?.canResolve;
+     box.innerHTML=`<h5>Respostas da comunidade</h5>${(d.comments||[]).length?d.comments.map(c=>`<div class="sf160-comment ${c.best?'sf180-best-answer':''}"><strong>${esc(c.authorName)}</strong>${c.best?'<span class="sf180-best-label">✓ Resposta escolhida</span>':''}<p>${esc(c.text)}</p><div class="sf180-answer-actions">${choose?`<button type="button" data-sf180-best-answer="${esc(c.id)}" data-post-id="${esc(postId)}">${c.best?'✓ Melhor resposta':'Marcar como resposta'}</button>`:''}${c.editable?`<button type="button" data-sf160-delete-comment="${esc(c.id)}">Remover</button>`:''}</div></div>`).join(''):'<p>Seja o primeiro a responder.</p>'}<form data-sf160-comment-form="${esc(postId)}"><input name="text" aria-label="Nova resposta" maxlength="350" minlength="2" required placeholder="Escreva uma resposta…"><button type="submit">Responder</button></form>`;
+   }catch(e){box.textContent=e.message;}
  }
  async function loadExtras(id){
  try{
