@@ -3,7 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id), panel=$('sfFanClubsPanel');if(!panel)return;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],activePane:'mural',polls:[],ideas:[],contributors:[],reports:[],commentsOpen:null};
+ const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],postCursor:null,postHasMore:false,activePane:'mural',polls:[],ideas:[],contributors:[],reports:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
  const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
  const byId=id=>state.clubs.find(c=>c.id===id);
@@ -195,7 +195,7 @@
  let posts=state.posts.filter(p=>!q||[p.text,p.authorName].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q)));
  if(state.feedFilter==='pinned')posts=posts.filter(p=>p.pinned);
  if(state.feedFilter==='popular')posts=[...posts].sort((a,b)=>(b.likeCount||0)-(a.likeCount||0));
- box.innerHTML=posts.length?posts.map(postHtml).join(''):'<p class="sf71-empty">Nenhuma publicação neste filtro.</p>';
+ box.innerHTML=(posts.length?posts.map(postHtml).join(''):'<p class="sf71-empty">Nenhuma publicação neste filtro.</p>')+(state.postHasMore?'<button type="button" class="sf170-load-more" data-sf170-more>Carregar publicações anteriores</button>':'');
  if(state.commentsOpen)loadComments(state.activeId,state.commentsOpen);
  }
  async function loadComments(id,postId){
@@ -252,7 +252,7 @@
  const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();
  }
  async function openDetail(id){
-   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
@@ -261,7 +261,7 @@
        ${c.rules?`<details class="sf71-rule sf160-rules"><summary>📋 Regras da comunidade</summary><p>${esc(c.rules)}</p></details>`:''}
        <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['mural','Mural'],['polls','Enquetes'],['events','Eventos'],['members','Membros']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='mural'}">${label}</button>`).join('')}</nav>
         <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
-         <button type="button" data-sf71-events>📅 Ver eventos</button>
+         <button type="button" data-sf71-events>📅 Ver eventos</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 ${c.coverVersion?'Trocar':'Adicionar'} capa</button>${c.coverVersion?'<button type="button" data-sf73-remove-cover>Remover capa</button>':''}<input id="sf73DetailCover" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher imagem de capa" hidden>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Conversa da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
@@ -270,10 +270,15 @@
      if(c.joined){await loadPosts(id);await loadExtras(id);if(state.activeId===id)startLive(id);}
    }catch(e){box.innerHTML=`<p class="sf71-empty" role="alert">${esc(e.message)}</p><button type="button" class="sf71-back" data-sf71-back>← Voltar</button>`;}
  }
- async function loadPosts(id){
- try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts');if(state.activeId!==id)return;
- state.posts=Array.isArray(d.posts)?d.posts:[];renderFeed();
- }catch(e){const box=$('sf71Posts');if(box)box.textContent=e.message;}
+ async function loadPosts(id,append=false){
+ try{
+   const url='/api/fan-clubs/'+encodeURIComponent(id)+'/posts'+(append&&state.postCursor?'?before='+encodeURIComponent(state.postCursor):'');
+   const d=await api(url);if(state.activeId!==id)return;
+   const next=Array.isArray(d.posts)?d.posts:[];
+   state.posts=append?[...state.posts,...next.filter(p=>!state.posts.some(old=>old.id===p.id))]:next;
+   state.postCursor=d.nextBefore||null;state.postHasMore=!!d.hasMore;
+   renderFeed();
+ }catch(e){if(append){status(e.message,true);}else{const box=$('sf71Posts');if(box)box.textContent=e.message;}}
  }
  async function chooseRoom(){
    let rooms;try{rooms=await api('/api/social/my-rooms');}catch(e){status(e.message,true);return;}
@@ -284,6 +289,16 @@
      },async id=>{await openDetail(id);});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+ if(t.hasAttribute('data-sf170-more')){await loadPosts(id,true);return;}
+ if(t.hasAttribute('data-sf170-notifications')){
+   await action(async()=>{
+     const enabled=t.dataset.enabled==='true';
+     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/notifications',{enabled});
+     if(state.detail?.club)state.detail.club.notificationsEnabled=enabled;
+     t.textContent=enabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas';
+     t.dataset.enabled=String(!enabled);
+   },'Preferência salva.');return;
+ }
  if(t.hasAttribute('data-sf170-moderator')){
    const userId=t.dataset.sf170Moderator,enabled=t.dataset.enabled==='true';
    if(!confirm(enabled?'Dar permissão de moderação a este participante?':'Retirar a permissão de moderação?'))return;
