@@ -106,8 +106,9 @@ function createRanking60({app,db,sessionEmail,users,gamification45,rateLimit}){
     const score=db.collection('ranking60Reputation').doc(id);
     const week=db.collection('ranking60ForumWeeks').doc(period.week).collection('players').doc(id);
     const month=db.collection('ranking60ForumMonths').doc(period.month).collection('players').doc(id);
+    const collective=db.collection('ranking60CommunityWeeks').doc(period.week);
     const result=await db.runTransaction(async tx=>{
-      const [old,s,w,m]=await Promise.all([tx.get(record),tx.get(score),tx.get(week),tx.get(month)]);
+      const [old,s,w,m,community]=await Promise.all([tx.get(record),tx.get(score),tx.get(week),tx.get(month),tx.get(collective)]);
       if(old.exists)return {awarded:false,reason:'already_awarded'};
       const prev=s.exists?s.data():{},day=localPeriod(now).day;
       const today=prev.day===day?safeScore(prev.todayCount):0;
@@ -118,6 +119,8 @@ function createRanking60({app,db,sessionEmail,users,gamification45,rateLimit}){
         updatedAt:now.toISOString()},{merge:true});
       tx.set(week,{email,score:safeScore(w.exists?w.data()?.score:0)+reputationReward,updatedAt:now.toISOString()},{merge:true});
       tx.set(month,{email,score:safeScore(m.exists?m.data()?.score:0)+reputationReward,updatedAt:now.toISOString()},{merge:true});
+      tx.set(collective,{score:safeScore(community.exists?community.data()?.score:0)+reputationReward,
+        answers:safeScore(community.exists?community.data()?.answers:0)+1,updatedAt:now.toISOString()},{merge:true});
       return {awarded:true,points:reputationReward};
     });
     return result;
@@ -134,7 +137,16 @@ function createRanking60({app,db,sessionEmail,users,gamification45,rateLimit}){
       const [snapshot,preferences,forum]=await Promise.all([
         gamification45.getSnapshot(email),getPreferences(email),db.collection('ranking60Reputation').doc(playerId(email)).get()
       ]);
-      res.json({...snapshot,preferences,
+      let created=users.get(email)?.criadoEm;
+      if(!created)try{const user=await db.collection('users').doc(email).get();if(user.exists)created=user.data()?.criadoEm;}catch(e){}
+      const joined=created?.toDate?created.toDate():created?.seconds?new Date(created.seconds*1000):new Date(created||'');
+      const days=Number.isFinite(joined?.getTime())?Math.max(0,Math.floor((Date.now()-joined.getTime())/86400000)):null;
+      const milestones=[30,90,365].map(d=>({days:d,unlocked:days!==null&&days>=d}));
+      const week=periods(new Date()).week;
+      const collectiveSnap=await db.collection('ranking60CommunityWeeks').doc(week).get();
+      const collective={week,score:safeScore(collectiveSnap.exists?collectiveSnap.data()?.score:0),
+        answers:safeScore(collectiveSnap.exists?collectiveSnap.data()?.answers:0),target:150};
+      res.json({...snapshot,preferences,milestones,accountAgeDays:days,collective,
         nextLevel:LEVELS.find(x=>x.min>snapshot.points)||null,
         reputation:forum.exists?{score:safeScore(forum.data().score),acceptedAnswers:safeScore(forum.data().acceptedAnswers)}:
           {score:0,acceptedAnswers:0},
