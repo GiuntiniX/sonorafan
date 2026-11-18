@@ -461,3 +461,22 @@ test('v180: permissões de coadministrador não incluem exclusão e transferênc
  assert.equal((await m.call('delete',base,{confirmation:'Fãs de Linkin Park'},'leo@exemplo.com')).code,403);
  assert.equal((await m.call('post',base+'/moderators',{userId:'d'.repeat(24),enabled:true},'leo@exemplo.com')).code,403);
 });
+
+test('v180: saída voluntária revoga coadministração e impede edição futura',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ assert.equal((await m.call('post',base+'/moderators',{userId:'b'.repeat(24),enabled:true})).code,200);
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).data.club.canEditProfile,true);
+ assert.equal((await m.call('delete',base+'/join',{},'leo@exemplo.com')).code,200);
+ const detail=(await m.call('get',base,{},'leo@exemplo.com')).data.club;
+ assert.equal(detail.canEditProfile,false);
+ assert.equal(detail.canModerate,false);
+ assert.equal((await m.call('post',base+'/profile',{description:'Não autorizado',rules:'Nada'},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('get',base)).data.club.moderators.length,0);
+});
+test('v180: admin global não edita identidade do clube sem delegação do criador',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ assert.equal((await m.call('get',base,{},'admin@sonora.com')).data.club.canEditProfile,false);
+ assert.equal((await m.call('post',base+'/profile',{description:'Tentativa',rules:'Tentativa'},'admin@sonora.com')).code,403);
+ assert.equal((await m.call('post',base+'/moderators',{userId:'b'.repeat(24),enabled:true},'admin@sonora.com')).code,403);
+});
