@@ -168,7 +168,15 @@
     const items=d.items||[];
     body.innerHTML=`<div class="sf63-intro"><strong>☰ Histórico da ${esc(d.name)}</strong><p>Relembre músicas já tocadas e compartilhe a setlist. São dados registrados pela sala, não exemplos.</p></div>
       <div class="sf63-history-actions"><a href="/api/platform63/setlist/${encode(slug)}.csv" class="sf63-download" download>⇩ Exportar setlist CSV</a><span>${items.length} ${items.length===1?'faixa registrada':'faixas registradas'}</span></div>
-      <div class="sf63-track-list">${items.length?items.map(t=>`${trackCard(t,'song:'+t.id)}<small class="sf63-history-note">${esc(t.dj||'Comunidade')} · ${new Date(t.playedAt).toLocaleString('pt-BR')}</small>`).join(''):'<p class="sf63-empty">O histórico começa a ser registrado conforme as próximas faixas terminarem.</p>'}</div>`;
+      ${items.length>4?'<label class="sf150-history-search-label" for="sf150HistorySearch">Localizar no histórico</label><input id="sf150HistorySearch" class="sf150-history-search" type="search" placeholder="Música, artista ou DJ" autocomplete="off" maxlength="80">':''}
+      <div class="sf63-track-list" id="sf150HistoryResults">${items.length?items.map(t=>`<div class="sf150-history-item">${trackCard(t,'song:'+t.id)}<small class="sf63-history-note">${esc(t.dj||'Comunidade')} · ${new Date(t.playedAt).toLocaleString('pt-BR')}</small></div>`).join(''):'<p class="sf63-empty">O histórico começa a ser registrado conforme as próximas faixas terminarem.</p>'}</div>`;
+    document.getElementById('sf150HistorySearch')?.addEventListener('input',event=>{
+      const q=String(event.target.value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+      body.querySelectorAll('.sf150-history-item').forEach(item=>{
+        const hay=String(item.textContent||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
+        item.hidden=!!q&&!hay.includes(q);
+      });
+    });
   }
   async function renderSocial(){
     const [contacts,inbox,notifications]=await Promise.all([api('/api/chat53/contacts').catch(()=>[]),api('/api/chat53/inbox').catch(()=>[]),api('/api/social/notifications').catch(()=>[])]);
