@@ -262,9 +262,13 @@
        .then(async entries=>{
          if(!Array.isArray(entries))return;
          const supported=[...KNOWN_THEMES].filter(id=>id!=='geral');
-         const valid=entries.filter(entry=>entry&&supported.includes(entry.id)&&
-           entry.art==='/themes/final-164/'+entry.id+'.webp'&&
-           entry.thumbnail==='/themes/final-164/'+entry.id+'-thumb.webp');
+         const upgraded=new Set(['funk','pagode','sertanejo','reggae','jazz','forro']);
+         const valid=entries.filter(entry=>{
+           if(!entry||!supported.includes(entry.id))return false;
+           const folder=upgraded.has(entry.id)?'final-169':'final-164';
+           return entry.art==='/themes/'+folder+'/'+entry.id+'.webp'&&
+             entry.thumbnail==='/themes/'+folder+'/'+entry.id+'-thumb.webp';
+         });
          if(valid.length!==supported.length||new Set(valid.map(x=>x.id)).size!==supported.length)return;
          const loadImage=src=>new Promise((resolve,reject)=>{
            const picture=new Image();
