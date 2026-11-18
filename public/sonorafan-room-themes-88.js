@@ -261,12 +261,12 @@
    rap:['/themes/final-171/rap.webp','/themes/final-171/rap-thumb.webp'],
    funk:['/themes/final-169/funk.webp','/themes/final-169/funk-thumb.webp'],
    pagode:['/themes/final-170/pagode.webp','/themes/final-170/pagode-thumb.webp'],
-   sertanejo:['/themes/hd-175/sertanejo.svg','/themes/hd-175/sertanejo.svg'],
+   sertanejo:['/themes/hd-175/sonorafan-sertanejo-aprovado.webp','/themes/hd-175/sonorafan-sertanejo-thumb.webp'],
    reggae:['/themes/final-170/reggae.webp','/themes/final-170/reggae-thumb.webp'],
    jazz:['/themes/final-170/jazz.webp','/themes/final-170/jazz-thumb.webp'],
    forro:['/themes/final-170/forro.webp','/themes/final-170/forro-thumb.webp']
  });
- const themeRevision='176';
+ const themeRevision='177';
  const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
  fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'no-store'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
