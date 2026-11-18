@@ -247,3 +247,27 @@
    grid-template-columns:repeat(2,minmax(0,1fr))!important
  }
 }
+
+/* Profile close is a viewport-level control: visible even while the profile body scrolls. */
+#sf43ProfileModal.active .sf43-profile-close{
+ position:sticky!important;top:0!important;right:0!important;
+ float:right!important;display:grid!important;place-items:center!important;
+ width:44px!important;height:44px!important;min-width:44px!important;
+ min-height:44px!important;margin:12px 12px -56px auto!important;
+ padding:0!important;border:1px solid #f29bc7!important;
+ border-radius:12px!important;background:#301a3c!important;
+ color:#fff!important;font-size:23px!important;line-height:1!important;
+ cursor:pointer!important;z-index:1002!important;visibility:visible!important;
+ opacity:1!important;pointer-events:auto!important;
+ box-shadow:0 5px 18px rgba(0,0,0,.5)!important
+}
+#sf43ProfileModal.active .sf43-profile-shell{position:relative!important;overflow:visible!important}
+#sf43ProfileModal.active .sf43-profile-hero-copy{padding-right:50px!important}
+#sf43ProfileModal.active .sf43-profile-close:hover{background:#5c285c!important;transform:none!important}
+#sf43ProfileModal.active .sf43-profile-close:focus-visible{outline:3px solid #caff00!important;outline-offset:3px!important}
+@media(max-width:760px){
+ #sf43ProfileModal.active .sf43-profile-close{
+  margin:calc(8px + env(safe-area-inset-top,0px)) 8px -58px auto!important;
+  width:46px!important;height:46px!important
+ }
+}
