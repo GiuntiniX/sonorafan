@@ -72,6 +72,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   };
   const throwHttp = (status,message) => {const e=new Error(message);e.status=status;throw e;};
   const validateId = id => typeof id==='string' && /^[a-f0-9-]{36}$/.test(id);
+  const youtubeId = text => {
+    const match=String(text||'').match(/(?:youtube\.com\/watch\?[^\s]*?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+    return match ? match[1] : null;
+  };
   const record = (data, id) => ({
     id: String(id || data.id), title: data.title, artist: data.artist, description:data.description,
     rules:data.rules, theme:data.theme, ownerId:data.ownerId, ownerName:data.ownerName,
@@ -276,6 +280,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para ler o mural.');
       const snap=await ref.collection('posts').orderBy('createdAt','desc').limit(35).get();
       const posts=snap.docs.map(d=>({id:d.id,...d.data(),likedBy:undefined,
+        musicVideoId:youtubeId(d.data().text),
         pinned:d.id===data.pinnedPostId,likeCount:unique(d.data().likedBy).length,
         liked:unique(d.data().likedBy).includes(me.id),
         editable:d.data().authorId===me.id||ownerOrAdmin(data,me),
@@ -344,6 +349,122 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       publish(req.params.id,'post');res.json(result);
     }catch(e){error(res,e);}
   });
+  // Fan Clubs 4.0: discussões com comentários armazenados na subcoleção do clube.
+  app.get('/api/fan-clubs/:id/posts/:postId/comments',rateLimit(50,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ler os comentários.');
+      const post=await ref.collection('posts').doc(req.params.postId).get();
+      if(!post.exists)throwHttp(404,'Publicação não encontrada.');
+      const snap=await ref.collection('comments').orderBy('createdAt','desc').limit(150).get();
+      const comments=snap.docs.filter(d=>d.data().postId===req.params.postId).slice(0,50)
+        .map(d=>({...d.data(),id:d.id,editable:d.data().authorId===me.id||ownerOrAdmin(data,me)}));
+      res.json({comments});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/posts/:postId/comments',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const text=clean(req.body?.text,350);
+    if(text.length<2)return res.status(400).json({error:'Escreva pelo menos 2 caracteres.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para comentar.');
+      const target=await ref.collection('posts').doc(req.params.postId).get();
+      if(!target.exists)throwHttp(404,'Publicação não encontrada.');
+      const comment={postId:req.params.postId,authorId:me.id,authorName:me.name,text,createdAt:Date.now()};
+      const doc=ref.collection('comments').doc();
+      await doc.create(comment);publish(req.params.id,'post');
+      res.status(201).json({comment:{...comment,id:doc.id,editable:true}});
+    }catch(e){error(res,e);}
+  });
+  app.delete('/api/fan-clubs/:id/comments/:commentId',rateLimit(15,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      const target=ref.collection('comments').doc(req.params.commentId);
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(target);
+        if(!snap.exists)throwHttp(404,'Comentário não encontrado.');
+        if(snap.data().authorId!==me.id&&!ownerOrAdmin(data,me))throwHttp(403,'Sem permissão para remover.');
+        tx.delete(target);
+      });
+      publish(req.params.id,'post');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  // Enquetes: somente membros votam; autoria é reservada aos moderadores.
+  app.get('/api/fan-clubs/:id/polls',rateLimit(40,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ver enquetes.');
+      const snap=await ref.collection('polls').orderBy('createdAt','desc').limit(12).get();
+      res.json({polls:snap.docs.map(d=>({id:d.id,question:d.data().question,options:d.data().options,
+        counts:(d.data().options||[]).map((_,i)=>Object.values(d.data().votes||{}).filter(v=>v===i).length),
+        voted:Object.hasOwn(d.data().votes||{},me.id),myVote:d.data().votes?.[me.id]??null,
+        createdAt:d.data().createdAt,canDelete:ownerOrAdmin(data,me)}))});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/polls',rateLimit(8,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const question=clean(req.body?.question,140);
+    const options=Array.isArray(req.body?.options)?req.body.options.slice(0,4).map(v=>clean(v,80)).filter(Boolean):[];
+    if(question.length<8||options.length<2||new Set(options.map(v=>v.toLowerCase())).size!==options.length)
+      return res.status(400).json({error:'Informe uma pergunta e 2 a 4 opções diferentes.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente moderadores podem criar enquetes.');
+      const doc=ref.collection('polls').doc();
+      await doc.create({question,options,votes:{},createdAt:Date.now()});
+      publish(req.params.id,'post');res.status(201).json({id:doc.id});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/polls/:pollId/vote',rateLimit(20,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const choice=req.body?.choice;
+    if(!Number.isInteger(choice)||choice<0||choice>3)return res.status(400).json({error:'Opção inválida.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para votar.');
+      const target=ref.collection('polls').doc(req.params.pollId);
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(target);if(!snap.exists)throwHttp(404,'Enquete não encontrada.');
+        const poll=snap.data();
+        if(choice>=poll.options.length)throwHttp(400,'Opção inválida.');
+        if(Object.hasOwn(poll.votes||{},me.id))throwHttp(409,'Você já votou nesta enquete.');
+        const votes={...(poll.votes||{}),[me.id]:choice};
+        if(Object.keys(votes).length>300)throwHttp(409,'Limite de votos atingido.');
+        tx.update(target,{votes});
+      });
+      publish(req.params.id,'post');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  app.delete('/api/fan-clubs/:id/polls/:pollId',rateLimit(8,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente a moderação pode remover enquetes.');
+      await ref.collection('polls').doc(req.params.pollId).delete();
+      publish(req.params.id,'post');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  // Descobertas reais de URLs do YouTube compartilhadas no mural; sem dados inventados.
+  app.get('/api/fan-clubs/:id/music',rateLimit(35,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para descobrir músicas.');
+      const snap=await ref.collection('posts').orderBy('createdAt','desc').limit(100).get();
+      const rank=new Map();
+      for(const doc of snap.docs){
+        const id=youtubeId(doc.data().text);if(!id)continue;
+        const current=rank.get(id)||{videoId:id,shares:0,likes:0};
+        current.shares++;current.likes+=unique(doc.data().likedBy).length;rank.set(id,current);
+      }
+      const tracks=[...rank.values()].sort((a,b)=>b.shares-a.shares||b.likes-a.likes).slice(0,12);
+      res.json({tracks});
+    }catch(e){error(res,e);}
+  });
   app.post('/api/fan-clubs/:id/rooms',rateLimit(15,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const slug=String(req.body?.slug||'');const room=rooms.get(slug);
@@ -398,6 +519,15 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         // interrompem a limpeza e deixam o tombstone para uma nova tentativa.
         for(const doc of snap.docs)await doc.ref.delete();
         if(batch===99)throwHttp(503,'A limpeza ainda não terminou. Repita a exclusão.');
+      }
+      for(const sub of ['comments','polls']){
+        const col=ref.collection(sub);
+        for(let batch=0;batch<50;batch++){
+          const snap=await col.orderBy('createdAt','desc').limit(100).get();
+          if(!snap.docs.length)break;
+          for(const doc of snap.docs)await doc.ref.delete();
+          if(batch===49)throwHttp(503,'Limpeza incompleta. Repita a exclusão.');
+        }
       }
       await coverRef(id).delete();
       await ref.delete();
