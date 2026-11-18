@@ -1442,6 +1442,7 @@
   <link rel="stylesheet" href="/sonorafan-community-110.css?v=139.1">
   <link rel="stylesheet" href="/sonorafan-profile-108.css?v=108.1">
   <link rel="stylesheet" href="/sonorafan-profile-library-112.css?v=112.2">
+  <link rel="stylesheet" href="/sonorafan-profile-60.css?v=600.0">
 <link rel="stylesheet" href="/sonorafan-room-redesign-113.css?v=119">
   <link rel="stylesheet" href="/sonorafan-home-120.css?v=120">
   <link rel="stylesheet" href="/sonorafan-home-121.css?v=121.1">
@@ -1828,13 +1829,13 @@
     <div class="modal sf45-club-modal" role="document">
       <header class="sf45-club-head">
         <div>
-          <span class="sf45-kicker">✦ SONORAFAN CLUB</span>
+          <span class="sf45-kicker">✦ MINHA JORNADA</span>
           <h3 id="sf45ClubTitle">Sua música. Sua jornada.</h3>
           <p>Explore, colabore e conquiste novas vibrações com a comunidade.</p>
         </div>
         <div class="sf45-club-head-actions">
           <button type="button" id="sf45ClubRefresh" class="sf45-refresh" aria-label="Atualizar meu progresso">↻</button>
-          <button type="button" class="sf45-close" onclick="window.sf45CloseClub?.()" aria-label="Fechar SonoraFan Club">✕</button>
+          <button type="button" class="sf45-close" onclick="window.sf45CloseClub?.()" aria-label="Fechar Minha Jornada">✕</button>
         </div>
       </header>
       <div class="sf45-club-scroll" id="sf45ClubScroll" tabindex="0">
@@ -1919,7 +1920,7 @@
         <nav class="sf28-sidebar-nav">
           <button type="button" class="active" aria-current="page"><span class="sf64-menu-icon sf64-icon-discover" aria-hidden="true">◈</span><span>Descobrir salas</span></button>
           <button type="button" onclick="openLeaderboard()"><span class="sf64-menu-icon sf64-icon-ranking" aria-hidden="true">♛</span><span>Ranking</span></button>
-          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry"><span class="sf64-menu-icon sf64-icon-club" aria-hidden="true">🏅</span><span>SonoraFan Club</span></button>
+          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry"><span class="sf64-menu-icon sf64-icon-club" aria-hidden="true">🏅</span><span>Minha Jornada</span></button>
           <button type="button" data-sf63-open="passport" class="sf63-menu-entry"><span class="sf64-menu-icon sf64-icon-passport" aria-hidden="true">🎟️</span><span>Minha Jornada</span></button>
           <button type="button" onclick="window.sf5OpenCommunity?.()"><span class="sf64-menu-icon sf64-icon-community" aria-hidden="true">💬</span><span>Comunidade</span></button>
           <button type="button" onclick="document.querySelector('.sf15-lobby-bell')?.click()"><span class="sf64-menu-icon sf64-icon-bell" aria-hidden="true">🔔</span><span>Notificações</span></button>
@@ -2124,7 +2125,7 @@
           <button class="sf5-active" type="button" onclick="setTab('player')"><span class="sf64-menu-icon sf64-icon-room" aria-hidden="true">⌂</span><span>Sala Atual</span></button>
           <button type="button" onclick="leaveRoom()"><span class="sf64-menu-icon sf64-icon-discover" aria-hidden="true">◈</span><span>Descobrir salas</span></button>
           <button type="button" onclick="openLeaderboard()"><span class="sf64-menu-icon sf64-icon-ranking" aria-hidden="true">♛</span><span>Ranking</span></button>
-          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry"><span class="sf64-menu-icon sf64-icon-club" aria-hidden="true">🏅</span><span>SonoraFan Club</span></button>
+          <button type="button" onclick="window.sf45OpenClub?.()" class="sf45-nav-entry"><span class="sf64-menu-icon sf64-icon-club" aria-hidden="true">🏅</span><span>Minha Jornada</span></button>
           <button type="button" data-sf63-open="passport" class="sf63-menu-entry"><span class="sf64-menu-icon sf64-icon-passport" aria-hidden="true">🎟️</span><span>Minha Jornada</span></button>
           <button type="button" onclick="window.sf5OpenCommunity?.()"><span class="sf64-menu-icon sf64-icon-community" aria-hidden="true">♧</span><span>Comunidade</span></button>
           <button type="button" class="sf53-nav-inbox" onclick="window.sf53OpenInbox?.()"><span class="sf64-menu-icon sf64-icon-messages" aria-hidden="true">✉</span><span>Mensagens <b class="sf53-unread" hidden>0</b></span></button>
@@ -2658,10 +2659,10 @@
             </div>
           </section>
 
-          <section class="sf50-profile-club" aria-label="Seu progresso no SonoraFan Club">
-            <div class="sf50-profile-club-top"><div><span>✦ SEU SONORAFAN CLUB</span><strong id="sf50ProfileLevel">Sua jornada musical</strong><small id="sf50ProfileMessage">Carregando seu progresso real...</small></div><div class="sf50-xp-score"><strong id="sf50ProfileXp">—</strong><small>XP acumulado</small></div></div>
+          <section class="sf50-profile-club" aria-label="Resumo da sua jornada SonoraFan">
+            <div class="sf50-profile-club-top"><div><span>✦ MINHA JORNADA</span><strong id="sf50ProfileLevel">Sua jornada musical</strong><small id="sf50ProfileMessage">Carregando seu progresso real...</small></div><div class="sf50-xp-score"><strong id="sf50ProfileXp">—</strong><small>XP acumulado</small></div></div>
             <div class="sf50-xp-progress" role="progressbar" aria-label="Progresso do próximo nível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="sf50ProfileBar"></span></div>
-            <div class="sf50-profile-club-foot"><span id="sf50ProfileMissions">Missões e medalhas do Club</span><button type="button" onclick="window.sf43CloseProfile?.(); window.sf45OpenClub?.();">Abrir SonoraFan Club ↗</button></div>
+            <div class="sf50-profile-club-foot"><span id="sf50ProfileMissions">Conquistas e desafios integrados</span><button type="button" onclick="window.sf112SwitchProfileTab?.('achievements');">Ver Conquistas e Minha Jornada</button></div>
           </section>
           <section class="sf43-profile-grid">
             <article class="sf43-profile-card">
@@ -4769,7 +4770,7 @@ function openRoomCfg() {
   
   <script defer src="/sonorafan-experience-44.js"></script>
   
-  <script defer src="/sonorafan-club-45.js?v=140.0"></script>
+  <script defer src="/sonorafan-club-45.js?v=600.0"></script>
   
   <script defer src="/sonorafan-ranking-60.js?v=600.0"></script>
   <script defer src="/sonorafan-ux-50.js"></script>
@@ -4824,8 +4825,8 @@ function openRoomCfg() {
   <script defer src="/sonorafan-lobby-107.js?v=150.0"></script>
   <script defer src="/sonorafan-room-genres-109.js?v=110.1"></script>
   <script defer src="/sonorafan-community-110.js?v=150.1"></script>
-  <script defer src="/sonorafan-profile-108.js?v=150.0"></script>
-  <script defer src="/sonorafan-profile-library-112.js?v=112.2"></script>
+  <script defer src="/sonorafan-profile-108.js?v=600.0"></script>
+  <script defer src="/sonorafan-profile-library-112.js?v=600.0"></script>
 <script defer src="/sonorafan-room-redesign-113.js?v=119"></script>
   <script defer src="/sonorafan-unified-125.js?v=144.0"></script>
   <script defer src="/sonorafan-experience-126.js?v=126.1"></script>
