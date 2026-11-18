@@ -305,10 +305,12 @@
      if(state.activeId!==id)return;
      state.focusPost=data.post;state.replyTo=null;state.quoteTo=null;state.related=[];
      state.commentsOpen=postId;switchPane('mural');
-     const related=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/related');
-     if(state.focusPost?.id!==postId)return;state.related=related.related||[];
      if(push)history.pushState({sf600:true},'',topicUrl(id,postId));
      renderFocusedPost();$('sf71Posts')?.scrollIntoView({behavior:'smooth',block:'start'});
+     try{
+       const related=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/related');
+       if(state.focusPost?.id===postId){state.related=related.related||[];renderFocusedPost();}
+     }catch(e){/* A discussão continua acessível se sugestões relacionadas falharem. */}
    }catch(e){status(e.message,true);}
  }
  function closeTopic(changeUrl=true){
