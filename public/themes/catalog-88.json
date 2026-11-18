@@ -125,13 +125,14 @@
   {
     "id": "sertanejo",
     "name": "Sertanejo",
-    "description": "Estrada ao entardecer, céu âmbar e violão de estrada",
+    "description": "Festival nas montanhas ao pôr do sol, Kombi retrô e arte vetorial nítida",
     "primary": "#ee9850",
     "secondary": "#deb96c",
     "bg": "#342019",
     "text": "#fff1db",
     "emoji": "🤠",
-    "art": "/themes/illustrations/sertanejo.webp"
+    "art": "/themes/hd-175/sertanejo.svg",
+    "thumbnail": "/themes/hd-175/sertanejo.svg"
   },
   {
     "id": "reggae",
