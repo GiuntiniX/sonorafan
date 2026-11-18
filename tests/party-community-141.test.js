@@ -39,6 +39,7 @@ test('fanclub program uses real linked events and existing RSVP route',()=>{
  assert.match(client,/data-sf141-club-room/);
  assert.match(client,/\/api\/social\/events\//);
  assert.match(client,/Programação do Fan Club/);
+ assert.doesNotMatch(client,/<h4>Salas do Fan Club<\/h4>/);
 });
 test('existing studio hosts party and admin-only conflict diagnostic',()=>{
  const studio=read('public/sonorafan-studio-100.js');
