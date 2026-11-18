@@ -14,13 +14,14 @@
   {
     "id": "indie",
     "name": "Indie / Festival",
-    "description": "Pôster de festival alternativo, luz coral e traços de palco indie",
+    "description": "Pôster indie alternativo, distinto da arte padrão do festival",
     "primary": "#c256e7",
     "secondary": "#fb8074",
     "bg": "#170e27",
     "text": "#f2d9ff",
     "emoji": "🎪",
-    "art": "/themes/illustrations/indie.webp"
+    "art": "/themes/illustrations/indie.webp",
+    "thumbnail": "/themes/illustrations/indie.webp"
   },
   {
     "id": "metal",
