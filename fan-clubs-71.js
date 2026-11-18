@@ -347,10 +347,14 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.get('/api/fan-clubs/:id/posts',rateLimit(60,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para ler o mural.');
-      const before=Number(req.query?.before);
-      if(req.query?.before!==undefined&&(!Number.isSafeInteger(before)||before<=0))throwHttp(400,'Cursor inválido.');
+      const before=req.query?.before;
+      if(before!==undefined&&!/^[A-Za-z0-9_-]{1,80}$/.test(String(before)))throwHttp(400,'Cursor inválido.');
       let query=ref.collection('posts').orderBy('createdAt','desc');
-      if(req.query?.before!==undefined)query=query.startAfter(before);
+      if(before!==undefined){
+        const previous=await ref.collection('posts').doc(String(before)).get();
+        if(!previous.exists)throwHttp(400,'Publicação anterior não encontrada.');
+        query=query.startAfter(previous);
+      }
       const snap=await query.limit(36).get();
       const page=snap.docs.slice(0,35),hasMore=snap.docs.length>35;
       const posts=page.map(d=>({id:d.id,...d.data(),likedBy:undefined,
@@ -359,7 +363,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         editable:d.data().authorId===me.id||canModerate(data,me),
         canPin:canModerate(data,me)}));
       posts.sort((a,b)=>Number(b.pinned)-Number(a.pinned)||(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
-      res.json({posts,hasMore,nextBefore:hasMore?Number(page.at(-1)?.data()?.createdAt)||null:null});
+      res.json({posts,hasMore,nextBefore:hasMore?page.at(-1)?.id||null:null});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/posts',rateLimit(12,60000),async(req,res)=>{
