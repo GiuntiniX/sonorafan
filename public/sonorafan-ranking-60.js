@@ -140,7 +140,7 @@
     const d=state.hall;if(!d)return '<p class="sf60-notice">Carregando temporadas…</p>';
     const seasons=d.seasons||[];
     return '<section class="sf60-section"><h4>🏆 Hall da Fama</h4>'+
-      '<p>Campeões de períodos encerrados com pontuação validada desde o início do Ranking 6.0. Sem campeões inventados.</p>'+
+      '<p>Campeões de temporadas encerradas com pontuação validada. Não são exibidos resultados fictícios.</p>'+
       (seasons.length?seasons.map(s=>'<div class="sf60-mission"><strong>🥇 '+esc(s.avatar)+' '+esc(s.champion)+'</strong>'+
         '<small> · '+(s.period==='week'?'Semana ':'Mês ')+esc(s.key)+' · '+fmt(s.score)+' XP</small></div>').join(''):
         '<p>O Hall da Fama receberá os primeiros campeões após o encerramento de uma temporada.</p>')+'</section>';
