@@ -24,6 +24,16 @@ test('performance: results cache is bounded, expires and never persists private 
  assert.match(source,/uniqueIds\.has\(item\.id\)/);
 });
 
+test('inline search for mobile reuses bounded results, without changing queue permissions',()=>{
+ const source=read('public/sonorafan-inline-search-78.js');
+ assert.match(source,/const sf150InlineCache=new Map\(\)/);
+ assert.match(source,/if\(sf150InlineCache\.size>12\)/);
+ assert.match(source,/Date\.now\(\)-item\.at>90000/);
+ assert.match(source,/!seen\.has\(item\.id\)/);
+ assert.match(source,/window\.sf78SearchFromField/);
+ assert.match(read('public/index.html'),/sonorafan-inline-search-78\.js\?v=150\.0/);
+});
+
 test('lobby: only real public rooms, now-playing labels and bounded live refresh',()=>{
  const source=read('public/sonorafan-lobby-107.js');
  assert.match(source,/!r\.isPrivate&&valid\(r\.slug\)/);
