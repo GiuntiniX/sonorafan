@@ -214,6 +214,9 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
       const monthRef=db.collection('ranking60Months').doc(ranking60Month(now)).collection('players').doc(ranking60Id(email));
       // Firestore exige todas as leituras antes de qualquer escrita.
       const [weekly,monthly]=await Promise.all([tx.get(weekRef),tx.get(monthRef)]);
+      if(action==='song'&&next.gained>0)next.data.ranking60={
+        ...(current.ranking60||{}),djXP:positiveNumber(current.ranking60?.djXP)+next.gained
+      };
       tx.set(ref, next.data, { merge: true });
       if(next.gained>0){
         for(const [target,snapshot] of [[weekRef,weekly],[monthRef,monthly]]){
