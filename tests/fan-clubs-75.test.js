@@ -21,7 +21,7 @@ function mock(gamification45){
    let entries=[...docs].filter(([k])=>k.startsWith(key+'/')&&!k.slice(key.length+1).includes('/'));
    if(where){entries=entries.filter(([,value])=>where.op==='=='&&value[where.field]===where.value);}
    if(order){entries.sort(([,a],[,b])=>direction==='desc'?b[order]-a[order]:a[order]-b[order]);}
-    if(this.after!==undefined&&order){entries=entries.filter(([,value])=>direction==='desc'?value[order]<this.after:value[order]>this.after);}
+    if(this.after!==undefined&&order){const index=entries.findIndex(([key])=>key===this.after.ref?.key);entries=index>=0?entries.slice(index+1):[];}
    if(this.max)entries=entries.slice(0,this.max);
    return {size:entries.length,docs:entries.map(([k,value])=>({id:k.slice(key.length+1),data:()=>structuredClone(value),ref:ref(k)}))};
   }};}
