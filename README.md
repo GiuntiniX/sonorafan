@@ -40,7 +40,7 @@ Evolução incremental sobre os módulos existentes; preserva player YouTube, fi
 - **Identidade e conquistas:** resumo de gêneros declarados e contagem das medalhas oficiais já concedidas no perfil. Não cria pontuação fictícia.
 - **Histórico:** filtro local por música, artista ou DJ na setlist existente; exportação CSV e autorização atual preservadas.
 - **Busca inteligente:** resultados recentes reutilizados, sem duplicar IDs nem novas chaves do YouTube.
-- **Fan Clubs:** alternância para visualizar apenas recomendações musicais reais no mural autorizado, sem novo feed.
+- **Fan Clubs (histórico v150):** filtro de recomendações musicais introduzido anteriormente; removido posteriormente para manter o foco em comunidade.
 - **Temas:** refinamento de legibilidade, foco e responsividade na galeria atual; preservadas as imagens e os 14 estilos.
 - **Estabilidade:** prevenção de consultas simultâneas ao Lobby, AbortController e fallback diante de falhas, sem alterar a fila.
 - **Lobby:** nome da faixa tocando agora nos cards das salas públicas, quando disponível.
@@ -67,7 +67,7 @@ Evolução incremental sobre os módulos existentes; preserva player YouTube, fi
 As experiências avançadas ficam em **Meu universo musical → Estúdio**, sem novos painéis permanentes na sala.
 
 - **Sincronização e recuperação**: compara o tempo de reprodução com a sala em intervalos moderados, corrige atrasos no player quando autorizado e registra erros de vídeo. Vídeos restritos só avançam automaticamente após confirmação de vários ouvintes, pelo responsável, ou por verificação do YouTube em sala com apenas uma pessoa.
-- **Mixtapes colaborativas**: salve a fila de uma sala pública, acrescente faixas da fila enquanto participa, compartilhe por link e publique no mural de Fan Clubs. Criador controla compartilhamento e exclusão.
+- **Mixtapes colaborativas**: salve a fila de uma sala pública, acrescente faixas enquanto participa e compartilhe por link. Criador controla compartilhamento e exclusão; o envio ao mural dos Fan Clubs foi descontinuado.
 - **Match musical**: opt-in por conta, disponível apenas entre pessoas presentes na mesma sala pública que aceitaram participar. Comparação de gêneros declarados e artistas adicionados, sem inferir características pessoais.
 - **Sessões temáticas**: extensão dos eventos existentes, com estilo, duração, contagem regressiva, inscrições e acesso à sala. Apenas o responsável pela sala agenda.
 - **Avisos inteligentes**: opt-in, checagem enquanto a aplicação está aberta, permissão do navegador solicitada pela pessoa; nunca expõe atividade em salas privadas.
