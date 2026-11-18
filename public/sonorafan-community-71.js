@@ -192,7 +192,7 @@
  ${p.canPin?`<button type="button" data-sf151-pin="${esc(p.id)}" data-pinned="${!!p.pinned}">${p.pinned?'Desafixar':'📌 Fixar'}</button>`:''}
  ${p.editable?`<button type="button" data-sf71-delete-post="${esc(p.id)}">Excluir</button>`:''}</div>
  ${state.commentsOpen===p.id?`<section class="sf160-comments" data-comments-for="${esc(p.id)}">Carregando comentários…</section>`:''}</article>`;}
- function roomHtml(room,owner){return `<div class="sf71-room"><div><strong>♫ ${esc(room.name)}</strong><small>${room.isPlaying?'● Tocando agora':'Sala disponível'} · ${Number(room.listenerCount)||0} ouvintes</small>${room.track?`<small>${esc(room.track.title)}</small>`:''}</div>
+ function roomHtml(room,owner){return `<div class="sf71-room">${room.track?.videoId?`<img class="sf160-room-cover" loading="lazy" alt="" src="https://i.ytimg.com/vi/${room.track.videoId}/mqdefault.jpg">`:''}<div><strong>♫ ${esc(room.name)}</strong><small>${room.isPlaying?'● Tocando agora':'Sala disponível'} · ${Number(room.listenerCount)||0} ouvintes</small>${room.track?`<small>${esc(room.track.title)}</small>`:''}</div>
    <div class="sf71-room-actions"><button type="button" data-sf71-room="${esc(room.slug)}">Entrar</button>${owner?`<button type="button" data-sf71-unlink="${esc(room.slug)}" title="Desvincular sala">×</button>`:''}</div></div>`;}
  function renderFeed(){
  const box=$('sf71Posts');if(!box)return;
@@ -232,7 +232,7 @@
  el.innerHTML=`<section class="sf160-extra-panel"><h4>🏆 Destaques do Fan Club</h4><p>Atividade real recente, não XP ou pontuação global.</p>
  ${rank.length?rank.map((v,i)=>`<div class="sf160-rank"><strong>#${i+1} ${esc(v.name)}</strong><small>${v.posts} posts · ${v.comments} respostas · ${v.likesReceived} curtidas recebidas</small></div>`).join(''):'<p>A comunidade ainda não tem contribuições suficientes.</p>'}
  <h4>👥 Participantes (${c?.memberCount||0})</h4>
- ${(c?.members||[]).map(m=>`<div class="sf160-member"><strong>${esc(m.avatar||'🎧')} ${esc(m.name)}</strong>${m.id===c.ownerId?'<small> Criador</small>':''}</div>`).join('')}
+ ${(c?.members||[]).map(m=>`<div class="sf160-member"><strong>${esc(m.avatar||'🎧')} ${esc(m.name)}</strong>${m.id===c.ownerId?'<small> Criador</small>':''}<button type="button" data-sf160-mention="${esc(m.name)}">Mencionar</button></div>`).join('')}
  ${c?.canDelete?`<div class="sf160-moderation"><h4>⚑ Moderação</h4><p>Denúncias recebidas (somente administradores)</p>${state.reports.length?state.reports.map(r=>`<div class="sf160-report"><strong>${esc(r.reason)}</strong><small>${esc(r.status)}</small>${r.status==='open'?`<button type="button" data-sf160-resolve="${esc(r.id)}">Marcar como resolvida</button>`:''}</div>`).join(''):'<p>Nenhuma denúncia recebida.</p>'}</div>`:''}
  </section>`;
  }
@@ -298,6 +298,12 @@
  if(t.hasAttribute('data-sf160-delete-comment')){
  if(!confirm('Remover comentário?'))return;
  const cid=t.dataset.sf160DeleteComment;await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/comments/'+encodeURIComponent(cid),{method:'DELETE'});await loadComments(id,state.commentsOpen);},'Comentário removido.');return;
+ }
+ if(t.hasAttribute('data-sf160-mention')){
+ const field=$('sf71PostText');switchPane('mural');
+ if(field){field.value=(field.value.trim()?field.value.trim()+' ':'')+'@'+t.dataset.sf160Mention+' ';field.focus({preventScroll:true});}
+ else status('Entre no Fan Club para mencionar participantes.',true);
+ return;
  }
  if(t.hasAttribute('data-sf160-report')){
  const postId=t.dataset.sf160Report;
