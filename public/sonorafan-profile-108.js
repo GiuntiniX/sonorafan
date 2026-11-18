@@ -51,7 +51,7 @@
   const edit=document.createElement('div');edit.className='sf108-bio-fields';bioCard.append(edit);
   for(const item of formItems)move(item,edit);
   const genres=document.createElement('div');genres.className='sf108-genre-area';
-  genres.innerHTML='<strong>Minha vibe musical</strong><span>Selecione até 6 estilos</span>';
+  genres.innerHTML='<strong>Minha vibe musical</strong><span id="sf150MusicIdentity">Selecione até 6 estilos</span>';
   move($('sf43StyleChips'),genres);bioCard.append(genres);
   const moment=card('♫ Meu momento','O que está na sua trilha sonora agora.','sf108Moment','sf108-moment');
   const track=document.createElement('div');track.id='sf108NowPlaying';moment.append(track);
@@ -265,15 +265,20 @@
  function renderBadges(){
   const host=$('sf108Badges');if(!host)return;
   const badges=typeof myBadges!=='undefined'&&Array.isArray(myBadges)?myBadges:[];
+  const identity=$('sf150MusicIdentity');
+  if(identity){
+    const genres=Array.isArray(state.profile?.musicGenres)?state.profile.musicGenres:[];
+    identity.textContent=genres.length?genres.slice(0,3).join(' · ')+(genres.length>3?' +'+(genres.length-3)+' estilos':''):'Escolha até 6 estilos para sua identidade musical';
+  }
   if(!badges.length){
    host.innerHTML='<div class="sf108-empty">Suas medalhas oficiais aparecerão aqui quando forem conquistadas. Acompanhe as missões no SonoraFan Club.</div>';
    return;
   }
   const icons=['♬','♨','♧','★'];
-  host.innerHTML=badges.slice(0,4).map((b,i)=>{
+  host.innerHTML=badges.slice(0,6).map((b,i)=>{
    const name=typeof b==='string'?b:String(b?.name||b?.title||b?.label||'Medalha');
    return `<div class="sf108-badge earned"><b>${icons[i%4]}</b><span>${esc(name)}</span></div>`;
-  }).join('')+'<small class="sf108-fineprint">Medalhas obtidas na plataforma.</small>';
+  }).join('')+'<small class="sf108-fineprint">'+badges.length+' '+(badges.length===1?'medalha oficial':'medalhas oficiais')+' conquistadas.</small>';
  }
  function renderMoment(){
   const host=$('sf108NowPlaying');if(!host)return;
