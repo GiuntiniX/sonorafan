@@ -7,7 +7,7 @@
  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const safeId=s=>/^[a-f0-9-]{24,36}$/i.test(String(s||''));
  const coverFallback=['/art-44/festival-crowd.webp','/art-33/poster-rock.webp','/art-33/poster-electro.webp'];
- const state={open:0,conversations:[],clubs:[],friends:[],events:[],loading:true,errors:[],lastLoaded:0};
+ const state={open:0,conversations:[],clubs:[],friends:[],events:[],friendUpdates:[],loading:true,errors:[],lastLoaded:0};
  let renderQueued=false;
  const scheduleRender=()=>{
    if(renderQueued)return;
@@ -96,6 +96,10 @@
          </button>`).join(''):'<p class="sf110-muted">'+(state.loading?'Consultando amigos online…':'Nenhum amigo online agora. Encontre pessoas na comunidade.')+'</p>'}
        <button class="sf110-person sf110-add-friend" type="button" data-sf110-action="friends" title="Encontrar pessoas"><span>＋</span><small>Buscar</small></button>
      </div>
+     ${state.friendUpdates.length?`<div class="sf150-social-live" aria-label="Amigos ouvindo música em salas públicas">
+        ${state.friendUpdates.slice(0,2).map(u=>`<button type="button" data-sf150-room="${esc(u.roomSlug)}">
+          <span>◉ ${esc(u.message||'Amigo ouvindo música')}</span><b>Entrar ›</b></button>`).join('')}
+       </div>`:''}
      <button class="sf110-wide-button sf139-invite" type="button" data-sf110-action="invite">✉ Convidar para ouvir junto</button>
    </section>`;
  }
@@ -150,6 +154,15 @@
  }
  function click(ev){
    const target=ev.target.closest('button');if(!target)return;
+   const room=target.closest('[data-sf150-room]');
+   if(room){
+     const slug=String(room.dataset.sf150Room||'');
+     if(!/^[a-z0-9][a-z0-9_-]{0,100}$/i.test(slug) ||
+       !state.friendUpdates.some(u=>u.roomSlug===slug))return;
+     closeLayer();
+     if(typeof window.joinRoom==='function')window.joinRoom(slug);
+     return;
+   }
    const dm=target.closest('[data-sf110-dm]');
    if(dm){const p=state.conversations.find(x=>x.id===dm.dataset.sf110Dm);
       closeLayer();window.sf53OpenInbox?.(p?.id,p?.name);return;}
@@ -177,14 +190,18 @@
    const current=++state.open;
    const endpoints=[
      ['/api/chat53/inbox','conversations'],['/api/fan-clubs?mine=true','clubs'],
-     ['/api/social/following','friends'],['/api/social/events','events']
+     ['/api/social/following','friends'],['/api/social/events','events'],
+     ['/api/studio100/updates','friendUpdates']
    ];
    state.loading=true;state.errors=[];render();
    await Promise.all(endpoints.map(async([url,key])=>{
      try{
        const body=await request(url);
        if(current!==state.open)return;
-       state[key]=key==='clubs'?(Array.isArray(body?.clubs)?body.clubs:[]):Array.isArray(body)?body:[];
+       state[key]=key==='clubs'?(Array.isArray(body?.clubs)?body.clubs:[]):
+         key==='friendUpdates'?(body?.enabled&&Array.isArray(body.items)?body.items.filter(u=>
+           u?.type==='friend'&&/^[a-z0-9][a-z0-9_-]{0,100}$/i.test(u.roomSlug||'')).slice(0,8):[]):
+         Array.isArray(body)?body:[];
        scheduleRender();
      }catch(e){if(current===state.open){state.errors.push(key);scheduleRender();}}
    }));
@@ -211,7 +228,7 @@
    goBack.textContent='← Visão geral';goBack.addEventListener('click',back);
    s.querySelector('.sf5-community-top')?.insertBefore(goBack,s.querySelector('.sf5-community-top .sf5-close'));
    const fresh=Date.now()-state.lastLoaded<45000;
-   if(!fresh){state.conversations=[];state.clubs=[];state.friends=[];state.events=[];}
+   if(!fresh){state.conversations=[];state.clubs=[];state.friends=[];state.events=[];state.friendUpdates=[];}
    state.loading=!fresh;state.errors=[];
    const p=document.createElement('div');p.className='sf110-dashboard';
    scroller.insertBefore(p,scroller.firstChild);
