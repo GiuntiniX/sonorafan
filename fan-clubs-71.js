@@ -83,7 +83,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     joined:unique(data.memberIds).includes(me.id),
     owner:data.ownerId===me.id,
     blocked:unique(data.blockedIds).includes(me.id),
-    canDelete:ownerOrAdmin(data,me),canModerate:canModerate(data,me),canEditProfile:canEditProfile(data,me),moderator:unique(data.moderatorIds).includes(me.id),
+    canDelete:ownerOrAdmin(data,me),canModerate:canModerate(data,me),canEditProfile:canEditProfile(data,me),moderator:activeCoAdmin(data,me),
     notificationsEnabled:!unique(data.notificationMutedIds).includes(me.id),profileUpdatedAt:Number(data.profileUpdatedAt)||null
   });
   async function readClub(id){
@@ -93,9 +93,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     return {ref:snap.ref,data:snap.data()};
   }
   const ownerOrAdmin=(data,me)=>data.ownerId===me.id || adminEmails.has(me.email);
-  const canModerate=(data,me)=>ownerOrAdmin(data,me)||unique(data.moderatorIds).includes(me.id);
+  const activeCoAdmin=(data,me)=>unique(data.moderatorIds).includes(me.id)&&unique(data.memberIds).includes(me.id)&&!unique(data.blockedIds).includes(me.id);
+  const canModerate=(data,me)=>ownerOrAdmin(data,me)||activeCoAdmin(data,me);
   // A identidade do Fan Club pertence ao criador, com edição delegável a dois coadministradores.
-  const canEditProfile=(data,me)=>data.ownerId===me.id||unique(data.moderatorIds).includes(me.id);
+  const canEditProfile=(data,me)=>data.ownerId===me.id||activeCoAdmin(data,me);
   const member=(data,me)=>unique(data.memberIds).includes(me.id) || ownerOrAdmin(data,me);
   function cleanRooms(data){
     return unique(data.roomSlugs).map(slug=>rooms.get(slug)).filter(r=>r&&!r.isPrivate)
@@ -276,7 +277,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await db.runTransaction(async tx=>{
         const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();if(data.ownerId===me.id)throwHttp(403,'O criador não pode sair sem transferir a comunidade.');
-        tx.update(ref,{memberIds:unique(data.memberIds).filter(id=>id!==me.id),updatedAt:Date.now()});
+        tx.update(ref,{memberIds:unique(data.memberIds).filter(id=>id!==me.id),moderatorIds:unique(data.moderatorIds).filter(id=>id!==me.id),updatedAt:Date.now()});
       });disconnectMember(req.params.id,me.id);publish(req.params.id,'members');res.json({joined:false});
     }catch(e){error(res,e);}
   });
