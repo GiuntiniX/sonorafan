@@ -6,7 +6,7 @@
  const FALLBACK={id:'geral',name:'Geral · Original',description:'Visual original SonoraFan',primary:'#7c3aed',secondary:'#ff6b35',bg:'#180f25',text:'#f0f0f8',emoji:'🎧',art:'/art-44/vinyl-room.webp'};
  let themes=[FALLBACK], byId=new Map([[FALLBACK.id,FALLBACK]]);
  let roomSlug='',sharedTheme='geral',personalOverride=null,mayEdit=false;
- let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null;
+ let createChoice='indie',editChoice='geral',modalChoice='indie',modalMode='room',previousFocus=null;
  const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro']);
  const safe=id=>KNOWN_THEMES.has(id)?id:'geral';
  const find=id=>byId.get(safe(id))||FALLBACK;
@@ -240,7 +240,7 @@
  window.sf88Permission=permissions;
  window.sf88OpenRoomPicker=()=>open('room');
  window.sf88OpenEditor=id=>{editChoice=safe(id);mini('sf88EditTheme','edit');};
- window.sf88ResetCreateTheme=()=>{createChoice='geral';mini('sf88CreateTheme','create');};
+ window.sf88ResetCreateTheme=()=>{createChoice='indie';mini('sf88CreateTheme','create');};
  window.sf88ThemeLabel=id=>find(id).name;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
  fetch('/themes/catalog-88.json',{credentials:'same-origin'})
@@ -265,7 +265,7 @@
          const upgraded=new Set(['pagode','sertanejo','reggae','jazz','forro']);
          const valid=entries.filter(entry=>{
            if(!entry||!supported.includes(entry.id))return false;
-           const folder=entry.id==='rap'?'final-171':upgraded.has(entry.id)?'final-170':entry.id==='funk'?'final-169':'final-164';
+           const folder=entry.id==='indie'?'final-172':entry.id==='rap'?'final-171':upgraded.has(entry.id)?'final-170':entry.id==='funk'?'final-169':'final-164';
            return entry.art==='/themes/'+folder+'/'+entry.id+'.webp'&&
              entry.thumbnail==='/themes/'+folder+'/'+entry.id+'-thumb.webp';
          });
