@@ -72,10 +72,6 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   };
   const throwHttp = (status,message) => {const e=new Error(message);e.status=status;throw e;};
   const validateId = id => typeof id==='string' && /^[a-f0-9-]{36}$/.test(id);
-  const youtubeId = text => {
-    const match=String(text||'').match(/(?:youtube\.com\/watch\?[^\s]*?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
-    return match ? match[1] : null;
-  };
   const record = (data, id) => ({
     id: String(id || data.id), title: data.title, artist: data.artist, description:data.description,
     rules:data.rules, theme:data.theme, ownerId:data.ownerId, ownerName:data.ownerName,
@@ -281,7 +277,6 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para ler o mural.');
       const snap=await ref.collection('posts').orderBy('createdAt','desc').limit(35).get();
       const posts=snap.docs.map(d=>({id:d.id,...d.data(),likedBy:undefined,
-        musicVideoId:youtubeId(d.data().text),
         pinned:d.id===data.pinnedPostId,likeCount:unique(d.data().likedBy).length,
         liked:unique(d.data().likedBy).includes(me.id),
         editable:d.data().authorId===me.id||ownerOrAdmin(data,me),
@@ -459,22 +454,6 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     }catch(e){error(res,e);}
   });
   // Descobertas reais de URLs do YouTube compartilhadas no mural; sem dados inventados.
-  app.get('/api/fan-clubs/:id/music',rateLimit(35,60000),async(req,res)=>{
-    const me=identity(req,res);if(!me)return;
-    try{
-      const {ref,data}=await readClub(req.params.id);
-      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para descobrir músicas.');
-      const snap=await ref.collection('posts').orderBy('createdAt','desc').limit(100).get();
-      const rank=new Map();
-      for(const doc of snap.docs){
-        const id=youtubeId(doc.data().text);if(!id)continue;
-        const current=rank.get(id)||{videoId:id,shares:0,likes:0};
-        current.shares++;current.likes+=unique(doc.data().likedBy).length;rank.set(id,current);
-      }
-      const tracks=[...rank.values()].sort((a,b)=>b.shares-a.shares||b.likes-a.likes).slice(0,12);
-      res.json({tracks});
-    }catch(e){error(res,e);}
-  });
   // Ranking editorial: contribuições reais, sem inventar XP nem exibir emails.
   app.get('/api/fan-clubs/:id/contributors',rateLimit(30,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
