@@ -3,7 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id), panel=$('sfFanClubsPanel');if(!panel)return;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,onlyMusic:false};
+ const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,onlyMusic:false,feedFilter:'all',feedSearch:'',posts:[],activePane:'mural',polls:[],tracks:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
  const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
  const byId=id=>state.clubs.find(c=>c.id===id);
@@ -177,19 +177,62 @@
    const blocked=(d.club.blockedMembers||[]).map(m=>`<div class="sf71-member"><span>⛔</span><strong>${esc(m.name)}</strong><button type="button" data-sf71-unblock="${esc(m.id)}">Desbloquear</button></div>`).join('');
    return `<details class="sf71-members"><summary>Participantes (${d.club.memberCount})</summary><div class="sf71-members-list">${members}${blocked}</div></details>`;
  }
- function postHtml(post){const mix=String(post.text||'').match(/[?&]mix=([a-f0-9-]{36})/i);
-   return `<article class="sf71-post ${post.pinned?'sf151-pinned':''}" data-sf71-post="${esc(post.id)}">
-   ${post.pinned?'<span class="sf151-pin-label">📌 Publicação fixada</span>':''}
-   <div class="sf71-post-head"><strong>♫ ${esc(post.authorName)}</strong><time>${new Date(Number(post.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(post.text)}</p>
-   ${mix?`<button type="button" data-sf71-mix="${esc(mix[1])}">♫ Abrir mixtape compartilhada</button>`:''}
-   <div class="sf151-post-actions">
-   <button type="button" class="sf151-like" data-sf151-like="${esc(post.id)}" aria-pressed="${post.liked?'true':'false'}" aria-label="${post.liked?'Remover curtida':'Curtir publicação'}">♡ ${Math.max(0,Number(post.likeCount)||0)} curtidas</button>
-   ${post.canPin?`<button type="button" data-sf151-pin="${esc(post.id)}" data-pinned="${post.pinned?'true':'false'}">${post.pinned?'Desafixar':'📌 Fixar no topo'}</button>`:''}
-   ${post.editable?`<button type="button" data-sf71-delete-post="${esc(post.id)}">Excluir publicação</button>`:''}</div></article>`;}
+ function musicCard(p){
+ const id=p.musicVideoId;if(!id||!/^[A-Za-z0-9_-]{11}$/.test(id))return '';
+ return `<div class="sf160-music-card"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/mqdefault.jpg"><div><strong>♫ Música compartilhada</strong><a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer">Ouvir no YouTube ↗</a></div></div>`;
+ }
+ function postHtml(p){const mix=String(p.text||'').match(/[?&]mix=([a-f0-9-]{36})/i);
+ return `<article class="sf71-post ${p.pinned?'sf151-pinned':''}" data-sf71-post="${esc(p.id)}">
+ ${p.pinned?'<span class="sf151-pin-label">📌 Publicação fixada</span>':''}
+ <div class="sf71-post-head"><strong>♫ ${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(p.text)}</p>${musicCard(p)}
+ ${mix?`<button type="button" data-sf71-mix="${esc(mix[1])}">♫ Abrir mixtape compartilhada</button>`:''}
+ <div class="sf151-post-actions"><button type="button" data-sf151-like="${esc(p.id)}" aria-pressed="${!!p.liked}">♡ ${Math.max(0,Number(p.likeCount)||0)} curtidas</button>
+ <button type="button" data-sf160-comments="${esc(p.id)}" aria-expanded="${state.commentsOpen===p.id}">💬 Comentários</button>
+ ${p.canPin?`<button type="button" data-sf151-pin="${esc(p.id)}" data-pinned="${!!p.pinned}">${p.pinned?'Desafixar':'📌 Fixar'}</button>`:''}
+ ${p.editable?`<button type="button" data-sf71-delete-post="${esc(p.id)}">Excluir</button>`:''}</div>
+ ${state.commentsOpen===p.id?`<section class="sf160-comments" data-comments-for="${esc(p.id)}">Carregando comentários…</section>`:''}</article>`;}
  function roomHtml(room,owner){return `<div class="sf71-room"><div><strong>♫ ${esc(room.name)}</strong><small>${room.isPlaying?'● Tocando agora':'Sala disponível'} · ${Number(room.listenerCount)||0} ouvintes</small>${room.track?`<small>${esc(room.track.title)}</small>`:''}</div>
    <div class="sf71-room-actions"><button type="button" data-sf71-room="${esc(room.slug)}">Entrar</button>${owner?`<button type="button" data-sf71-unlink="${esc(room.slug)}" title="Desvincular sala">×</button>`:''}</div></div>`;}
+ function renderFeed(){
+ const box=$('sf71Posts');if(!box)return;
+ const q=state.feedSearch.toLocaleLowerCase('pt-BR');
+ let posts=state.posts.filter(p=>!q||[p.text,p.authorName].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q)));
+ if(state.feedFilter==='music'||state.onlyMusic)posts=posts.filter(p=>p.musicVideoId||/[?&]mix=/.test(String(p.text||'')));
+ if(state.feedFilter==='pinned')posts=posts.filter(p=>p.pinned);
+ if(state.feedFilter==='popular')posts=[...posts].sort((a,b)=>(b.likeCount||0)-(a.likeCount||0));
+ box.innerHTML=posts.length?posts.map(postHtml).join(''):'<p class="sf71-empty">Nenhuma publicação neste filtro.</p>';
+ if(state.commentsOpen)loadComments(state.activeId,state.commentsOpen);
+ }
+ async function loadComments(id,postId){
+ const box=$('sf71Posts')?.querySelector('[data-comments-for="'+postId+'"]');if(!box)return;
+ try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/comments');
+ if(state.activeId!==id||state.commentsOpen!==postId)return;
+ box.innerHTML=`<h5>Comentários</h5>${(d.comments||[]).length?d.comments.map(c=>`<div class="sf160-comment"><strong>${esc(c.authorName)}</strong><p>${esc(c.text)}</p>${c.editable?`<button type="button" data-sf160-delete-comment="${esc(c.id)}">Remover</button>`:''}</div>`).join(''):'<p>Seja o primeiro a comentar.</p>'}<form data-sf160-comment-form="${esc(postId)}"><input name="text" aria-label="Comentário" maxlength="350" minlength="2" required placeholder="Escreva uma resposta…"><button type="submit">Responder</button></form>`;
+ }catch(e){box.textContent=e.message;}
+ }
+ async function loadExtras(id){
+ try{
+ const [p,m]=await Promise.all([api('/api/fan-clubs/'+encodeURIComponent(id)+'/polls'),api('/api/fan-clubs/'+encodeURIComponent(id)+'/music')]);
+ if(state.activeId!==id)return;state.polls=p.polls||[];state.tracks=m.tracks||[];renderExtras();
+ }catch(e){if(state.activeId===id&&$('sf160Extras'))$('sf160Extras').textContent='Não foi possível carregar as enquetes e músicas.';}
+ }
+ function renderExtras(){
+ const el=$('sf160Extras');if(!el)return;const c=state.detail?.club;
+ if(state.activePane==='music'){
+ el.innerHTML=`<section class="sf160-extra-panel"><h4>♫ Mais compartilhadas</h4><p>Recomendações reais do mural.</p><div class="sf160-music-grid">${state.tracks.length?state.tracks.map((t,i)=>`<a class="sf160-track" href="https://www.youtube.com/watch?v=${t.videoId}" target="_blank" rel="noopener noreferrer"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${t.videoId}/mqdefault.jpg"><span><strong>#${i+1} · ${t.shares} compartilhamentos</strong><small>${t.likes} curtidas · Ouvir ↗</small></span></a>`).join(''):'<p>Nenhuma música compartilhada ainda.</p>'}</div></section>`;
+ }else if(state.activePane==='polls'){
+ el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>🗳 Enquetes</h4>${c?.canDelete?'<button type="button" data-sf160-create-poll>＋ Criar</button>':''}</div>${state.polls.length?state.polls.map(p=>`<article class="sf160-poll"><strong>${esc(p.question)}</strong><div class="sf160-poll-options">${p.options.map((v,i)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${i}" ${p.voted?'disabled':''}>${esc(v)} <small>${p.counts[i]||0} votos</small></button>`).join('')}</div>${p.voted?'<small>Voto registrado</small>':''}${p.canDelete?`<button type="button" data-sf160-delete-poll="${esc(p.id)}">Excluir enquete</button>`:''}</article>`).join(''):'<p>Sem enquetes por enquanto.</p>'}</section>`;
+ }else if(state.activePane==='events'){el.innerHTML='<section class="sf160-extra-panel"><h4>📅 Programação</h4><p>Veja as sessões da comunidade na coluna lateral.</p><button type="button" data-sf71-events>Ver agenda</button></section>';}
+ else if(state.activePane==='members'){el.innerHTML='<section class="sf160-extra-panel"><h4>👥 Participantes</h4><p>A lista de membros e as opções de moderação ficam na coluna lateral.</p></section>';}
+ else el.innerHTML='';
+ }
+ function switchPane(pane){
+ state.activePane=pane;
+ document.querySelectorAll('#sf71ClubDetail [data-sf160-pane]').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.sf160Pane===pane)));
+ const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();
+ }
  async function openDetail(id){
-   stopLive();state.activeId=id;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   stopLive();state.activeId=id;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
