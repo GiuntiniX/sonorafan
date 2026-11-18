@@ -313,6 +313,37 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       publish(req.params.id,'members');res.json({success:true});
     }catch(e){error(res,e);}
   });
+  // Imagens leves associadas a posts: bytes em subcoleção separada do feed.
+  // A leitura é exclusiva dos membros e nunca envia HTML ou conteúdo ativo.
+  app.get('/api/fan-clubs/:id/posts/:postId/image',rateLimit(90,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ver a imagem.');
+      const image=await ref.collection('postImages').doc(req.params.postId).get();
+      if(!image.exists)throwHttp(404,'Imagem indisponível.');
+      const blob=Buffer.from(String(image.data().imageBase64||''),'base64');
+      const mime=sniffCover(blob);if(!mime)throwHttp(404,'Imagem indisponível.');
+      res.set('Content-Type',mime);res.set('Cache-Control','private, max-age=120');
+      res.set('X-Content-Type-Options','nosniff');return res.send(blob);
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/posts/:postId/image',rateLimit(6,60000),
+    rawCoverParser||((req,res,next)=>next()),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para enviar imagens.');
+      const image=req.body,mime=sniffCover(image);
+      if(!mime)throwHttp(400,'Use JPG, PNG ou WebP com no máximo 180 KB.');
+      const postRef=ref.collection('posts').doc(req.params.postId);
+      const post=await postRef.get();if(!post.exists)throwHttp(404,'Publicação não encontrada.');
+      if(post.data().authorId!==me.id&&!canModerate(data,me))throwHttp(403,'Somente o autor pode anexar uma imagem.');
+      await ref.collection('postImages').doc(req.params.postId).set({imageBase64:image.toString('base64'),mime,createdAt:Date.now()});
+      await postRef.update({hasImage:true});
+      publish(req.params.id,'post');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
   app.get('/api/fan-clubs/:id/posts',rateLimit(60,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para ler o mural.');
@@ -362,6 +393,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         for(const doc of snap.docs)await doc.ref.delete();
         if(batch===9)throwHttp(503,'Limpeza dos comentários incompleta.');
       }
+      await ref.collection('postImages').doc(req.params.postId).delete();
       publish(req.params.id,'post');res.json({success:true});
     }catch(e){error(res,e);}
   });
@@ -689,7 +721,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         for(const doc of snap.docs)await doc.ref.delete();
         if(batch===99)throwHttp(503,'A limpeza ainda não terminou. Repita a exclusão.');
       }
-      for(const sub of ['comments','polls','reports','ideas']){
+      for(const sub of ['comments','polls','reports','ideas','postImages']){
         const col=ref.collection(sub);
         for(let batch=0;batch<50;batch++){
           const snap=await col.orderBy('createdAt','desc').limit(100).get();
