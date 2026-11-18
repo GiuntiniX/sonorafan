@@ -17,10 +17,11 @@ function mock(gamification45){
    orderBy(field,direction='asc'){return query(key,field,direction)},
    where(field,op,value){return query(key,null,'asc',{field,op,value})}
  };}
- function query(key,order,direction='asc',where=null){return {limit(n){this.max=n;return this;},async get(){
+ function query(key,order,direction='asc',where=null){return {limit(n){this.max=n;return this;},startAfter(v){this.after=v;return this;},async get(){
    let entries=[...docs].filter(([k])=>k.startsWith(key+'/')&&!k.slice(key.length+1).includes('/'));
    if(where){entries=entries.filter(([,value])=>where.op==='=='&&value[where.field]===where.value);}
    if(order){entries.sort(([,a],[,b])=>direction==='desc'?b[order]-a[order]:a[order]-b[order]);}
+    if(this.after!==undefined&&order){entries=entries.filter(([,value])=>direction==='desc'?value[order]<this.after:value[order]>this.after);}
    if(this.max)entries=entries.slice(0,this.max);
    return {size:entries.length,docs:entries.map(([k,value])=>({id:k.slice(key.length+1),data:()=>structuredClone(value),ref:ref(k)}))};
   }};}
@@ -299,4 +300,91 @@ test('Fan Club continua permitindo comentários, enquetes, salas e moderação',
  const p=(await m.call('post',`/api/fan-clubs/${id}/posts`,{text:'Vamos conversar sobre o artista'})).data.post;
  assert.equal((await m.call('post',`/api/fan-clubs/${id}/posts/${p.id}/comments`,{text:'Boa ideia'})).code,201);
  assert.equal((await m.call('post',`/api/fan-clubs/${id}/polls`,{question:'Qual o melhor show?',options:['Ao vivo','Acústico']})).code,201);
+});
+
+test('v170: ideias têm proposta, voto por membro, retirada de apoio e status restrito',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ assert.equal((await m.call('get',base+'/ideas',{},'leo@exemplo.com')).code,403);
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ assert.equal((await m.call('post',base+'/ideas',{title:'oi'},'leo@exemplo.com')).code,400);
+ const idea=(await m.call('post',base+'/ideas',{title:'Organizar um encontro',description:'Conversar sobre o próximo show'},'leo@exemplo.com'));
+ assert.equal(idea.code,201);
+ const vote=base+'/ideas/'+idea.data.id+'/vote';
+ assert.equal((await m.call('post',vote,{},'leo@exemplo.com')).data.votes,1);
+ assert.equal((await m.call('post',vote,{},'leo@exemplo.com')).data.votes,0);
+ assert.equal((await m.call('post',base+'/ideas/'+idea.data.id+'/status',{status:'planned'},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',base+'/ideas/'+idea.data.id+'/status',{status:'planned'})).code,200);
+ assert.equal((await m.call('post',vote,{},'leo@exemplo.com')).code,409);
+ const list=(await m.call('get',base+'/ideas',{},'leo@exemplo.com')).data.ideas;
+ assert.equal(list[0].status,'planned');
+ assert(!JSON.stringify(list).includes('voterIds'));
+});
+
+test('v170: moderador delegado pode gerir enquetes sem excluir o Fan Club',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`,userId='b'.repeat(24);
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ assert.equal((await m.call('post',base+'/moderators',{userId,enabled:true},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',base+'/moderators',{userId,enabled:true})).code,200);
+ const detail=(await m.call('get',base,{},'leo@exemplo.com')).data.club;
+ assert.equal(detail.canModerate,true);
+ assert.equal(detail.canDelete,false);
+ assert.equal((await m.call('post',base+'/polls',{question:'Qual horário é melhor?',options:['Sábado','Domingo']},'leo@exemplo.com')).code,201);
+ assert.equal((await m.call('delete',base,{confirmation:'Fãs de Linkin Park'},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',base+'/moderators',{userId:'c'.repeat(24),enabled:true},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',base+'/moderators',{userId,enabled:false})).code,200);
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).data.club.canModerate,false);
+});
+
+test('v170: usuário pode silenciar notificações do clube sem sair da comunidade',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ assert.equal((await m.call('post',base+'/notifications',{enabled:false},'leo@exemplo.com')).data.notificationsEnabled,false);
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).data.club.notificationsEnabled,false);
+ assert.equal((await m.call('post',base+'/notifications',{enabled:true},'leo@exemplo.com')).data.notificationsEnabled,true);
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).data.club.notificationsEnabled,true);
+});
+
+test('v170: agendamento do Fan Club existe sem sala e RSVP respeita participação',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ const startAt=Date.now()+3*86400000;
+ assert.equal((await m.call('post',base+'/events',{title:'Encontro online',startAt},'leo@exemplo.com')).code,403);
+ const result=await m.call('post',base+'/events',{title:'Encontro online',description:'Conhecer a comunidade',startAt,durationMinutes:60});
+ assert.equal(result.code,201);
+ const url=base+'/events/'+result.data.id+'/rsvp';
+ assert.equal((await m.call('post',url,{going:true},'leo@exemplo.com')).code,403);
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ assert.equal((await m.call('post',url,{going:true},'leo@exemplo.com')).data.attendees,1);
+ assert.equal((await m.call('post',url,{going:true},'leo@exemplo.com')).data.attendees,1);
+ assert.equal((await m.call('get',base+'/events',{},'leo@exemplo.com')).data.events[0].going,true);
+ assert.equal((await m.call('get',base+'/insights',{},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('get',base+'/insights')).data.members,2);
+});
+
+test('v170: fotos anexadas ficam privadas e são apagadas com o post',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ const p=(await m.call('post',base+'/posts',{text:'Foto do encontro',topic:'evento'})).data.post;
+ const url=base+'/posts/'+p.id+'/image';
+ const webp=Buffer.alloc(40);webp.write('RIFF',0);webp.write('WEBP',8);
+ assert.equal((await m.call('post',url,webp,'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',url,webp)).code,200);
+ assert.equal((await m.call('get',url,{},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('get',url)).binary.length,40);
+ const post=(await m.call('get',base+'/posts')).data.posts.find(x=>x.id===p.id);
+ assert.equal(post.hasImage,true);assert.equal(post.topic,'evento');
+ assert.equal((await m.call('delete',base+'/posts/'+p.id)).code,200);
+ assert.equal((await m.call('get',url)).code,404);
+});
+
+test('v170: mural oferece carregamento progressivo sem repetir mensagens',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ for(let i=0;i<40;i++){
+   const response=await m.call('post',base+'/posts',{text:'Post de teste número '+i});
+   assert.equal(response.code,201);
+ }
+ const first=(await m.call('get',base+'/posts')).data;
+ assert.equal(first.posts.length,35);assert.equal(first.hasMore,true);
+ assert(first.nextBefore);
+ const second=(await m.call('get',base+'/posts',undefined,'ana@exemplo.com',{before:String(first.nextBefore)})).data;
+ assert(second.posts.length>0);assert.equal(second.hasMore,false);
+ assert(second.posts.every(p=>!first.posts.some(x=>x.id===p.id)));
 });
