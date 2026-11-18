@@ -6,6 +6,24 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
+## ✦ Experience Evolution — v150
+
+Evolução incremental sobre os módulos existentes; preserva player YouTube, fila colaborativa, chat, autenticação, Fan Clubs e permissões:
+
+- **Performance 2.0 (primeira etapa):** cache de 90 segundos e limite de 16 consultas na busca ampliada; cache de 12 consultas na busca rápida/mobile; resultados únicos por vídeo; deduplicação e timeout em consultas de salas; renderização seletiva de cards.
+- **Mobile:** alvos de toque das abas de sala e filtro de mural adaptados à área segura, ajustes em tablets e respeito ao movimento reduzido.
+- **Presença social:** contagem real de amigos online e opção de entrar em salas públicas de amigos seguidos somente quando `Avisos inteligentes` estiver ativo (API de atualização respeita opt-in).
+- **Identidade e conquistas:** resumo de gêneros declarados e contagem das medalhas oficiais já concedidas no perfil. Não cria pontuação fictícia.
+- **Histórico:** filtro local por música, artista ou DJ na setlist existente; exportação CSV e autorização atual preservadas.
+- **Busca inteligente:** resultados recentes reutilizados, sem duplicar IDs nem novas chaves do YouTube.
+- **Fan Clubs:** alternância para visualizar apenas recomendações musicais reais no mural autorizado, sem novo feed.
+- **Temas:** refinamento de legibilidade, foco e responsividade na galeria atual; preservadas as imagens e os 14 estilos.
+- **Estabilidade:** prevenção de consultas simultâneas ao Lobby, AbortController e fallback diante de falhas, sem alterar a fila.
+- **Lobby:** nome da faixa tocando agora nos cards das salas públicas, quando disponível.
+- **Analytics administrativo:** resumo de eventos agregados por dispositivo e amostra de atividade recente na Central de Qualidade já protegida.
+
+**Limites desta etapa:** 87 estilos CSS continuam referenciados e demandam consolidação visual testada em uma fase posterior. Os indicadores representam eventos, não usuários únicos. Nenhuma chave de API ou configuração de ambiente foi alterada.
+
 ## ✨ Funcionalidades
 
 - 🎵 **Fila colaborativa ilimitada** — sem limite de músicas por usuário e sem limite de fila
