@@ -85,7 +85,7 @@
  function friends(){
    const online=state.friends.filter(f=>f.online);
    return `<section class="sf110-card sf110-friends"><div class="sf110-card-head">
-     <h3><span class="sf110-dot"></span> Amigos online</h3>
+     <h3><span class="sf110-dot"></span> Amigos online <small class="sf150-presence-count" aria-label="${online.length} amigos online">${online.length?online.length+" disponíveis":""}</small></h3>
      <button type="button" data-sf110-action="friends">Ver todos ›</button></div>
      <div class="sf110-friends-row">
        ${online.length?online.slice(0,6).map(p=>`
