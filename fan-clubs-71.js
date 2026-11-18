@@ -437,16 +437,20 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const {ref,data}=await readClub(req.params.id);requireForumMember(data,me);
       const post=await ref.collection('posts').doc(req.params.postId).get();
       if(!post.exists)throwHttp(404,'Discussão não encontrada.');
-      const profileRef=forumProfileRef(ref,me),profileSnap=await profileRef.get();
-      const profile=profileSnap.data()||{},readAt={...(profile.readAt||{})};
-      const keys=Object.keys(readAt);
-      if(keys.length>=150&&!Object.hasOwn(readAt,req.params.postId)){
-        keys.sort((a,b)=>Number(readAt[a])-Number(readAt[b]));
-        delete readAt[keys[0]];
-      }
-      readAt[req.params.postId]=Date.now();
-      await profileRef.set({readAt},{merge:true});
-      const result=forumPost(post,data,me,{...profile,readAt});
+      const profileRef=forumProfileRef(ref,me);
+      const profile=await db.runTransaction(async tx=>{
+        const snapshot=await tx.get(profileRef);
+        const previous=snapshot.data()||{},readAt={...(previous.readAt||{})};
+        const keys=Object.keys(readAt);
+        if(keys.length>=150&&!Object.hasOwn(readAt,req.params.postId)){
+          keys.sort((a,b)=>Number(readAt[a])-Number(readAt[b]));
+          delete readAt[keys[0]];
+        }
+        readAt[req.params.postId]=Date.now();
+        tx.set(profileRef,{readAt},{merge:true});
+        return {...previous,readAt};
+      });
+      const result=forumPost(post,data,me,profile);
       res.json({post:result,permalink:'#fanclub/'+req.params.id+'/topic/'+req.params.postId});
     }catch(e){error(res,e);}
   });
