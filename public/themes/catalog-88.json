@@ -134,14 +134,14 @@
   {
     "id": "sertanejo",
     "name": "Sertanejo",
-    "description": "Festival nas montanhas ao pôr do sol, Kombi retrô e arte vetorial nítida",
+    "description": "Festival SonoraFan nas montanhas, público, palco e Kombi ao pôr do sol",
     "primary": "#ee9850",
     "secondary": "#deb96c",
     "bg": "#342019",
     "text": "#fff1db",
     "emoji": "🤠",
-    "art": "/themes/hd-175/sertanejo.svg",
-    "thumbnail": "/themes/hd-175/sertanejo.svg"
+    "art": "/themes/hd-175/sonorafan-sertanejo-aprovado.webp",
+    "thumbnail": "/themes/hd-175/sonorafan-sertanejo-thumb.webp"
   },
   {
     "id": "reggae",
