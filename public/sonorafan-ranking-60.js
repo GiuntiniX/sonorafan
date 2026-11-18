@@ -79,7 +79,13 @@
       '<section class="sf60-section"><h4>Privacidade e identidade</h4>'+
       '<p>Você decide se seu nome aparece nas classificações públicas. Seu XP continua registrado mesmo quando o perfil está oculto.</p>'+
       '<button class="sf60-action" data-sf60-visibility>'+(!prefs.hidden?'Ocultar meu nome no ranking':'Exibir meu nome no ranking')+'</button>'+
-      '<p>Medalhas em destaque: '+esc((prefs.showcase||[]).join(' · ')||'Nenhuma escolhida')+'</p></section>';
+      '<p>Medalhas em destaque: '+esc((prefs.showcase||[]).join(' · ')||'Nenhuma escolhida')+'</p></section>'+
+      '<section class="sf60-section"><h4>📅 Marcos de participação</h4>'+
+      (d.accountAgeDays===null?'<p>Data de entrada indisponível para esta conta.</p>':
+        '<p>'+fmt(d.accountAgeDays)+' dias desde a criação da conta.</p>')+
+      '<div class="sf60-medal-grid">'+(d.milestones||[]).map(m=>
+        '<div class="sf60-medal"><strong>'+(m.unlocked?'✓':'🔒')+' '+fmt(m.days)+' dias</strong>'+
+        '<small>'+(m.unlocked?'Marco alcançado':'Continue participando')+'</small></div>').join('')+'</div></section>';
   }
   function medals(){
     const d=state.me;if(!d)return '<p class="sf60-notice">Carregando conquistas…</p>';
@@ -107,13 +113,18 @@
   function challenges(){
     const d=state.me;if(!d)return '<p class="sf60-notice">Carregando desafios…</p>';
     const week=d.challenges?.weekly||[],daily=d.challenges?.daily||[];
-    const count=(d.reputation?.acceptedAnswers)||0;
+    const count=(d.reputation?.acceptedAnswers)||0,collective=d.collective||{score:0,answers:0,target:150};
     return '<section class="sf60-section"><h4>🎯 Missões diárias</h4><div class="sf60-missions">'+daily.map(missionItem).join('')+'</div></section>'+
       '<section class="sf60-section"><h4>🧭 Missões semanais</h4><div class="sf60-missions">'+week.map(missionItem).join('')+'</div></section>'+
       '<section class="sf60-section"><h4>🤝 Desafio do Fórum</h4>'+
       '<p>Ajude outros fãs a resolver dúvidas. Respostas escolhidas rendem reputação separada do XP musical, com proteção contra repetições.</p>'+
       '<div class="sf60-mini-progress"><div style="width:'+Math.min(100,count/5*100)+'%"></div></div>'+
-      '<p>'+fmt(count)+'/5 respostas reconhecidas como úteis · marco de referência, sem XP adicional.</p></section>';
+      '<p>'+fmt(count)+'/5 respostas reconhecidas como úteis · marco pessoal, sem XP adicional.</p></section>'+
+      '<section class="sf60-section"><h4>🌍 Desafio coletivo da semana</h4>'+
+      '<p>Meta colaborativa: 150 pontos de reputação por respostas aceitas no Fórum. A contagem é feita apenas no servidor.</p>'+
+      '<div class="sf60-mini-progress"><div style="width:'+Math.min(100,(collective.score||0)/Math.max(1,collective.target||150)*100)+'%"></div></div>'+
+      '<p>'+fmt(collective.score)+'/'+fmt(collective.target||150)+' pontos de reputação · '+fmt(collective.answers)+' respostas aceitas na semana '+esc(collective.week||'')+'.</p>'+
+      '<p>Meta comunitária simbólica: não concede XP automático nem premiações manipuláveis.</p></section>';
   }
   function hall(){
     const d=state.hall;if(!d)return '<p class="sf60-notice">Carregando temporadas…</p>';
