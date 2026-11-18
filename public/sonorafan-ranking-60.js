@@ -152,14 +152,25 @@
     area.innerHTML={ranking,progress,medals,challenges,hall}[state.tab]();
   }
   async function load(){
-    if(state.busy)return;state.busy=true;notice('');
+    const request=state.requestId=(state.requestId||0)+1;
+    const tab=state.tab,period=state.period,category=state.category;
+    state.busy=true;notice('');
     try{
-      if(state.tab==='ranking')state.ranking=await api('/api/ranking60?'+new URLSearchParams({period:state.period,category:state.category}));
-      else if(state.tab==='hall')state.hall=await api('/api/ranking60/hall');
-      else state.me=await api('/api/ranking60/me');
+      let result;
+      if(tab==='ranking')result=await api('/api/ranking60?'+new URLSearchParams({period,category}));
+      else if(tab==='hall')result=await api('/api/ranking60/hall');
+      else result=await api('/api/ranking60/me');
+      // Ignora respostas antigas ao trocar rapidamente de aba ou período no mobile.
+      if(request!==state.requestId)return;
+      if(tab==='ranking')state.ranking=result;
+      else if(tab==='hall')state.hall=result;
+      else state.me=result;
       render();
-    }catch(e){notice(e.message);const area=content();if(area)area.innerHTML='<p class="sf60-notice">Não foi possível carregar esta seção. Verifique sua conexão e tente novamente.</p>';}
-    finally{state.busy=false;}
+    }catch(e){
+      if(request!==state.requestId)return;
+      notice(e.message);
+      const area=content();if(area)area.innerHTML='<p class="sf60-notice">Não foi possível carregar esta seção. Verifique sua conexão e tente novamente.</p>';
+    }finally{if(request===state.requestId)state.busy=false;}
   }
   function open(){
     const modal=root();if(!modal)return;
