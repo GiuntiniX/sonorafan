@@ -230,3 +230,9 @@
     outline:2px solid #f50087!important;outline-offset:2px!important;
   }
 }
+
+/* v184.4.1: coincide com a caixa impressa (posição medida na arte 1672x941). */
+@media(min-width:1050px) and (min-height:650px){
+#signupModal.sf184-image-ready .sf123-consent{left:43.2%!important}
+#signupModal.sf184-image-ready .sf123-consent input{width:1.4cqw!important;height:1.4cqw!important}
+}
