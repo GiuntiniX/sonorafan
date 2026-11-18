@@ -6,6 +6,50 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
+## ✦ Ranking 6.0 — temporadas, conquistas e Hall da Fama
+
+O antigo modal de 420 px foi substituído por uma central responsiva em cinco seções: **Ranking, Meu progresso, Conquistas, Desafios e Hall da Fama**. O mesmo guide dark/roxo/lima do SonoraFan é preservado.
+
+### 20 pontos de evolução
+1. Ranking global histórico com XP legado preservado (`points/{email}`).
+2. Ranking semanal com XP validado no servidor.
+3. Ranking mensal com XP validado no servidor.
+4. Posição pessoal até o limite consultado e pontuação pessoal precisa mesmo fora desse recorte.
+5. Classificação Top 50 com pódio para os três primeiros.
+6. Ranking de DJ com XP por música validado, separado do total de XP.
+7. Reputação do Fórum separada do ranking musical, somente por respostas escolhidas em dúvidas.
+8. Perfil de progressão com nível, XP e atividades recentes.
+9. Barra de progressão para o próximo nível legado.
+10. Catálogo de medalhas desbloqueadas e ainda bloqueadas.
+11. Missões diárias existentes com progresso e recompensa real.
+12. Missões semanais existentes com progresso e recompensa real.
+13. Desafio comunitário de respostas aceitas, sem geração artificial de XP.
+14. Marcos de participação de 30, 90 e 365 dias quando a conta tem data de criação válida.
+15. Hall da Fama de períodos encerrados, sem campeões fictícios.
+16. Vitrine de até três medalhas conquistadas por participante.
+17. Comparação opcional de progresso com participantes visíveis no ranking.
+18. Destaques de membros da comunidade via filtro de reputação do Fórum.
+19. Transparência dos ganhos recentes de XP e opção de privacidade do perfil público.
+20. Proteções por transação, idempotência, limite diário de reputação, testes e responsividade.
+
+### Modelo de dados e segurança
+- **XP histórico:** continua em `points/{email}`. Níveis, medalhas e recompensas anteriores não são zerados.
+- **Temporadas:** `ranking60Weeks/{semana}/players/{id}` e `ranking60Months/{mes}/players/{id}`. Apenas os eventos validados pelo `gamification-45.js` passam a contabilizar XP nessas temporadas a partir da implantação da versão 6.0. Não há histórico de temporadas inventado para pontos anteriores.
+- **DJ:** `ranking60.djXP` registra a pontuação musical validada a partir da v6.0; o XP acumulado antigo continua no ranking geral.
+- **Reputação:** `ranking60Reputation/{id}` e registros por semana/mês. Uma dúvida gera no máximo uma recompensa de 15 pontos de reputação por resposta aceita; o limite é de três concessões por dia a cada participante. Não altera XP musical nem pode ser concedida pelo navegador.
+- **Desafio coletivo:** `ranking60CommunityWeeks/{semana}`, atualizado juntamente com a reputação verificada do Fórum.
+- **Privacidade:** `ranking60Preferences/{id}` permite ocultar o perfil e destacar até três medalhas que de fato constem entre as conquistadas. A ocultação também se aplica a campeões históricos.
+- **Hall da Fama:** consulta semanas e meses já encerrados com dados reais. Não fabrica temporadas ou vencedores anteriores.
+- **Limitação de escala declarada:** cada consulta do ranking examina até 500 participantes elegíveis; a aplicação indica quando o recorte pode ser parcial. Colocação fora do recorte é desconhecida, nunca estimada; a pontuação pessoal continua exata.
+
+### Endpoints do Ranking 6.0
+- `GET /api/ranking60?period=week|month|all&category=overall|dj|forum`
+- `GET /api/ranking60/me`
+- `GET /api/ranking60/hall`
+- `POST /api/ranking60/preferences`
+
+Nenhum endpoint de pontuação aceita XP ou reputação arbitrários do navegador. Eventos validados atualizam pontos e temporadas por transação Firestore. A implantação no Render e a validação visual em dispositivos reais devem ser conferidas separadamente da CI.
+
 ## ✦ Fórum 6.0 — discussões permanentes nos Fan Clubs
 
 O Fórum 6.0 reutiliza **as mesmas coleções de posts e comentários** dos Fan Clubs, preservando os IDs, autoria, textos, datas, categorias, likes, respostas, status de dúvidas, imagens e moderação. Não há migração destrutiva nem alteração obrigatória dos posts legados. Tópicos antigos sem título recebem um **título derivado somente na leitura**.
