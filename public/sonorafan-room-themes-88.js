@@ -84,7 +84,7 @@
    b.setAttribute('aria-selected',String(selected));
    b.setAttribute('aria-label',theme.name+' — '+theme.description);
    const img=document.createElement('img');
-   img.src=theme.art;img.alt='';img.loading='lazy';img.decoding='async';
+   img.src=theme.thumbnail||theme.art;img.alt='';img.loading='lazy';img.decoding='async';
    const name=document.createElement('strong');name.textContent=theme.emoji+' '+theme.name;
    const check=document.createElement('span');check.className='sf88-card-check';check.textContent=selected?'✓':'';
    const detail=document.createElement('span');detail.className='sf88-card-detail';detail.textContent=theme.description;
@@ -164,7 +164,7 @@
    const title=document.createElement('div');title.className='sf88-mini-head';
    title.textContent='🎨 Tema visual da sala';
    const row=document.createElement('div');row.className='sf88-mini';
-   const picture=document.createElement('img');picture.src=theme.art;picture.alt='';picture.loading='lazy';
+   const picture=document.createElement('img');picture.src=theme.thumbnail||theme.art;picture.alt='';picture.loading='lazy';
    const data=document.createElement('div');const name=document.createElement('strong');name.textContent=theme.name;
    const detail=document.createElement('small');detail.textContent=theme.description;
    data.append(name,detail);
@@ -258,23 +258,28 @@
      // Sem o manifest no servidor, o catálogo anterior continua válido e sem imagens quebradas.
      fetch('/themes/final-164/manifest.json',{credentials:'same-origin',cache:'no-store'})
        .then(response=>{if(!response.ok)throw new Error('Artes finais não publicadas');return response.json();})
-       .then(entries=>{
+       .then(async entries=>{
          if(!Array.isArray(entries))return;
-         entries.filter(entry=>entry&&KNOWN_THEMES.has(entry.id)&&entry.id!=='geral'&&
-           entry.art==='/themes/final-164/'+entry.id+'.webp').forEach(entry=>{
-           const probe=new Image();
-           probe.onload=()=>{
-             const theme=byId.get(entry.id);
-             if(!theme)return;
-             theme.art=entry.art;
-             // Galeria, prévia, miniaturas de criação/edição e palco compartilham o catálogo.
-             mini('sf88CreateTheme','create');mini('sf88EditTheme','edit');
-             if($('sf88ThemeOverlay')?.hidden===false)drawModal();
-             if(roomSlug)skin();
-           };
-           probe.onerror=()=>{};
-           probe.src=entry.art;
+         const supported=[...KNOWN_THEMES].filter(id=>id!=='geral');
+         const valid=entries.filter(entry=>entry&&supported.includes(entry.id)&&
+           entry.art==='/themes/final-164/'+entry.id+'.webp'&&
+           entry.thumbnail==='/themes/final-164/'+entry.id+'-thumb.webp');
+         if(valid.length!==supported.length||new Set(valid.map(x=>x.id)).size!==supported.length)return;
+         const loadImage=src=>new Promise((resolve,reject)=>{
+           const picture=new Image();
+           picture.onload=()=>resolve();
+           picture.onerror=()=>reject(new Error('Arte indisponível: '+src));
+           picture.src=src;
          });
+         // Só altera o catálogo quando todas as 14 artes e miniaturas estiverem acessíveis.
+         await Promise.all(valid.flatMap(entry=>[loadImage(entry.art),loadImage(entry.thumbnail)]));
+         valid.forEach(entry=>{
+           const theme=byId.get(entry.id);
+           if(theme){theme.art=entry.art;theme.thumbnail=entry.thumbnail;}
+         });
+         mini('sf88CreateTheme','create');mini('sf88EditTheme','edit');
+         if($('sf88ThemeOverlay')?.hidden===false)drawModal();
+         if(roomSlug)skin();
        }).catch(()=>{});
    }).catch(()=>{});
 })();
