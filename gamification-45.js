@@ -277,9 +277,9 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
   }
   app.get('/api/gamification/me', async (req, res) => {
     const email = sessionEmail(req);
-    if (!email) return res.status(401).json({ error: 'Faça login para ver o SonoraFan Club.' });
+    if (!email) return res.status(401).json({ error: 'Faça login para ver Minha Jornada.' });
     try { res.json(await getSnapshot(email)); }
-    catch (e) { console.error('SonoraFan Club: erro ao ler progresso:', e.message); res.status(503).json({ error: 'Progresso temporariamente indisponível.' }); }
+    catch (e) { console.error('Minha Jornada: erro ao ler progresso:', e.message); res.status(503).json({ error: 'Progresso temporariamente indisponível.' }); }
   });
   app.get('/api/gamification/leaderboard', async (req, res) => {
     if (!sessionEmail(req)) return res.status(401).json({ error: 'Faça login.' });
