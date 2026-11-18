@@ -244,7 +244,7 @@
  const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();
  }
  async function openDetail(id){
-   stopLive();state.activeId=id;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
