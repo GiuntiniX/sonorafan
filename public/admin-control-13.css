@@ -1,0 +1,78 @@
+/* SonoraFan Admin 13.0 — melhoria incremental, sem substituir a infraestrutura 12. */
+#adminPanel .sf12-admin-shell{
+ --sf13-line:rgba(233,155,255,.2);--sf13-text:#fbf0ff;
+ background:linear-gradient(145deg,#120b22,#080a15 72%)!important;
+ border-color:#9b4cec77!important;
+ max-width:1640px!important;width:min(1640px,99vw)!important;
+ height:min(960px,96dvh)!important;max-height:96dvh!important;
+}
+#adminPanel .sf12-admin-sidebar{
+ background:linear-gradient(180deg,rgba(27,12,44,.96),rgba(16,10,29,.96)),url('/themes/final-164/indie.webp') center/cover!important;
+}
+#adminPanel .sf12-admin-brand{padding-bottom:16px}
+#adminPanel .sf12-admin-brand small{color:#ffb4da;letter-spacing:.1em}
+#adminPanel .sf12-admin-nav{gap:2px;scrollbar-width:thin}
+#adminPanel .sf12-admin-nav button{padding:10px 12px}
+#adminPanel .sf12-admin-nav button.active{
+ background:linear-gradient(110deg,#7a29bd,#bd4279)!important;border-color:#e6a6ff77!important;
+ box-shadow:0 6px 21px #f12db82c!important;
+}
+#adminPanel .sf12-admin-main{background:radial-gradient(ellipse at 85% 0%,#5d155b45,transparent 57%),#0c0915!important}
+#adminPanel .sf12-admin-top{
+ background:linear-gradient(95deg,rgba(21,12,37,.95),rgba(28,13,38,.72)),url('/themes/final-164/indie.webp') center 53%/cover!important;
+}
+#adminPanel .sf12-admin-eyebrow{color:#ffb4df}
+#adminPanel .sf12-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+#adminPanel .sf12-metric{border-color:#a84acc38;background:linear-gradient(140deg,#281234,#140e21)}
+#adminPanel .sf12-metric:nth-child(4n+2){background:linear-gradient(140deg,#32152e,#140e21)}
+#adminPanel .sf12-metric:nth-child(4n+3){background:linear-gradient(140deg,#291b3b,#130f22)}
+#adminPanel .sf12-card{border-color:var(--sf13-line);background:linear-gradient(145deg,#1b1128,#100c1b)}
+#adminPanel .sf13-top-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(265px,1fr);gap:14px;margin-bottom:16px}
+#adminPanel .sf13-chart-card{min-width:0}
+#adminPanel .sf13-card-kicker{display:block;font-size:10px;color:#d19ff5;font-weight:800;letter-spacing:.13em;text-transform:uppercase;margin-bottom:7px}
+#adminPanel .sf13-spark{width:100%;height:175px;display:block;overflow:visible}
+#adminPanel .sf13-spark .sf13-gridline{stroke:#a273b03b;stroke-width:1}
+#adminPanel .sf13-chart-labels{display:flex;justify-content:space-between;gap:10px;color:#b8aac6;font-size:10px;margin-top:3px}
+#adminPanel .sf13-series-legend{display:flex;gap:13px;flex-wrap:wrap;color:#cdb9da;font-size:11px;margin:10px 0 4px}
+#adminPanel .sf13-series-legend i{display:inline-block;border-radius:50%;width:8px;height:8px;margin-right:5px;background:#cf6df9}
+#adminPanel .sf13-live-marker{display:inline-flex;padding:5px 10px;border:1px solid #4a997c55;background:#183a2d;color:#73e8b0;border-radius:24px;font-weight:800;font-size:10px}
+#adminPanel .sf13-op-list{display:flex;flex-direction:column;gap:9px}
+#adminPanel .sf13-op-line{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:10px;border:1px solid #59406766;background:#16111f;border-radius:10px;font-size:12px}
+#adminPanel .sf13-op-line strong{color:#f8edff;font-size:12px}
+#adminPanel .sf13-op-line small{color:#b5a2c8;font-size:10px;display:block;margin-top:3px}
+#adminPanel .sf13-status{display:inline-flex;align-items:center;gap:6px;font-size:10px;white-space:nowrap;font-weight:800;color:#75edbc}
+#adminPanel .sf13-status::before{content:'';width:7px;height:7px;background:currentColor;border-radius:50%;box-shadow:0 0 8px currentColor}
+#adminPanel .sf13-status.warn{color:#ffc46f}
+#adminPanel .sf13-status.error{color:#ff7e92}
+#adminPanel .sf13-report-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+#adminPanel .sf13-report-filters button,#adminPanel .sf13-periods button{
+ background:#291835;border:1px solid #67437d;border-radius:9px;color:#e9d3f7;padding:9px 11px;cursor:pointer;font:700 11px Inter,sans-serif
+}
+#adminPanel .sf13-report-filters button[aria-pressed="true"],#adminPanel .sf13-periods button[aria-pressed="true"]{background:#8131a8;color:#fff;border-color:#c986e7}
+#adminPanel .sf13-results{display:flex;flex-direction:column;gap:9px}
+#adminPanel .sf13-results .sf13-item{padding:15px;border-radius:12px;border:1px solid #67417588;background:#181021}
+#adminPanel .sf13-item h4{font-size:13px;margin:0 0 6px;color:#fff;overflow-wrap:anywhere}
+#adminPanel .sf13-item p{font-size:11px;color:#c4b0cf;line-height:1.5;margin:4px 0;overflow-wrap:anywhere}
+#adminPanel .sf13-item button{background:#442057;border:1px solid #9c58b5;border-radius:9px;padding:9px 13px;color:#fff;font-size:11px;cursor:pointer;margin-top:8px}
+#adminPanel .sf13-note{border-left:3px solid #c779e8;padding:11px 13px;background:#261733;color:#e2cbef;border-radius:0 9px 9px 0;font-size:11px;line-height:1.6;margin-bottom:12px}
+#adminPanel .sf13-inline-meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:10px;color:#baacc7}
+#adminPanel .sf13-periods{display:flex;gap:5px;flex-wrap:wrap}
+#adminPanel .sf13-search{min-height:40px;width:100%;border-radius:11px;border:1px solid #674477;background:#140d1e;padding:10px 13px;color:white;min-width:0}
+#adminPanel .sf13-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#adminPanel .sf13-summary-tile{padding:16px;border:1px solid #7b47934f;border-radius:14px;background:#25142e}
+#adminPanel .sf13-summary-tile strong{font-size:24px;color:#fff;display:block;line-height:1.2;margin:5px 0}
+#adminPanel .sf13-summary-tile span{font-size:10px;color:#c9b7d4}
+#adminPanel .sf13-skeleton-empty{padding:20px;color:#c6b3d2;text-align:center;font-size:12px}
+#adminPanel [data-sf13-nav] .sf13-small-tag{font-size:9px;color:#ffc9df;margin-left:auto}
+@media(max-width:1080px){
+ #adminPanel .sf13-top-grid{grid-template-columns:1fr}
+ #adminPanel .sf12-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ #adminPanel .sf12-admin-shell{height:100dvh!important;max-height:100dvh!important}
+ #adminPanel .sf12-admin-top{background-position:center}
+ #adminPanel .sf13-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #adminPanel .sf13-spark{height:145px}
+ #adminPanel .sf12-admin-sidebar{background:#160e26!important}
+}
+@media(prefers-reduced-motion:reduce){#adminPanel .sf13-live-marker{animation:none!important}}
