@@ -58,3 +58,29 @@
   background-position:center,var(--sf160-x) var(--sf160-y);
   background-repeat:no-repeat;
 }
+
+/* Existing theme create/edit thumbnail uses the same artwork as the chooser. */
+#sf88CreateTheme .sf88-mini,#sf88EditTheme .sf88-mini{position:relative}
+#sf88CreateTheme[data-sf143-theme="indie"],#sf88EditTheme[data-sf143-theme="indie"]{--sf160-x:0.00000%;--sf160-y:0.00000%;}
+#sf88CreateTheme[data-sf143-theme="metal"],#sf88EditTheme[data-sf143-theme="metal"]{--sf160-x:33.33333%;--sf160-y:0.00000%;}
+#sf88CreateTheme[data-sf143-theme="emo"],#sf88EditTheme[data-sf143-theme="emo"]{--sf160-x:66.66667%;--sf160-y:0.00000%;}
+#sf88CreateTheme[data-sf143-theme="mpb"],#sf88EditTheme[data-sf143-theme="mpb"]{--sf160-x:100.00000%;--sf160-y:0.00000%;}
+#sf88CreateTheme[data-sf143-theme="eletronica"],#sf88EditTheme[data-sf143-theme="eletronica"]{--sf160-x:0.00000%;--sf160-y:33.33333%;}
+#sf88CreateTheme[data-sf143-theme="rock"],#sf88EditTheme[data-sf143-theme="rock"]{--sf160-x:33.33333%;--sf160-y:33.33333%;}
+#sf88CreateTheme[data-sf143-theme="pop"],#sf88EditTheme[data-sf143-theme="pop"]{--sf160-x:66.66667%;--sf160-y:33.33333%;}
+#sf88CreateTheme[data-sf143-theme="rap"],#sf88EditTheme[data-sf143-theme="rap"]{--sf160-x:100.00000%;--sf160-y:33.33333%;}
+#sf88CreateTheme[data-sf143-theme="funk"],#sf88EditTheme[data-sf143-theme="funk"]{--sf160-x:0.00000%;--sf160-y:66.66667%;}
+#sf88CreateTheme[data-sf143-theme="pagode"],#sf88EditTheme[data-sf143-theme="pagode"]{--sf160-x:33.33333%;--sf160-y:66.66667%;}
+#sf88CreateTheme[data-sf143-theme="sertanejo"],#sf88EditTheme[data-sf143-theme="sertanejo"]{--sf160-x:66.66667%;--sf160-y:66.66667%;}
+#sf88CreateTheme[data-sf143-theme="reggae"],#sf88EditTheme[data-sf143-theme="reggae"]{--sf160-x:100.00000%;--sf160-y:66.66667%;}
+#sf88CreateTheme[data-sf143-theme="jazz"],#sf88EditTheme[data-sf143-theme="jazz"]{--sf160-x:0.00000%;--sf160-y:100.00000%;}
+#sf88CreateTheme[data-sf143-theme="forro"],#sf88EditTheme[data-sf143-theme="forro"]{--sf160-x:33.33333%;--sf160-y:100.00000%;}
+#sf88CreateTheme[data-sf143-theme]:not([data-sf143-theme="geral"]) .sf88-mini::before,
+#sf88EditTheme[data-sf143-theme]:not([data-sf143-theme="geral"]) .sf88-mini::before{
+ content:"";position:absolute;left:9px;top:9px;width:110px;height:60px;
+ border-radius:9px;background-image:var(--sf160-atlas);
+ background-size:400% 400%;background-position:var(--sf160-x) var(--sf160-y);
+ background-repeat:no-repeat;pointer-events:none;z-index:1;
+}
+#sf88CreateTheme[data-sf143-theme]:not([data-sf143-theme="geral"]) .sf88-mini img,
+#sf88EditTheme[data-sf143-theme]:not([data-sf143-theme="geral"]) .sf88-mini img{opacity:0}
