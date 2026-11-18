@@ -7,6 +7,18 @@
   const isLink = text => validId(String(text || '').trim()) || /^(?:https?:\/\/|www\.|(?:m\.)?youtube(?:\.com)?\/|youtu\.be\/)/i.test(String(text || '').trim());
   const roomActive = () => Boolean($('screen-room')?.classList.contains('active'));
   const state = { open:false, query:'', sequence:0, timer:null, controller:null, items:[], activeIndex:-1, lastAnchor:null };
+  // Resultados públicos em memória: mesma otimização na busca móvel e desktop.
+  const sf150InlineCache=new Map();
+  function sf150Get(query){
+    const key=query.toLocaleLowerCase('pt-BR'),item=sf150InlineCache.get(key);
+    if(!item||Date.now()-item.at>90000){sf150InlineCache.delete(key);return null;}
+    return item.tracks;
+  }
+  function sf150Put(query,tracks){
+    const key=query.toLocaleLowerCase('pt-BR');
+    sf150InlineCache.delete(key);sf150InlineCache.set(key,{at:Date.now(),tracks});
+    if(sf150InlineCache.size>12)sf150InlineCache.delete(sf150InlineCache.keys().next().value);
+  }
   const maxRows = 6;
   let frame = 0;
   function syncButton() {
@@ -188,6 +200,12 @@
     if (sameQuery && !immediate) { position(); return true; }
     abort(); state.query=query; state.items=[]; state.activeIndex=-1;
     if (!open()) return false;
+    const cached=sf150Get(query);
+    if(cached){
+      if(cached.length)renderTracks(cached);
+      else renderMessage('Nenhuma música encontrada. Tente outra busca.','♫');
+      return true;
+    }
     renderMessage(`Procurando por “${query}”…`,'♫');
     const sequence=state.sequence;
     state.timer=setTimeout(async()=>{
@@ -198,10 +216,12 @@
         if(!response.ok)throw new Error(`Erro HTTP ${response.status}`);
         const data=await response.json();
         if(sequence!==state.sequence || !state.open) return;
+        const seen=new Set();
         const tracks=(Array.isArray(data?.items)?data.items:[])
-          .filter(item=>validId(item?.id))
+          .filter(item=>validId(item?.id)&&!seen.has(item.id)&&(seen.add(item.id),true))
           .slice(0,maxRows)
           .map(item=>({id:item.id,title:String(item.title||'Música'),artist:String(item.artist||'Artista desconhecido')}));
+        sf150Put(query,tracks);
         if (tracks.length) renderTracks(tracks);
         else renderMessage('Nenhuma música encontrada. Tente outra busca ou abra a busca completa.','♫');
       } catch(e) {
