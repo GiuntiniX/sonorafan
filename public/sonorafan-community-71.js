@@ -91,8 +91,9 @@
      state.refreshTimer=null;
      if(state.activeId!==id)return;
      if(kind==='post'){
-       await loadPosts(id);
-       status('♫ O mural recebeu uma atualização.');
+       if(state.focusPost)await openTopic(id,state.focusPost.id,false);
+       else if(state.forumSearch)await searchForum(id);
+       else await loadPosts(id);
      }else if(kind==='extras'){
        await loadExtras(id);
      }else{
@@ -119,7 +120,7 @@
      stream.addEventListener('error',()=>{if(label)label.textContent='Reconectando…';});
    }else{
      if(label)label.textContent='Atualização periódica';
-     state.poll=setInterval(()=>{if(state.activeId===id&&!document.hidden){loadPosts(id);loadExtras(id);}},25000);
+     state.poll=setInterval(()=>{if(state.activeId===id&&!document.hidden){if(state.focusPost)openTopic(id,state.focusPost.id,false);else if(state.forumSearch)searchForum(id);else loadPosts(id);loadExtras(id);}},25000);
    }
  }
  const showList=()=>{stopLive();$('sf71ClubList').hidden=false;$('sf71ClubDetail').hidden=true;state.activeId=null;state.detail=null;};
