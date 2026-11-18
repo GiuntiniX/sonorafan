@@ -3,7 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id), panel=$('sfFanClubsPanel');if(!panel)return;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],postCursor:null,postHasMore:false,activePane:'mural',polls:[],ideas:[],clubEvents:[],insights:null,contributors:[],reports:[],commentsOpen:null};
+ const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],postCursor:null,postHasMore:false,forumSearch:false,forumSearching:false,focusPost:null,related:[],replyTo:null,quoteTo:null,forumSearchCursor:null,forumSearchHasMore:false,activePane:'mural',polls:[],ideas:[],clubEvents:[],insights:null,contributors:[],reports:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
  const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
  const byId=id=>state.clubs.find(c=>c.id===id);
@@ -224,12 +224,17 @@
      <div class="sf180-post-meta"><span class="sf180-topic-label">${type.icon} ${type.title}</span><small>${type.description}</small></div>
      ${p.pinned?'<span class="sf151-pin-label">📌 Destaque da comunidade</span>':''}
      <div class="sf71-post-head"><strong>${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div>
+     <button type="button" class="sf600-topic-title" data-sf600-open="${esc(p.id)}">${esc(p.title||String(p.text||'').slice(0,95)||'Discussão da comunidade')}</button>
+     <div class="sf600-tags">${(p.tags||[]).map(tag=>`<button type="button" data-sf600-tag="${esc(tag)}">#${esc(tag)}</button>`).join('')}</div>
      <p>${esc(p.text)}</p>${p.hasImage?`<img class="sf170-post-image" loading="lazy" alt="Foto anexada à publicação" src="/api/fan-clubs/${encodeURIComponent(state.activeId)}/posts/${encodeURIComponent(p.id)}/image">`:''}
      ${p.editedAt?'<small class="sf180-edited">✎ Publicação editada</small>':''}
      ${question?`<div class="sf180-question-status" role="status">${p.resolved?'✓ Dúvida respondida':'⌛ Aguardando respostas'}</div>`:''}
      <div class="sf151-post-actions">
+       <button type="button" data-sf600-favorite="${esc(p.id)}" aria-pressed="${!!p.favorite}">${p.favorite?'★ Salvo':'☆ Salvar'}</button>
+       ${p.unread?'<span class="sf600-unread">● Não lido</span>':''}
        <button type="button" data-sf151-like="${esc(p.id)}" aria-pressed="${!!p.liked}">♡ ${Math.max(0,Number(p.likeCount)||0)} curtidas</button>
-       <button type="button" data-sf160-comments="${esc(p.id)}" aria-expanded="${state.commentsOpen===p.id}">💬 Respostas</button>
+       <button type="button" data-sf160-comments="${esc(p.id)}" aria-expanded="${state.commentsOpen===p.id}">💬 ${p.replyCount||0} respostas</button>
+       <button type="button" data-sf600-share="${esc(p.id)}">🔗 Link</button>
        <button type="button" data-sf160-report="${esc(p.id)}">⚑ Denunciar</button>
        ${question&&p.canResolve?`<button type="button" data-sf180-resolve="${esc(p.id)}" data-resolved="${!!p.resolved}">${p.resolved?'Reabrir dúvida':'✓ Marcar respondida'}</button>`:''}
        ${p.canPin?`<button type="button" data-sf151-pin="${esc(p.id)}" data-pinned="${!!p.pinned}">${p.pinned?'Desafixar':'📌 Fixar'}</button>`:''}
@@ -248,6 +253,8 @@
      box.innerHTML=`<strong>${type.icon} ${type.title}</strong><small>${type.description}</small>`;}
  }
  function renderFeed(){
+   if(state.focusPost){renderFocusedPost();return;}
+
    const box=$('sf71Posts');if(!box)return;
    const q=state.feedSearch.toLocaleLowerCase('pt-BR');
    const all=state.posts;
@@ -257,18 +264,84 @@
      countEl.innerHTML=topicOptions.map(key=>`<button type="button" data-sf180-filter="${key}" aria-pressed="${state.feedFilter===key}">${topicFor(key).icon} ${topicFor(key).title} <strong>${all.filter(p=>(p.topic||'conversa')===key).length}</strong></button>`).join('');
    }
    const queryMatch=p=>!q||[p.text,p.authorName,topicFor(p.topic).title].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q));
-   let posts=all.filter(p=>queryMatch(p));
-   if(topicOptions.includes(state.feedFilter))posts=posts.filter(p=>(p.topic||'conversa')===state.feedFilter);
+   let posts=state.forumSearch?all:all.filter(p=>queryMatch(p));
+   if(!state.forumSearch&&topicOptions.includes(state.feedFilter))posts=posts.filter(p=>(p.topic||'conversa')===state.feedFilter);
    if(state.feedFilter==='pinned')posts=posts.filter(p=>p.pinned);
-   if(state.feedFilter==='popular')posts=[...posts].sort((a,b)=>(b.likeCount||0)-(a.likeCount||0)||(b.createdAt||0)-(a.createdAt||0));
+   if(state.feedFilter==='popular'&&!state.forumSearch)posts=[...posts].sort((a,b)=>(b.likeCount||0)-(a.likeCount||0)||(b.createdAt||0)-(a.createdAt||0));
    const activeType=topicOptions.includes(state.feedFilter)?topicFor(state.feedFilter):null;
    const empty=activeType?`Ainda não há publicações de ${activeType.title.toLowerCase()} neste filtro.`:
      q?'Nenhuma publicação encontrada. Experimente outro termo.':'Ainda não há publicações nesta visualização.';
    box.innerHTML=(posts.length?posts.map(postHtml).join(''):`<p class="sf180-empty" role="status">${esc(empty)}</p>`)+
-     (state.postHasMore?'<button type="button" class="sf170-load-more" data-sf170-more>Carregar publicações anteriores</button>':'');
+     ((state.forumSearch?state.forumSearchHasMore:state.postHasMore)?'<button type="button" class="sf170-load-more" data-sf600-more>Carregar mais discussões do histórico</button>':'');
    const summary=$('sf180FeedSummary');
-   if(summary)summary.textContent=`${posts.length} de ${all.length} publicações carregadas${state.postHasMore?' · existem mais publicações':''}`;
+   if(summary)summary.textContent=state.forumSearch?
+     `${posts.length} resultados do histórico${state.forumSearchHasMore?' · buscar próximas páginas':''}`:
+     `${posts.length} de ${all.length} publicações carregadas${state.postHasMore?' · existem mais publicações':''}`;
    if(state.commentsOpen&&posts.some(p=>p.id===state.commentsOpen))loadComments(state.activeId,state.commentsOpen);
+ }
+ function topicUrl(clubId,topicId){
+   return location.origin+location.pathname+location.search+'#fanclub/'+encodeURIComponent(clubId)+'/topic/'+encodeURIComponent(topicId);
+ }
+ function renderFocusedPost(){
+   const box=$('sf71Posts'),post=state.focusPost;if(!box||!post)return;
+   const related=state.related||[];
+   box.innerHTML=`<section class="sf600-topic-detail" aria-label="Discussão aberta">
+     <div class="sf600-topic-toolbar"><button type="button" data-sf600-back>← Voltar ao fórum</button>
+       <button type="button" data-sf600-share="${esc(post.id)}">🔗 Copiar link permanente</button></div>
+     ${postHtml(post)}
+     <section class="sf600-related"><h5>Discussões relacionadas</h5>
+       ${related.length?related.map(p=>`<button type="button" data-sf600-open="${esc(p.id)}">${esc(p.title)} <small>· ${topicFor(p.topic).title}</small></button>`).join(''):'<p>Não há discussões relacionadas na amostra recente.</p>'}</section>
+   </section>`;
+   state.commentsOpen=post.id;
+   const node=box.querySelector('[data-sf71-post]');
+   if(node&&!node.querySelector('.sf160-comments')){node.insertAdjacentHTML('beforeend',`<section class="sf160-comments" data-comments-for="${esc(post.id)}">Carregando respostas…</section>`);}
+   loadComments(state.activeId,post.id);
+ }
+ async function openTopic(id,postId,push=true){
+   if(!id||!postId)return;
+   try{
+     const data=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId));
+     if(state.activeId!==id)return;
+     state.focusPost=data.post;state.replyTo=null;state.quoteTo=null;state.related=[];
+     state.commentsOpen=postId;switchPane('mural');
+     const related=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/related');
+     if(state.focusPost?.id!==postId)return;state.related=related.related||[];
+     if(push)history.pushState({sf600:true},'',topicUrl(id,postId));
+     renderFocusedPost();$('sf71Posts')?.scrollIntoView({behavior:'smooth',block:'start'});
+   }catch(e){status(e.message,true);}
+ }
+ function closeTopic(changeUrl=true){
+   state.focusPost=null;state.replyTo=null;state.quoteTo=null;state.commentsOpen=null;
+   if(changeUrl&&/^#fanclub\//.test(location.hash))history.pushState({},'',location.pathname+location.search);
+   renderFeed();
+ }
+ async function searchForum(id,append=false){
+   if(!id)return;
+   const params=new URLSearchParams(),q=state.feedSearch;
+   if(q)params.set('q',q);
+   if(['conversa','duvida','novidade','evento','ideia'].includes(state.feedFilter))params.set('topic',state.feedFilter);
+   if(state.feedFilter==='popular')params.set('sort','popular');
+   if(state.feedFilter==='unanswered')params.set('sort','unanswered');
+   if(state.feedFilter==='active')params.set('sort','active');
+   if(state.feedFilter==='saved'){
+     state.forumSearch=false;
+     state.posts=state.posts.filter(p=>p.favorite);renderFeed();return;
+   }
+   if(state.feedTag)params.set('tag',state.feedTag);
+   if(append&&state.forumSearchCursor)params.set('before',state.forumSearchCursor);
+   state.forumSearching=true;
+   try{
+     const data=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/forum/search?'+params.toString());
+     if(state.activeId!==id)return;
+     state.forumSearch=true;
+     state.posts=append?[...state.posts,...data.posts.filter(p=>!state.posts.some(old=>old.id===p.id))]:data.posts;
+     state.forumSearchCursor=data.nextBefore||null;state.forumSearchHasMore=!!data.hasMore;
+     renderFeed();
+   }catch(e){status(e.message,true);}finally{state.forumSearching=false;}
+ }
+ async function resetForumSearch(id){
+   state.forumSearch=false;state.feedTag='';state.forumSearchCursor=null;
+   await loadPosts(id);
  }
  async function loadComments(id,postId){
    const box=$('sf71Posts')?.querySelector('[data-comments-for="'+postId+'"]');if(!box)return;
