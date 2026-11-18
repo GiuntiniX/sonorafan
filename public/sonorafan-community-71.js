@@ -373,6 +373,49 @@
      },async id=>{await openDetail(id);});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+ if(t.hasAttribute('data-sf180-edit-profile')){
+   if(!state.detail?.club?.canEditProfile)return;
+   const club=state.detail.club;
+   modal('Editar bio e regras do Fan Club',`<p>Somente o criador e até dois coadministradores autorizados podem alterar estas informações.</p>
+     <label>Bio da comunidade<textarea name="description" maxlength="280" rows="4">${esc(club.description||'')}</textarea></label>
+     <label>Regras da comunidade<textarea name="rules" maxlength="300" rows="5">${esc(club.rules||'')}</textarea></label>`,async fd=>{
+       await post('/api/fan-clubs/'+encodeURIComponent(id)+'/profile',{description:String(fd.get('description')||''),rules:String(fd.get('rules')||'')});return true;
+     },async()=>{await openDetail(id);status('Bio e regras atualizadas.');});return;
+ }
+ if(t.hasAttribute('data-sf180-filter')){
+   state.feedFilter=t.dataset.sf180Filter;
+   const select=$('sf160FeedFilter');if(select)select.value=state.feedFilter;
+   renderFeed();return;
+ }
+ if(t.hasAttribute('data-sf180-clear-filter')){
+   state.feedFilter='all';state.feedSearch='';
+   if($('sf160FeedFilter'))$('sf160FeedFilter').value='all';
+   if($('sf160FeedSearch'))$('sf160FeedSearch').value='';
+   renderFeed();return;
+ }
+ if(t.hasAttribute('data-sf180-edit-post')){
+   const p=state.posts.find(p=>p.id===t.dataset.sf180EditPost);
+   if(!p?.authorCanEdit)return;
+   modal('Editar publicação',`<label>Seu texto<textarea name="text" minlength="3" maxlength="600" rows="5" required>${esc(p.text)}</textarea></label><small>A categoria continua a mesma para preservar a organização do fórum.</small>`,async fd=>{
+     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(p.id)+'/edit',{text:String(fd.get('text')||'')});return true;
+   },async()=>{await loadPosts(id);status('Publicação editada.');});return;
+ }
+ if(t.hasAttribute('data-sf180-resolve')){
+   const p=state.posts.find(p=>p.id===t.dataset.sf180Resolve);
+   if(!p?.canResolve||p.topic!=='duvida')return;
+   await action(async()=>{
+     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(p.id)+'/resolve',{resolved:t.dataset.resolved!=='true'});
+     await loadPosts(id);
+   },p.resolved?'Dúvida reaberta.':'Dúvida marcada como respondida.');return;
+ }
+ if(t.hasAttribute('data-sf180-best-answer')){
+   const p=state.posts.find(p=>p.id===t.dataset.postId);
+   if(!p?.canResolve||p.topic!=='duvida')return;
+   await action(async()=>{
+     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(p.id)+'/best-answer',{commentId:t.dataset.sf180BestAnswer});
+     await loadPosts(id);
+   },'Resposta escolhida e dúvida resolvida.');return;
+ }
  if(t.hasAttribute('data-sf170-create-event')){
    modal('Organizar encontro da comunidade','<label>Título<input name="title" minlength="5" maxlength="90" required></label><label>Descrição<textarea name="description" maxlength="300"></textarea></label><label>Data e horário<input type="datetime-local" name="startAt" required></label><label>Duração<select name="durationMinutes"><option value="30">30 min</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option></select></label>',async fd=>{
      await post('/api/fan-clubs/'+encodeURIComponent(id)+'/events',{title:fd.get('title'),description:fd.get('description'),startAt:new Date(fd.get('startAt')).getTime(),durationMinutes:Number(fd.get('durationMinutes'))});return true;
@@ -574,7 +617,10 @@
      catch(err){status(err.message,true);}finally{submit.disabled=false;}
    });
    $('sf71ClubDetail')?.addEventListener('input',e=>{if(e.target.id==='sf160FeedSearch'){state.feedSearch=e.target.value.trim();renderFeed();}});
-   $('sf71ClubDetail')?.addEventListener('change',e=>{if(e.target.id==='sf160FeedFilter'){state.feedFilter=e.target.value;renderFeed();}});
+   $('sf71ClubDetail')?.addEventListener('change',e=>{
+     if(e.target.id==='sf160FeedFilter'){state.feedFilter=e.target.value;renderFeed();}
+     if(e.target.id==='sf170Topic')renderTopicPreview();
+   });
    window.sf71LoadFanClubs=()=>{showList();loadClubs();};
    window.sf71OpenFanClub=id=>{if(/^[a-f0-9-]{36}$/.test(String(id||'')))openDetail(id);};
    window.sf71StopLive=stopLive;
