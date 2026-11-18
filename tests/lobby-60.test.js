@@ -43,7 +43,7 @@ test('Lobby: room counts are derived from live public rooms and genre filters ar
  assert(js.includes("allRooms()"));
  assert(js.includes("counts.set(room.genre"));
  assert(js.includes("if(state.genre&&r.genre!==state.genre)return false"));
- assert(js.includes('room.currentTrack?.artist'));
+ assert(js.includes('r.currentTrack?.artist'));
  assert(js.includes('room.listenerCount')||js.includes('r.listenerCount'));
  assert(js.includes('state.search'));
  assert(!js.includes('Lobby 6.0'));
