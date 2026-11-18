@@ -130,14 +130,12 @@
       ${m.owner?`<button type="button" data-sf100-action="mix-share" data-id="${esc(m.id)}">${m.shared?'🔒 Deixar privada':'↗ Compartilhar por link'}</button>`:''}
       ${m.shared?`<button type="button" data-sf100-action="mix-copy" data-id="${esc(m.id)}">⧉ Copiar link</button>`:''}
       ${m.owner?`<button type="button" class="danger" data-sf100-action="mix-delete" data-id="${esc(m.id)}">Excluir</button>`:''}
-      ${m.shared?`<button type="button" data-sf100-action="mix-club" data-id="${esc(m.id)}">♬ Enviar ao Fan Club</button>`:''}
     </div>
     ${hasRoom?`<div class="sf100-mix-add"><label for="sf100MixSong">Adicionar da fila desta sala</label>
       <select id="sf100MixSong"><option value="">Selecione uma faixa</option>
       ${roomTracks.filter(t=>ytId(t.id)&&!(m.tracks||[]).some(x=>x.id===t.id)).map(t=>`<option value="${esc(t.id)}">${esc(trunc(t.title,65))}</option>`).join('')}</select>
       <button type="button" data-sf100-action="mix-track">＋ Adicionar</button></div>`:''}
     <ol class="sf100-tracks">${(m.tracks||[]).map(t=>`<li><strong>${esc(t.title)}</strong><span>${esc(t.artist)} · ${esc(t.dj)}</span></li>`).join('')}</ol>
-    <div id="sf100ClubChoice"></div>
    </section>`;
  }
  async function openMix(id){
@@ -459,16 +457,6 @@
      notice('Cartão preparado para compartilhar nos Stories ou WhatsApp.');
    },'image/png');
  }
- async function openClubPicker(){
-   const e=$('sf100ClubChoice');if(!e)return;
-   try{
-     const d=await api('/api/fan-clubs?mine=true'),clubs=(d.clubs||[]).filter(c=>c.joined||c.owner);
-     if(!clubs.length){e.innerHTML=htmlMsg('Sem Fan Clubs','Participe de um Fan Club para compartilhar sua mixtape.');return;}
-     e.innerHTML=`<div class="sf100-mix-add"><label>Publicar mixtape no mural</label>
-       <select id="sf100ClubSelect">${clubs.map(c=>`<option value="${esc(c.id)}">${esc(c.title)}</option>`).join('')}</select>
-       <button type="button" data-sf100-action="club-post">Publicar</button></div>`;
-   }catch(ex){notice(ex.message,true);}
- }
  async function action(button){
    const act=button.dataset.sf100Action,id=button.dataset.id;
    try {
@@ -495,20 +483,11 @@
        await post('/api/studio100/mixtapes/'+state.selected.id+'/track',{id:songId});
        return openMix(state.selected.id);
      }
-     if(act==='mix-club')return openClubPicker();
      if(act==='club-open'){
        q('#sf95Overlay [data-sf95-close]')?.click();
        window.sf5OpenCommunity?.();
        window.sf71OpenFanClub?.(id);
        return;
-     }
-     if(act==='club-post'){
-       if(!state.selected?.shared)return notice('Primeiro compartilhe a mixtape.',true);
-       const club=$('sf100ClubSelect')?.value;
-       if(!safeId(club))return;
-       const url=new URL(window.location.href);url.searchParams.set('mix',state.selected.id);url.hash='';
-       await post('/api/fan-clubs/'+club+'/posts',{text:'🎵 Nova mixtape colaborativa: '+state.selected.title+' · '+url.toString()});
-       return notice('Mixtape publicada no mural do Fan Club.');
      }
      if(act==='follow'){await post('/api/social/follow',{id,follow:true});return notice('Você está seguindo esse ouvinte.');}
      if(act==='event-enter'){
