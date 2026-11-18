@@ -446,7 +446,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
           keys.sort((a,b)=>Number(readAt[a])-Number(readAt[b]));
           delete readAt[keys[0]];
         }
-        readAt[req.params.postId]=Date.now();
+        readAt[req.params.postId]=Math.max(Date.now(),Number(post.data().lastActivityAt||post.data().createdAt)||0);
         tx.set(profileRef,{readAt},{merge:true});
         return {...previous,readAt};
       });
