@@ -3,7 +3,8 @@
  * Portraits are either project-owned SVG characters or user-supplied,
  * client-resized JPEG photos; no third-party image hosts or arbitrary URLs.
  */
-const AVATARS=Object.freeze(['indie','pop','eletronico','rock','festival','rapper','jazz','mpb']);
+const {AVATAR_CATALOG,AVATAR_IDS}=require('./avatar-catalog-60');
+const AVATARS=AVATAR_IDS;
 const jpegSize=buf=>{
  if(buf.length<160||buf[0]!==0xff||buf[1]!==0xd8||buf[buf.length-2]!==0xff||buf[buf.length-1]!==0xd9)return null;
  let p=2;
@@ -32,6 +33,11 @@ function installProfile108({app,db,users,sessionEmail,publicUserId,rateLimit,get
    id:data?.kind==='character'&&AVATARS.includes(data?.id)?data.id:null,
    url:data?.kind==='photo'?'/api/profile108/photo/'+publicUserId(email)+'?v='+Number(data.updatedAt||0):
        data?.kind==='character'&&AVATARS.includes(data?.id)?'/avatars-108/'+data.id+'.svg':null
+ });
+ app.get('/api/profile108/characters',rateLimit(35,60000),(req,res)=>{
+   const email=requireMe(req,res);if(!email)return;
+   res.set('Cache-Control','public,max-age=600');
+   res.json({items:AVATAR_CATALOG,version:60,total:AVATAR_CATALOG.length});
  });
  app.get('/api/profile108/avatar',rateLimit(35,60000),async(req,res)=>{
    const email=requireMe(req,res);if(!email)return;
@@ -89,4 +95,4 @@ function installProfile108({app,db,users,sessionEmail,publicUserId,rateLimit,get
  async function deleteUserData(email){if(email)await mine(email).delete();}
  return {deleteUserData, jpegSize};
 }
-module.exports={installProfile108,jpegSize,AVATARS};
+module.exports={installProfile108,jpegSize,AVATARS,AVATAR_CATALOG};
