@@ -43,7 +43,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   }
   function notifyPostMembers(clubId,club,authorId,authorName){
     if(typeof sf15Notify!=='function')return;
-    const memberIds=new Set(unique(club.memberIds).filter(id=>id!==authorId));
+    const memberIds=new Set(unique(club.memberIds).filter(id=>id!==authorId&&!unique(club.notificationMutedIds).includes(id)));
     if(!memberIds.size)return;
     const recipients=[...users.keys()].filter(email=>memberIds.has(publicUserId(email)));
     // Bounded concurrency. Notifications are best-effort; a notification outage
@@ -83,7 +83,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     joined:unique(data.memberIds).includes(me.id),
     owner:data.ownerId===me.id,
     blocked:unique(data.blockedIds).includes(me.id),
-    canDelete:ownerOrAdmin(data,me),canModerate:canModerate(data,me),moderator:unique(data.moderatorIds).includes(me.id)
+    canDelete:ownerOrAdmin(data,me),canModerate:canModerate(data,me),moderator:unique(data.moderatorIds).includes(me.id),
+    notificationsEnabled:!unique(data.notificationMutedIds).includes(me.id)
   });
   async function readClub(id){
     if (!validateId(id))throwHttp(400,'Fan Club inválido.');
@@ -175,7 +176,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(owned.size>=5)throwHttp(409,'Você já administra 5 Fan Clubs.');
       const id=crypto.randomUUID();
       const data={id,artist,title,description,rules,theme,ownerId:me.id,ownerName:me.name,
-        memberIds:[me.id],blockedIds:[],moderatorIds:[],roomSlugs:[],createdAt:Date.now(),updatedAt:Date.now()};
+        memberIds:[me.id],blockedIds:[],moderatorIds:[],notificationMutedIds:[],roomSlugs:[],createdAt:Date.now(),updatedAt:Date.now()};
       await refFor(id).create(data);
       res.status(201).json({club:overview(data,id,me)});
     }catch(e){error(res,e);}
@@ -276,6 +277,22 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       });if(action==='block')disconnectMember(req.params.id,userId);publish(req.params.id,'members');res.json({success:true});
     }catch(e){error(res,e);}
   });
+  app.post('/api/fan-clubs/:id/notifications',rateLimit(15,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const enabled=req.body?.enabled===true;
+    try{
+      const ref=refFor(req.params.id);
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(ref);if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
+        const data=snap.data();
+        if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe do Fan Club.');
+        const next=unique(data.notificationMutedIds).filter(id=>id!==me.id);
+        if(!enabled)next.push(me.id);
+        tx.update(ref,{notificationMutedIds:next,updatedAt:Date.now()});
+      });
+      res.json({notificationsEnabled:enabled});
+    }catch(e){error(res,e);}
+  });
   app.post('/api/fan-clubs/:id/moderators',rateLimit(12,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const userId=String(req.body?.userId||''),enabled=req.body?.enabled===true;
@@ -299,14 +316,19 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.get('/api/fan-clubs/:id/posts',rateLimit(60,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para ler o mural.');
-      const snap=await ref.collection('posts').orderBy('createdAt','desc').limit(35).get();
-      const posts=snap.docs.map(d=>({id:d.id,...d.data(),likedBy:undefined,
+      const before=Number(req.query?.before);
+      if(req.query?.before!==undefined&&(!Number.isSafeInteger(before)||before<=0))throwHttp(400,'Cursor inválido.');
+      let query=ref.collection('posts').orderBy('createdAt','desc');
+      if(req.query?.before!==undefined)query=query.startAfter(before);
+      const snap=await query.limit(36).get();
+      const page=snap.docs.slice(0,35),hasMore=snap.docs.length>35;
+      const posts=page.map(d=>({id:d.id,...d.data(),likedBy:undefined,
         pinned:d.id===data.pinnedPostId,likeCount:unique(d.data().likedBy).length,
         liked:unique(d.data().likedBy).includes(me.id),
         editable:d.data().authorId===me.id||canModerate(data,me),
         canPin:canModerate(data,me)}));
       posts.sort((a,b)=>Number(b.pinned)-Number(a.pinned)||(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
-      res.json({posts});
+      res.json({posts,hasMore,nextBefore:hasMore?Number(page.at(-1)?.data()?.createdAt)||null:null});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/posts',rateLimit(12,60000),async(req,res)=>{
@@ -406,7 +428,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const doc=ref.collection('comments').doc();
       await doc.create(comment);publish(req.params.id,'post');
       const authorId=target.data().authorId;
-      if(authorId!==me.id&&typeof sf15Notify==='function'){
+      if(authorId!==me.id&&!unique(data.notificationMutedIds).includes(authorId)&&typeof sf15Notify==='function'){
         const email=[...users.keys()].find(e=>publicUserId(e)===authorId);
         if(email)Promise.resolve().then(()=>sf15Notify(email,{type:'fanclub',title:'Responderam à sua publicação',message:me.name+' comentou no Fan Club',fanClubId:req.params.id})).catch(()=>{});
       }
