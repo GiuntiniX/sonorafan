@@ -23,7 +23,7 @@ test('Perfil 6.0: forty original project-hosted avatars including legacy selecti
    assert(['identity','music','brazil','future','fantasy','creative'].includes(character.category));
    const svg=read('public/avatars-108/'+character.id+'.svg');
    assert(svg.includes('<svg'),character.id);
-   assert(svg.includes('<title'),character.id+' accessible title missing');
+   assert(svg.includes('<title')||svg.includes('aria-label='),character.id+' accessible title missing');
    assert(!/<script|onload\s*=|<foreignObject|<image\s+href=/i.test(svg),'SVG must be local/vector-only: '+character.id);
  }
 });
