@@ -79,6 +79,7 @@
       ${r.isPlaying?'<span class="sf107-live-badge">● AO VIVO</span>':''}
       <span class="sf107-card-copy"><strong>${esc(r.name||'Sala musical')}</strong>
         <small>♧ ${fmt(r.listenerCount)} ${count(r.listenerCount)===1?'ouvinte':'ouvintes'} · ${esc(genreFor(r))}</small>
+        ${r.currentTrack?.title?'<small class="sf150-room-nowplaying">♫ '+esc(String(r.currentTrack.title).slice(0,60))+'</small>':''}
       </span><span class="sf107-play">▶</span></button>`;
   }
   function renderRooms(){
@@ -264,21 +265,27 @@
   function renderAll(){renderFeatured();renderRecent();renderRooms();}
   function updateRooms(list){
     if(!Array.isArray(list))return;
-    const signature=list.map(r=>`${r.slug}:${r.listenerCount}:${r.isPlaying}:${r.currentTrack?.id}`).join('|');
+    const signature=list.map(r=>[r.slug,r.listenerCount,r.isPlaying,r.currentTrack?.id,
+      r.currentTrack?.title,r.roomTheme,r.genre,r.description,r.name].join(':')).join('|');
     if(signature===state.signature)return;
     state.signature=signature;state.rooms=list.filter(r=>r&&valid(r.slug));renderAll();
   }
+  let sf150RoomFetch=null;
   async function pullRooms(force=false){
-    if(!active()||!force&&Date.now()-state.lastRooms<13000)return;
+    if(!active()||document.hidden||sf150RoomFetch||!force&&Date.now()-state.lastRooms<13000)return;
     state.lastRooms=Date.now();
+    const controller=new AbortController();
+    sf150RoomFetch=controller;
+    const timer=setTimeout(()=>controller.abort(),9500);
     try{
-      const r=await fetch('/api/rooms',{credentials:'include',cache:'no-store'});
+      const r=await fetch('/api/rooms',{credentials:'include',cache:'no-store',signal:controller.signal});
       if(!r.ok)throw Error('Falha na consulta');
       updateRooms(await r.json());
     }catch(_){
       if(state.rooms===null){state.rooms=[];renderAll();$('sf107Rooms').innerHTML=
         `<div class="sf107-empty">Salas indisponíveis. <button type="button" data-sf107="retry">Tentar novamente</button></div>`;}
-    }
+      state.lastRooms=0;
+    }finally{clearTimeout(timer);sf150RoomFetch=null;}
   }
   async function pullExtras(force=false){
     if(!active()||!force&&Date.now()-state.lastExtras<75000)return;
