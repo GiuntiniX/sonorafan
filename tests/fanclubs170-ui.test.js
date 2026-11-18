@@ -47,8 +47,8 @@ test('Guide atual, responsividade e controle de foco estão preservados',()=>{
  assert.match(css,/#caff00/);
  assert.match(css,/@media\(max-width:900px\)/);
  assert.match(css,/:focus-visible/);
- assert.match(html,/sonorafan-community-71\.js\?v=180\.0/);
- assert.match(html,/sonorafan-community-71\.css\?v=180\.0/);
+ assert.match(html,/sonorafan-community-71\.js\?v=600\.0/);
+ assert.match(html,/sonorafan-community-71\.css\?v=600\.0/);
 });
 
 test('v180: cada tipo de publicação tem etiqueta, descrição e fundo próprio',()=>{
