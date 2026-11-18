@@ -26,3 +26,16 @@
  #screen-lobby .sf109-quick-clean .sf109-quick-message{flex:1 1 100%;text-align:left;font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){#createRoomModal .sf109-genre-option span{transition:none}}
+
+/* More music styles without enlarging the create-room dialog indefinitely. */
+#createRoomModal .sf109-genre-grid{
+ max-height:295px;overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-width:thin;scrollbar-color:#aa6a9c #291831;
+ padding:3px 5px 7px 2px;
+}
+#createRoomModal .sf109-genre-option{contain:layout style}
+#createRoomModal .sf109-genre-option span{min-height:58px}
+@media(max-width:660px){
+ #createRoomModal .sf109-genre-grid{max-height:min(37dvh,290px);grid-template-columns:repeat(3,minmax(0,1fr))}
+ #createRoomModal .sf109-genre-option span{min-height:62px}
+}
