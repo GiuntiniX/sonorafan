@@ -1,0 +1,83 @@
+/* SonoraFan 150 — refinos incrementais, sem novas camadas de navegação.
+ * Reusa temas, cards, fila, chat, mural e Central de Qualidade existentes.
+ * Nunca altera play/pause, permissões ou a geometria do iframe do YouTube. */
+
+/* Lobby: exibir música tocando em cada cartão sem perder a leitura da capa. */
+#screen-lobby .sf107-room-card .sf150-room-nowplaying{
+ display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ margin-top:5px;color:#fff8b4;font-size:10px;font-weight:750;
+ text-shadow:0 1px 6px #090310,0 1px 3px #090310;
+}
+#screen-lobby .sf107-room-card .sf107-card-copy{max-width:calc(100% - 40px);min-width:0}
+#screen-lobby .sf107-room-card .sf107-card-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Reutilize pintura apenas quando cards complexos ficam fora da área visível. */
+#screen-lobby .sf107-room-card,
+#screen-lobby .sf107-club{content-visibility:auto;contain-intrinsic-size:auto 180px}
+
+/* Social: reforço de presença real e privacidade sem fotografias inferidas. */
+.sf5-community-layer .sf150-presence-count{
+ display:inline-block;font-size:10px;font-weight:700;color:#b0edd0;
+ letter-spacing:0;margin-inline-start:5px;vertical-align:middle;
+}
+
+/* Conquistas: medalhas oficiais, nunca pontuação gerada no cliente. */
+#sf43ProfileModal .sf108-badge-list .sf108-badge.earned{min-width:0;overflow-wrap:anywhere}
+#sf43ProfileModal .sf108-genre-area #sf150MusicIdentity{
+ display:block;color:#c9a9e8;line-height:1.45;font-size:11px;
+}
+
+/* Setlist: um filtro dentro do histórico existente, sem segunda janela. */
+#sf63Overlay .sf150-history-search-label,
+#sf63RoomTools .sf150-history-search-label{display:block;font-size:12px;font-weight:700;margin:12px 0 6px}
+.sf150-history-search{display:block;width:100%;max-width:520px;box-sizing:border-box;min-height:43px;
+ border-radius:11px;padding:10px 13px;background:#1b1527;color:#f7efff;
+ border:1px solid #76598a;font:500 14px/1.3 system-ui;}
+.sf150-history-search:focus-visible{outline:2px solid #f6bfdb;outline-offset:2px}
+.sf150-history-item[hidden]{display:none!important}
+.sf150-history-item{min-width:0;}
+
+/* Mural dos Fan Clubs: filtra as publicações reais, sem outro feed. */
+#sf71ClubDetail .sf150-mural-filter{display:flex;justify-content:flex-end;margin:8px 0 11px;}
+#sf71ClubDetail [data-sf150-music-filter]{min-height:39px;padding:8px 12px;
+ border:1px solid #84659d;border-radius:999px;background:#291a38;color:#f7e9ff;
+ font:700 12px/1.3 system-ui;cursor:pointer}
+#sf71ClubDetail [data-sf150-music-filter][aria-pressed="true"]{
+ background:#5a3574;border-color:#f3b5ee;color:#fff;box-shadow:0 0 0 1px #e6a6df55}
+#sf71ClubDetail [data-sf150-music-filter]:focus-visible{outline:2px solid #f7c8ff;outline-offset:2px}
+
+/* Central administrativa: números agregados por classe de dispositivo. */
+#sf95Overlay .sf150-quality-overview{display:grid;gap:9px;margin:13px 0 15px;
+ padding:13px;border-radius:13px;background:#1c1a2c;border:1px solid #63577a;}
+#sf95Overlay .sf150-quality-overview h5{margin:0;font-size:13px;color:#fff}
+#sf95Overlay .sf150-quality-overview p{margin:0;font-size:12px;line-height:1.55;color:#e2d8ec}
+#sf95Overlay .sf150-quality-overview small{font-size:10px;line-height:1.45;color:#b4a5c5}
+#sf95Overlay .sf150-device-breakdown{display:flex;gap:6px;flex-wrap:wrap}
+#sf95Overlay .sf150-device-breakdown span{padding:7px 9px;border:1px solid #706086;
+ border-radius:8px;background:#29243d;font-size:11px;color:#eee4f7}
+
+/* Refinos de contraste na galeria, sem modificar a identidade do tema Geral. */
+#sf88ThemeOverlay .sf88-theme-card[data-theme]:not([data-theme="geral"]) strong{
+ text-shadow:0 1px 7px #0c0712,0 1px 3px #0c0712;overflow-wrap:anywhere;
+}
+#sf88ThemeOverlay .sf88-theme-card:focus-visible{outline:3px solid #fff!important;outline-offset:3px!important}
+
+/* Área sensível ao toque: mantenha visíveis abas de fila, vídeo e chat. */
+@media(max-width:768px){
+  #screen-room.sf113-room > .app > #mTabs.mtabs{padding-bottom:max(5px,env(safe-area-inset-bottom,0px))!important;min-width:0}
+  #screen-room.sf113-room > .app > #mTabs.mtabs > button{
+    min-width:0;min-height:44px;touch-action:manipulation;
+  }
+  #screen-lobby .sf107-room-card .sf150-room-nowplaying{font-size:10px;max-width:100%}
+  #sf71ClubDetail .sf150-mural-filter{justify-content:stretch}
+  #sf71ClubDetail [data-sf150-music-filter]{width:100%;min-height:44px}
+  #sf95Overlay .sf150-quality-overview{padding:10px}
+  #sf95Overlay .sf150-device-breakdown span{flex:1 1 95px;text-align:center}
+}
+@media(min-width:769px) and (max-width:1100px){
+  #sf88ThemeOverlay .sf88-theme-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #screen-lobby .sf107-room-card .sf107-card-copy{max-width:calc(100% - 32px)}
+}
+@media(prefers-reduced-motion:reduce){
+  #sf88ThemeOverlay .sf88-theme-card{transition:none!important;animation:none!important}
+  #screen-lobby .sf107-room-card{transition:none!important}
+}
