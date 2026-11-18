@@ -348,8 +348,36 @@
    try{
      const d=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/comments');
      if(state.activeId!==id||state.commentsOpen!==postId)return;
-     const postData=state.posts.find(p=>p.id===postId),choose=postData?.topic==='duvida'&&postData?.canResolve;
-     box.innerHTML=`<h5>Respostas da comunidade</h5>${(d.comments||[]).length?d.comments.map(c=>`<div class="sf160-comment ${c.best?'sf180-best-answer':''}"><strong>${esc(c.authorName)}</strong>${c.best?'<span class="sf180-best-label">✓ Resposta escolhida</span>':''}<p>${esc(c.text)}</p><div class="sf180-answer-actions">${choose?`<button type="button" data-sf180-best-answer="${esc(c.id)}" data-post-id="${esc(postId)}">${c.best?'✓ Melhor resposta':'Marcar como resposta'}</button>`:''}${c.editable?`<button type="button" data-sf160-delete-comment="${esc(c.id)}">Remover</button>`:''}</div></div>`).join(''):'<p>Seja o primeiro a responder.</p>'}<form data-sf160-comment-form="${esc(postId)}"><input name="text" aria-label="Nova resposta" maxlength="350" minlength="2" required placeholder="Escreva uma resposta…"><button type="submit">Responder</button></form>`;
+     const postData=state.focusPost?.id===postId?state.focusPost:state.posts.find(p=>p.id===postId);
+     const choose=postData?.topic==='duvida'&&postData?.canResolve;
+     const comments=[...(d.comments||[])].sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+     const byId=new Map(comments.map(c=>[c.id,c]));
+     const html=comments.map(c=>{
+       const parent=byId.get(c.parentId);
+       const depth=Math.min(3,Math.max(0,Number(c.depth)||0));
+       return `<div class="sf160-comment sf600-reply ${c.best?'sf180-best-answer':''}" style="--sf600-depth:${depth}">
+         <strong>${esc(c.authorName)}</strong>${parent?`<span class="sf600-in-reply">em resposta a ${esc(parent.authorName)}</span>`:''}
+         ${c.best?'<span class="sf180-best-label">✓ Resposta escolhida</span>':''}
+         ${c.quoteText?`<blockquote class="sf600-quote">${esc(c.quoteText)}</blockquote>`:''}
+         <p>${esc(c.text)}</p>
+         <div class="sf180-answer-actions">
+           <button type="button" data-sf600-reply-to="${esc(c.id)}" data-author="${esc(c.authorName)}">↳ Responder</button>
+           <button type="button" data-sf600-quote="${esc(c.id)}">❝ Citar</button>
+           ${choose?`<button type="button" data-sf180-best-answer="${esc(c.id)}" data-post-id="${esc(postId)}">${c.best?'✓ Melhor resposta':'Marcar como resposta'}</button>`:''}
+           ${c.editable?`<button type="button" data-sf160-delete-comment="${esc(c.id)}">Remover</button>`:''}
+         </div></div>`;
+     }).join('');
+     const selected=comments.find(c=>c.id===state.replyTo);
+     const quoted=comments.find(c=>c.id===state.quoteTo);
+     box.innerHTML=`<h5>Respostas da comunidade · ${comments.length}</h5>
+       ${html||'<p>Seja o primeiro a responder.</p>'}
+       ${selected||quoted?`<div class="sf600-reply-context">${selected?`Respondendo a ${esc(selected.authorName)}`:''}
+         ${quoted?` · Citando: ${esc(quoted.text.slice(0,110))}`:''}
+         <button type="button" data-sf600-cancel-reply>Cancelar</button></div>`:''}
+       <form data-sf160-comment-form="${esc(postId)}">
+         <input name="text" aria-label="Nova resposta" maxlength="350" minlength="2" required placeholder="Escreva uma resposta…">
+         <button type="submit">Responder</button>
+       </form>`;
    }catch(e){box.textContent=e.message;}
  }
  async function loadExtras(id){
@@ -405,7 +433,7 @@
  const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();
  }
  async function openDetail(id){
-   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
@@ -421,10 +449,18 @@
          <button type="button" data-sf170-show-events>📅 Ver eventos</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 ${c.coverVersion?'Trocar':'Adicionar'} capa</button>${c.coverVersion?'<button type="button" data-sf73-remove-cover>Remover capa</button>':''}<input id="sf73DetailCover" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher imagem de capa" hidden>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
-       <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Conversa da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
-         ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImage">📷 Foto opcional (JPG, PNG ou WebP)</label><input id="sf170PostImage" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Foto da publicação"><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button></div><div id="sf180ForumCounts" class="sf180-forum-counts" aria-label="Filtrar por categorias"></div><div id="sf180FeedSummary" class="sf180-feed-summary" aria-live="polite"></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
+       <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Fórum da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
+         ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf600Title">Título da discussão<input id="sf600Title" name="title" maxlength="110" minlength="6" required placeholder="Resuma sua discussão em um título"></label>
+         <label for="sf600Tags">Tags (separadas por vírgula, até cinco)<input id="sf600Tags" name="tags" maxlength="140" placeholder="show, ingressos, turnê"></label>
+         <label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImage">📷 Foto opcional (JPG, PNG ou WebP)</label><input id="sf170PostImage" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Foto da publicação"><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option><option value="active">Recentemente ativos</option><option value="unanswered">Dúvidas sem resposta</option><option value="saved">Meus favoritos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button>
+         <button type="button" data-sf600-search>🔎 Buscar no histórico completo</button></div><div id="sf180ForumCounts" class="sf180-forum-counts" aria-label="Filtrar por categorias"></div><div id="sf180FeedSummary" class="sf180-feed-summary" aria-live="polite"></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </div><div id="sf160Extras" aria-live="polite"></div></section><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div>`;
-     if(c.joined){await loadPosts(id);await loadExtras(id);if(state.activeId===id)startLive(id);}
+     if(c.joined){
+         await loadPosts(id);await loadExtras(id);
+         if(state.activeId===id)startLive(id);
+         const match=decodeURIComponent(location.hash).match(/^#fanclub\/([a-f0-9-]{36})\/topic\/([A-Za-z0-9_-]{1,100})$/);
+         if(match?.[1]===id)await openTopic(id,match[2],false);
+       }
    }catch(e){box.innerHTML=`<p class="sf71-empty" role="alert">${esc(e.message)}</p><button type="button" class="sf71-back" data-sf71-back>← Voltar</button>`;}
  }
  async function loadPosts(id,append=false){
@@ -674,7 +710,13 @@
  e.preventDefault();const id=state.activeId,postId=e.target.dataset.sf160CommentForm;
  const text=String(new FormData(e.target).get('text')||'').trim();if(text.length<2)return;
  const btn=e.target.querySelector('[type="submit"]');if(btn)btn.disabled=true;
- try{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/comments',{text});await loadComments(id,postId);}
+ try{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/comments',{
+       text,parentId:state.replyTo||null,quoteId:state.quoteTo||null
+     });
+     state.replyTo=null;state.quoteTo=null;
+     await loadComments(id,postId);
+     if(state.focusPost?.id===postId){await openTopic(id,postId,false);}
+}
  catch(err){status(err.message,true);if(btn)btn.disabled=false;}return;
  }
  if(e.target.id!=='sf71PostForm')return;e.preventDefault();const id=state.activeId,text=$('sf71PostText').value.trim();if(text.length<3)return;
@@ -682,9 +724,12 @@
      try{
         const file=$('sf170PostImage')?.files?.[0];
         const blob=file?await compressPostPhoto(file):null;
-        const result=await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts',{text,topic:$('sf170Topic')?.value||'conversa'});
+        const title=String($('sf600Title')?.value||'').trim();
+         const tags=String($('sf600Tags')?.value||'').split(',').map(t=>t.trim()).filter(Boolean);
+         const result=await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts',{text,title,tags,topic:$('sf170Topic')?.value||'conversa'});
         if(blob&&result.post?.id)await uploadPostPhoto(id,result.post.id,blob);
-        $('sf71PostText').value='';if($('sf170PostImage'))$('sf170PostImage').value='';
+        $('sf71PostText').value='';if($('sf600Title'))$('sf600Title').value='';if($('sf600Tags'))$('sf600Tags').value='';
+         if($('sf170PostImage'))$('sf170PostImage').value='';
         await loadPosts(id);
       }
      catch(err){status(err.message,true);}finally{submit.disabled=false;}
