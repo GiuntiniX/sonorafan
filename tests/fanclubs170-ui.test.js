@@ -50,3 +50,44 @@ test('Guide atual, responsividade e controle de foco estão preservados',()=>{
  assert.match(html,/sonorafan-community-71\.js\?v=170\.0/);
  assert.match(html,/sonorafan-community-71\.css\?v=170\.0/);
 });
+
+test('v180: cada tipo de publicação tem etiqueta, descrição e fundo próprio',()=>{
+ const js=read('public/sonorafan-community-71.js');
+ const css=read('public/sonorafan-community-71.css');
+ for(const key of ['conversa','duvida','novidade','evento','ideia']){
+   assert.match(js,new RegExp(key+':\\{icon:'));
+   assert(css.includes('.sf180-type-'+key));
+ }
+ assert.match(js,/sf180-topic-label/);
+ assert.match(js,/sf180-topic-preview/);
+ assert.match(js,/data-sf180-filter/);
+ assert.match(js,/sf180ForumCounts/);
+ assert.match(js,/data-sf180-clear-filter/);
+ assert.match(js,/sf180FeedSummary/);
+});
+
+test('v180: pesquisa, filtros e suporte a questões editadas são completos',()=>{
+ const js=read('public/sonorafan-community-71.js');
+ const api=read('fan-clubs-71.js');
+ for(const key of ['duvida','evento','novidade','ideia','conversa','pinned','popular'])
+   assert(js.includes('value="'+key+'"')||key==='popular'&&js.includes('value="popular"'));
+ assert.match(js,/sf180-question-status/);
+ assert.match(js,/sf180-best-answer/);
+ assert.match(js,/data-sf180-resolve/);
+ assert.match(js,/data-sf180-best-answer/);
+ assert.match(js,/data-sf180-edit-post/);
+ assert.match(api,/bestCommentId/);
+ assert.match(api,/authorCanEdit/);
+});
+
+test('v180: edição da bio e das regras e administração com teto de dois',()=>{
+ const js=read('public/sonorafan-community-71.js');
+ const api=read('fan-clubs-71.js');
+ assert.match(js,/data-sf180-edit-profile/);
+ assert.match(js,/data-sf170-moderator/);
+ assert.match(js,/2 vagas utilizadas/);
+ assert.match(api,/app\.post\('\/api\/fan-clubs\/:id\/profile'/);
+ assert.match(api,/canEditProfile/);
+ assert.match(api,/next.length>2/);
+ assert.match(api,/canDelete:ownerOrAdmin/);
+});
