@@ -17,9 +17,34 @@
   const styles=[['indie','✿','Indie',art.indie],['rock','♬','Rock',art.rock],
     ['pop','✦','Pop',art.pop],['mpb','☼','MPB',art.brasil],
     ['eletronica','▥','Eletrônica',art.electro],
-    ['alternativo','◇','Alternativo',art.record],['festival','♛','Festivais',art.festival]];
+    ['alternativo','◇','Alternativo',art.record],['festival','♛','Festivais',art.festival],
+    ['funk','♛','Funk',art.brasil],
+    ['rap','🎤','Rap',art.brasil],
+    ['trap','◈','Trap',art.brasil],
+    ['hiphop','♫','Hip-hop',art.brasil],
+    ['pagode','◉','Pagode',art.brasil],
+    ['samba','☼','Samba',art.brasil],
+    ['sertanejo','☆','Sertanejo',art.brasil],
+    ['forro','✹','Forró',art.brasil],
+    ['reggae','☀','Reggae',art.brasil],
+    ['metal','⚡','Metal',art.rock],
+    ['punk','✶','Punk',art.rock],
+    ['jazz','♬','Jazz',art.vinyl],
+    ['blues','♭','Blues',art.vinyl],
+    ['kpop','✦','K-pop',art.pop],
+    ['rnb','♡','R&B',art.pop],
+    ['lofi','◌','Lo-fi',art.indie],
+    ['house','▤','House',art.electro],
+    ['techno','▥','Techno',art.electro],
+    ['trance','〰','Trance',art.electro],
+    ['disco','✳','Disco',art.pop],
+    ['afrobeat','◈','Afrobeats',art.brasil],
+    ['latina','☀','Música Latina',art.brasil],
+    ['gospel','✧','Gospel',art.brasil],
+    ['classica','♮','Clássica',art.vinyl],
+    ['anos80','★','Anos 80',art.record]];
   const state={rooms:null,events:[],clubs:[],notices:[],pinned:[],recent:[],search:'',genre:'',
-    all:false,sort:'popular',signature:'',lastRooms:0,lastExtras:0,
+    all:false,stylesExpanded:false,styleQuery:'',sort:'popular',signature:'',lastRooms:0,lastExtras:0,
     clubState:'loading',clubError:'',clubsExpanded:false,lastClubs:0,clubFetching:false,clubNeedsRefresh:false};
   const allRooms=()=>Array.isArray(state.rooms)?state.rooms.filter(r=>r&&!r.isPrivate&&valid(r.slug)):[];
   const ranked=()=>allRooms().slice().sort((a,b)=>count(b.listenerCount)-count(a.listenerCount)||Number(!!b.isPlaying)-Number(!!a.isPlaying));
@@ -37,6 +62,28 @@
   }
   const genreFor=r=>
     styles.find(([id])=>id===r.genre)?.[2]||'Estilo não informado';
+  function renderStyles(){
+    const host=$('sf107StyleList'),button=$('sf107ShowStyles'),summary=$('sf107StyleSummary');
+    if(!host)return;
+    const q=norm(state.styleQuery);
+    const available=styles.filter(([id,,name])=>!q||norm(name+' '+id).includes(q));
+    const shown=state.stylesExpanded||q?available:available.slice(0,7);
+    const counts=new Map();
+    for(const room of allRooms())if(room.genre)counts.set(room.genre,(counts.get(room.genre)||0)+1);
+    host.innerHTML=shown.length?shown.map(([key,sym,label,img])=>
+      `<button type="button" class="sf107-style sf107-style-${key}${state.genre===key?' selected':''}"
+        data-sf107-genre="${key}" aria-pressed="${state.genre===key?'true':'false'}"
+        style="--tile-image:url('${img}')"><b>${sym}</b><span>${esc(label)}</span>
+        <small>${counts.get(key)||0} ${counts.get(key)===1?'sala':'salas'}</small></button>`).join(''):
+      '<p class="sf107-empty">Nenhum estilo encontrado. Tente outro termo.</p>';
+    if(summary)summary.textContent=`${styles.length} estilos disponíveis · escolha um para filtrar salas`;
+    if(button){
+      button.setAttribute('aria-expanded',String(state.stylesExpanded));
+      button.textContent=state.stylesExpanded?'Mostrar menos estilos ↑':'Todos os estilos ('+styles.length+') ›';
+    }
+    const field=$('sf107StyleSearch');
+    if(field){field.hidden=!state.stylesExpanded;field.value=state.styleQuery;}
+  }
   function getFiltered(){
     const filtered=allRooms().filter(r=>{
       // Genre filtering relies on the actual choice saved with the room,
@@ -268,7 +315,7 @@
     const signature=list.map(r=>[r.slug,r.listenerCount,r.isPlaying,r.currentTrack?.id,
       r.currentTrack?.title,r.roomTheme,r.genre,r.description,r.name].join(':')).join('|');
     if(signature===state.signature)return;
-    state.signature=signature;state.rooms=list.filter(r=>r&&valid(r.slug));renderAll();
+    state.signature=signature;state.rooms=list.filter(r=>r&&valid(r.slug));renderAll();renderStyles();
   }
   let sf150RoomFetch=null;
   async function pullRooms(force=false){
@@ -372,18 +419,18 @@
       case 'top':return scrollTo('sf107Dashboard');
       case 'invite':$('sf107Invite').hidden=false;$('sf107InviteCode').focus();return;
       case 'close':$('sf107Invite').hidden=true;return;
-      case 'reset':state.genre='';state.search='';state.all=false;$('sf107Search').value='';sync();return;
+      case 'reset':state.genre='';state.search='';state.all=false;state.styleQuery='';$('sf107Search').value='';sync();return;
+      case 'styles-toggle':
+        state.stylesExpanded=!state.stylesExpanded;
+        if(!state.stylesExpanded)state.styleQuery='';
+        state.genre='';state.all=false;sync();
+        if(state.stylesExpanded)$('sf107StyleSearch')?.focus({preventScroll:true});
+        return;
       case 'more':state.all=!state.all;renderRooms();return;
       case 'retry':return pullRooms(true);
     }
   }
-  function sync(){
-    document.querySelectorAll('#sf107Dashboard [data-sf107-genre]').forEach(b=>{
-      const chosen=state.genre===b.dataset.sf107Genre;
-      b.classList.toggle('selected',chosen);b.setAttribute('aria-pressed',String(chosen));
-    });
-    renderRooms();
-  }
+  function sync(){renderStyles();renderRooms();}
   function handleClick(e){
     const targetNotice=e.target.closest('[data-sf111-notice]');
     if(targetNotice){window.sf15OpenNotification?.(targetNotice.dataset.sf111Notice);return;}
@@ -429,10 +476,12 @@
             <div class="sf107-room-grid" id="sf107Rooms"></div>
           </section>
           <section class="sf107-module">
-            <header class="sf107-module-head"><h2>♫ Explorar por estilo</h2><button type="button" data-sf107="reset">Todos os estilos ›</button></header>
-            <div class="sf107-style-list">
-              ${styles.map(([key,sym,label,img])=>`<button type="button" class="sf107-style sf107-style-${key}" data-sf107-genre="${key}" aria-pressed="false" style="--tile-image:url('${img}')"><b>${sym}</b><span>${label}</span></button>`).join('')}
-            </div>
+            <header class="sf107-module-head sf107-styles-head"><div><h2>♫ Explorar por estilo</h2>
+              <small id="sf107StyleSummary" role="status" aria-live="polite">Encontre sua próxima vibe</small></div>
+              <button type="button" id="sf107ShowStyles" data-sf107="styles-toggle" aria-expanded="false" aria-controls="sf107StyleList">Todos os estilos ›</button></header>
+            <label class="sf107-style-search">⌕ <input type="search" id="sf107StyleSearch"
+              placeholder="Buscar entre todos os estilos…" aria-label="Buscar estilo musical" maxlength="50" hidden autocomplete="off"></label>
+            <div class="sf107-style-list" id="sf107StyleList" aria-label="Estilos disponíveis"></div>
           </section>
           <section class="sf107-module">
             <header class="sf107-module-head sf107-clubs-header">
@@ -498,6 +547,9 @@
     $('sf107Search').addEventListener('input',e=>{
       state.search=e.target.value.trim().slice(0,80);state.all=false;sync();
     });
+    $('sf107StyleSearch').addEventListener('input',e=>{
+      state.styleQuery=String(e.target.value||'').trim().slice(0,50);renderStyles();
+    });
     main.addEventListener('submit',e=>{
       if(e.target.id!=='sf107InviteForm')return;
       e.preventDefault();
@@ -518,7 +570,7 @@
       }
     },true);
     try{state.recent=JSON.parse(localStorage.getItem('sf107Recent')||'[]').filter(valid).slice(0,8);}catch(_){}
-    renderAll();renderClubs();renderEvents();renderNotices();
+    renderAll();renderStyles();renderClubs();renderEvents();renderNotices();
     app().classList.add('sf107-ready');
     const skip=app().querySelector('.sf52-skip-link');
     if(skip){skip.href='#sf107Popular';skip.textContent='Ir para salas populares';}
