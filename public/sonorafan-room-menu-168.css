@@ -1,0 +1,73 @@
+/* SonoraFan 168 — menu único e claro, sem brilho/neon. */
+#screen-room #sf116More{display:none!important}
+#screen-room .sf167-room-menu{display:flex;align-items:center;position:relative;z-index:70}
+#screen-room #sf167MenuTrigger{
+ display:inline-flex!important;align-items:center;justify-content:center;gap:9px;
+ min-width:119px!important;min-height:40px!important;width:auto!important;
+ padding:9px 13px!important;border-radius:11px!important;
+ background:#241b31!important;border:1px solid #62536e!important;
+ box-shadow:none!important;color:#f4eafa!important;
+ font:700 12px/1.2 Inter,system-ui,sans-serif!important;
+ cursor:pointer;white-space:nowrap;overflow:visible!important;
+ transition:background .18s,border-color .18s!important
+}
+#screen-room #sf167MenuTrigger::before,#screen-room #sf167MenuTrigger::after{display:none!important;content:none!important;animation:none!important}
+#screen-room #sf167MenuTrigger:hover,#screen-room #sf167MenuTrigger[aria-expanded="true"]{
+ background:#342540!important;border-color:#a078b4!important;
+ box-shadow:none!important;transform:none!important
+}
+#screen-room #sf167MenuTrigger .sf167-icon{font-size:18px;filter:none!important}
+#screen-room #sf167MenuTrigger .sf167-arrow{font-size:14px;line-height:1;opacity:.75;transition:transform .18s}
+#screen-room #sf167MenuTrigger[aria-expanded="true"] .sf167-arrow{transform:rotate(180deg)}
+#screen-room #sf167MenuPanel[hidden]{display:none!important}
+#screen-room #sf167MenuPanel{
+ display:flex;flex-direction:column;gap:3px;position:fixed;
+ top:var(--sf167-y,64px);right:var(--sf167-right,12px);
+ left:auto;width:min(302px,calc(100vw - 24px));max-height:min(520px,calc(100dvh - 85px));
+ padding:10px;border:1px solid #65536e;border-radius:14px;
+ background:#1c1527!important;box-shadow:0 16px 42px #07040bb8!important;
+ z-index:10070;overflow:auto;animation:sf168Enter .16s ease-out both;
+}
+#screen-room .sf167-menu-heading{
+ padding:10px 10px 7px;font:800 10px/1.3 Inter,system-ui,sans-serif;
+ letter-spacing:.07em;color:#bba5c7;text-transform:uppercase;border:0
+}
+#screen-room #sf167MenuPanel .sf167-menu-action{
+ display:flex!important;align-items:center;gap:11px;width:100%;min-height:46px;
+ padding:8px 9px;text-align:left;color:#f6ecfa;background:transparent;
+ border:1px solid transparent;border-radius:9px;
+ font:600 12px/1.35 Inter,system-ui,sans-serif;cursor:pointer;
+ transition:background .15s,border-color .15s;transform:none!important
+}
+#screen-room #sf167MenuPanel .sf167-menu-action:hover,
+#screen-room #sf167MenuPanel .sf167-menu-action:focus-visible{
+ background:#362940;border-color:#756181
+}
+#screen-room .sf167-menu-symbol{
+ display:grid;place-items:center;flex:none;width:31px;height:31px;
+ background:#392a46;border:0;border-radius:8px;box-shadow:none!important;
+ color:#e9d6f2;font-size:17px
+}
+#screen-room .sf167-menu-copy{display:flex;flex-direction:column;min-width:0;gap:2px}
+#screen-room .sf167-menu-copy strong{font-size:12px;color:#fff;font-weight:700}
+#screen-room .sf167-menu-copy small{font-size:10px;color:#b7a6c1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#screen-room .sf168-menu-separator{height:1px;background:#51415b;margin:6px 5px}
+#screen-room #sf167MenuTrigger:focus-visible,#screen-room #sf167MenuPanel button:focus-visible{outline:2px solid #e5bbf5;outline-offset:2px}
+@keyframes sf168Enter{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){
+ #screen-room .sf167-room-menu{display:flex!important}
+ #screen-room #sf167MenuTrigger{min-height:36px!important;min-width:0!important;padding:7px 10px!important;font-size:11px!important;gap:6px}
+ #screen-room #sf167MenuTrigger .sf167-icon{font-size:16px}
+ #screen-room #sf167MenuPanel{
+  top:var(--sf167-y,62px)!important;right:12px!important;
+  bottom:auto!important;left:auto!important;
+  width:min(302px,calc(100vw - 24px))!important;
+  max-height:min(500px,calc(100dvh - 90px))!important;
+  animation:sf168Enter .16s ease-out both;
+ }
+}
+@media(max-width:380px){#screen-room #sf167MenuTrigger{padding:7px 8px!important;font-size:10px!important}}
+@media(prefers-reduced-motion:reduce){
+ #screen-room #sf167MenuPanel{animation:none!important}
+ #screen-room #sf167MenuTrigger,#screen-room #sf167MenuPanel button{transition:none!important}
+}
