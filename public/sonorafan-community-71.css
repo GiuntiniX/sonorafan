@@ -240,3 +240,28 @@
  #sf71ClubDetail .sf71-room-actions{width:100%;justify-content:flex-end}
  #sf71ClubDetail .sf160-feed-tools>*{width:100%;max-width:none!important}
 }
+
+/* Fan Clubs 5.0 — ideias e enquetes ocupam o espaço antes dedicado a salas. */
+#sf71ClubDetail .sf71-detail-columns{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,.95fr);gap:16px;align-items:start}
+#sf71ClubDetail .sf170-community-aside{align-self:start;position:relative;min-height:0;border-color:var(--sf160-line);background:linear-gradient(155deg,#1d1525,#151019);padding:18px}
+#sf71ClubDetail .sf170-aside-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#sf71ClubDetail .sf170-aside-title h4{font-size:15px;margin:4px 0;color:#f9f0ff}
+#sf71ClubDetail .sf170-aside-title small{font-size:10px;letter-spacing:.11em;color:#c7b1d7;font-weight:800}
+#sf71ClubDetail .sf170-aside-title button,#sf71ClubDetail .sf170-idea button,#sf71ClubDetail .sf170-poll button,#sf71ClubDetail .sf170-create-poll{font:inherit;font-size:12px;font-weight:750;background:#352240;color:#f4e7ff;border:1px solid rgba(187,129,210,.37);border-radius:10px;padding:9px 11px;cursor:pointer}
+#sf71ClubDetail .sf170-intro{font-size:12px;line-height:1.5;color:#c4b2d1;margin:9px 0 15px}
+#sf71ClubDetail .sf170-ideas,#sf71ClubDetail .sf170-polls{display:grid;gap:10px}
+#sf71ClubDetail .sf170-idea,#sf71ClubDetail .sf170-poll{border:1px solid var(--sf160-line);background:rgba(95,52,117,.15);border-radius:13px;padding:13px;min-width:0}
+#sf71ClubDetail .sf170-idea>strong,#sf71ClubDetail .sf170-poll>strong{display:block;color:#fff;font-size:13px;overflow-wrap:anywhere}
+#sf71ClubDetail .sf170-idea p{color:#d8c8e2;line-height:1.5;margin:7px 0;font-size:12px;overflow-wrap:anywhere}
+#sf71ClubDetail .sf170-idea small{display:block;color:#bca8cc;line-height:1.45}
+#sf71ClubDetail .sf170-inline-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+#sf71ClubDetail .sf170-idea [aria-pressed=true]{border-color:#caff00;color:#caff00}
+#sf71ClubDetail .sf170-poll-title{margin-top:22px;padding-top:18px;border-top:1px solid var(--sf160-line)}
+#sf71ClubDetail .sf170-poll button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:7px 0 0;text-align:left;white-space:normal}
+#sf71ClubDetail .sf170-poll button:disabled{opacity:.65;cursor:default}
+#sf71ClubDetail .sf170-poll button small{color:#d8c8e2}
+#sf71ClubDetail .sf170-empty{font-size:12px;line-height:1.55;color:#c0accd;margin:4px 0}
+#sf71ClubDetail .sf170-create-poll{width:100%;margin-top:12px;min-height:42px}
+#sf71ClubDetail .sf170-aside-title button:focus-visible,#sf71ClubDetail .sf170-idea button:focus-visible,#sf71ClubDetail .sf170-poll button:focus-visible{outline:2px solid #caff00;outline-offset:3px}
+@media(max-width:900px){#sf71ClubDetail .sf71-detail-columns{grid-template-columns:minmax(0,1fr)}#sf71ClubDetail .sf170-community-aside{padding:14px}}
+@media(max-width:500px){#sf71ClubDetail .sf170-inline-actions button{min-height:44px}#sf71ClubDetail .sf170-aside-title button{min-height:44px}}
