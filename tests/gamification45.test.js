@@ -72,7 +72,7 @@ test('missões reiniciam por dia/semana; XP total permanece', () => {
 function firestoreFake() {
   const store=new Map([['points/one@example.com',{points:91,badges:['Selo antigo'],comment:'preservar'}],['points/two@example.com',{points:33,badges:[]}]]);
   let lock=Promise.resolve();
-  const makeRef=(name,key)=>({name,key,path:`${name}/${key}`});
+  const makeRef=(name,key)=>({name,key,path:`${name}/${key}`,collection(child){return {doc(id){return makeRef(name+'/'+key+'/'+child,id)}}}});
   const snap=ref=>({exists:store.has(ref.path),data:()=>store.get(ref.path),id:ref.key});
   const db={
     collection(name){return{
