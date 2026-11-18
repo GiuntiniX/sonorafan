@@ -255,17 +255,17 @@
      mini('sf88CreateTheme','create');mini('sf88EditTheme','edit');
      if($('sf88ThemeOverlay')?.hidden===false)drawModal();
      if(roomSlug)skin();
-     // Pacote final 164: só ativa imagens novas quando os arquivos realmente existem.
+     // Catálogo incremental: imagens finais 164, 169 e 170 são ativadas juntas após validação.
      // Sem o manifest no servidor, o catálogo anterior continua válido e sem imagens quebradas.
      fetch('/themes/final-164/manifest.json',{credentials:'same-origin',cache:'no-store'})
        .then(response=>{if(!response.ok)throw new Error('Artes finais não publicadas');return response.json();})
        .then(async entries=>{
          if(!Array.isArray(entries))return;
          const supported=[...KNOWN_THEMES].filter(id=>id!=='geral');
-         const upgraded=new Set(['funk','pagode','sertanejo','reggae','jazz','forro']);
+         const upgraded=new Set(['pagode','sertanejo','reggae','jazz','forro']);
          const valid=entries.filter(entry=>{
            if(!entry||!supported.includes(entry.id))return false;
-           const folder=upgraded.has(entry.id)?'final-169':'final-164';
+           const folder=upgraded.has(entry.id)?'final-170':entry.id==='funk'?'final-169':'final-164';
            return entry.art==='/themes/'+folder+'/'+entry.id+'.webp'&&
              entry.thumbnail==='/themes/'+folder+'/'+entry.id+'-thumb.webp';
          });

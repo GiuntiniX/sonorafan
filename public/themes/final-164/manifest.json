@@ -55,32 +55,32 @@
   },
   {
     "id": "pagode",
-    "art": "/themes/final-169/pagode.webp",
-    "thumbnail": "/themes/final-169/pagode-thumb.webp",
-    "source": "tratamento de nitidez e contraste de arte anterior"
+    "art": "/themes/final-170/pagode.webp",
+    "thumbnail": "/themes/final-170/pagode-thumb.webp",
+    "source": "ilustração individual de cena musical 16:9"
   },
   {
     "id": "sertanejo",
-    "art": "/themes/final-169/sertanejo.webp",
-    "thumbnail": "/themes/final-169/sertanejo-thumb.webp",
-    "source": "tratamento de nitidez e contraste de arte anterior"
+    "art": "/themes/final-170/sertanejo.webp",
+    "thumbnail": "/themes/final-170/sertanejo-thumb.webp",
+    "source": "cena musical distinta extraída de composição de alta definição 16:9"
   },
   {
     "id": "reggae",
-    "art": "/themes/final-169/reggae.webp",
-    "thumbnail": "/themes/final-169/reggae-thumb.webp",
-    "source": "tratamento de nitidez e contraste de arte anterior"
+    "art": "/themes/final-170/reggae.webp",
+    "thumbnail": "/themes/final-170/reggae-thumb.webp",
+    "source": "cena musical distinta extraída de composição de alta definição 16:9"
   },
   {
     "id": "jazz",
-    "art": "/themes/final-169/jazz.webp",
-    "thumbnail": "/themes/final-169/jazz-thumb.webp",
-    "source": "tratamento de nitidez e contraste de arte anterior"
+    "art": "/themes/final-170/jazz.webp",
+    "thumbnail": "/themes/final-170/jazz-thumb.webp",
+    "source": "cena musical distinta extraída de composição de alta definição 16:9"
   },
   {
     "id": "forro",
-    "art": "/themes/final-169/forro.webp",
-    "thumbnail": "/themes/final-169/forro-thumb.webp",
-    "source": "tratamento de nitidez e contraste de arte anterior"
+    "art": "/themes/final-170/forro.webp",
+    "thumbnail": "/themes/final-170/forro-thumb.webp",
+    "source": "cena musical distinta extraída de composição de alta definição 16:9"
   }
 ]
