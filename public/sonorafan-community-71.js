@@ -180,7 +180,7 @@
  function postHtml(p){
  return `<article class="sf71-post ${p.pinned?'sf151-pinned':''}" data-sf71-post="${esc(p.id)}">
  ${p.pinned?'<span class="sf151-pin-label">📌 Publicação fixada</span>':''}
- <div class="sf71-post-head"><strong>♫ ${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(p.text)}</p>
+ <div class="sf71-post-head"><strong>${esc(({conversa:'💬',duvida:'❔',novidade:'✨',evento:'📅',ideia:'💡'})[p.topic]||'💬')} ${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(p.text)}</p>
  <div class="sf151-post-actions"><button type="button" data-sf151-like="${esc(p.id)}" aria-pressed="${!!p.liked}">♡ ${Math.max(0,Number(p.likeCount)||0)} curtidas</button>
  <button type="button" data-sf160-comments="${esc(p.id)}" aria-expanded="${state.commentsOpen===p.id}">💬 Comentários</button>
  <button type="button" data-sf160-report="${esc(p.id)}">⚑ Denunciar</button>
@@ -228,15 +228,20 @@
  function renderExtras(){
  const el=$('sf160Extras');if(!el)return;const c=state.detail?.club;
  if(state.activePane==='polls'){
- el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>🗳 Enquetes</h4>${c?.canDelete?'<button type="button" data-sf160-create-poll>＋ Criar</button>':''}</div>${state.polls.length?state.polls.map(p=>`<article class="sf160-poll"><strong>${esc(p.question)}</strong><div class="sf160-poll-options">${p.options.map((v,i)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${i}" ${p.voted?'disabled':''}>${esc(v)} <small>${p.counts[i]||0} votos</small></button>`).join('')}</div>${p.voted?'<small>Voto registrado</small>':''}${p.canDelete?`<button type="button" data-sf160-delete-poll="${esc(p.id)}">Excluir enquete</button>`:''}</article>`).join(''):'<p>Sem enquetes por enquanto.</p>'}</section>`;
- }else if(state.activePane==='events'){el.innerHTML='<section class="sf160-extra-panel"><h4>📅 Programação</h4><p>Veja as sessões da comunidade na coluna lateral.</p><button type="button" data-sf71-events>Ver agenda</button></section>';}
+ el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>🗳 Enquetes</h4>${c?.canModerate?'<button type="button" data-sf160-create-poll>＋ Criar</button>':''}</div>${state.polls.length?state.polls.map(p=>`<article class="sf160-poll"><strong>${esc(p.question)}</strong><div class="sf160-poll-options">${p.options.map((v,i)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${i}" ${p.voted||p.closed?'disabled':''}>${esc(v)} <small>${p.counts[i]||0} votos</small></button>`).join('')}</div>${p.voted?'<small>Voto registrado</small>':''}${p.closed?'<small> · Enquete encerrada</small>':''}${p.closesAt?`<small> · Termina ${new Date(p.closesAt).toLocaleDateString('pt-BR')}</small>`:''}${p.canDelete?`<button type="button" data-sf160-delete-poll="${esc(p.id)}">Excluir enquete</button>`:''}</article>`).join(''):'<p>Sem enquetes por enquanto.</p>'}</section>`;
+ }else if(state.activePane==='events'){
+ const events=c?.events||[];
+ el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>📅 Programação do Fan Club</h4><button type="button" data-sf71-events>Agenda completa</button></div><p>Encontros vinculados às salas públicas, exibidos aqui sem ocupar a coluna da comunidade.</p>
+ ${events.length?events.map(ev=>`<article class="sf71-club-event"><strong>${esc(ev.title)}</strong><small>${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)} · ${Number(ev.attendees)||0} participantes</small><div class="sf141-event-actions"><button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf142-club-calendar="${esc(ev.id)}">Adicionar ao calendário</button><button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Ir para a sala</button></div></article>`).join(''):'<p>Nenhum encontro programado ainda.</p>'}
+ </section>`;
+ }
  else if(state.activePane==='members'){
  const rank=state.contributors;
  el.innerHTML=`<section class="sf160-extra-panel"><h4>🏆 Destaques do Fan Club</h4><p>Atividade real recente, não XP ou pontuação global.</p>
  ${rank.length?rank.map((v,i)=>`<div class="sf160-rank"><strong>#${i+1} ${esc(v.name)}</strong><small>${v.posts} posts · ${v.comments} respostas · ${v.likesReceived} curtidas recebidas</small></div>`).join(''):'<p>A comunidade ainda não tem contribuições suficientes.</p>'}
  <h4>👥 Participantes (${c?.memberCount||0})</h4>
- ${(c?.members||[]).map(m=>`<div class="sf160-member"><strong>${esc(m.avatar||'🎧')} ${esc(m.name)}</strong>${m.id===c.ownerId?'<small> Criador</small>':''}<button type="button" data-sf160-mention="${esc(m.name)}">Mencionar</button></div>`).join('')}
- ${c?.canDelete?`<div class="sf160-moderation"><h4>⚑ Moderação</h4><p>Denúncias recebidas (somente administradores)</p>${state.reports.length?state.reports.map(r=>`<div class="sf160-report"><strong>${esc(r.reason)}</strong><small>${esc(r.status)}</small>${r.status==='open'?`<button type="button" data-sf160-resolve="${esc(r.id)}">Marcar como resolvida</button>`:''}</div>`).join(''):'<p>Nenhuma denúncia recebida.</p>'}</div>`:''}
+ ${(c?.members||[]).map(m=>`<div class="sf160-member"><strong>${esc(m.avatar||'🎧')} ${esc(m.name)}</strong>${m.id===c.ownerId?'<small> Criador</small>':(c.moderators||[]).some(mod=>mod.id===m.id)?'<small> Moderador</small>':''}<button type="button" data-sf160-mention="${esc(m.name)}">Mencionar</button>${c.owner&&m.id!==c.ownerId?`<button type="button" data-sf170-moderator="${esc(m.id)}" data-enabled="${!(c.moderators||[]).some(mod=>mod.id===m.id)}">${(c.moderators||[]).some(mod=>mod.id===m.id)?'Retirar moderação':'Tornar moderador'}</button>`:''}</div>`).join('')}
+ ${c?.canModerate?`<div class="sf160-moderation"><h4>⚑ Moderação</h4><p>Denúncias recebidas (somente administradores)</p>${state.reports.length?state.reports.map(r=>`<div class="sf160-report"><strong>${esc(r.reason)}</strong><small>${esc(r.status)}</small>${r.status==='open'?`<button type="button" data-sf160-resolve="${esc(r.id)}">Marcar como resolvida</button>`:''}</div>`).join(''):'<p>Nenhuma denúncia recebida.</p>'}</div>`:''}
  </section>`;
  }
  else el.innerHTML='';
@@ -260,7 +265,7 @@
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 ${c.coverVersion?'Trocar':'Adicionar'} capa</button>${c.coverVersion?'<button type="button" data-sf73-remove-cover>Remover capa</button>':''}<input id="sf73DetailCover" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher imagem de capa" hidden>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Conversa da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
-         ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="pinned">Fixados</option><option value="popular">Mais curtidos</option></select></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
+         ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="pinned">Fixados</option><option value="popular">Mais curtidos</option></select></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </div><div id="sf160Extras" aria-live="polite"></div></section><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div>`;
      if(c.joined){await loadPosts(id);await loadExtras(id);if(state.activeId===id)startLive(id);}
    }catch(e){box.innerHTML=`<p class="sf71-empty" role="alert">${esc(e.message)}</p><button type="button" class="sf71-back" data-sf71-back>← Voltar</button>`;}
@@ -279,6 +284,11 @@
      },async id=>{await openDetail(id);});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+ if(t.hasAttribute('data-sf170-moderator')){
+   const userId=t.dataset.sf170Moderator,enabled=t.dataset.enabled==='true';
+   if(!confirm(enabled?'Dar permissão de moderação a este participante?':'Retirar a permissão de moderação?'))return;
+   await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/moderators',{userId,enabled});await openDetail(id);switchPane('members');},'Permissão atualizada.');return;
+ }
  if(t.hasAttribute('data-sf170-new-idea')){
    modal('Sua ideia para o Fan Club','<label>Título<input name="title" minlength="6" maxlength="100" required placeholder="Qual é a sua sugestão?"></label><label>Detalhes<textarea name="description" maxlength="300" placeholder="Como funcionaria?"></textarea></label>',async fd=>{
      await post('/api/fan-clubs/'+encodeURIComponent(id)+'/ideas',{title:fd.get('title'),description:fd.get('description')});return true;
@@ -315,8 +325,8 @@
  await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/reports/'+encodeURIComponent(t.dataset.sf160Resolve)+'/resolve',{});await loadExtras(id);},'Denúncia resolvida.');return;
  }
  if(t.hasAttribute('data-sf160-create-poll')){
- modal('Nova enquete',`<label>Pergunta<input name="question" maxlength="140" minlength="8" required></label><label>Opção 1<input name="option1" required maxlength="80"></label><label>Opção 2<input name="option2" required maxlength="80"></label><label>Opção 3 (opcional)<input name="option3" maxlength="80"></label><label>Opção 4 (opcional)<input name="option4" maxlength="80"></label>`,async fd=>{
- await post('/api/fan-clubs/'+encodeURIComponent(id)+'/polls',{question:fd.get('question'),options:[1,2,3,4].map(n=>fd.get('option'+n)).filter(Boolean)});return id;
+ modal('Nova enquete',`<label>Pergunta<input name="question" maxlength="140" minlength="8" required></label><label>Opção 1<input name="option1" required maxlength="80"></label><label>Opção 2<input name="option2" required maxlength="80"></label><label>Opção 3 (opcional)<input name="option3" maxlength="80"></label><label>Opção 4 (opcional)<input name="option4" maxlength="80"></label><label>Encerramento<select name="durationDays"><option value="">Sem prazo</option><option value="1">1 dia</option><option value="3">3 dias</option><option value="7">7 dias</option><option value="14">14 dias</option></select></label>`,async fd=>{
+ await post('/api/fan-clubs/'+encodeURIComponent(id)+'/polls',{question:fd.get('question'),options:[1,2,3,4].map(n=>fd.get('option'+n)).filter(Boolean),durationDays:Number(fd.get('durationDays'))});return id;
  },async()=>{await loadExtras(id);switchPane('polls');});return;
  }
  if(t.hasAttribute('data-sf160-vote')){
@@ -430,7 +440,7 @@
  }
  if(e.target.id!=='sf71PostForm')return;e.preventDefault();const id=state.activeId,text=$('sf71PostText').value.trim();if(text.length<3)return;
      const submit=e.target.querySelector('[type="submit"]');submit.disabled=true;
-     try{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts',{text});$('sf71PostText').value='';await loadPosts(id);}
+     try{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts',{text,topic:$('sf170Topic')?.value||'conversa'});$('sf71PostText').value='';await loadPosts(id);}
      catch(err){status(err.message,true);}finally{submit.disabled=false;}
    });
    $('sf71ClubDetail')?.addEventListener('input',e=>{if(e.target.id==='sf160FeedSearch'){state.feedSearch=e.target.value.trim();renderFeed();}});
