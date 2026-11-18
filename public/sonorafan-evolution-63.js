@@ -171,9 +171,9 @@
       ${items.length>4?'<label class="sf150-history-search-label" for="sf150HistorySearch">Localizar no histórico</label><input id="sf150HistorySearch" class="sf150-history-search" type="search" placeholder="Música, artista ou DJ" autocomplete="off" maxlength="80">':''}
       <div class="sf63-track-list" id="sf150HistoryResults">${items.length?items.map(t=>`<div class="sf150-history-item">${trackCard(t,'song:'+t.id)}<small class="sf63-history-note">${esc(t.dj||'Comunidade')} · ${new Date(t.playedAt).toLocaleString('pt-BR')}</small></div>`).join(''):'<p class="sf63-empty">O histórico começa a ser registrado conforme as próximas faixas terminarem.</p>'}</div>`;
     document.getElementById('sf150HistorySearch')?.addEventListener('input',event=>{
-      const q=String(event.target.value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+      const q=String(event.target.value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
       body.querySelectorAll('.sf150-history-item').forEach(item=>{
-        const hay=String(item.textContent||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
+        const hay=String(item.textContent||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
         item.hidden=!!q&&!hay.includes(q);
       });
     });
