@@ -139,7 +139,8 @@
    const el=$('sf88ThemeOverlay');
    if(!el)return;
    if(!el.hidden){close();return;}
-   previousFocus=document.activeElement;
+   // No menu agrupado, devolva o foco ao gatilho visível após fechar o seletor.
+   previousFocus=document.activeElement?.closest?.('#sf167MenuPanel') ? $('sf167MenuTrigger') : document.activeElement;
    modalMode=mode;
    modalChoice=safe(mode==='create'?createChoice:mode==='edit'?editChoice:personalOverride||sharedTheme);
    drawModal();
