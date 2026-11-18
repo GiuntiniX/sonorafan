@@ -41,7 +41,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(!watchers)return;
     for(const entry of [...watchers])if(entry.userId===userId){entry.close();try{entry.res.end();}catch(e){}}
   }
-  function notifyPostMembers(clubId,club,authorId,authorName){
+  function notifyPostMembers(clubId,club,authorId,authorName,details={}){
     if(typeof sf15Notify!=='function')return;
     const memberIds=new Set(unique(club.memberIds).filter(id=>id!==authorId&&!unique(club.notificationMutedIds).includes(id)));
     if(!memberIds.size)return;
@@ -51,8 +51,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     Promise.resolve().then(async()=>{
       for(let offset=0;offset<recipients.length;offset+=8){
         await Promise.allSettled(recipients.slice(offset,offset+8).map(email=>sf15Notify(email,{
-          type:'fanclub',title:'Nova publicação no Fan Club',
-          message:clean(authorName,40)+' publicou em '+clean(club.title,75),fanClubId:clubId
+          type:'fanclub',title:clean(details.title||'Nova publicação no Fan Club',90),
+          message:clean(details.message||clean(authorName,40)+' publicou em '+clean(club.title,75),200),fanClubId:clubId
         })));
       }
     }).catch(e=>console.warn('[Fan Clubs] notification delivery:',e?.message));
@@ -468,6 +468,16 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         const email=[...users.keys()].find(e=>publicUserId(e)===authorId);
         if(email)Promise.resolve().then(()=>sf15Notify(email,{type:'fanclub',title:'Responderam à sua publicação',message:me.name+' comentou no Fan Club',fanClubId:req.params.id})).catch(()=>{});
       }
+      if(typeof sf15Notify==='function'){
+        const others=[...users.entries()].filter(([email,user])=>{
+          const id=publicUserId(email);
+          return id!==me.id&&id!==authorId&&unique(data.memberIds).includes(id)&&!unique(data.notificationMutedIds).includes(id)&&
+            text.toLocaleLowerCase('pt-BR').includes('@'+clean(user?.nome||'',40).toLocaleLowerCase('pt-BR'));
+        }).slice(0,3);
+        Promise.allSettled(others.map(([email])=>sf15Notify(email,{
+          type:'fanclub',title:'Você foi mencionado no Fan Club',message:me.name+' mencionou você em uma resposta',fanClubId:req.params.id
+        }))).catch(()=>{});
+      }
       res.status(201).json({comment:{...comment,id:doc.id,editable:true}});
     }catch(e){error(res,e);}
   });
@@ -630,7 +640,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const doc=ref.collection('events').doc();
       await doc.create({title,description,startAt,durationMinutes,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
       publish(req.params.id,'post');res.status(201).json({id:doc.id});
-      notifyPostMembers(req.params.id,data,me.id,me.name);
+      notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/events/:eventId/rsvp',rateLimit(20,60000),async(req,res)=>{
