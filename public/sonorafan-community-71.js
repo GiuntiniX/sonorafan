@@ -3,7 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id), panel=$('sfFanClubsPanel');if(!panel)return;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],postCursor:null,postHasMore:false,activePane:'mural',polls:[],ideas:[],contributors:[],reports:[],commentsOpen:null};
+ const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],postCursor:null,postHasMore:false,activePane:'mural',polls:[],ideas:[],clubEvents:[],insights:null,contributors:[],reports:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
  const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
  const byId=id=>state.clubs.find(c=>c.id===id);
@@ -236,9 +236,10 @@
  async function loadExtras(id){
  try{
  const prefix='/api/fan-clubs/'+encodeURIComponent(id);
- const [p,ideas,contributors,reports]=await Promise.all([api(prefix+'/polls'),api(prefix+'/ideas'),api(prefix+'/contributors'),
+ const [p,ideas,events,insights,contributors,reports]=await Promise.all([api(prefix+'/polls'),api(prefix+'/ideas'),api(prefix+'/events'),
+ state.detail?.club?.canModerate?api(prefix+'/insights'):Promise.resolve(null),api(prefix+'/contributors'),
  state.detail?.club?.canDelete?api(prefix+'/reports'):Promise.resolve({reports:[]})]);
- if(state.activeId!==id)return;state.polls=p.polls||[];state.ideas=ideas.ideas||[];
+ if(state.activeId!==id)return;state.polls=p.polls||[];state.ideas=ideas.ideas||[];state.clubEvents=events.events||[];state.insights=insights;
  state.contributors=contributors.ranking||[];state.reports=reports.reports||[];renderExtras();renderCommunityAside();
  }catch(e){if(state.activeId===id&&$('sf160Extras'))$('sf160Extras').textContent='Não foi possível carregar as informações da comunidade.';}
  }
@@ -258,18 +259,22 @@
  if(state.activePane==='polls'){
  el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>🗳 Enquetes</h4>${c?.canModerate?'<button type="button" data-sf160-create-poll>＋ Criar</button>':''}</div>${state.polls.length?state.polls.map(p=>`<article class="sf160-poll"><strong>${esc(p.question)}</strong><div class="sf160-poll-options">${p.options.map((v,i)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${i}" ${p.voted||p.closed?'disabled':''}>${esc(v)} <small>${p.counts[i]||0} votos</small></button>`).join('')}</div>${p.voted?'<small>Voto registrado</small>':''}${p.closed?'<small> · Enquete encerrada</small>':''}${p.closesAt?`<small> · Termina ${new Date(p.closesAt).toLocaleDateString('pt-BR')}</small>`:''}${p.canDelete?`<button type="button" data-sf160-delete-poll="${esc(p.id)}">Excluir enquete</button>`:''}</article>`).join(''):'<p>Sem enquetes por enquanto.</p>'}</section>`;
  }else if(state.activePane==='events'){
- const events=c?.events||[];
- el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>📅 Programação do Fan Club</h4><button type="button" data-sf71-events>Agenda completa</button></div><p>Encontros vinculados às salas públicas, exibidos aqui sem ocupar a coluna da comunidade.</p>
- ${events.length?events.map(ev=>`<article class="sf71-club-event"><strong>${esc(ev.title)}</strong><small>${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)} · ${Number(ev.attendees)||0} participantes</small><div class="sf141-event-actions"><button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf142-club-calendar="${esc(ev.id)}">Adicionar ao calendário</button><button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Ir para a sala</button></div></article>`).join(''):'<p>Nenhum encontro programado ainda.</p>'}
- </section>`;
+ const events=state.clubEvents,linked=c?.events||[];
+ el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>📅 Programação do Fan Club</h4>${c?.canModerate?'<button type="button" data-sf170-create-event>＋ Organizar encontro</button>':''}</div><p>Encontros da comunidade, sem precisar criar uma sala musical.</p>
+ ${events.length?events.map(ev=>`<article class="sf71-club-event"><strong>${esc(ev.title)}</strong><p>${esc(ev.description||'')}</p><small>${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${ev.attendees} participantes</small><div class="sf141-event-actions"><button type="button" data-sf170-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf170-calendar="${esc(ev.id)}">Adicionar ao calendário</button>${ev.canDelete?`<button type="button" data-sf170-delete-event="${esc(ev.id)}">Cancelar</button>`:''}</div></article>`).join(''):'<p>Ainda não há encontros próprios agendados.</p>'}
+ ${linked.length?'<h4>Encontros em salas públicas</h4>':''}
+ ${linked.map(ev=>`<article class="sf71-club-event"><strong>${esc(ev.title)}</strong><small>${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)} · ${Number(ev.attendees)||0} participantes</small><div class="sf141-event-actions"><button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf142-club-calendar="${esc(ev.id)}">Adicionar ao calendário</button><button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Ir para a sala</button></div></article>`).join('')}
+ <button type="button" data-sf71-events>Ver agenda geral</button></section>`;
  }
  else if(state.activePane==='members'){
  const rank=state.contributors;
  el.innerHTML=`<section class="sf160-extra-panel"><h4>🏆 Destaques do Fan Club</h4><p>Atividade real recente, não XP ou pontuação global.</p>
  ${rank.length?rank.map((v,i)=>`<div class="sf160-rank"><strong>#${i+1} ${esc(v.name)}</strong><small>${v.posts} posts · ${v.comments} respostas · ${v.likesReceived} curtidas recebidas</small></div>`).join(''):'<p>A comunidade ainda não tem contribuições suficientes.</p>'}
  <h4>👥 Participantes (${c?.memberCount||0})</h4>
+ ${c?.canModerate&&state.insights?`<div class="sf170-insights"><h4>📊 Indicadores da comunidade</h4><div><span>${state.insights.members} membros</span><span>${state.insights.recent.posts} posts recentes</span><span>${state.insights.recent.comments} respostas recentes</span><span>${state.insights.recent.ideas} ideias recentes</span><span>${state.insights.openReports} denúncias abertas</span></div><small>Amostra de até ${state.insights.sampleLimit} registros por categoria. Visível apenas à moderação.</small></div>`:''}
  ${(c?.members||[]).map(m=>`<div class="sf160-member"><strong>${esc(m.avatar||'🎧')} ${esc(m.name)}</strong>${m.id===c.ownerId?'<small> Criador</small>':(c.moderators||[]).some(mod=>mod.id===m.id)?'<small> Moderador</small>':''}<button type="button" data-sf160-mention="${esc(m.name)}">Mencionar</button>${c.owner&&m.id!==c.ownerId?`<button type="button" data-sf170-moderator="${esc(m.id)}" data-enabled="${!(c.moderators||[]).some(mod=>mod.id===m.id)}">${(c.moderators||[]).some(mod=>mod.id===m.id)?'Retirar moderação':'Tornar moderador'}</button>`:''}</div>`).join('')}
  ${c?.canModerate?`<div class="sf160-moderation"><h4>⚑ Moderação</h4><p>Denúncias recebidas (somente administradores)</p>${state.reports.length?state.reports.map(r=>`<div class="sf160-report"><strong>${esc(r.reason)}</strong><small>${esc(r.status)}</small>${r.status==='open'?`<button type="button" data-sf160-resolve="${esc(r.id)}">Marcar como resolvida</button>`:''}</div>`).join(''):'<p>Nenhuma denúncia recebida.</p>'}</div>`:''}
+ ${c?.canModerate&&c?.blockedMembers?.length?`<div class="sf170-blocked"><h4>Membros bloqueados</h4>${c.blockedMembers.map(m=>`<div class="sf160-member"><strong>${esc(m.name)}</strong><button type="button" data-sf71-unblock="${esc(m.id)}">Desbloquear</button></div>`).join('')}</div>`:''}
  </section>`;
  }
  else el.innerHTML='';
@@ -317,6 +322,29 @@
      },async id=>{await openDetail(id);});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+ if(t.hasAttribute('data-sf170-create-event')){
+   modal('Organizar encontro da comunidade','<label>Título<input name="title" minlength="5" maxlength="90" required></label><label>Descrição<textarea name="description" maxlength="300"></textarea></label><label>Data e horário<input type="datetime-local" name="startAt" required></label><label>Duração<select name="durationMinutes"><option value="30">30 min</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option></select></label>',async fd=>{
+     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/events',{title:fd.get('title'),description:fd.get('description'),startAt:new Date(fd.get('startAt')).getTime(),durationMinutes:Number(fd.get('durationMinutes'))});return true;
+   },async()=>{await loadExtras(id);switchPane('events');status('Encontro agendado.');});return;
+ }
+ if(t.hasAttribute('data-sf170-rsvp')){
+   await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/events/'+encodeURIComponent(t.dataset.sf170Rsvp)+'/rsvp',{going:t.dataset.going==='true'});await loadExtras(id);},'Presença atualizada.');return;
+ }
+ if(t.hasAttribute('data-sf170-delete-event')){
+   if(!confirm('Cancelar este encontro?'))return;
+   await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/events/'+encodeURIComponent(t.dataset.sf170DeleteEvent),{method:'DELETE'});await loadExtras(id);},'Encontro cancelado.');return;
+ }
+ if(t.hasAttribute('data-sf170-calendar')){
+   const ev=state.clubEvents.find(e=>e.id===t.dataset.sf170Calendar);if(!ev)return;
+   const icsDate=ms=>new Date(ms).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+   const encode=s=>String(s||'').replace(/[\\\\;,]/g,' ').replace(/\n/g,' ');
+   const content=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SonoraFan//Fan Clubs//PT-BR','BEGIN:VEVENT',
+     'UID:'+ev.id+'@sonorafan','DTSTAMP:'+icsDate(Date.now()),'DTSTART:'+icsDate(ev.startAt),
+     'DTEND:'+icsDate(ev.startAt+ev.durationMinutes*60000),'SUMMARY:'+encode(ev.title),
+     'DESCRIPTION:'+encode(ev.description),'BEGIN:VALARM','TRIGGER:-PT30M','ACTION:DISPLAY','DESCRIPTION:Encontro do Fan Club','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+   const file=new Blob([content],{type:'text/calendar;charset=utf-8'}),url=URL.createObjectURL(file),a=document.createElement('a');
+   a.href=url;a.download='fanclub-encontro.ics';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);return;
+ }
  if(t.hasAttribute('data-sf170-more')){await loadPosts(id,true);return;}
  if(t.hasAttribute('data-sf170-notifications')){
    await action(async()=>{
