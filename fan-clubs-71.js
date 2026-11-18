@@ -383,6 +383,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         canResolve:d.data().authorId===me.id||canModerate(data,me),
         resolved:!!d.data().resolved,bestCommentId:d.data().bestCommentId||null,
         editable:d.data().authorId===me.id||canModerate(data,me),
+        authorCanEdit:d.data().authorId===me.id,
         canPin:canModerate(data,me)}));
       posts.sort((a,b)=>Number(b.pinned)-Number(a.pinned)||(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
       res.json({posts,hasMore,nextBefore:hasMore?page.at(-1)?.id||null:null});
