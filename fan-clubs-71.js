@@ -72,6 +72,27 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   };
   const throwHttp = (status,message) => {const e=new Error(message);e.status=status;throw e;};
   const validateId = id => typeof id==='string' && /^[a-f0-9-]{36}$/.test(id);
+  // Fórum 6.0: documentos legados permanecem nos mesmos IDs e recebem títulos derivados na leitura.
+  const forumTags = value => Array.isArray(value) ? [...new Set(value.slice(0,8)
+    .map(t=>clean(t,24).toLocaleLowerCase('pt-BR').replace(/[^\\p{L}\\p{N} -]/gu,'').trim().replace(/\\s+/g,'-'))
+    .filter(t=>t.length>=2))].slice(0,5) : [];
+  const forumTitle = post => clean(post?.title,110)||clean(String(post?.text||'').split(/[.!?\\n]/)[0],95)||'Discussão da comunidade';
+  const forumPost = (doc,data,me,profile={}) => {
+    const p=doc.data(),id=doc.id;
+    return {id,...p,title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
+      pinned:id===data.pinnedPostId,likeCount:unique(p.likedBy).length,
+      liked:unique(p.likedBy).includes(me.id),favorite:unique(profile.favorites).includes(id),
+      unread:!Number(profile.readAt?.[id])||Number(profile.readAt[id])<Number(p.lastActivityAt||p.createdAt||0),
+      replyCount:Math.max(0,Number(p.replyCount)||0),
+      canResolve:p.authorId===me.id||canModerate(data,me),
+      resolved:!!p.resolved,bestCommentId:p.bestCommentId||null,
+      editable:p.authorId===me.id||canModerate(data,me),
+      authorCanEdit:p.authorId===me.id,canPin:canModerate(data,me)};
+  };
+  const forumProfileRef=(ref,me)=>ref.collection('forumProfiles').doc(me.id);
+  const requireForumMember=(data,me)=>{
+    if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe do Fan Club para acessar o fórum.');
+  };
   const record = (data, id) => ({
     id: String(id || data.id), title: data.title, artist: data.artist, description:data.description,
     rules:data.rules, theme:data.theme, ownerId:data.ownerId, ownerName:data.ownerName,
@@ -365,6 +386,100 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       publish(req.params.id,'post');res.json({success:true});
     }catch(e){error(res,e);}
   });
+  // Busca no histórico por páginas do Firestore, sem depender de quantos posts o navegador carregou.
+  // Cada resposta percorre até 800 registros; o cursor possibilita alcançar todo o arquivo.
+  app.get('/api/fan-clubs/:id/forum/search',rateLimit(25,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);requireForumMember(data,me);
+      const queryText=clean(req.query?.q,120).toLocaleLowerCase('pt-BR');
+      const topic=['conversa','duvida','novidade','evento','ideia'].includes(req.query?.topic)?req.query.topic:null;
+      const tag=forumTags([req.query?.tag])[0]||null;
+      const sort=['recent','active','popular','unanswered'].includes(req.query?.sort)?req.query.sort:'recent';
+      const before=req.query?.before;
+      if(before!==undefined&&!/^[A-Za-z0-9_-]{1,100}$/.test(String(before)))throwHttp(400,'Cursor inválido.');
+      const profile=(await forumProfileRef(ref,me).get()).data()||{};
+      let query=ref.collection('posts').orderBy('createdAt','desc');
+      if(before!==undefined){
+        const previous=await ref.collection('posts').doc(String(before)).get();
+        if(!previous.exists)throwHttp(400,'Cursor inválido.');
+        query=query.startAfter(previous);
+      }
+      const matches=[];let last=null,scanned=0,exhausted=false;
+      for(let batch=0;batch<8&&matches.length<25;batch++){
+        const snap=await query.limit(100).get();
+        if(!snap.docs.length){exhausted=true;break;}
+        for(const doc of snap.docs){
+          last=doc.id;scanned++;
+          const p=doc.data();
+          if(topic&&(p.topic||'conversa')!==topic)continue;
+          if(tag&&!forumTags(p.tags).includes(tag))continue;
+          if(sort==='unanswered'&&((p.topic||'conversa')!=='duvida'||p.resolved))continue;
+          if(queryText&&![forumTitle(p),p.text,p.authorName,forumTags(p.tags).join(' ')]
+            .some(t=>String(t||'').toLocaleLowerCase('pt-BR').includes(queryText)))continue;
+          matches.push(forumPost(doc,data,me,profile));
+          if(matches.length>=25)break;
+        }
+        if(snap.docs.length<100){exhausted=true;break;}
+        if(matches.length<25)query=ref.collection('posts').orderBy('createdAt','desc').startAfter(snap.docs.at(-1));
+      }
+      if(sort==='popular')matches.sort((a,b)=>b.likeCount-a.likeCount||b.createdAt-a.createdAt);
+      if(sort==='active')matches.sort((a,b)=>(b.lastActivityAt||b.createdAt)-(a.lastActivityAt||a.createdAt));
+      res.json({posts:matches,nextBefore:exhausted?null:last,hasMore:!exhausted,scanned,scope:'histórico do Fan Club'});
+    }catch(e){error(res,e);}
+  });
+  app.get('/api/fan-clubs/:id/posts/:postId',rateLimit(65,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);requireForumMember(data,me);
+      const post=await ref.collection('posts').doc(req.params.postId).get();
+      if(!post.exists)throwHttp(404,'Discussão não encontrada.');
+      const profileRef=forumProfileRef(ref,me),profileSnap=await profileRef.get();
+      const profile=profileSnap.data()||{},readAt={...(profile.readAt||{})};
+      const keys=Object.keys(readAt);
+      if(keys.length>=150&&!Object.hasOwn(readAt,req.params.postId)){
+        keys.sort((a,b)=>Number(readAt[a])-Number(readAt[b]));
+        delete readAt[keys[0]];
+      }
+      readAt[req.params.postId]=Date.now();
+      await profileRef.set({readAt},{merge:true});
+      const result=forumPost(post,data,me,{...profile,readAt});
+      res.json({post:result,permalink:'#fanclub/'+req.params.id+'/topic/'+req.params.postId});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/posts/:postId/favorite',rateLimit(30,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);requireForumMember(data,me);
+      const post=await ref.collection('posts').doc(req.params.postId).get();
+      if(!post.exists)throwHttp(404,'Discussão não encontrada.');
+      const profileRef=forumProfileRef(ref,me),result=await db.runTransaction(async tx=>{
+        const snap=await tx.get(profileRef),items=unique(snap.data()?.favorites);
+        const favorite=req.body?.favorite===true;
+        const next=items.filter(id=>id!==req.params.postId);
+        if(favorite){if(next.length>=150)throwHttp(409,'Limite de 150 favoritos.');next.push(req.params.postId);}
+        tx.set(profileRef,{favorites:next},{merge:true});
+        return {favorite};
+      });
+      res.json(result);
+    }catch(e){error(res,e);}
+  });
+  app.get('/api/fan-clubs/:id/posts/:postId/related',rateLimit(45,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);requireForumMember(data,me);
+      const post=await ref.collection('posts').doc(req.params.postId).get();
+      if(!post.exists)throwHttp(404,'Discussão não encontrada.');
+      const source=post.data(),tags=forumTags(source.tags);
+      const snap=await ref.collection('posts').orderBy('createdAt','desc').limit(120).get();
+      const related=snap.docs.filter(d=>d.id!==post.id).map(d=>{
+        const p=d.data(),common=forumTags(p.tags).filter(t=>tags.includes(t)).length;
+        return {doc:d,score:common*4+((p.topic||'conversa')===(source.topic||'conversa')?2:0)};
+      }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||b.doc.data().createdAt-a.doc.data().createdAt)
+        .slice(0,5).map(({doc})=>({id:doc.id,title:forumTitle(doc.data()),topic:doc.data().topic||'conversa'}));
+      res.json({related});
+    }catch(e){error(res,e);}
+  });
   app.get('/api/fan-clubs/:id/posts',rateLimit(60,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para ler o mural.');
@@ -378,26 +493,20 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       }
       const snap=await query.limit(36).get();
       const page=snap.docs.slice(0,35),hasMore=snap.docs.length>35;
-      const posts=page.map(d=>({id:d.id,...d.data(),likedBy:undefined,
-        pinned:d.id===data.pinnedPostId,likeCount:unique(d.data().likedBy).length,
-        liked:unique(d.data().likedBy).includes(me.id),
-        canResolve:d.data().authorId===me.id||canModerate(data,me),
-        resolved:!!d.data().resolved,bestCommentId:d.data().bestCommentId||null,
-        editable:d.data().authorId===me.id||canModerate(data,me),
-        authorCanEdit:d.data().authorId===me.id,
-        canPin:canModerate(data,me)}));
+      const profile=(await forumProfileRef(ref,me).get()).data()||{};
+      const posts=page.map(d=>forumPost(d,data,me,profile));
       posts.sort((a,b)=>Number(b.pinned)-Number(a.pinned)||(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
       res.json({posts,hasMore,nextBefore:hasMore?page.at(-1)?.id||null:null});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/posts',rateLimit(12,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
-    const text=clean(req.body?.text,600);
+    const text=clean(req.body?.text,600),title=clean(req.body?.title,110),tags=forumTags(req.body?.tags);
     const topic=['conversa','duvida','novidade','evento','ideia'].includes(req.body?.topic)?req.body.topic:'conversa';
     if(text.length<3)return res.status(400).json({error:'Escreva uma mensagem com pelo menos 3 caracteres.'});
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para publicar.');
       const doc=ref.collection('posts').doc();
-      const post={authorId:me.id,authorName:me.name,text,topic,createdAt:Date.now()};
+      const post={authorId:me.id,authorName:me.name,text,title:title||forumTitle({text}),tags,topic,createdAt:Date.now(),lastActivityAt:Date.now(),replyCount:0};
       await doc.create(post);
       publish(req.params.id,'post');
       notifyPostMembers(req.params.id,data,me.id,me.name);
@@ -406,7 +515,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   });
   app.post('/api/fan-clubs/:id/posts/:postId/edit',rateLimit(18,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
-    const text=clean(req.body?.text,600);
+    const text=clean(req.body?.text,600),title=clean(req.body?.title,110),tags=req.body?.tags===undefined?null:forumTags(req.body?.tags);
     if(text.length<3)return res.status(400).json({error:'A publicação deve ter pelo menos 3 caracteres.'});
     try{
       const {ref,data}=await readClub(req.params.id);
@@ -415,7 +524,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await db.runTransaction(async tx=>{
         const snap=await tx.get(postRef);if(!snap.exists)throwHttp(404,'Publicação não encontrada.');
         if(snap.data().authorId!==me.id)throwHttp(403,'Somente o autor pode editar seu texto.');
-        tx.update(postRef,{text,editedAt:Date.now()});
+        tx.update(postRef,{text,...(title?{title}:{}),...(tags!==null?{tags}:{}),editedAt:Date.now()});
       });
       publish(req.params.id,'post');res.json({success:true});
     }catch(e){error(res,e);}
@@ -884,7 +993,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         for(const doc of snap.docs)await doc.ref.delete();
         if(batch===99)throwHttp(503,'A limpeza ainda não terminou. Repita a exclusão.');
       }
-      for(const sub of ['comments','polls','reports','ideas','postImages','events']){
+      for(const sub of ['comments','polls','reports','ideas','postImages','events','forumProfiles']){
         const col=ref.collection(sub);
         for(let batch=0;batch<50;batch++){
           const snap=await col.orderBy('createdAt','desc').limit(100).get();
