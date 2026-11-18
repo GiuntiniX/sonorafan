@@ -1,0 +1,114 @@
+/* SonoraFan 162 — corrige a galeria de atmosferas e as artes por gênero.
+   Cada item usa seu próprio WebP do catálogo (não um recorte do atlas de baixa resolução).
+   Compatível com todos os 14 estilos, além do tema Geral. */
+#sf88ThemeOverlay .sf88-theme-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  padding:18px 22px;
+  align-content:start;
+}
+#sf88ThemeOverlay .sf88-theme-card{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch;
+  overflow:hidden;
+  padding:0 0 12px;
+  background:#1c1527!important;
+  min-height:0;
+}
+#sf88ThemeOverlay .sf88-theme-card img{
+  display:block!important;
+  width:100%!important;
+  aspect-ratio:16/9!important;
+  height:auto!important;
+  object-fit:cover!important;
+  opacity:1!important;
+  filter:none!important;
+  position:relative;
+  z-index:0;
+}
+#sf88ThemeOverlay .sf88-theme-card::after,
+#sf88ThemeOverlay .sf88-theme-card::before{
+  content:none!important;
+  display:none!important;
+  background-image:none!important;
+}
+#sf88ThemeOverlay .sf88-theme-card strong{
+  display:block!important;
+  position:relative;
+  z-index:1;
+  margin:10px 11px 5px!important;
+  min-height:0!important;
+  font-size:14px!important;
+  line-height:1.35!important;
+  color:#fff!important;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+#sf88ThemeOverlay .sf88-theme-card .sf88-card-detail{
+  display:block!important;
+  min-height:0!important;
+  position:relative;
+  z-index:1;
+  margin:0 11px 7px!important;
+  font-size:11px!important;
+  line-height:1.4!important;
+  color:#d8c9df!important;
+}
+#sf88ThemeOverlay .sf88-theme-card .sf88-palette{
+  margin:auto 11px 0!important;
+  padding-top:7px;
+  position:relative;
+  z-index:1;
+}
+#sf88ThemeOverlay .sf88-theme-card .sf88-card-check{z-index:3!important}
+#sf88ThemeOverlay[data-sf143-preview] .sf88-preview::after{
+  content:none!important;display:none!important;
+}
+#sf88ThemeOverlay .sf88-preview img{
+  opacity:1!important;filter:none!important;
+  object-fit:cover!important;
+}
+/* Miniaturas da criação e edição: retire o atlas e mostre as fotos individuais. */
+#sf88CreateTheme .sf88-mini::before,
+#sf88EditTheme .sf88-mini::before{
+  content:none!important;display:none!important;
+}
+#sf88CreateTheme .sf88-mini img,
+#sf88EditTheme .sf88-mini img{
+  opacity:1!important;filter:none!important;
+}
+/* Salas: imagem correspondente ao gênero, nunca um recorte do sprite 4x4. */
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout{
+  background-image:linear-gradient(95deg,rgba(17,10,27,.91),rgba(15,10,23,.78)),var(--sf88-art)!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) .sf113-visual-stage{
+  background-image:linear-gradient(115deg,rgba(11,8,19,.78),rgba(13,9,21,.45)),var(--sf88-art)!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) .sf5-section-title,
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .queue-header,
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #roomLayout .premium-chat-heading{
+  background-image:linear-gradient(100deg,rgba(11,8,19,.92),rgba(11,8,19,.54)),var(--sf88-art)!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+}
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #sf33EmptyPlayerArt:not([hidden]),
+#screen-room[data-room-theme]:not([data-room-theme="geral"]) #sf44QueueIdle{
+  background-image:linear-gradient(100deg,rgba(11,8,19,.45),rgba(11,8,19,.18)),var(--sf88-art)!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+}
+@media(max-width:1024px){
+ #sf88ThemeOverlay .sf88-theme-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media(max-width:768px){
+ #sf88ThemeOverlay .sf88-theme-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:10px;}
+ #sf88ThemeOverlay .sf88-theme-card strong{font-size:12px!important;margin:8px 8px 4px!important}
+ #sf88ThemeOverlay .sf88-theme-card .sf88-card-detail{font-size:10px!important;margin:0 8px 6px!important}
+ #sf88ThemeOverlay .sf88-theme-card .sf88-palette{margin:auto 8px 0!important}
+}
+@media(max-width:380px){#sf88ThemeOverlay .sf88-theme-grid{grid-template-columns:1fr}}
