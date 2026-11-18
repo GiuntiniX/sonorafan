@@ -4,13 +4,17 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {ROOM_GENRES_109,normalizeRoomGenre109,legacyRoomGenre109}=require('../room-genres-109');
-test('genre catalog matches seven labels presented in lobby',()=>{
- assert.deepEqual(ROOM_GENRES_109.map(x=>x.id),
+test('room genre catalog includes all 32 discoverable styles and preserves legacy seven',()=>{
+ assert.equal(ROOM_GENRES_109.length,32);
+ assert.deepEqual(ROOM_GENRES_109.slice(0,7).map(x=>x.id),
  ['indie','rock','pop','mpb','eletronica','alternativo','festival']);
- assert.equal(new Set(ROOM_GENRES_109.map(x=>x.id)).size,7);
+ assert.equal(new Set(ROOM_GENRES_109.map(x=>x.id)).size,32);
+ for(const id of ['funk','rap','trap','hiphop','pagode','samba','sertanejo','forro','reggae','metal',
+ 'jazz','kpop','house','techno','trance','afrobeat','latina','gospel','classica','anos80'])
+   assert(ROOM_GENRES_109.some(x=>x.id===id),'missing '+id);
 });
 test('new rooms must provide one allowed explicit genre',()=>{
- for(const invalid of ['',null,undefined,'techno','trance','indie;rock','ROCK',{},123])
+ for(const invalid of ['',null,undefined,'indie;rock','ROCK','unknown',{},123])
   assert.equal(normalizeRoomGenre109(invalid),null);
  for(const {id} of ROOM_GENRES_109)assert.equal(normalizeRoomGenre109(id),id);
 });
