@@ -4279,7 +4279,13 @@ function openRoomCfg() {
         const likeData = messageLikesSync[msgId] || { likes: 0, users: [] };
         const liked = likeData.users.includes(myName);
         const count = likeData.likes || 0;
-        div.innerHTML = `<div class="msg-content"><div class="msg-header"><button type="button" class="msg-user sf51-user-link" aria-label="Opções do participante"><span class="sf51-nick-label">${escapeHtml(msg.user)}</span>${({ admin: ' 🛡️', owner: ' 👑', mod: ' 🔧' })[msg.role] || ''}</button><span class="msg-time">${formatTime(msg.createdAt)}</span></div><span class="msg-text">${text}</span><div class="msg-actions"><button class="msg-like-btn ${liked ? 'liked' : ''}" onclick="likeMessage('${msgId}', this)">${liked ? '❤️' : '🤍'} <span class="msg-like-count">${count}</span></button></div></div>`;
+        const safeAvatarUrl=typeof msg.avatarUrl==='string' &&
+          (/^\/avatars-108\/[a-z0-9-]{1,40}\.svg$/.test(msg.avatarUrl) ||
+           /^\/api\/profile108\/photo\/[0-9a-f]{24}\?v=\d{1,16}$/.test(msg.avatarUrl))?msg.avatarUrl:null;
+        const avatarMarkup=`<span class="sf160-chat-avatar" aria-hidden="true">${safeAvatarUrl?
+          `<img alt="" loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(safeAvatarUrl)}" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="sf160-chat-avatar-fallback" hidden>🎧</span>`:
+          `<span class="sf160-chat-avatar-fallback">${escapeHtml((typeof msg.avatar==='string'&&msg.avatar.length<5)?msg.avatar:'🎧')}</span>`}</span>`;
+        div.innerHTML = `${avatarMarkup}<div class="msg-content"><div class="msg-header"><button type="button" class="msg-user sf51-user-link" aria-label="Opções do participante"><span class="sf51-nick-label">${escapeHtml(msg.user)}</span>${({ admin: ' 🛡️', owner: ' 👑', mod: ' 🔧' })[msg.role] || ''}</button><span class="msg-time">${formatTime(msg.createdAt)}</span></div><span class="msg-text">${text}</span><div class="msg-actions"><button class="msg-like-btn ${liked ? 'liked' : ''}" onclick="likeMessage('${msgId}', this)">${liked ? '❤️' : '🤍'} <span class="msg-like-count">${count}</span></button></div></div>`;
       }
       container.appendChild(div);
       window.sf53RenderMessage?.(div, msg);
