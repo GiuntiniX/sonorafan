@@ -7,7 +7,7 @@ function mock(gamification45){
  const docs=new Map(),routes=[];let autoPostId=0;
  function ref(key){return {key,id:key.split('/').at(-1), async get(){const d=docs.get(key);return {exists:!!d,data:()=>d?structuredClone(d):undefined,ref:this};},
    async create(data){if(docs.has(key))throw Error('exists');docs.set(key,structuredClone(data));},
-   async set(data){docs.set(key,structuredClone(data));},
+   async set(data,opts){docs.set(key,opts?.merge?{...docs.get(key),...structuredClone(data)}:structuredClone(data));},
    async update(data){docs.set(key,{...docs.get(key),...structuredClone(data)});},
    async delete(){docs.delete(key);},
    collection(name){return collection(`${key}/${name}`)},doc(id){return ref(`${key}/${id}`)} };
@@ -25,7 +25,7 @@ function mock(gamification45){
    if(this.max)entries=entries.slice(0,this.max);
    return {size:entries.length,docs:entries.map(([k,value])=>({id:k.slice(key.length+1),data:()=>structuredClone(value),ref:ref(k)}))};
   }};}
- const db={collection,async runTransaction(cb){const writes=[];const tx={get:r=>r.get(),update:(r,v)=>writes.push(()=>r.update(v)),delete:r=>writes.push(()=>r.delete()),set:(r,v)=>writes.push(()=>r.set(v))};
+ const db={collection,async runTransaction(cb){const writes=[];const tx={get:r=>r.get(),update:(r,v)=>writes.push(()=>r.update(v)),delete:r=>writes.push(()=>r.delete()),set:(r,v,opts)=>writes.push(()=>r.set(v,opts))};
    const result=await cb(tx);for(const run of writes)await run();return result;
  }};
  const users=new Map([['ana@exemplo.com',{nome:'Ana Indie'}],['leo@exemplo.com',{nome:'Leo Rock'}],['admin@sonora.com',{nome:'Admin'}],['bia@exemplo.com',{nome:'Bia Indie'}],['caio@exemplo.com',{nome:'Caio Rock'}]]);
@@ -479,4 +479,77 @@ test('v180: admin global não edita identidade do clube sem delegação do criad
  assert.equal((await m.call('get',base,{},'admin@sonora.com')).data.club.canEditProfile,false);
  assert.equal((await m.call('post',base+'/profile',{description:'Tentativa',rules:'Tentativa'},'admin@sonora.com')).code,403);
  assert.equal((await m.call('post',base+'/moderators',{userId:'b'.repeat(24),enabled:true},'admin@sonora.com')).code,403);
+});
+
+test('forum6: posts antigos mantêm ID, título derivado e permalink persistente',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ const old=(await m.call('post',base+'/posts',{text:'Como conseguir ingressos para o show?'})).data.post;
+ const key='sonorafanFanClubs71/'+id+'/posts/'+old.id;
+ const stored=m.docs.get(key);delete stored.title;delete stored.tags;delete stored.replyCount;delete stored.lastActivityAt;
+ m.docs.set(key,stored);
+ const d=(await m.call('get',base+'/posts/'+old.id)).data;
+ assert.equal(d.post.id,old.id);
+ assert.equal(d.post.title,'Como conseguir ingressos para o show');
+ assert.deepEqual(d.post.tags,[]);
+ assert.equal(d.post.unread,false);
+ assert.equal(d.permalink,'#fanclub/'+id+'/topic/'+old.id);
+ assert.equal(m.docs.get(key).title,undefined,'migração em leitura não modifica posts antigos');
+});
+test('forum6: tags e títulos novos, edição e busca no histórico além da primeira página',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ const old=(await m.call('post',base+'/posts',{text:'Dúvida exclusiva sobre um ingresso raro',topic:'duvida'})).data.post;
+ for(let i=0;i<40;i++)await m.call('post',base+'/posts',{text:'Assunto secundário número '+i});
+ const newer=(await m.call('post',base+'/posts',{text:'Vamos falar sobre esta turnê',title:'Turnê no Brasil',tags:['Ingressos','Shows','Ingressos'] })).data.post;
+ let p=(await m.call('get',base+'/posts/'+newer.id)).data.post;
+ assert.equal(p.title,'Turnê no Brasil');assert.deepEqual(p.tags,['ingressos','shows']);
+ assert.equal((await m.call('post',base+'/posts/'+newer.id+'/edit',{text:'Texto editado',title:'Nova turnê',tags:['Shows']})).code,200);
+ p=(await m.call('get',base+'/posts/'+newer.id)).data.post;assert.equal(p.title,'Nova turnê');
+ const res=(await m.call('get',base+'/forum/search',{},'ana@exemplo.com',{q:'ingresso raro'})).data;
+ assert(res.posts.some(x=>x.id===old.id));
+ assert(res.scanned>35);
+ const tag=(await m.call('get',base+'/forum/search',{},'ana@exemplo.com',{tag:'shows'})).data;
+ assert(tag.posts.some(x=>x.id===newer.id));
+ const forbidden=(await m.call('get',base+'/forum/search',{},'leo@exemplo.com',{q:'show'}));
+ assert.equal(forbidden.code,403);
+});
+test('forum6: favoritos são privados, limitados ao clube e leitura detecta novas respostas',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ const created=(await m.call('post',base+'/posts',{text:'Uma conversa muito interessante',title:'Qual o melhor show?' })).data.post;
+ const link=base+'/posts/'+created.id;
+ let feed=(await m.call('get',base+'/posts',{},'leo@exemplo.com')).data.posts[0];
+ assert.equal(feed.unread,true);
+ assert.equal(feed.favorite,false);
+ assert.equal((await m.call('get',link,{},'leo@exemplo.com')).data.post.unread,false);
+ assert.equal((await m.call('post',link+'/favorite',{favorite:true},'leo@exemplo.com')).data.favorite,true);
+ assert.equal((await m.call('get',base+'/posts',{},'leo@exemplo.com')).data.posts[0].favorite,true);
+ assert.equal((await m.call('get',base+'/posts',{},'ana@exemplo.com')).data.posts[0].favorite,false);
+ assert.equal((await m.call('post',link+'/favorite',{favorite:false},'leo@exemplo.com')).data.favorite,false);
+ assert.equal((await m.call('post',link+'/comments',{text:'Outra resposta ótima'})).code,201);
+ const changed=(await m.call('get',base+'/posts',{},'leo@exemplo.com')).data.posts[0];
+ assert.equal(changed.replyCount,1);
+ assert.equal(changed.unread,true);
+ assert.equal((await m.call('get',link,{},'leo@exemplo.com')).data.post.unread,false);
+});
+test('forum6: respostas encadeadas e citações não atravessam tópicos',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ const a=(await m.call('post',base+'/posts',{text:'Um tópico para iniciar conversa'})).data.post;
+ const b=(await m.call('post',base+'/posts',{text:'Outro tópico completamente diferente'})).data.post;
+ const first=(await m.call('post',base+'/posts/'+a.id+'/comments',{text:'Primeira resposta'})).data.comment;
+ const quoted=(await m.call('post',base+'/posts/'+a.id+'/comments',{text:'Segunda resposta',parentId:first.id,quoteId:first.id})).data.comment;
+ assert.equal(quoted.parentId,first.id);assert.equal(quoted.depth,1);assert.equal(quoted.quoteText,'Primeira resposta');
+ const third=(await m.call('post',base+'/posts/'+a.id+'/comments',{text:'Terceira resposta',parentId:quoted.id})).data.comment;
+ assert.equal(third.depth,2);
+ const comments=(await m.call('get',base+'/posts/'+a.id+'/comments')).data.comments;
+ assert(comments.some(x=>x.id===third.id&&x.parentId===quoted.id));
+ assert.equal((await m.call('post',base+'/posts/'+b.id+'/comments',{text:'Citação cruzada',parentId:first.id})).code,404);
+ assert.equal((await m.call('post',base+'/posts/'+a.id+'/comments',{text:'Id inválido',quoteId:'invalid@id'})).code,400);
+});
+test('forum6: relacionados preservam privacidade e compartilham tags/categorias',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ const x=(await m.call('post',base+'/posts',{text:'Falar sobre ingressos',title:'Ingressos de shows',tags:['ingressos'],topic:'duvida'})).data.post;
+ const y=(await m.call('post',base+'/posts',{text:'Outra dúvida de bilhetes',title:'Venda de ingressos',tags:['ingressos'],topic:'duvida'})).data.post;
+ const data=(await m.call('get',base+'/posts/'+x.id+'/related')).data;
+ assert(data.related.some(p=>p.id===y.id));
+ assert.equal((await m.call('get',base+'/posts/'+x.id+'/related',{},'leo@exemplo.com')).code,403);
 });
