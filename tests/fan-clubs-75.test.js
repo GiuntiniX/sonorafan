@@ -258,17 +258,6 @@ test('v160: enquete valida opções, uma pessoa só vota uma vez e bloqueio impe
  await m.call('post',`/api/fan-clubs/${id}/moderation`,{userId:'b'.repeat(24),action:'block'});
  assert.equal((await m.call('post',vote,{choice:0},'leo@exemplo.com')).code,403);
 });
-test('v160: música do YouTube aparece somente a membros e é agregada por vídeo',async()=>{
- const m=mock(),id=await create(m),url=`/api/fan-clubs/${id}/music`;
- assert.equal((await m.call('get',url,{},'leo@exemplo.com')).code,403);
- await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com');
- for(const text of ['♫ https://www.youtube.com/watch?v=dQw4w9WgXcQ','https://youtu.be/dQw4w9WgXcQ'])
-   await m.call('post',`/api/fan-clubs/${id}/posts`,{text});
- const data=(await m.call('get',url,{},'leo@exemplo.com')).data;
- assert.equal(data.tracks[0].videoId,'dQw4w9WgXcQ');
- assert.equal(data.tracks[0].shares,2);
-});
-
 test('v160: denúncias são privadas e somente moderação resolve',async()=>{
  const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
  const p=(await m.call('post',base+'/posts',{text:'Mensagem da comunidade'})).data.post;
@@ -294,4 +283,20 @@ test('v160: ranking de contribuidores usa dados do mural, sem email nem XP fict�
  assert.equal(ranks[0].name,'Ana Indie');assert.equal(ranks[0].posts,1);
  assert(ranks.some(v=>v.name==='Leo Rock'&&v.comments===1));
  assert(!JSON.stringify(ranks).includes('ana@exemplo.com'));
+});
+
+test('Fan Club não oferece rota de ranking musical; publicações anteriores são preservadas',async()=>{
+ const m=mock(),id=await create(m);
+ const original='Compartilhamento antigo https://youtu.be/dQw4w9WgXcQ';
+ const result=await m.call('post',`/api/fan-clubs/${id}/posts`,{text:original});
+ assert.equal(result.code,201);
+ const posts=(await m.call('get',`/api/fan-clubs/${id}/posts`)).data.posts;
+ assert(posts.some(post=>post.text===original));
+ assert(posts.every(post=>!Object.hasOwn(post,'musicVideoId')));
+});
+test('Fan Club continua permitindo comentários, enquetes, salas e moderação',async()=>{
+ const m=mock(),id=await create(m);
+ const p=(await m.call('post',`/api/fan-clubs/${id}/posts`,{text:'Vamos conversar sobre o artista'})).data.post;
+ assert.equal((await m.call('post',`/api/fan-clubs/${id}/posts/${p.id}/comments`,{text:'Boa ideia'})).code,201);
+ assert.equal((await m.call('post',`/api/fan-clubs/${id}/polls`,{question:'Qual o melhor show?',options:['Ao vivo','Acústico']})).code,201);
 });
