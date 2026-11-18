@@ -1,0 +1,2 @@
+/* v184: preservar fallback quando imagem não estiver publicada. */
+(function(){'use strict';var modal=document.getElementById('signupModal');if(!modal)return;var im=new Image();im.onload=function(){if(im.naturalWidth===1672&&im.naturalHeight===941)modal.classList.add('sf184-image-ready');};im.onerror=function(){modal.classList.remove('sf184-image-ready');};im.src='/art-132/sonorafan-cadastro-referencia-exata.webp';})();
