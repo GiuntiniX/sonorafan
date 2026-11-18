@@ -91,7 +91,8 @@
     const d=state.me;if(!d)return '<p class="sf60-notice">Carregando conquistas…</p>';
     const selected=d.preferences?.showcase||[];
     const catalog=[...(d.achievements||[]).map(b=>({
-      name:b.name,desc:b.description,icon:b.icon,unlocked:!!b.unlocked
+      name:b.name,desc:b.description,icon:b.icon,unlocked:!!b.unlocked,
+      current:Math.max(0,Number(d.lifetime?.[b.field])||0),target:Math.max(1,Number(b.at)||1)
     })),...(d.badges||[]).filter(name=>!(d.achievements||[]).some(b=>b.name===name))
       .map(name=>({name,desc:'Conquista preservada do SonoraFan',icon:'🏅',unlocked:true}))];
     return '<section class="sf60-section"><h4>🏅 Minhas conquistas</h4><p>Selecione até três medalhas conquistadas para destacar no seu perfil de ranking.</p>'+
@@ -99,7 +100,9 @@
         '<button type="button" class="sf60-medal" data-sf60-medal="'+esc(x.name)+'"'+
         (selected.includes(x.name)?' aria-pressed="true"':' aria-pressed="false"')+
         (!x.unlocked?' disabled':'')+'><strong>'+esc(x.icon)+' '+esc(x.name)+'</strong>'+
-        '<small>'+esc(x.desc||'')+(x.unlocked?'':' · Bloqueada')+'</small></button>'
+        '<small>'+esc(x.desc||'')+(x.unlocked?'':' · Bloqueada')+
+        (x.target?' · '+fmt(Math.min(x.current,x.target))+'/'+fmt(x.target):'')+'</small>'+
+        (x.target?'<div class="sf60-mini-progress"><div style="width:'+Math.min(100,x.current/x.target*100)+'%"></div></div>':'')+'</button>'
       ).join('')+'</div><p>'+fmt(selected.length)+'/3 medalhas em destaque</p></section>';
   }
   function missionItem(m){
@@ -114,7 +117,14 @@
     const d=state.me;if(!d)return '<p class="sf60-notice">Carregando desafios…</p>';
     const week=d.challenges?.weekly||[],daily=d.challenges?.daily||[];
     const count=(d.reputation?.acceptedAnswers)||0,collective=d.collective||{score:0,answers:0,target:150};
-    return '<section class="sf60-section"><h4>🎯 Missões diárias</h4><div class="sf60-missions">'+daily.map(missionItem).join('')+'</div></section>'+
+    const eligible=[...daily,...week].filter(m=>!m.claimed&&m.target>0);
+    eligible.sort((a,b)=>(a.target-a.progress)-(b.target-b.progress)||
+      (b.progress/b.target)-(a.progress/a.target));
+    const suggested=eligible[0]||null;
+    return (suggested?'<section class="sf60-section"><h4>✨ Sua próxima missão sugerida</h4>'+
+      '<p>'+esc(suggested.icon||'🎯')+' <strong>'+esc(suggested.name)+'</strong> · '+
+      fmt(Math.max(0,suggested.target-suggested.progress))+' etapas restantes para concluir. Recompensas são concedidas apenas pelo servidor.</p></section>':'')+
+      '<section class="sf60-section"><h4>🎯 Missões diárias</h4><div class="sf60-missions">'+daily.map(missionItem).join('')+'</div></section>'+
       '<section class="sf60-section"><h4>🧭 Missões semanais</h4><div class="sf60-missions">'+week.map(missionItem).join('')+'</div></section>'+
       '<section class="sf60-section"><h4>🤝 Desafio do Fórum</h4>'+
       '<p>Ajude outros fãs a resolver dúvidas. Respostas escolhidas rendem reputação separada do XP musical, com proteção contra repetições.</p>'+
