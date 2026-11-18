@@ -310,7 +310,16 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         if(snap.data().authorId!==me.id&&!ownerOrAdmin(data,me))throwHttp(403,'Sem permissão para moderar esta publicação.');
         tx.delete(postRef);
         if(data.pinnedPostId===req.params.postId)tx.update(ref,{pinnedPostId:null,updatedAt:Date.now()});
-      });publish(req.params.id,'post');res.json({success:true});
+      });
+      // Apaga também respostas da publicação; Firestore não faz cascata.
+      const comments=ref.collection('comments').where('postId','==',req.params.postId);
+      for(let batch=0;batch<10;batch++){
+        const snap=await comments.limit(100).get();
+        if(!snap.docs.length)break;
+        for(const doc of snap.docs)await doc.ref.delete();
+        if(batch===9)throwHttp(503,'Limpeza dos comentários incompleta.');
+      }
+      publish(req.params.id,'post');res.json({success:true});
     }catch(e){error(res,e);}
   });
   // 3.0 — somente a moderação pode fixar uma publicação por Fan Club.
