@@ -482,6 +482,53 @@
      },async id=>{await openDetail(id);});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+  if(t.hasAttribute('data-sf600-open')){
+    await openTopic(id,t.dataset.sf600Open);return;
+  }
+  if(t.hasAttribute('data-sf600-back')){
+    closeTopic();return;
+  }
+  if(t.hasAttribute('data-sf600-share')){
+    const link=topicUrl(id,t.dataset.sf600Share);
+    try{await navigator.clipboard.writeText(link);status('Link permanente copiado.');}
+    catch(e){prompt('Copie o link permanente da discussão:',link);}
+    return;
+  }
+  if(t.hasAttribute('data-sf600-favorite')){
+    const postId=t.dataset.sf600Favorite;
+    const p=state.focusPost?.id===postId?state.focusPost:state.posts.find(x=>x.id===postId);
+    if(!p)return;
+    await action(async()=>{
+      const data=await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/favorite',{favorite:!p.favorite});
+      p.favorite=data.favorite;
+      if(state.focusPost?.id===postId)renderFocusedPost();else renderFeed();
+    },'Favoritos atualizados.');return;
+  }
+  if(t.hasAttribute('data-sf600-tag')){
+    state.feedTag=t.dataset.sf600Tag;state.feedFilter='all';
+    if($('sf160FeedFilter'))$('sf160FeedFilter').value='all';
+    closeTopic();await searchForum(id);return;
+  }
+  if(t.hasAttribute('data-sf600-search')){
+    closeTopic();await searchForum(id);return;
+  }
+  if(t.hasAttribute('data-sf600-more')){
+    if(state.forumSearch)await searchForum(id,true);else await loadPosts(id,true);
+    return;
+  }
+  if(t.hasAttribute('data-sf600-reply-to')||t.hasAttribute('data-sf600-quote')){
+    const replying=t.dataset.sf600ReplyTo||t.dataset.sf600Quote;
+    state.replyTo=replying;
+    state.quoteTo=t.hasAttribute('data-sf600-quote')?replying:null;
+    await loadComments(id,state.commentsOpen);
+    $('sf71Posts')?.querySelector('form[data-sf160-comment-form] input[name=text]')?.focus();
+    return;
+  }
+  if(t.hasAttribute('data-sf600-cancel-reply')){
+    state.replyTo=null;state.quoteTo=null;
+    await loadComments(id,state.commentsOpen);return;
+  }
+
  if(t.hasAttribute('data-sf180-edit-profile')){
    if(!state.detail?.club?.canEditProfile)return;
    const club=state.detail.club;
@@ -494,13 +541,13 @@
  if(t.hasAttribute('data-sf180-filter')){
    state.feedFilter=t.dataset.sf180Filter;
    const select=$('sf160FeedFilter');if(select)select.value=state.feedFilter;
-   renderFeed();return;
+   await searchForum(id);return;
  }
  if(t.hasAttribute('data-sf180-clear-filter')){
-   state.feedFilter='all';state.feedSearch='';
+   state.feedFilter='all';state.feedSearch='';state.feedTag='';state.forumSearch=false;
    if($('sf160FeedFilter'))$('sf160FeedFilter').value='all';
    if($('sf160FeedSearch'))$('sf160FeedSearch').value='';
-   renderFeed();return;
+   await resetForumSearch(id);return;
  }
  if(t.hasAttribute('data-sf180-edit-post')){
    const p=state.posts.find(p=>p.id===t.dataset.sf180EditPost);
@@ -577,7 +624,9 @@
  }
  if(t.hasAttribute('data-sf160-pane')){switchPane(t.dataset.sf160Pane);return;}
  if(t.hasAttribute('data-sf160-comments')){
- state.commentsOpen=state.commentsOpen===t.dataset.sf160Comments?null:t.dataset.sf160Comments;renderFeed();return;
+   if(state.focusPost?.id!==t.dataset.sf160Comments){await openTopic(id,t.dataset.sf160Comments);}
+   else{state.commentsOpen=state.commentsOpen===t.dataset.sf160Comments?null:t.dataset.sf160Comments;renderFocusedPost();}
+   return;
  }
  if(t.hasAttribute('data-sf160-delete-comment')){
  if(!confirm('Remover comentário?'))return;
@@ -734,13 +783,35 @@
       }
      catch(err){status(err.message,true);}finally{submit.disabled=false;}
    });
-   $('sf71ClubDetail')?.addEventListener('input',e=>{if(e.target.id==='sf160FeedSearch'){state.feedSearch=e.target.value.trim();renderFeed();}});
+   let forumSearchTimer=null;
+   $('sf71ClubDetail')?.addEventListener('input',e=>{
+     if(e.target.id==='sf160FeedSearch'){
+       state.feedSearch=e.target.value.trim();
+       clearTimeout(forumSearchTimer);
+       forumSearchTimer=setTimeout(()=>searchForum(state.activeId),320);
+     }
+   });
    $('sf71ClubDetail')?.addEventListener('change',e=>{
-     if(e.target.id==='sf160FeedFilter'){state.feedFilter=e.target.value;renderFeed();}
+     if(e.target.id==='sf160FeedFilter'){
+       state.feedFilter=e.target.value;
+       searchForum(state.activeId);
+     }
      if(e.target.id==='sf170Topic')renderTopicPreview();
    });
    window.sf71LoadFanClubs=()=>{showList();loadClubs();};
    window.sf71OpenFanClub=id=>{if(/^[a-f0-9-]{36}$/.test(String(id||'')))openDetail(id);};
+   const handleForumRoute=async()=>{
+     const match=decodeURIComponent(location.hash).match(/^#fanclub\/([a-f0-9-]{36})\/topic\/([A-Za-z0-9_-]{1,100})$/);
+     if(match){
+       window.sf110OpenCommunity?.('fanclubs');
+       window.sf110ShowDetails?.('fanclubs');
+       if(state.activeId!==match[1])await openDetail(match[1]);
+       else if(state.focusPost?.id!==match[2])await openTopic(match[1],match[2],false);
+     }else if(state.focusPost)closeTopic(false);
+   };
+   window.addEventListener('popstate',handleForumRoute);
+   window.addEventListener('hashchange',handleForumRoute);
+   if(/^#fanclub\//.test(location.hash))setTimeout(handleForumRoute,300);
    window.sf71StopLive=stopLive;
    document.addEventListener('click',e=>{
      if(e.target.closest('.sf5-community-layer .sf5-close') || e.target.classList.contains('sf5-community-layer'))stopLive();
