@@ -104,6 +104,8 @@ function requireAdmin(req, res, next) {
   req.adminEmail = email; next();
 }
 app.use('/api/admin', requireAdmin);
+// Admin 169: verificação de acesso sem expor informações pessoais ou carregar o dashboard.
+app.get('/api/admin/access', (req,res) => { res.set('Cache-Control','no-store'); res.json({authorized:true}); });
 // trilha de auditoria: toda ação (POST) feita no painel admin fica registrada (quem, o quê, quando)
 const adminLog = [];
 function audit(who, action, detail) {
