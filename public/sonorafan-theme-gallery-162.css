@@ -112,3 +112,25 @@
  #sf88ThemeOverlay .sf88-theme-card .sf88-palette{margin:auto 8px 0!important}
 }
 @media(max-width:380px){#sf88ThemeOverlay .sf88-theme-grid{grid-template-columns:1fr}}
+
+/* 163 — fundo do palco sincronizado com o tema; a capa da faixa fica no vinil.
+   A imagem não recebe mais o blur de miniatura do YouTube. */
+#screen-room.sf113-room[data-room-theme]:not([data-room-theme="geral"]) .sf116-artist-stage{
+  background-image:linear-gradient(0deg,rgba(8,5,15,.64),rgba(8,5,15,.20)),var(--sf88-art)!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+}
+#screen-room.sf113-room[data-room-theme]:not([data-room-theme="geral"]) .sf116-artist-stage .sf113-visual-backdrop{
+  filter:saturate(1.08) contrast(1.04)!important;
+  opacity:.83!important;
+  transform:scale(1.01)!important;
+}
+#screen-room.sf113-room[data-room-theme]:not([data-room-theme="geral"]) .sf116-artist-stage::after{
+  background:linear-gradient(0deg,rgba(7,5,13,.88) 0%,rgba(7,5,13,.15) 62%,rgba(7,5,13,.25) 100%)!important;
+}
+#screen-room.sf113-room[data-room-theme]:not([data-room-theme="geral"]) .sf116-artist-stage .sf113-visual-details{
+  position:relative;z-index:3;
+}
+@media(prefers-reduced-motion:reduce){
+ #screen-room.sf113-room[data-room-theme] .sf113-visual-backdrop{transition:none!important}
+}
