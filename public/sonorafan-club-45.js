@@ -1,4 +1,4 @@
-/* SonoraFan Club 45.0 — exibe apenas dados reais das APIs de gamificação. */
+/* Minha Jornada 45.0 — exibe apenas dados reais das APIs de gamificação. */
 (function () {
   'use strict';
   const el = id => document.getElementById(id);
@@ -119,9 +119,16 @@
       liveSnapshot = result[0].value;
       leaderboardItems = result[1].status === 'fulfilled' ? result[1].value.items || [] : [];
       render();
-    } catch (e) { if (token === requestVersion) showError(e.message || 'Não foi possível carregar o SonoraFan Club.'); }
+    } catch (e) { if (token === requestVersion) showError(e.message || 'Não foi possível carregar o Minha Jornada.'); }
   }
   function open() {
+    // Compatibilidade: todos os atalhos antigos abrem Minha Jornada dentro do perfil,
+    // sem uma segunda janela nem perder a API de gamificação histórica.
+    if(typeof window.sf112OpenProfile==='function'){
+      el('sf45ClubModal')?.classList.remove('active');
+      window.sf112OpenProfile('achievements');
+      return;
+    }
     const modal = el('sf45ClubModal');
     if (!modal) return;
     modal.classList.add('active');
