@@ -628,24 +628,43 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ler os comentários.');
       const post=await ref.collection('posts').doc(req.params.postId).get();
       if(!post.exists)throwHttp(404,'Publicação não encontrada.');
-      const snap=await ref.collection('comments').orderBy('createdAt','desc').limit(150).get();
+      const snap=await ref.collection('comments').orderBy('createdAt','desc').limit(300).get();
       const comments=snap.docs.filter(d=>d.data().postId===req.params.postId).slice(0,50)
-        .map(d=>({...d.data(),id:d.id,editable:d.data().authorId===me.id||canModerate(data,me),best:d.id===post.data().bestCommentId}));
+        .map(d=>({...d.data(),id:d.id,parentId:d.data().parentId||null,depth:Math.min(3,Math.max(0,Number(d.data().depth)||0)),
+          quoteText:clean(d.data().quoteText,160)||null,
+          editable:d.data().authorId===me.id||canModerate(data,me),
+          best:d.id===post.data().bestCommentId}));
       res.json({comments});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/posts/:postId/comments',rateLimit(12,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
-    const text=clean(req.body?.text,350);
+    const text=clean(req.body?.text,350),parentId=String(req.body?.parentId||''),quoteId=String(req.body?.quoteId||'');
     if(text.length<2)return res.status(400).json({error:'Escreva pelo menos 2 caracteres.'});
     try{
       const {ref,data}=await readClub(req.params.id);
       if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para comentar.');
       const target=await ref.collection('posts').doc(req.params.postId).get();
       if(!target.exists)throwHttp(404,'Publicação não encontrada.');
-      const comment={postId:req.params.postId,authorId:me.id,authorName:me.name,text,createdAt:Date.now()};
+      if((parentId&&!/^[A-Za-z0-9_-]{1,100}$/.test(parentId))||(quoteId&&!/^[A-Za-z0-9_-]{1,100}$/.test(quoteId)))
+        throwHttp(400,'Referência de resposta inválida.');
+      const references=[...new Set([parentId,quoteId].filter(Boolean))];
+      const found=await Promise.all(references.map(id=>ref.collection('comments').doc(id).get()));
+      if(found.some(s=>!s.exists||s.data().postId!==req.params.postId))
+        throwHttp(404,'Resposta citada não pertence a esta discussão.');
+      const parent=parentId?found[references.indexOf(parentId)].data():null;
+      const quote=quoteId?found[references.indexOf(quoteId)].data():null;
+      const depth=parent?Math.min(3,Math.max(0,Number(parent.depth)||0)+1):0;
+      // Profundidade limitada e referências apenas na mesma discussão.
+      const comment={postId:req.params.postId,authorId:me.id,authorName:me.name,text,
+        parentId:parentId||null,quoteId:quoteId||null,quoteText:quote?clean(quote.text,160):null,
+        depth,createdAt:Date.now()};
       const doc=ref.collection('comments').doc();
-      await doc.create(comment);publish(req.params.id,'post');
+      await doc.create(comment);
+      await ref.collection('posts').doc(req.params.postId).update({
+        lastActivityAt:Date.now(),replyCount:Math.max(0,Number(target.data().replyCount)||0)+1
+      });
+      publish(req.params.id,'post');
       const authorId=target.data().authorId;
       if(authorId!==me.id&&!unique(data.notificationMutedIds).includes(authorId)&&typeof sf15Notify==='function'){
         const email=[...users.keys()].find(e=>publicUserId(e)===authorId);
@@ -677,6 +696,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         const postSnap=await tx.get(parent);
         if(postSnap.exists&&postSnap.data().bestCommentId===req.params.commentId)
           tx.update(parent,{bestCommentId:null,resolved:false,resolvedAt:null});
+        if(postSnap.exists)tx.update(parent,{
+          replyCount:Math.max(0,Number(postSnap.data().replyCount)||0)-1,lastActivityAt:Date.now()
+        });
         tx.delete(target);
       });
       publish(req.params.id,'post');res.json({success:true});
