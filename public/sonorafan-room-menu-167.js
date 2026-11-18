@@ -51,10 +51,13 @@
       return;
     }
     if(action==='theme'){
-      // O seletor original é aberto pelo listener do botão #sf88RoomThemeButton.
-      // Preservamos o foco no diálogo; o menu deixa de aparecer atrás dele.
+      // O seletor original abre pelo listener do botão de temas.
+      // Não devolver o foco antes de abrir o diálogo.
       close(false);
+      return;
     }
+    // Os itens herdados executam seus onclick originais; só fechamos o dropdown.
+    close(false);
   });
   panel.addEventListener('keydown',event=>{
     if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close(true);return;}
