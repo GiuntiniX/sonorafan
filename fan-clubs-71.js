@@ -74,9 +74,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   const validateId = id => typeof id==='string' && /^[a-f0-9-]{36}$/.test(id);
   // Fórum 6.0: documentos legados permanecem nos mesmos IDs e recebem títulos derivados na leitura.
   const forumTags = value => Array.isArray(value) ? [...new Set(value.slice(0,8)
-    .map(t=>clean(t,24).toLocaleLowerCase('pt-BR').replace(/[^\\p{L}\\p{N} -]/gu,'').trim().replace(/\\s+/g,'-'))
+    .map(t=>clean(t,24).toLocaleLowerCase('pt-BR').replace(/[^\p{L}\p{N} -]/gu,'').trim().replace(/\s+/g,'-'))
     .filter(t=>t.length>=2))].slice(0,5) : [];
-  const forumTitle = post => clean(post?.title,110)||clean(String(post?.text||'').split(/[.!?\\n]/)[0],95)||'Discussão da comunidade';
+  const forumTitle = post => clean(post?.title,110)||clean(String(post?.text||'').split(/[.!?\n]/)[0],95)||'Discussão da comunidade';
   const forumPost = (doc,data,me,profile={}) => {
     const p=doc.data(),id=doc.id;
     return {id,...p,title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
@@ -659,10 +659,15 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const comment={postId:req.params.postId,authorId:me.id,authorName:me.name,text,
         parentId:parentId||null,quoteId:quoteId||null,quoteText:quote?clean(quote.text,160):null,
         depth,createdAt:Date.now()};
-      const doc=ref.collection('comments').doc();
-      await doc.create(comment);
-      await ref.collection('posts').doc(req.params.postId).update({
-        lastActivityAt:Date.now(),replyCount:Math.max(0,Number(target.data().replyCount)||0)+1
+      const doc=ref.collection('comments').doc(),postRef=ref.collection('posts').doc(req.params.postId);
+      await db.runTransaction(async tx=>{
+        const current=await tx.get(postRef);
+        if(!current.exists)throwHttp(404,'Discussão não encontrada.');
+        tx.set(doc,comment);
+        tx.update(postRef,{
+          lastActivityAt:Math.max(Date.now(),Number(current.data().lastActivityAt||current.data().createdAt||0)+1),
+          replyCount:Math.max(0,Number(current.data().replyCount)||0)+1
+        });
       });
       publish(req.params.id,'post');
       const authorId=target.data().authorId;
