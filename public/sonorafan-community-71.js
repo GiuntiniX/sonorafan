@@ -285,6 +285,7 @@
  }
  function renderFocusedPost(){
    const box=$('sf71Posts'),post=state.focusPost;if(!box||!post)return;
+   $('sf71ClubDetail')?.classList.add('sf600-reading');
    const related=state.related||[];
    box.innerHTML=`<section class="sf600-topic-detail" aria-label="Discussão aberta">
      <div class="sf600-topic-toolbar"><button type="button" data-sf600-back>← Voltar ao fórum</button>
@@ -304,6 +305,7 @@
      const data=await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId));
      if(state.activeId!==id)return;
      state.focusPost=data.post;state.replyTo=null;state.quoteTo=null;state.related=[];
+     const cached=state.posts.find(p=>p.id===postId);if(cached)cached.unread=false;
      state.commentsOpen=postId;switchPane('mural');
      if(push)history.pushState({sf600:true},'',topicUrl(id,postId));
      renderFocusedPost();$('sf71Posts')?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -315,6 +317,7 @@
  }
  function closeTopic(changeUrl=true){
    state.focusPost=null;state.replyTo=null;state.quoteTo=null;state.commentsOpen=null;
+   $('sf71ClubDetail')?.classList.remove('sf600-reading');
    if(changeUrl&&/^#fanclub\//.test(location.hash))history.pushState({},'',location.pathname+location.search);
    renderFeed();
  }
@@ -434,7 +437,7 @@
  const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();
  }
  async function openDetail(id){
-   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
