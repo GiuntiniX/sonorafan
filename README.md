@@ -6,6 +6,23 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
+## ✦ Fórum 6.0 — discussões permanentes nos Fan Clubs
+
+O Fórum 6.0 reutiliza **as mesmas coleções de posts e comentários** dos Fan Clubs, preservando os IDs, autoria, textos, datas, categorias, likes, respostas, status de dúvidas, imagens e moderação. Não há migração destrutiva nem alteração obrigatória dos posts legados. Tópicos antigos sem título recebem um **título derivado somente na leitura**.
+
+- **Tópicos individuais:** título, descrição, até cinco tags normalizadas, categoria, autor e atividade recente.
+- **Permalinks:** `#fanclub/<id-do-clube>/topic/<id-do-post>`, preservando os identificadores existentes, com restauração ao abrir o link.
+- **Respostas encadeadas:** parentId, citações verificadas no mesmo tópico, destaque de melhor resposta e profundidade de apresentação limitada.
+- **Busca no histórico:** endpoint server-side com termos no título/texto/autor/tags, filtro por categoria, tag, dúvidas sem resposta, favoritos, não lidos, e navegação por cursor para consultar registros além dos 35 posts iniciais. Cada requisição examina no máximo 800 registros; use “carregar mais” para continuar pelo arquivo.
+- **Favoritos e leitura:** estado individual privado na subcoleção `forumProfiles`, com até 150 favoritos e até 150 marcadores de leitura recentes por usuário/club.
+- **Tópicos relacionados:** sugestões calculadas sobre os 120 registros mais recentes, a partir de categoria e tags compartilhadas, sem recomendações de músicas.
+- **Atualização em tempo real:** mantém pesquisa e discussão ativa durante os eventos do mural.
+- **Segurança:** acesso condicionado à sessão e participação ativa, sem fornecer conteúdo privado de um Fan Club a visitantes de fora.
+- **Guide visual:** preserva o tema dark/roxo/lima e os cinco tipos de publicação, ajustado para telas pequenas.
+- **Permanecem:** dois coadministradores, bio/regras protegidas, ideias, enquetes, encontros, conquistas e salas musicais separadas do fórum.
+
+**Nota de escala:** a busca percorre o histórico progressivamente, não utiliza um índice externo de pesquisa. Os filtros de atividade/popularidade ordenam as páginas encontradas; não representam uma classificação global de todo o arquivo. A interface precisa de verificação manual em navegador real e o deploy do Render deve ser confirmado à parte da CI.
+
 ## ✦ Fan Clubs 5.1 — evolução v180 (fórum organizado e coadministração)
 
 Fórum do Fan Club com **cinco classificações**, integração nativa ao guide visual atual e identidade separada das salas musicais:
