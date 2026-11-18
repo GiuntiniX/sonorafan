@@ -6,6 +6,35 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
+## ✦ Fan Clubs 5.1 — evolução v180 (fórum organizado e coadministração)
+
+Fórum do Fan Club com **cinco classificações**, integração nativa ao guide visual atual e identidade separada das salas musicais:
+
+1. Fundo visual específico por assunto: conversa, dúvida, novidade, evento e ideia.
+2. Etiquetas com ícones consistentes para cada categoria.
+3. Explicação do tipo de assunto em cada publicação.
+4. Prévia contextual do tipo escolhido antes de publicar.
+5. Filtros por todas as cinco categorias e opção geral.
+6. Contagem de posts carregados por assunto.
+7. Busca textual combinada ao filtro selecionado.
+8. Visualização de publicações fixadas.
+9. Ordenação dos posts carregados por curtidas.
+10. Botão para limpar busca e filtros.
+11. Estados vazios personalizados por categoria.
+12. Edição textual de publicações exclusiva do autor.
+13. Registro visual de publicação editada.
+14. Dúvidas podem ser marcadas como respondidas ou reabertas pelo autor/moderação.
+15. Escolha de uma resposta dentro da própria discussão.
+16. Remoção da resposta escolhida reabre automaticamente a dúvida.
+17. Bio do Fan Club editável mediante permissão autenticada.
+18. Regras do Fan Club editáveis mediante a mesma autorização.
+19. **Até dois coadministradores** convidados pelo criador, com revogação e limites transacionais.
+20. Testes de permissões, responsividade, estados do fórum e fluxos de edição.
+
+**Permissões:** apenas o fundador concede ou revoga coadministração. O fundador e até dois coadministradores podem editar bio/regras. Os coadministradores mantêm moderação do conteúdo, mas não podem excluir o Fan Club nem conceder novas permissões. O administrador global do site não ganha automaticamente direito de editar a bio e as regras, a menos que também seja o fundador ou um coadministrador autorizado.
+
+**Escopo dos filtros:** contagem, pesquisa e classificação atuam sobre as publicações carregadas no navegador; use “Carregar publicações anteriores” para ampliar a amostra. Não são indicadores do histórico completo.
+
 ## ✦ Fan Clubs 5.0 — evolução v170
 
 Os Fan Clubs priorizam **convivência entre fãs, ideias, enquetes, eventos e comunidade**. Não existe compartilhamento de músicas no Fan Club; ouvir e adicionar músicas continua nas salas colaborativas.
@@ -18,7 +47,7 @@ Os Fan Clubs priorizam **convivência entre fãs, ideias, enquetes, eventos e co
 ### Comunidade e moderação
 - Posts classificados por assunto (conversa, dúvida, novidade, evento ou ideia), comentários, fotos JPG/PNG/WebP otimizadas até 180 KiB e busca no mural.
 - Notificações de novos posts, respostas, menções e encontros, com preferência individual de silenciamento no Fan Club.
-- Moderadores convidados pelo criador (até cinco), sem permissão para excluir o Fan Club, alterar capa ou nomear outros moderadores.
+- Moderadores convidados pelo criador (até dois, desde a v180), sem permissão para excluir o Fan Club, alterar capa ou nomear outros moderadores.
 - Enquetes com prazo opcional de 1, 3, 7 ou 14 dias e votação limitada a uma por usuário.
 - Ideias com apoio revogável, estados em discussão, planejada, realizada e encerrada; não geram XP por votos repetidos.
 - Encontros próprios da comunidade, independentes de salas, com RSVP e convite de calendário (arquivo ICS).
