@@ -178,9 +178,14 @@
    return `<details class="sf71-members"><summary>Participantes (${d.club.memberCount})</summary><div class="sf71-members-list">${members}${blocked}</div></details>`;
  }
  function postHtml(post){const mix=String(post.text||'').match(/[?&]mix=([a-f0-9-]{36})/i);
-   return `<article class="sf71-post" data-sf71-post="${esc(post.id)}"><div class="sf71-post-head"><strong>♫ ${esc(post.authorName)}</strong><time>${new Date(Number(post.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(post.text)}</p>
+   return `<article class="sf71-post ${post.pinned?'sf151-pinned':''}" data-sf71-post="${esc(post.id)}">
+   ${post.pinned?'<span class="sf151-pin-label">📌 Publicação fixada</span>':''}
+   <div class="sf71-post-head"><strong>♫ ${esc(post.authorName)}</strong><time>${new Date(Number(post.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></div><p>${esc(post.text)}</p>
    ${mix?`<button type="button" data-sf71-mix="${esc(mix[1])}">♫ Abrir mixtape compartilhada</button>`:''}
-   ${post.editable?`<button type="button" data-sf71-delete-post="${esc(post.id)}">Excluir publicação</button>`:''}</article>`;}
+   <div class="sf151-post-actions">
+   <button type="button" class="sf151-like" data-sf151-like="${esc(post.id)}" aria-pressed="${post.liked?'true':'false'}" aria-label="${post.liked?'Remover curtida':'Curtir publicação'}">♡ ${Math.max(0,Number(post.likeCount)||0)} curtidas</button>
+   ${post.canPin?`<button type="button" data-sf151-pin="${esc(post.id)}" data-pinned="${post.pinned?'true':'false'}">${post.pinned?'Desafixar':'📌 Fixar no topo'}</button>`:''}
+   ${post.editable?`<button type="button" data-sf71-delete-post="${esc(post.id)}">Excluir publicação</button>`:''}</div></article>`;}
  function roomHtml(room,owner){return `<div class="sf71-room"><div><strong>♫ ${esc(room.name)}</strong><small>${room.isPlaying?'● Tocando agora':'Sala disponível'} · ${Number(room.listenerCount)||0} ouvintes</small>${room.track?`<small>${esc(room.track.title)}</small>`:''}</div>
    <div class="sf71-room-actions"><button type="button" data-sf71-room="${esc(room.slug)}">Entrar</button>${owner?`<button type="button" data-sf71-unlink="${esc(room.slug)}" title="Desvincular sala">×</button>`:''}</div></div>`;}
  async function openDetail(id){
@@ -307,6 +312,23 @@
      field.scrollIntoView({block:'nearest',behavior:'smooth'});
      status('Música inserida. Revise e publique no mural quando quiser.');
      return;
+   }
+   if(t.hasAttribute('data-sf151-like')){
+     const postId=t.dataset.sf151Like;
+     await action(async()=>{
+       t.disabled=true;
+       await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/like',{});
+       await loadPosts(id);
+     },'Reação atualizada.');return;
+   }
+   if(t.hasAttribute('data-sf151-pin')){
+     if(!state.detail?.club?.canDelete)return;
+     const postId=t.dataset.sf151Pin,pinned=t.dataset.pinned!=='true';
+     await action(async()=>{
+       t.disabled=true;
+       await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(postId)+'/pin',{pinned});
+       await loadPosts(id);
+     },pinned?'Publicação fixada.':'Publicação desafixada.');return;
    }
    if(t.hasAttribute('data-sf71-refresh')){await loadPosts(id);return;}
    if(t.hasAttribute('data-sf71-room')){const slug=t.dataset.sf71Room;document.querySelector('.sf5-community-layer .sf5-close')?.click();if(typeof joinRoom==='function')joinRoom(slug);return;}
