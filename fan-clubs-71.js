@@ -83,7 +83,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     joined:unique(data.memberIds).includes(me.id),
     owner:data.ownerId===me.id,
     blocked:unique(data.blockedIds).includes(me.id),
-    canDelete:ownerOrAdmin(data,me)
+    canDelete:ownerOrAdmin(data,me),canModerate:canModerate(data,me),moderator:unique(data.moderatorIds).includes(me.id)
   });
   async function readClub(id){
     if (!validateId(id))throwHttp(400,'Fan Club inválido.');
@@ -92,6 +92,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     return {ref:snap.ref,data:snap.data()};
   }
   const ownerOrAdmin=(data,me)=>data.ownerId===me.id || adminEmails.has(me.email);
+  const canModerate=(data,me)=>ownerOrAdmin(data,me)||unique(data.moderatorIds).includes(me.id);
   const member=(data,me)=>unique(data.memberIds).includes(me.id) || ownerOrAdmin(data,me);
   function cleanRooms(data){
     return unique(data.roomSlugs).map(slug=>rooms.get(slug)).filter(r=>r&&!r.isPrivate)
@@ -174,7 +175,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(owned.size>=5)throwHttp(409,'Você já administra 5 Fan Clubs.');
       const id=crypto.randomUUID();
       const data={id,artist,title,description,rules,theme,ownerId:me.id,ownerName:me.name,
-        memberIds:[me.id],blockedIds:[],roomSlugs:[],createdAt:Date.now(),updatedAt:Date.now()};
+        memberIds:[me.id],blockedIds:[],moderatorIds:[],roomSlugs:[],createdAt:Date.now(),updatedAt:Date.now()};
       await refFor(id).create(data);
       res.status(201).json({club:overview(data,id,me)});
     }catch(e){error(res,e);}
@@ -226,7 +227,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{const {data}=await readClub(req.params.id);
       res.json({club:{...overview(data,req.params.id,me),rooms:cleanRooms(data),events:clubEvents(data,me),
         members:member(data,me)?unique(data.memberIds).slice(0,50).map(memberView):[],
-        blockedMembers:ownerOrAdmin(data,me)?unique(data.blockedIds).slice(0,50).map(memberView):[]}});
+        blockedMembers:canModerate(data,me)?unique(data.blockedIds).slice(0,50).map(memberView):[],
+         moderators:unique(data.moderatorIds).slice(0,10).map(memberView)}});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
@@ -264,12 +266,34 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
         const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
-        const data=doc.data();if(!ownerOrAdmin(data,me))throwHttp(403,'Apenas a moderação pode alterar membros.');
+        const data=doc.data();if(!canModerate(data,me))throwHttp(403,'Apenas a moderação pode alterar membros.');
+         if(unique(data.moderatorIds).includes(userId)&&!canModerate(data,me))throwHttp(403,'Somente o criador pode remover moderadores.');
         if(userId===data.ownerId)throwHttp(403,'Não é possível bloquear o criador.');
         const blocked=unique(data.blockedIds).filter(id=>id!==userId);
         tx.update(ref,{blockedIds:action==='block'?[...blocked,userId]:blocked,
+           moderatorIds:action==='block'?unique(data.moderatorIds).filter(x=>x!==userId):unique(data.moderatorIds),
           memberIds:action==='block'?unique(data.memberIds).filter(id=>id!==userId):unique(data.memberIds),updatedAt:Date.now()});
       });if(action==='block')disconnectMember(req.params.id,userId);publish(req.params.id,'members');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/moderators',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const userId=String(req.body?.userId||''),enabled=req.body?.enabled===true;
+    if(!/^[a-f0-9]{24}$/.test(userId))return res.status(400).json({error:'Participante inválido.'});
+    try{
+      const ref=refFor(req.params.id);
+      await db.runTransaction(async tx=>{
+        const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
+        const data=doc.data();
+        if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador administra moderadores.');
+        if(userId===data.ownerId)throwHttp(400,'O criador já administra a comunidade.');
+        if(enabled&&!unique(data.memberIds).includes(userId))throwHttp(400,'Escolha um membro ativo.');
+        const next=unique(data.moderatorIds).filter(x=>x!==userId);
+        if(enabled)next.push(userId);
+        if(next.length>5)throwHttp(409,'Limite de cinco moderadores.');
+        tx.update(ref,{moderatorIds:next,updatedAt:Date.now()});
+      });
+      publish(req.params.id,'members');res.json({success:true});
     }catch(e){error(res,e);}
   });
   app.get('/api/fan-clubs/:id/posts',rateLimit(60,60000),async(req,res)=>{
@@ -279,8 +303,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const posts=snap.docs.map(d=>({id:d.id,...d.data(),likedBy:undefined,
         pinned:d.id===data.pinnedPostId,likeCount:unique(d.data().likedBy).length,
         liked:unique(d.data().likedBy).includes(me.id),
-        editable:d.data().authorId===me.id||ownerOrAdmin(data,me),
-        canPin:ownerOrAdmin(data,me)}));
+        editable:d.data().authorId===me.id||canModerate(data,me),
+        canPin:canModerate(data,me)}));
       posts.sort((a,b)=>Number(b.pinned)-Number(a.pinned)||(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
       res.json({posts});
     }catch(e){error(res,e);}
@@ -303,7 +327,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{const {ref,data}=await readClub(req.params.id);const postRef=ref.collection('posts').doc(req.params.postId);
       await db.runTransaction(async tx=>{
         const snap=await tx.get(postRef);if(!snap.exists)throwHttp(404,'Publicação não encontrada.');
-        if(snap.data().authorId!==me.id&&!ownerOrAdmin(data,me))throwHttp(403,'Sem permissão para moderar esta publicação.');
+        if(snap.data().authorId!==me.id&&!canModerate(data,me))throwHttp(403,'Sem permissão para moderar esta publicação.');
         tx.delete(postRef);
         if(data.pinnedPostId===req.params.postId)tx.update(ref,{pinnedPostId:null,updatedAt:Date.now()});
       });
@@ -323,7 +347,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente a moderação pode destacar publicações.');
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode destacar publicações.');
       const pinned=req.body?.pinned===true;
       const postRef=ref.collection('posts').doc(req.params.postId);
       await db.runTransaction(async tx=>{
@@ -364,7 +388,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(!post.exists)throwHttp(404,'Publicação não encontrada.');
       const snap=await ref.collection('comments').orderBy('createdAt','desc').limit(150).get();
       const comments=snap.docs.filter(d=>d.data().postId===req.params.postId).slice(0,50)
-        .map(d=>({...d.data(),id:d.id,editable:d.data().authorId===me.id||ownerOrAdmin(data,me)}));
+        .map(d=>({...d.data(),id:d.id,editable:d.data().authorId===me.id||canModerate(data,me)}));
       res.json({comments});
     }catch(e){error(res,e);}
   });
@@ -391,7 +415,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await db.runTransaction(async tx=>{
         const snap=await tx.get(target);
         if(!snap.exists)throwHttp(404,'Comentário não encontrado.');
-        if(snap.data().authorId!==me.id&&!ownerOrAdmin(data,me))throwHttp(403,'Sem permissão para remover.');
+        if(snap.data().authorId!==me.id&&!canModerate(data,me))throwHttp(403,'Sem permissão para remover.');
         tx.delete(target);
       });
       publish(req.params.id,'post');res.json({success:true});
@@ -407,7 +431,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       res.json({polls:snap.docs.map(d=>({id:d.id,question:d.data().question,options:d.data().options,
         counts:(d.data().options||[]).map((_,i)=>Object.values(d.data().votes||{}).filter(v=>v===i).length),
         voted:Object.hasOwn(d.data().votes||{},me.id),myVote:d.data().votes?.[me.id]??null,
-        createdAt:d.data().createdAt,canDelete:ownerOrAdmin(data,me)}))});
+        createdAt:d.data().createdAt,canDelete:canModerate(data,me)}))});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/polls',rateLimit(8,60000),async(req,res)=>{
@@ -418,7 +442,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       return res.status(400).json({error:'Informe uma pergunta e 2 a 4 opções diferentes.'});
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente moderadores podem criar enquetes.');
+      if(!canModerate(data,me))throwHttp(403,'Somente moderadores podem criar enquetes.');
       const doc=ref.collection('polls').doc();
       await doc.create({question,options,votes:{},createdAt:Date.now()});
       publish(req.params.id,'post');res.status(201).json({id:doc.id});
@@ -448,7 +472,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente a moderação pode remover enquetes.');
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode remover enquetes.');
       await ref.collection('polls').doc(req.params.pollId).delete();
       publish(req.params.id,'post');res.json({success:true});
     }catch(e){error(res,e);}
@@ -502,7 +526,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente a moderação pode consultar denúncias.');
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode consultar denúncias.');
       const snap=await ref.collection('reports').orderBy('createdAt','desc').limit(60).get();
       res.json({reports:snap.docs.map(d=>({id:d.id,postId:d.data().postId,reason:d.data().reason,
         status:d.data().status,createdAt:d.data().createdAt}))});
@@ -512,7 +536,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente a moderação pode resolver denúncias.');
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode resolver denúncias.');
       const target=ref.collection('reports').doc(req.params.reportId);
       await db.runTransaction(async tx=>{
         const snap=await tx.get(target);if(!snap.exists)throwHttp(404,'Denúncia não encontrada.');
