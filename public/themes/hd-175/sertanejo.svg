@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Festival nas montanhas ao pôr do sol com Kombi">
+<defs>
+<linearGradient id="sky" x2="0" y2="1"><stop stop-color="#071736"/><stop offset=".43" stop-color="#90357c"/><stop offset=".76" stop-color="#fb6b64"/><stop offset="1" stop-color="#ffae51"/></linearGradient>
+<linearGradient id="sun" x2="0" y2="1"><stop stop-color="#ff632d"/><stop offset=".65" stop-color="#ff9a13"/><stop offset="1" stop-color="#ffd43e"/></linearGradient>
+<linearGradient id="hill" x2="0" y2="1"><stop stop-color="#793e97"/><stop offset="1" stop-color="#24174f"/></linearGradient>
+<linearGradient id="van" x2="0" y2="1"><stop stop-color="#fff2d1"/><stop offset=".48" stop-color="#f9deae"/><stop offset=".49" stop-color="#ca3e89"/><stop offset="1" stop-color="#702460"/></linearGradient>
+<pattern id="stars" width="141" height="109" patternUnits="userSpaceOnUse"><circle cx="29" cy="34" r="1.4" fill="#ffd49f"/><circle cx="115" cy="19" r=".9" fill="#fff"/><circle cx="76" cy="83" r="1" fill="#ff9e7e"/></pattern>
+<filter id="glow"><feGaussianBlur stdDeviation="15"/></filter>
+</defs>
+<path fill="url(#sky)" d="M0 0H1600V900H0z"/><path fill="url(#stars)" d="M0 0H1600V500H0z"/>
+<circle cx="880" cy="365" r="257" fill="#ff9d38" opacity=".37" filter="url(#glow)"/><circle cx="880" cy="365" r="243" fill="url(#sun)"/>
+<g fill="#ffb768" opacity=".65"><path d="M180 190q120 -25 255 7t218 0q-100 27-190 18t-283-25"/><path d="M980 178q108-23 216 3t193-1q-90 30-186 18z"/></g>
+<path fill="#3b285e" d="M0 619 237 339 377 520 573 263 773 546 987 329 1206 555 1429 361 1600 553V900H0Z"/>
+<path fill="#a363ae" d="m155 438 82-99 140 181-95-79-46 12-42-27zM477 373l96-110 198 283-132-122-63 17-36-43zM907 421l80-92 218 226-153-113-69 23-33-43zM1344 464l85-103 171 192-113-89-53 19-31-31z"/>
+<path fill="#202653" d="m0 678 165-167 245 139 197-191 221 176 173-151 223 165 204-142 172 162V900H0z"/>
+<path fill="#151d43" d="M0 723q160-104 309-44 153-74 339-20 216-75 362 3 195-78 364-3 106-36 226 14V900H0z"/>
+<path fill="#fb6387" opacity=".75" d="M440 711q310 42 610-1 204-24 394 18-360 40-1004-17"/>
+<path fill="#1b214b" d="M0 779q180-60 389-7 180-34 386 17 280-70 476-2 200-31 349 0v113H0z"/>
+<g fill="#0d1833">
+<path d="m50 782 35-270 35 270h-20l-15-70-14 70zm-12-67 47-112 50 112zm17-62 30-91 33 91zm146 135 26-245 27 245zm-13-69 40-96 41 96zm245 83 32-232 31 232zm-15-71 47-110 47 110zm780 72 32-233 34 233zm-17-68 49-113 51 113zm200 80 26-218 29 218zm-16-67 45-100 42 100zm148 63 31-270 35 270zm-20-80 55-112 52 112z"/>
+</g>
+<g transform="translate(815 555)">
+<path d="M37 223q0-23 22-27l40-115q12-34 62-37l321-8q51 3 75 48l47 91 35 22q22 11 22 38v71H24v-64q0-13 13-19Z" fill="url(#van)" stroke="#25193f" stroke-width="12"/>
+<path d="m116 89 51-14 111-2v110H83zm191-17 164-4q25 8 44 29l38 80H307Z" fill="#171d43" stroke="#a94787" stroke-width="9"/>
+<path d="m96 195h467" stroke="#fff0c5" stroke-width="9" opacity=".8"/>
+<path d="M30 248h621v46H30z" fill="#642763"/>
+<g fill="#14172d" stroke="#ead2b2" stroke-width="15"><circle cx="151" cy="298" r="55"/><circle cx="529" cy="298" r="55"/></g>
+<g fill="#50516a"><circle cx="151" cy="298" r="19"/><circle cx="529" cy="298" r="19"/></g>
+<path d="m172 45 365-5" stroke="#262038" stroke-width="14"/><path d="M188 26h336" stroke="#ffbc72" stroke-width="9"/>
+<circle cx="601" cy="224" r="16" fill="#fff0aa"/>
+</g>
+<g transform="translate(75 543)">
+<path d="M0 196h326V14L298 0H33L0 14z" fill="#40243c" stroke="#ffa14b" stroke-width="12"/>
+<path d="M20 36h288v128H20z" fill="#301c40"/>
+<text x="164" y="112" text-anchor="middle" fill="#fff0ca" font-size="46" font-family="Arial, sans-serif" font-style="italic" font-weight="900">SONORAFAN</text>
+<path d="M26 131h275" stroke="#fb785e" stroke-width="5"/>
+<path d="M70 194v155M250 194v155" stroke="#261b39" stroke-width="20"/>
+</g>
+<g stroke="#ffbb6a" stroke-width="4" fill="#ffd37f"><path d="M0 486q240 92 520 53" fill="none"/><circle cx="46" cy="500" r="8"/><circle cx="117" cy="520" r="8"/><circle cx="186" cy="532" r="8"/><circle cx="253" cy="540" r="8"/><circle cx="323" cy="541" r="8"/><circle cx="394" cy="537" r="8"/><circle cx="468" cy="541" r="8"/></g>
+<g fill="#0e152e"><path d="m0 900 130-80 170 80zm150 0 120-103 140 103zm1220 0 100-84 130 84z"/></g>
+</svg>
