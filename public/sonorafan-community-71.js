@@ -93,6 +93,8 @@
      if(kind==='post'){
        await loadPosts(id);
        status('♫ O mural recebeu uma atualização.');
+     }else if(kind==='extras'){
+       await loadExtras(id);
      }else{
        // A alteração pode afetar sua permissão de acesso.
        await openDetail(id);
@@ -107,6 +109,9 @@
      state.stream=stream;
      stream.addEventListener('open',()=>{if(label)label.textContent='Mural conectado';});
      stream.addEventListener('post',()=>scheduleRefresh(id,'post'));
+     stream.addEventListener('ideas',()=>scheduleRefresh(id,'extras'));
+     stream.addEventListener('polls',()=>scheduleRefresh(id,'extras'));
+     stream.addEventListener('events',()=>scheduleRefresh(id,'extras'));
      stream.addEventListener('members',()=>scheduleRefresh(id,'members'));
      stream.addEventListener('rooms',()=>scheduleRefresh(id,'rooms'));
      stream.addEventListener('cover',()=>scheduleRefresh(id,'cover'));
@@ -114,7 +119,7 @@
      stream.addEventListener('error',()=>{if(label)label.textContent='Reconectando…';});
    }else{
      if(label)label.textContent='Atualização periódica';
-     state.poll=setInterval(()=>{if(state.activeId===id&&!document.hidden)loadPosts(id);},25000);
+     state.poll=setInterval(()=>{if(state.activeId===id&&!document.hidden){loadPosts(id);loadExtras(id);}},25000);
    }
  }
  const showList=()=>{stopLive();$('sf71ClubList').hidden=false;$('sf71ClubDetail').hidden=true;state.activeId=null;state.detail=null;};
