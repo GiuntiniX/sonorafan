@@ -599,6 +599,77 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await target.update({status,updatedAt:Date.now()});publish(req.params.id,'post');res.json({success:true});
     }catch(e){error(res,e);}
   });
+  // Encontros independentes de salas: Fan Club é comunidade, não player.
+  app.get('/api/fan-clubs/:id/events',rateLimit(40,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ver os eventos.');
+      const snap=await ref.collection('events').orderBy('startAt','asc').limit(40).get();
+      const events=snap.docs.filter(d=>Number(d.data().startAt)>Date.now()-3600000)
+       .slice(0,20).map(d=>({id:d.id,title:d.data().title,description:d.data().description,
+        startAt:d.data().startAt,durationMinutes:d.data().durationMinutes,
+        attendees:unique(d.data().attendeeIds).length,going:unique(d.data().attendeeIds).includes(me.id),
+        canDelete:canModerate(data,me)}));
+      res.json({events});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/events',rateLimit(8,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const title=clean(req.body?.title,90),description=clean(req.body?.description,300),startAt=Number(req.body?.startAt);
+    const durationMinutes=[30,60,90,120].includes(Number(req.body?.durationMinutes))?Number(req.body.durationMinutes):60;
+    if(title.length<5||!Number.isSafeInteger(startAt)||startAt<Date.now()+300000||startAt>Date.now()+90*86400000)
+      return res.status(400).json({error:'Informe título e data entre 5 minutos e 90 dias no futuro.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação organiza encontros.');
+      const doc=ref.collection('events').doc();
+      await doc.create({title,description,startAt,durationMinutes,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
+      publish(req.params.id,'post');res.status(201).json({id:doc.id});
+      notifyPostMembers(req.params.id,data,me.id,me.name);
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/events/:eventId/rsvp',rateLimit(20,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para confirmar presença.');
+      const target=ref.collection('events').doc(req.params.eventId);
+      const result=await db.runTransaction(async tx=>{
+        const snap=await tx.get(target);if(!snap.exists)throwHttp(404,'Encontro não encontrado.');
+        if(Number(snap.data().startAt)<Date.now()-3600000)throwHttp(409,'Este encontro já terminou.');
+        const attendees=unique(snap.data().attendeeIds).filter(x=>x!==me.id);
+        const going=req.body?.going===true;
+        if(going){if(attendees.length>=300)throwHttp(409,'Limite de participantes.');attendees.push(me.id);}
+        tx.update(target,{attendeeIds:attendees});
+        return {going,attendees:attendees.length};
+      });
+      publish(req.params.id,'post');res.json(result);
+    }catch(e){error(res,e);}
+  });
+  app.delete('/api/fan-clubs/:id/events/:eventId',rateLimit(10,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode cancelar encontros.');
+      await ref.collection('events').doc(req.params.eventId).delete();
+      publish(req.params.id,'post');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  // Métricas agregadas, sem expor conteúdo privado nem emails.
+  app.get('/api/fan-clubs/:id/insights',rateLimit(18,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode ver indicadores.');
+      const names=['posts','comments','ideas','polls','reports','events'];
+      const result=await Promise.all(names.map(n=>ref.collection(n).orderBy('createdAt','desc').limit(100).get()));
+      const totals=Object.fromEntries(result.map((snap,i)=>[names[i],snap.docs.length]));
+      const unresolved=result[names.indexOf('reports')].docs.filter(d=>d.data().status==='open').length;
+      res.json({members:unique(data.memberIds).length,moderators:unique(data.moderatorIds).length,
+        recent:totals,openReports:unresolved,sampleLimit:100});
+    }catch(e){error(res,e);}
+  });
   // Ranking editorial: contribuições reais, sem inventar XP nem exibir emails.
   app.get('/api/fan-clubs/:id/contributors',rateLimit(30,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
@@ -721,7 +792,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         for(const doc of snap.docs)await doc.ref.delete();
         if(batch===99)throwHttp(503,'A limpeza ainda não terminou. Repita a exclusão.');
       }
-      for(const sub of ['comments','polls','reports','ideas','postImages']){
+      for(const sub of ['comments','polls','reports','ideas','postImages','events']){
         const col=ref.collection(sub);
         for(let batch=0;batch<50;batch++){
           const snap=await col.orderBy('createdAt','desc').limit(100).get();
