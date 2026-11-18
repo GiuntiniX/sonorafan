@@ -271,6 +271,10 @@
  function quality(host){
    const d=state.quality;
    const issues=state.qualityAllowed&&!state.loading&&!state.qualityDenied?inspectConflicts():[];
+   const sf150Devices=Object.entries(d?.byDevice||{}).filter(([key])=>['desktop','tablet','mobile','unknown'].includes(key));
+   const sf150Recent=Array.isArray(d?.recent)?d.recent:[];
+   const sf150Hour=sf150Recent.filter(e=>Number(e.at)>Date.now()-3600000).length;
+   const sf150Health=Number(d?.totals?.['player-error']||0)+Number(d?.totals?.['player-buffering']||0)+Number(d?.totals?.['sync-drift']||0);
    host.innerHTML=`<div class="sf100-section-top"><div><h4>Central de qualidade</h4><p>Diagnóstico agregado: sem endereços de e-mail, dados pessoais ou identificação de dispositivos.</p></div>
      <button type="button" data-sf100-action="refresh">↻ Atualizar</button></div>
      ${state.loading?htmlMsg('Buscando indicadores','Acesso administrativo protegido.') :
@@ -286,7 +290,15 @@
          <div><strong>${d.totals?.['player-buffering']||0}</strong><span>Buffer prolongado</span></div>
          <div><strong>${d.totals?.['connection-lost']||0}</strong><span>Conexões perdidas</span></div>
          <div><strong>${d.totals?.['connection-restored']||0}</strong><span>Reconexões</span></div>
-         </div><h5>Atividade recente (sem PII)</h5><div class="sf100-log">
+         </div><section class="sf150-quality-overview" aria-label="Indicadores de experiência">
+           <h5>Experiência de uso · métricas agregadas</h5>
+           <p>${sf150Hour} registros na última hora entre os ${sf150Recent.length} eventos recentes disponíveis;
+             ${sf150Health} sinais de reprodução ou sincronização desde o início deste servidor.</p>
+           <div class="sf150-device-breakdown">${sf150Devices.length?sf150Devices.map(([kind,total])=>
+             '<span><strong>'+esc(kind)+'</strong> · '+Math.max(0,Number(total)||0)+' registros</span>').join(''):
+             '<span>Sem eventos por dispositivo neste período.</span>'}</div>
+           <small>Contagens indicativas, não representam usuários únicos nem tempo de carregamento. Nenhum dado pessoal é exibido.</small>
+         </section><h5>Atividade recente (sem PII)</h5><div class="sf100-log">
            ${(d.recent||[]).slice(0,20).map(e=>`<div><strong>${esc(e.event)}</strong><span>${esc(e.device)} · ${date(e.at)}</span></div>`).join('')||'<p>Sem eventos registrados.</p>'}
          </div><section class="sf141-diagnostics">
            <h5>Diagnóstico da interface</h5>
