@@ -563,6 +563,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         const snap=await tx.get(target);
         if(!snap.exists)throwHttp(404,'Comentário não encontrado.');
         if(snap.data().authorId!==me.id&&!canModerate(data,me))throwHttp(403,'Sem permissão para remover.');
+        const parent=ref.collection('posts').doc(snap.data().postId);
+        const postSnap=await tx.get(parent);
+        if(postSnap.exists&&postSnap.data().bestCommentId===req.params.commentId)
+          tx.update(parent,{bestCommentId:null,resolved:false,resolvedAt:null});
         tx.delete(target);
       });
       publish(req.params.id,'post');res.json({success:true});
