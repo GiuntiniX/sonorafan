@@ -59,6 +59,17 @@
    row('Buscas de música',number(stats.musicOps?.searchRequests)+' na janela de contadores do servidor','Monitorado'),
    row('Falhas de busca',number(stats.musicOps?.searchFailures)+' nos contadores do servidor',Number(stats.musicOps?.searchFailures)?'Atenção':'Sem falhas',Number(stats.musicOps?.searchFailures)?'warn':'')
   ].join(''));
+  // Um número de denúncias não faz parte de /stats; consulte a origem real.
+  fetchJSON('/api/admin/chat-reports').then(reports=>{
+   const pending=Array.isArray(reports)?reports.filter(r=>(r.status||'open')==='open').length:0;
+   const target=$('sf13PendingReports');
+   if(target)target.textContent=number(pending);
+   const caption=$('sf13PendingLabel');
+   if(caption)caption.textContent='Denúncias abertas entre os últimos 100 registros';
+  }).catch(()=>{
+   const target=$('sf13PendingReports');if(target)target.textContent='—';
+   const caption=$('sf13PendingLabel');if(caption)caption.textContent='Consulta indisponível';
+  });
   const top=(rooms||[]).slice().sort((a,b)=>Number(b.listeners||0)-Number(a.listeners||0)).slice(0,5);
   setData('sf13TopRooms',top.map((r,i)=>'<div class="sf12-row"><div><strong>'+(i+1)+'. '+esc(r.name)+'</strong><small>'+esc(r.now||'Sem música atual')+'</small></div><span class="sf12-pill live">'+number(r.listeners)+' ouvintes</span></div>').join('')||'<div class="sf12-empty">Nenhuma sala encontrada</div>');
   const delta=$('sf13CurrentUsers');if(delta)delta.textContent=number(stats.onlineUsers);
