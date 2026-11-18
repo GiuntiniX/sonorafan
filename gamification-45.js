@@ -34,7 +34,16 @@ const NEW_BADGES = Object.freeze([
   { key: 'ten_songs', name: 'DJ da Galera', description: 'Adicione 10 músicas', icon: '⚡', at: 10, field: 'songs' },
   { key: 'ten_votes', name: 'Voz da Comunidade', description: 'Vote em 10 músicas', icon: '🗳️', at: 10, field: 'votes' },
   { key: 'five_likes', name: 'Boas Vibrações', description: 'Curta 5 mensagens diferentes', icon: '💜', at: 5, field: 'likes' },
-  { key: 'three_clubs', name: 'Fã de Carteirinha', description: 'Participou de 3 Fan Clubs', icon: '🤝', at: 3, field: 'clubs' }
+  { key: 'three_clubs', name: 'Fã de Carteirinha', description: 'Participou de 3 Fan Clubs', icon: '🤝', at: 3, field: 'clubs' },
+  // Jornada 6.0: especializações cosméticas por atividades validadas. Nunca concedem XP extra.
+  { key: 'music_curator_25', name: 'Curador Musical', description: 'Contribuiu com 25 músicas distintas', icon: '💿', at: 25, field: 'songs' },
+  { key: 'music_curator_50', name: 'DJ de Festival', description: 'Contribuiu com 50 músicas distintas', icon: '🎛️', at: 50, field: 'songs' },
+  { key: 'music_curator_100', name: 'Lenda das Filas', description: 'Alcançou 100 músicas adicionadas', icon: '🌟', at: 100, field: 'songs' },
+  { key: 'room_explorer_10', name: 'Viajante Musical', description: 'Contribuiu em 10 salas diferentes', icon: '🧭', at: 10, field: 'rooms' },
+  { key: 'room_explorer_25', name: 'Explorador de Mundos', description: 'Participou de 25 salas diferentes', icon: '🌌', at: 25, field: 'rooms' },
+  { key: 'vote_25', name: 'Voz Ativa', description: 'Registrou 25 votos válidos em músicas distintas', icon: '📣', at: 25, field: 'votes' },
+  { key: 'like_25', name: 'Energia Positiva', description: 'Curtiu 25 mensagens diferentes', icon: '💜', at: 25, field: 'likes' },
+  { key: 'club_5', name: 'Conector de Fãs', description: 'Participou de 5 Fan Clubs distintos', icon: '🪩', at: 5, field: 'clubs' }
 ]);
 
 function localPeriod(now = new Date()) {
