@@ -80,7 +80,8 @@ test('Perfil 6.0: no new gamification collection, XP/medals/missions persist',()
  }},new Date('2026-11-18T13:00:00Z'));
  assert.equal(snapshot.points,100);
  assert(snapshot.badges.includes('DJ Lendário'));
- assert(snapshot.achievements.some(a=>a.name==='Curador Musical'&&a.at===25));
+ assert(snapshot.achievements.some(a=>a.name==='Curador Musical'&&a.at===25&&a.unlocked));
+ assert(snapshot.badges.includes('Curador Musical'),'validated legacy progress should unlock new cosmetic badges on read');
  assert(snapshot.achievements.some(a=>a.name==='Conector de Fãs'&&a.at===5));
  assert(snapshot.missions.some(m=>m.period==='weekly'));
  assert(NEW_BADGES.length>=14);
