@@ -521,7 +521,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const days=Number(req.body?.durationDays);
       const closesAt=[1,3,7,14].includes(days)?Date.now()+days*86400000:null;
       await doc.create({question,options,votes:{},createdAt:Date.now(),closesAt});
-      publish(req.params.id,'post');res.status(201).json({id:doc.id});
+      publish(req.params.id,'polls');res.status(201).json({id:doc.id});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/polls/:pollId/vote',rateLimit(20,60000),async(req,res)=>{
@@ -542,7 +542,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         if(Object.keys(votes).length>300)throwHttp(409,'Limite de votos atingido.');
         tx.update(target,{votes});
       });
-      publish(req.params.id,'post');res.json({success:true});
+      publish(req.params.id,'polls');res.json({success:true});
     }catch(e){error(res,e);}
   });
   app.delete('/api/fan-clubs/:id/polls/:pollId',rateLimit(8,60000),async(req,res)=>{
@@ -551,7 +551,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const {ref,data}=await readClub(req.params.id);
       if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode remover enquetes.');
       await ref.collection('polls').doc(req.params.pollId).delete();
-      publish(req.params.id,'post');res.json({success:true});
+      publish(req.params.id,'polls');res.json({success:true});
     }catch(e){error(res,e);}
   });
   // Descobertas reais de URLs do YouTube compartilhadas no mural; sem dados inventados.
@@ -580,7 +580,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const doc=ref.collection('ideas').doc();
       await doc.create({title,description,authorId:me.id,authorName:me.name,
         voterIds:[],status:'open',createdAt:Date.now()});
-      publish(req.params.id,'post');res.status(201).json({id:doc.id});
+      publish(req.params.id,'ideas');res.status(201).json({id:doc.id});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/ideas/:ideaId/vote',rateLimit(20,60000),async(req,res)=>{
@@ -598,7 +598,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         tx.update(target,{voterIds:next});
         return {voted,votes:next.length};
       });
-      publish(req.params.id,'post');res.json(result);
+      publish(req.params.id,'ideas');res.json(result);
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/ideas/:ideaId/status',rateLimit(12,60000),async(req,res)=>{
@@ -610,7 +610,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(!canModerate(data,me))throwHttp(403,'Somente a moderação altera o status.');
       const target=ref.collection('ideas').doc(req.params.ideaId);
       const snap=await target.get();if(!snap.exists)throwHttp(404,'Ideia não encontrada.');
-      await target.update({status,updatedAt:Date.now()});publish(req.params.id,'post');res.json({success:true});
+      await target.update({status,updatedAt:Date.now()});publish(req.params.id,'ideas');res.json({success:true});
     }catch(e){error(res,e);}
   });
   // Encontros independentes de salas: Fan Club é comunidade, não player.
@@ -639,7 +639,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(!canModerate(data,me))throwHttp(403,'Somente a moderação organiza encontros.');
       const doc=ref.collection('events').doc();
       await doc.create({title,description,startAt,durationMinutes,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
-      publish(req.params.id,'post');res.status(201).json({id:doc.id});
+      publish(req.params.id,'events');res.status(201).json({id:doc.id});
       notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title});
     }catch(e){error(res,e);}
   });
@@ -658,7 +658,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         tx.update(target,{attendeeIds:attendees});
         return {going,attendees:attendees.length};
       });
-      publish(req.params.id,'post');res.json(result);
+      publish(req.params.id,'events');res.json(result);
     }catch(e){error(res,e);}
   });
   app.delete('/api/fan-clubs/:id/events/:eventId',rateLimit(10,60000),async(req,res)=>{
@@ -667,7 +667,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const {ref,data}=await readClub(req.params.id);
       if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode cancelar encontros.');
       await ref.collection('events').doc(req.params.eventId).delete();
-      publish(req.params.id,'post');res.json({success:true});
+      publish(req.params.id,'events');res.json({success:true});
     }catch(e){error(res,e);}
   });
   // Métricas agregadas, sem expor conteúdo privado nem emails.
