@@ -53,7 +53,11 @@
    const status=$('sf88ThemeStatus');
    if(status)status.textContent=personalOverride?'Tema pessoal · '+chosen.name:'Tema da sala · '+chosen.name;
    const hero=$('sf33EmptyPlayerArt');
-   if(hero)hero.dataset.roomTheme=chosen.id;
+   if(hero){
+      hero.dataset.roomTheme=chosen.id;
+      const heroImg=hero.querySelector('img');
+      if(heroImg && heroImg.getAttribute('src')!==chosen.art){heroImg.src=chosen.art;heroImg.alt='Arte do tema '+chosen.name;}
+    }
    const idle=$('sf44QueueIdle');
    if(idle)idle.dataset.roomTheme=chosen.id;
  }
@@ -261,11 +265,11 @@
        .then(response=>{if(!response.ok)throw new Error('Artes finais não publicadas');return response.json();})
        .then(async entries=>{
          if(!Array.isArray(entries))return;
-         const supported=[...KNOWN_THEMES].filter(id=>id!=='geral');
+         const supported=[...KNOWN_THEMES].filter(id=>id!=='geral'&&id!=='indie');
          const upgraded=new Set(['pagode','sertanejo','reggae','jazz','forro']);
          const valid=entries.filter(entry=>{
            if(!entry||!supported.includes(entry.id))return false;
-           const folder=entry.id==='indie'?'final-172':entry.id==='rap'?'final-171':upgraded.has(entry.id)?'final-170':entry.id==='funk'?'final-169':'final-164';
+           const folder=entry.id==='rap'?'final-171':upgraded.has(entry.id)?'final-170':entry.id==='funk'?'final-169':'final-164';
            return entry.art==='/themes/'+folder+'/'+entry.id+'.webp'&&
              entry.thumbnail==='/themes/'+folder+'/'+entry.id+'-thumb.webp';
          });
