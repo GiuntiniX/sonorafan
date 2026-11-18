@@ -3,10 +3,10 @@
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
- const FALLBACK={id:'geral',name:'Geral · Original',description:'Visual original SonoraFan',primary:'#7c3aed',secondary:'#ff6b35',bg:'#180f25',text:'#f0f0f8',emoji:'🎧',art:'/art-44/vinyl-room.webp'};
+ const FALLBACK={id:'geral',name:'Padrão · Festival',description:'Festival Terra SonoraFan com bandeiras Terra e Vivo, palco e pôr do sol',primary:'#7c3aed',secondary:'#ff6b35',bg:'#180f25',text:'#f0f0f8',emoji:'🎪',art:'/themes/final-172/indie.webp',thumbnail:'/themes/final-172/indie-thumb.webp'};
  let themes=[FALLBACK], byId=new Map([[FALLBACK.id,FALLBACK]]);
  let roomSlug='',sharedTheme='geral',personalOverride=null,mayEdit=false;
- let createChoice='indie',editChoice='geral',modalChoice='indie',modalMode='room',previousFocus=null;
+ let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null;
  const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro']);
  const safe=id=>KNOWN_THEMES.has(id)?id:'geral';
  const find=id=>byId.get(safe(id))||FALLBACK;
@@ -24,7 +24,7 @@
    const chosen=find(personalOverride||sharedTheme);
    const variables=['--sf88-primary','--sf88-secondary','--sf88-panel','--sf88-label','--sf88-art'];
    if(chosen.id==='geral'){
-     // Sem atributo ou variáveis próprias: restitui todos os estilos e fundos antigos.
+     // Mantém a identidade padrão do festival sem sobrescrever as cores do layout original.
      screen.removeAttribute('data-room-theme');
      variables.forEach(key=>screen.style.removeProperty(key));
    }else{
@@ -66,7 +66,7 @@
    sharedTheme=safe(state.roomTheme);
    skin();
  }
- function begin(slug){roomSlug=String(slug||'');sharedTheme='indie';personalOverride=getLocal(roomSlug);skin();}
+ function begin(slug){roomSlug=String(slug||'');sharedTheme='geral';personalOverride=getLocal(roomSlug);skin();}
  function exit(){
    roomSlug='';sharedTheme='geral';personalOverride=null;mayEdit=false;
    const screen=$('screen-room');
@@ -240,14 +240,14 @@
  window.sf88Permission=permissions;
  window.sf88OpenRoomPicker=()=>open('room');
  window.sf88OpenEditor=id=>{editChoice=safe(id);mini('sf88EditTheme','edit');};
- window.sf88ResetCreateTheme=()=>{createChoice='indie';mini('sf88CreateTheme','create');};
+ window.sf88ResetCreateTheme=()=>{createChoice='geral';mini('sf88CreateTheme','create');};
  window.sf88ThemeLabel=id=>find(id).name;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
  fetch('/themes/catalog-88.json',{credentials:'same-origin'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
    .then(items=>{
      if(!Array.isArray(items)||items.length===0)return;
-     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&(t.id==='geral' ? t.art==='/art-44/vinyl-room.webp' : t.art==='/themes/illustrations/'+t.id+'.webp'));
+     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&(t.id==='geral' ? t.art==='/themes/final-172/indie.webp'&&t.thumbnail==='/themes/final-172/indie-thumb.webp' : t.art==='/themes/illustrations/'+t.id+'.webp'));
      if(!valid.length)return;
      themes=valid;byId=new Map(themes.map(x=>[x.id,x]));
      createChoice=safe(createChoice);editChoice=safe(editChoice);
@@ -255,7 +255,7 @@
      mini('sf88CreateTheme','create');mini('sf88EditTheme','edit');
      if($('sf88ThemeOverlay')?.hidden===false)drawModal();
      if(roomSlug)skin();
-     // Catálogo incremental: imagens finais 164, 169 e 170 são ativadas juntas após validação.
+     // Catálogo incremental 164–172; o tema padrão usa a mesma arte verificada do festival Indie.
      // Sem o manifest no servidor, o catálogo anterior continua válido e sem imagens quebradas.
      fetch('/themes/final-164/manifest.json',{credentials:'same-origin',cache:'no-store'})
        .then(response=>{if(!response.ok)throw new Error('Artes finais não publicadas');return response.json();})

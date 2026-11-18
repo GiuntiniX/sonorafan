@@ -876,7 +876,7 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   if (rooms.has(slug)) return res.status(400).json({ error: 'Sala já existe' });
   const room = createRoom(slug, name.trim(), String(adminName || 'Anônimo').slice(0, 40));
   room.ownerEmail = email;
-  room.roomTheme = req.body.roomTheme == null ? 'indie' : normalizeRoomTheme88(req.body.roomTheme);
+  room.roomTheme = req.body.roomTheme == null ? 'geral' : normalizeRoomTheme88(req.body.roomTheme);
   room.genre = genre;
   const cfg = sanitize(req.body);
   // A escolha feita na criação precisa persistir e ser aplicada no servidor.
