@@ -3,7 +3,7 @@
  'use strict';
  const $=id=>document.getElementById(id), panel=$('sfFanClubsPanel');if(!panel)return;
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],activePane:'mural',polls:[],contributors:[],reports:[],commentsOpen:null};
+ const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],activePane:'mural',polls:[],ideas:[],contributors:[],reports:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
  const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
  const byId=id=>state.clubs.find(c=>c.id===id);
@@ -208,11 +208,22 @@
  async function loadExtras(id){
  try{
  const prefix='/api/fan-clubs/'+encodeURIComponent(id);
- const [p,contributors,reports]=await Promise.all([api(prefix+'/polls'),api(prefix+'/contributors'),
+ const [p,ideas,contributors,reports]=await Promise.all([api(prefix+'/polls'),api(prefix+'/ideas'),api(prefix+'/contributors'),
  state.detail?.club?.canDelete?api(prefix+'/reports'):Promise.resolve({reports:[]})]);
- if(state.activeId!==id)return;state.polls=p.polls||[];
- state.contributors=contributors.ranking||[];state.reports=reports.reports||[];renderExtras();
+ if(state.activeId!==id)return;state.polls=p.polls||[];state.ideas=ideas.ideas||[];
+ state.contributors=contributors.ranking||[];state.reports=reports.reports||[];renderExtras();renderCommunityAside();
  }catch(e){if(state.activeId===id&&$('sf160Extras'))$('sf160Extras').textContent='Não foi possível carregar as informações da comunidade.';}
+ }
+ function renderCommunityAside(){
+ const aside=$('sf170CommunityAside');if(!aside)return;
+ const c=state.detail?.club;if(!c?.joined&&!c?.owner){aside.innerHTML='<p>Participe para sugerir ideias e votar.</p>';return;}
+ const active=state.polls.filter(p=>!p.closed).slice(0,2),ideas=state.ideas.slice(0,5);
+ aside.innerHTML=`<div class="sf170-aside-title"><div><small>ESPAÇO DA COMUNIDADE</small><h4>💡 Ideias dos fãs</h4></div><button type="button" data-sf170-new-idea>＋ Sugerir</button></div>
+ <p class="sf170-intro">O que podemos fazer juntos neste Fan Club?</p>
+ <div class="sf170-ideas">${ideas.length?ideas.map(i=>`<article class="sf170-idea"><strong>${esc(i.title)}</strong><p>${esc(i.description||'')}</p><small>${esc(i.authorName)} · ${i.votes} apoios · ${i.status==='planned'?'Planejada':i.status==='done'?'Realizada':i.status==='closed'?'Encerrada':'Em discussão'}</small><div class="sf170-inline-actions"><button type="button" data-sf170-vote-idea="${esc(i.id)}" aria-pressed="${i.voted}" ${i.status!=='open'?'disabled':''}>${i.voted?'✓ Apoiada':'♡ Apoiar ideia'}</button>${i.canManage&&i.status==='open'?`<button type="button" data-sf170-plan-idea="${esc(i.id)}">Planejar</button>`:''}${i.canManage&&i.status==='planned'?`<button type="button" data-sf170-done-idea="${esc(i.id)}">Concluir</button>`:''}</div></article>`).join(''):'<p class="sf170-empty">Nenhuma ideia ainda. Seja o primeiro a sugerir!</p>'}</div>
+ <div class="sf170-aside-title sf170-poll-title"><h4>🗳 Enquetes em destaque</h4><button type="button" data-sf160-pane="polls">Ver todas</button></div>
+ <div class="sf170-polls">${active.length?active.map(p=>`<article class="sf170-poll"><strong>${esc(p.question)}</strong>${p.options.map((o,n)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${n}" ${p.voted?'disabled':''}>${esc(o)} <small>${p.counts[n]||0}</small></button>`).join('')}</article>`).join(''):'<p class="sf170-empty">Nenhuma enquete em andamento.</p>'}</div>
+ ${c.canModerate?'<button class="sf170-create-poll" type="button" data-sf160-create-poll>＋ Criar enquete</button>':''}`;
  }
  function renderExtras(){
  const el=$('sf160Extras');if(!el)return;const c=state.detail?.club;
@@ -250,22 +261,7 @@
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Conversa da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
          ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="pinned">Fixados</option><option value="popular">Mais curtidos</option></select></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
-       </div><div id="sf160Extras" aria-live="polite"></div></section><aside class="sf71-room-list"><div class="sf71-rooms-head"><h4>Salas do Fan Club</h4>${c.owner?'<button type="button" data-sf71-addroom>＋ Vincular sala</button>':''}</div>
-         <div>${c.rooms?.length?c.rooms.map(r=>roomHtml(r,c.owner)).join(''):'<p class="sf71-empty">Nenhuma sala vinculada ainda.</p>'}</div>
-         <div class="sf71-club-events"><h4>Programação do Fan Club</h4>
-           ${(c.events||[]).length?c.events.map(ev=>`<div class="sf71-club-event">
-             <strong>${esc(ev.title)}</strong>
-             <small>${esc(new Date(Number(ev.startAt)).toLocaleString('pt-BR'))} · ${esc(ev.roomName)} · ${Math.max(0,Number(ev.attendees)||0)} confirmados</small>
-             <div class="sf141-event-actions">
-               <button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${ev.going?'false':'true'}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button>
-               <button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Entrar na sala</button>
-               <button type="button" data-sf142-club-calendar="${esc(ev.id)}">Lembrar no calendário</button>
-             </div>
-           </div>`).join(''):'<p class="sf71-empty">Nenhum encontro programado para as salas deste Fan Club.</p>'}
-           <button type="button" data-sf71-events>Ver agenda completa</button>
-         </div>
-         ${membersHtml(d)}
-       </aside></div>`;
+       </div><div id="sf160Extras" aria-live="polite"></div></section><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div>`;
      if(c.joined){await loadPosts(id);await loadExtras(id);if(state.activeId===id)startLive(id);}
    }catch(e){box.innerHTML=`<p class="sf71-empty" role="alert">${esc(e.message)}</p><button type="button" class="sf71-back" data-sf71-back>← Voltar</button>`;}
  }
@@ -283,6 +279,18 @@
      },async id=>{await openDetail(id);});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+ if(t.hasAttribute('data-sf170-new-idea')){
+   modal('Sua ideia para o Fan Club','<label>Título<input name="title" minlength="6" maxlength="100" required placeholder="Qual é a sua sugestão?"></label><label>Detalhes<textarea name="description" maxlength="300" placeholder="Como funcionaria?"></textarea></label>',async fd=>{
+     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/ideas',{title:fd.get('title'),description:fd.get('description')});return true;
+   },async()=>{await loadExtras(id);status('Ideia enviada à comunidade.');});return;
+ }
+ if(t.hasAttribute('data-sf170-vote-idea')){
+   await action(async()=>{t.disabled=true;await post('/api/fan-clubs/'+encodeURIComponent(id)+'/ideas/'+encodeURIComponent(t.dataset.sf170VoteIdea)+'/vote',{});await loadExtras(id);},'Apoio atualizado.');return;
+ }
+ if(t.hasAttribute('data-sf170-plan-idea')||t.hasAttribute('data-sf170-done-idea')){
+   const idea=t.dataset.sf170PlanIdea||t.dataset.sf170DoneIdea;
+   await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/ideas/'+encodeURIComponent(idea)+'/status',{status:t.hasAttribute('data-sf170-done-idea')?'done':'planned'});await loadExtras(id);},'Status atualizado.');return;
+ }
  if(t.hasAttribute('data-sf160-pane')){switchPane(t.dataset.sf160Pane);return;}
  if(t.hasAttribute('data-sf160-comments')){
  state.commentsOpen=state.commentsOpen===t.dataset.sf160Comments?null:t.dataset.sf160Comments;renderFeed();return;
@@ -375,7 +383,7 @@
      },'Reação atualizada.');return;
    }
    if(t.hasAttribute('data-sf151-pin')){
-     if(!state.detail?.club?.canDelete)return;
+     if(!state.detail?.club?.canModerate)return;
      const postId=t.dataset.sf151Pin,pinned=t.dataset.pinned!=='true';
      await action(async()=>{
        t.disabled=true;
