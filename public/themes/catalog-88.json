@@ -14,14 +14,14 @@
   {
     "id": "indie",
     "name": "Indie / Festival",
-    "description": "Pôster indie alternativo, distinto da arte padrão do festival",
+    "description": "Festival indie alternativo, com arte própria em alta definição",
     "primary": "#c256e7",
     "secondary": "#fb8074",
     "bg": "#170e27",
     "text": "#f2d9ff",
     "emoji": "🎪",
-    "art": "/themes/illustrations/indie.webp",
-    "thumbnail": "/themes/illustrations/indie.webp"
+    "art": "/themes/final-164/indie.webp",
+    "thumbnail": "/themes/final-164/indie-thumb.webp"
   },
   {
     "id": "metal",
@@ -32,7 +32,8 @@
     "bg": "#130b0c",
     "text": "#ffe4d8",
     "emoji": "🤘",
-    "art": "/themes/illustrations/metal.webp"
+    "art": "/themes/final-164/metal.webp",
+    "thumbnail": "/themes/final-164/metal-thumb.webp"
   },
   {
     "id": "emo",
@@ -43,7 +44,8 @@
     "bg": "#101014",
     "text": "#f7f3f5",
     "emoji": "🖤",
-    "art": "/themes/illustrations/emo.webp"
+    "art": "/themes/final-164/emo.webp",
+    "thumbnail": "/themes/final-164/emo-thumb.webp"
   },
   {
     "id": "mpb",
@@ -54,7 +56,8 @@
     "bg": "#182d23",
     "text": "#fff5d8",
     "emoji": "🌺",
-    "art": "/themes/illustrations/mpb.webp"
+    "art": "/themes/final-164/mpb.webp",
+    "thumbnail": "/themes/final-164/mpb-thumb.webp"
   },
   {
     "id": "eletronica",
@@ -65,7 +68,8 @@
     "bg": "#0c1027",
     "text": "#eafaff",
     "emoji": "🪩",
-    "art": "/themes/illustrations/eletronica.webp"
+    "art": "/themes/final-164/eletronica.webp",
+    "thumbnail": "/themes/final-164/eletronica-thumb.webp"
   },
   {
     "id": "rock",
@@ -76,7 +80,8 @@
     "bg": "#1f1213",
     "text": "#fff1dd",
     "emoji": "🎸",
-    "art": "/themes/illustrations/rock.webp"
+    "art": "/themes/final-164/rock.webp",
+    "thumbnail": "/themes/final-164/rock-thumb.webp"
   },
   {
     "id": "pop",
@@ -87,7 +92,8 @@
     "bg": "#271127",
     "text": "#fff0fc",
     "emoji": "✨",
-    "art": "/themes/illustrations/pop.webp"
+    "art": "/themes/final-164/pop.webp",
+    "thumbnail": "/themes/final-164/pop-thumb.webp"
   },
   {
     "id": "rap",
@@ -98,7 +104,8 @@
     "bg": "#1c1721",
     "text": "#ffedcc",
     "emoji": "🎤",
-    "art": "/themes/illustrations/rap.webp"
+    "art": "/themes/final-171/rap.webp",
+    "thumbnail": "/themes/final-171/rap-thumb.webp"
   },
   {
     "id": "funk",
@@ -109,7 +116,8 @@
     "bg": "#1a1030",
     "text": "#fff3fa",
     "emoji": "🔊",
-    "art": "/themes/illustrations/funk.webp"
+    "art": "/themes/final-169/funk.webp",
+    "thumbnail": "/themes/final-169/funk-thumb.webp"
   },
   {
     "id": "pagode",
@@ -120,7 +128,8 @@
     "bg": "#122b27",
     "text": "#fff4dc",
     "emoji": "🥁",
-    "art": "/themes/illustrations/pagode.webp"
+    "art": "/themes/final-170/pagode.webp",
+    "thumbnail": "/themes/final-170/pagode-thumb.webp"
   },
   {
     "id": "sertanejo",
@@ -143,7 +152,8 @@
     "bg": "#14271f",
     "text": "#ffefc8",
     "emoji": "🌴",
-    "art": "/themes/illustrations/reggae.webp"
+    "art": "/themes/final-170/reggae.webp",
+    "thumbnail": "/themes/final-170/reggae-thumb.webp"
   },
   {
     "id": "jazz",
@@ -154,7 +164,8 @@
     "bg": "#131c2b",
     "text": "#fff2d8",
     "emoji": "🎷",
-    "art": "/themes/illustrations/jazz.webp"
+    "art": "/themes/final-170/jazz.webp",
+    "thumbnail": "/themes/final-170/jazz-thumb.webp"
   },
   {
     "id": "forro",
@@ -165,6 +176,7 @@
     "bg": "#322019",
     "text": "#fff1cb",
     "emoji": "🪗",
-    "art": "/themes/illustrations/forro.webp"
+    "art": "/themes/final-170/forro.webp",
+    "thumbnail": "/themes/final-170/forro-thumb.webp"
   }
 ]
