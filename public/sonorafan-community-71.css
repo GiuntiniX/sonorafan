@@ -226,3 +226,12 @@
  #sf71ClubDetail .sf160-tabs{position:sticky;top:0;z-index:3;background:#100d16;padding-top:8px}
 }
 @media(prefers-reduced-motion:reduce){#sf71ClubDetail *,#sf71ClubDetail *::before{scroll-behavior:auto!important;transition:none!important}}
+
+/* Contribuidores e moderação no mesmo guide do mural. */
+#sf71ClubDetail .sf160-rank,#sf71ClubDetail .sf160-member,#sf71ClubDetail .sf160-report{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--sf160-line);padding:12px 3px;font-size:12px}
+#sf71ClubDetail .sf160-rank small,#sf71ClubDetail .sf160-member small,#sf71ClubDetail .sf160-report small{color:var(--sf160-muted)}
+#sf71ClubDetail .sf160-moderation{border-top:1px solid var(--sf160-line);margin-top:16px;padding-top:16px}
+#sf71ClubDetail .sf160-report strong{overflow-wrap:anywhere}
+#sf71ClubDetail .sf160-report button{min-height:36px}
+#sf71ClubDetail .sf71-detail-hero{scroll-margin-top:85px}
+#sf71ClubDetail .sf160-tabs button:hover{border-color:rgba(202,255,0,.5)}
