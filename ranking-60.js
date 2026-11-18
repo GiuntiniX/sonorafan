@@ -65,11 +65,20 @@ function createRanking60({app,db,sessionEmail,users,gamification45,rateLimit}){
     const visible=items.filter(x=>!x.hidden);
     const index=rows.findIndex(x=>x.email===email);
     const meIndex=index>=0?index+1:null;
-    const mine=rows[index]||null;
+    let myScore=rows[index]?.score;
+    if(myScore===undefined){
+      const ownRef=(period==='all'&&category!=='forum')?
+        db.collection('points').doc(email):
+        (category==='forum'&&period==='all'?
+          db.collection('ranking60Reputation').doc(playerId(email)):
+          collection.doc(playerId(email)));
+      const mySnap=await ownRef.get();
+      myScore=mySnap.exists?scoreOf(mySnap.data(),metric):0;
+    }
     return {
       period,category,periodKey:key,items:visible,
       podium:visible.filter(x=>x.position<=3),
-      me:{rank:meIndex,score:mine?.score||0,withinSample:meIndex!==null},
+      me:{rank:meIndex,score:myScore||0,withinSample:meIndex!==null},
       partial:snap.docs.length>=500,examined:snap.docs.length,
       note:period==='all'&&category==='dj'?'DJ contabiliza atividade validada a partir da versão 6.0.':
         period!=='all'?'Temporadas contabilizam novos XP validados a partir da versão 6.0; XP antigo é preservado no ranking geral.':'XP histórico preservado.'
@@ -89,7 +98,10 @@ function createRanking60({app,db,sessionEmail,users,gamification45,rateLimit}){
         if(!snap.docs.length||!scoreOf(snap.docs[0].data(),'score'))continue;
         const first=snap.docs[0].data();
         const user=await publicUser(first.email);
-        list.push({period:kind,key,champion:user.name,avatar:user.avatar,score:safeScore(first.score)});
+        const prefs=await db.collection('ranking60Preferences').doc(playerId(first.email)).get();
+        const hidden=prefs.exists&&!!prefs.data()?.hidden;
+        list.push({period:kind,key,champion:hidden?'Participante privado':user.name,
+          avatar:hidden?'🎧':user.avatar,score:safeScore(first.score)});
       }
     }
     return list;
