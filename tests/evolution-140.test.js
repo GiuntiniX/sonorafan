@@ -90,7 +90,7 @@ test('integrated upgrades keep single existing surfaces and updated resources',(
   assert.match(html,/sonorafan-mobile-room-136\.js\?v=140\.0/);
   assert.match(html,/sonorafan-queue-tools-95\.js\?v=140\.0/);
   assert.match(styles,/sf140-duration-ahead/);
-  assert.match(club,/data-sf140-share-song/);
+  assert.doesNotMatch(club,/data-sf140-share-song/);
   assert.match(club,/sf71PostText/);
   assert.match(theme,/function updateSelection\(/);
   assert.match(badges,/Faltam /);
