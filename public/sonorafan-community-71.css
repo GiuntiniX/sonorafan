@@ -190,10 +190,6 @@
 #sf71ClubDetail .sf71-post{padding:14px 4px;border-bottom:1px solid var(--sf160-line)}
 #sf71ClubDetail .sf71-post-head{gap:10px}
 #sf71ClubDetail .sf71-post p{line-height:1.6;overflow-wrap:anywhere}
-#sf71ClubDetail .sf160-music-card{display:flex;align-items:center;gap:12px;background:#261b31;border:1px solid var(--sf160-line);border-radius:12px;overflow:hidden;margin:10px 0;padding:8px}
-#sf71ClubDetail .sf160-music-card img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
-#sf71ClubDetail .sf160-music-card div{display:flex;flex-direction:column;gap:6px}
-#sf71ClubDetail .sf160-music-card a,#sf71ClubDetail .sf160-track{color:#d7f799}
 #sf71ClubDetail .sf160-comments{margin-top:10px;border-radius:10px;border:1px solid var(--sf160-line);padding:12px;background:#17111f}
 #sf71ClubDetail .sf160-comments h5{font-size:13px;margin:0 0 10px}
 #sf71ClubDetail .sf160-comment{border-bottom:1px solid var(--sf160-line);padding:9px 0}
@@ -209,17 +205,11 @@
 #sf71ClubDetail .sf160-poll-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
 #sf71ClubDetail .sf160-poll-options button{text-align:left;white-space:normal}
 #sf71ClubDetail .sf160-poll-options small{display:block;margin-top:4px;opacity:.75}
-#sf71ClubDetail .sf160-music-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-#sf71ClubDetail .sf160-track{display:flex;align-items:center;gap:10px;background:#21172a;border:1px solid var(--sf160-line);padding:8px;border-radius:12px;text-decoration:none}
-#sf71ClubDetail .sf160-track img{width:86px;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
-#sf71ClubDetail .sf160-track span{min-width:0}
-#sf71ClubDetail .sf160-track small{display:block;color:var(--sf160-muted);margin-top:5px}
 #sf71ClubDetail :is(button,a,input,select,summary):focus-visible{outline:2px solid var(--sf160-accent);outline-offset:3px}
 @media(max-width:760px){
  #sf71ClubDetail .sf71-detail-hero{min-height:125px;padding:16px}
  #sf71ClubDetail .sf71-detail-columns{grid-template-columns:minmax(0,1fr)}
  #sf71ClubDetail .sf71-feed,#sf71ClubDetail .sf71-room-list{padding:12px}
- #sf71ClubDetail .sf160-music-grid{grid-template-columns:1fr}
  #sf71ClubDetail .sf160-poll-options{grid-template-columns:1fr}
  #sf71ClubDetail .sf160-comments form{flex-wrap:wrap}
  #sf71ClubDetail .sf160-comments form button{min-height:44px}
