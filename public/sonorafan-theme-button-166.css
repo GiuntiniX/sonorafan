@@ -1,0 +1,89 @@
+/* SonoraFan 166 — botão de atmosferas: identidade visual e microinterações. */
+#screen-room #sf88RoomThemeButton.sf88-theme-switch{
+  --sf166-a:var(--sf88-primary,#b65cf2);
+  --sf166-b:var(--sf88-secondary,#ff9261);
+  position:relative;isolation:isolate;overflow:hidden;
+  display:inline-flex!important;align-items:center;justify-content:flex-start;
+  gap:9px;flex:none;max-width:220px!important;min-width:142px;
+  min-height:44px!important;padding:6px 29px 6px 8px!important;
+  border:1px solid rgba(255,211,255,.55)!important;border-radius:15px!important;
+  color:#fff!important;text-align:left;white-space:normal!important;
+  background:linear-gradient(115deg,#46216a,#802e8d 53%,#d65b7a)!important;
+  box-shadow:0 4px 16px #180a2a77, inset 0 1px 0 #fff4!important;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important;
+  cursor:pointer;touch-action:manipulation;
+}
+#screen-room #sf88RoomThemeButton::before{
+  content:"";position:absolute;inset:-80%;z-index:-1;pointer-events:none;
+  background:conic-gradient(from 40deg,transparent 10%,rgba(255,255,255,.18) 23%,transparent 38%,transparent 65%,rgba(255,226,122,.2) 79%,transparent 93%);
+  animation:sf166-shimmer 9s linear infinite;
+}
+#screen-room #sf88RoomThemeButton::after{
+  content:"›";position:absolute;right:10px;top:50%;transform:translateY(-54%);
+  font-size:22px;line-height:1;color:#ffe9f5;text-shadow:0 0 9px #f8b2ff;
+}
+#screen-room #sf88RoomThemeButton .sf166-palette{
+  width:32px;height:32px;flex:none;display:grid;place-items:center;
+  position:relative;z-index:1;border-radius:11px;font-size:17px;
+  background:conic-gradient(from 20deg,#ffcd56,#fc6896,#8b70ff,#50d7ed,#ffcd56);
+  box-shadow:0 0 0 2px #ffffff42,inset 0 0 0 3px #21142b7d;
+  animation:sf166-float 3.6s ease-in-out infinite;
+}
+#screen-room #sf88RoomThemeButton .sf166-palette::before{
+  content:"";position:absolute;inset:-4px;border:1px solid #ffc0e5aa;border-radius:14px;
+  animation:sf166-ring 2.9s ease-in-out infinite;pointer-events:none;
+}
+#screen-room #sf88RoomThemeButton .sf166-copy{
+  position:relative;z-index:1;display:flex;flex-direction:column;gap:1px;
+  min-width:0;max-width:140px;
+}
+#screen-room #sf88RoomThemeButton .sf166-title{
+  display:block;font:850 12px/1.1 'Space Grotesk',Inter,system-ui,sans-serif;
+  letter-spacing:.035em;color:#fff;text-shadow:0 1px 3px #16082377;
+}
+#screen-room #sf88RoomThemeButton #sf88ThemeName{
+  display:block;max-width:130px;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;font:650 10px/1.2 Inter,system-ui,sans-serif!important;
+  color:#fbe6ff;opacity:.92;
+}
+#screen-room #sf88RoomThemeButton:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:0 9px 25px #7d2dc377,0 0 0 1px #ffdfeb77,inset 0 1px 0 #fff5!important;
+  border-color:#fff2fb!important;
+}
+#screen-room #sf88RoomThemeButton:active{transform:translateY(0) scale(.98)!important}
+#screen-room #sf88RoomThemeButton:focus-visible{
+  outline:3px solid #fff3a6!important;outline-offset:3px!important;
+}
+#screen-room #sf88RoomThemeButton[aria-expanded="true"]{
+  border-color:#ffe3a4!important;
+  box-shadow:0 0 0 2px #ffcc7a6e,0 6px 24px #ed74cc66!important;
+}
+@keyframes sf166-shimmer{to{transform:rotate(360deg)}}
+@keyframes sf166-float{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-2px) rotate(7deg)}}
+@keyframes sf166-ring{0%,100%{opacity:.25;transform:scale(.92)}50%{opacity:.8;transform:scale(1.08)}}
+@media(max-width:768px){
+ #screen-room #sf88RoomThemeButton.sf88-theme-switch{
+  max-width:134px!important;min-width:0;min-height:38px!important;
+  padding:4px 19px 4px 6px!important;gap:6px;border-radius:12px!important;
+ }
+ #screen-room #sf88RoomThemeButton .sf166-palette{width:26px;height:26px;font-size:14px;border-radius:9px}
+ #screen-room #sf88RoomThemeButton .sf166-copy{max-width:73px}
+ #screen-room #sf88RoomThemeButton .sf166-title{font-size:10px}
+ #screen-room #sf88RoomThemeButton #sf88ThemeName{font-size:9px!important;max-width:73px}
+ #screen-room #sf88RoomThemeButton::after{right:6px;font-size:17px}
+}
+@media(max-width:400px){
+ #screen-room #sf88RoomThemeButton.sf88-theme-switch{max-width:102px!important;padding-right:14px!important;gap:5px}
+ #screen-room #sf88RoomThemeButton .sf166-copy{max-width:53px}
+ #screen-room #sf88RoomThemeButton #sf88ThemeName{max-width:53px}
+ #screen-room #sf88RoomThemeButton::after{right:3px;font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+ #screen-room #sf88RoomThemeButton,
+ #screen-room #sf88RoomThemeButton::before,
+ #screen-room #sf88RoomThemeButton .sf166-palette,
+ #screen-room #sf88RoomThemeButton .sf166-palette::before{
+   animation:none!important;transition:none!important;
+ }
+}
