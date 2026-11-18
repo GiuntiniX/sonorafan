@@ -96,7 +96,7 @@
       return;
     }
     const msg = $('sf50ProfileMessage');
-    if(msg) msg.textContent = 'Buscando XP e missões no SonoraFan Club...';
+    if(msg) msg.textContent = 'Buscando XP e missões no Minha Jornada...';
     try {
       const response = await fetch('/api/gamification/me',{credentials:'include',headers:{Accept:'application/json'}});
       const data = await response.json();
@@ -125,7 +125,7 @@
     const region=$('sf50ProfileBar')?.parentElement;
     if(region) region.setAttribute('aria-valuenow',String(progress));
     const missionsEl=$('sf50ProfileMissions');
-    if(missionsEl) missionsEl.textContent=`${done}/${missions.length} missões concluídas · medalhas no Club`;
+    if(missionsEl) missionsEl.textContent=`${done}/${missions.length} missões concluídas · medalhas da jornada`;
   }
   function shareMyVibe() {
     const email = currentAccount();
