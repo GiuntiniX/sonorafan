@@ -1,0 +1,172 @@
+/* SonoraFan v183 — acabamento do cadastro "Checklist do Backstage".
+ * Aprimora o mockup aprovado sem trocar os controles reais.
+ * Os elementos de cena ficam fora da prancheta rolável. */
+@media (min-width: 1281px){
+ #signupModal.sf123-signup-screen .sf123-signup-layout{
+   grid-template-columns:37% minmax(0,63%)!important;
+   width:min(1648px,98.6vw)!important;
+   height:min(912px,97vh)!important;
+   max-width:1648px!important;border-radius:24px!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-intro{
+   padding:clamp(35px,3.8vw,67px) clamp(32px,4.5vw,78px)!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-intro .sf123-brand{
+   width:min(260px,85%)!important;margin-bottom:clamp(30px,4.8vh,60px)!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-intro h2{
+   font-size:clamp(35px,3.25vw,53px)!important;
+   line-height:1.045!important;margin-bottom:24px!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-intro>p{
+   font-size:clamp(15px,1.12vw,19px)!important;
+   max-width:480px!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-intro-benefits{gap:clamp(13px,1.4vh,21px)!important;}
+ #signupModal.sf123-signup-screen .sf123-signup-form{
+   margin:16px 29px 16px 9px!important;
+   height:calc(100% - 32px)!important;
+   border-width:19px!important;border-radius:20px!important;
+   padding:clamp(110px,12vh,135px) clamp(34px,3.3vw,58px) 35px clamp(54px,5.4vw,90px)!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-heading h2{
+   font-size:clamp(30px,2.6vw,43px)!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-form-grid .sf123-auth-field{
+   min-height:44px!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-genres{margin:18px 0 13px!important;}
+ #signupModal.sf123-signup-screen .sf123-signup-heading{margin-bottom:17px!important;}
+ #signupModal.sf123-signup-screen .sf123-form-grid{gap:10px 16px!important;}
+ #signupModal.sf123-signup-screen .sf123-consent{margin:12px 0!important;}
+ #signupModal.sf123-signup-screen .sf123-submit-signup{min-height:56px!important;}
+}
+/* A prancheta é papel texturizado, com borda de madeira e clipe de metal. */
+#signupModal.sf123-signup-screen .sf123-signup-form{
+ background:#f4e9df!important;
+ border-color:#85533a!important;
+ box-shadow:0 17px 39px #0008,inset 0 0 0 5px #b78b6a,inset 0 0 23px #71483244!important;
+ scrollbar-color:#b59282 #f1e4da!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-form::before{
+ background:
+ radial-gradient(ellipse at 8% 12%,#fffaf8ec 0%,#fffaf800 68%),
+ repeating-linear-gradient(0deg,transparent 0,transparent 38px,#9d897013 39px),
+ repeating-linear-gradient(100deg,#ffffff11 0,#ffffff11 2px,transparent 2px,transparent 9px),
+ linear-gradient(145deg,#fff5ed,#f0e0d5 66%,#e4d0c4)!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-heading .sf123-kicker{
+ background:#cfff0a!important;color:#171115!important;
+ font-style:italic!important;letter-spacing:0!important;
+ padding:5px 9px!important;box-shadow:7px 0 0 #cfff0a,-5px 0 0 #cfff0a;
+}
+#signupModal.sf123-signup-screen .sf123-signup-heading h2{
+ font-weight:900!important;letter-spacing:-.04em!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-heading h2::after{
+ width:175px!important;height:5px!important;margin-top:9px!important;
+ background:#fd0085!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-form .sf123-form-group>.form-label::before{
+ content:"☑";font-size:15px;color:#fa008a;
+ margin-right:7px;font-weight:850;
+}
+#signupModal.sf123-signup-screen .sf123-signup-form .sf123-form-wide>.form-label::before{
+ content:"☑";
+}
+#signupModal.sf123-signup-screen .sf123-form-grid .sf123-auth-field{
+ border-color:#aa98a3!important;background:#fffaf9b8!important;
+}
+#signupModal.sf123-signup-screen .sf123-genres-title{
+ background:#d6ff14!important;color:#23161f!important;
+ box-shadow:5px 0 0 #d6ff14,-5px 0 0 #d6ff14;
+ font-style:italic!important;letter-spacing:0!important;
+}
+#signupModal.sf123-signup-screen #signupStyles .chip{
+ background:#fff7f4c9!important;border:1px solid #9b8b98!important;
+}
+#signupModal.sf123-signup-screen #signupStyles .chip[aria-pressed="true"],
+#signupModal.sf123-signup-screen #signupStyles .chip.selected{
+ background:#cfff0a!important;color:#1a1215!important;
+}
+#signupModal.sf123-signup-screen .sf123-submit-signup{
+ background:#caff00!important;color:#171319!important;
+ border-radius:999px!important;font-weight:900!important;
+ box-shadow:0 6px 18px #7f7e3244!important;
+}
+/* Fotografia com moldura tipo Polaroid. */
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf181-polaroid{
+ padding:10px 10px 23px!important;transform:rotate(10deg)!important;
+ width:132px!important;height:139px!important;
+ box-shadow:0 8px 18px #0005!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf181-polaroid span{
+ background:linear-gradient(#30073616,#20062836),url('/art-123/signup-crowd.webp') center/cover no-repeat!important;
+}
+/* Checklist em papel separado, nunca bloqueia os inputs. */
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf180-setlist-note{
+ top:36%!important;right:1.5%!important;width:146px!important;
+ padding:15px 12px 17px!important;background:#fffbf4!important;
+ font-size:11px!important;color:#291920!important;line-height:1.65!important;
+ border-radius:2px!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf180-setlist-note::after{
+ content:"";position:absolute;top:-13px;left:10px;right:10px;height:13px;
+ background:repeating-linear-gradient(90deg,#6b4248 0 2px,transparent 2px 20px);
+ opacity:.6;
+}
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf181-pink-note{
+ right:2.3%!important;bottom:4.8%!important;
+ width:139px!important;min-height:149px!important;
+ background:#ff5fa3!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf180-backstage-badge{
+ left:37.5%!important;top:55%!important;bottom:auto!important;
+ width:110px!important;min-height:164px!important;
+ transform:translateX(-50%) rotate(-8deg)!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf180-backstage-badge strong{
+ font-size:13px!important;letter-spacing:-.04em!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf180-clipboard-clip{
+ top:4px!important;left:67%!important;z-index:8!important;
+ width:245px!important;max-width:30%!important;
+ border-radius:13px 13px 23px 23px!important;
+}
+/* Contraste e decoração da área do show. */
+#signupModal.sf123-signup-screen .sf123-signup-intro{
+ background:linear-gradient(180deg,#110d19 0%,#130d19 70%,#170a21 100%)!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-crowd{
+ background-image:linear-gradient(to bottom,#110d19 0%,transparent 40%),url('/art-123/signup-crowd.webp')!important;
+}
+#signupModal.sf123-signup-screen .sf123-signup-layout>.sf181-flightcase{
+ height:17%!important;opacity:.63!important;
+ border-top:9px solid #8b8790!important;
+}
+@media (min-width:801px) and (max-width:1280px){
+ #signupModal.sf123-signup-screen .sf123-signup-layout>.sf180-clipboard-clip{
+  left:67%!important;top:5px!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-form{
+  padding:88px 24px 25px!important;
+ }
+}
+@media (max-width:800px){
+ #signupModal.sf123-signup-screen .sf123-signup-layout>.sf180-clipboard-clip{
+  display:none!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-form{
+  border-width:10px!important;
+  padding:25px 18px 28px!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-heading h2{
+  font-size:clamp(26px,6vw,34px)!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-intro{
+  padding:20px 23px!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-intro h2{
+  font-size:clamp(26px,6vw,34px)!important;
+ }
+}
