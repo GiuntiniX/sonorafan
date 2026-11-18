@@ -1,0 +1,86 @@
+[
+  {
+    "id": "indie",
+    "art": "/themes/final-164/indie.webp",
+    "thumbnail": "/themes/final-164/indie-thumb.webp",
+    "source": "geração individual de alta resolução"
+  },
+  {
+    "id": "metal",
+    "art": "/themes/final-164/metal.webp",
+    "thumbnail": "/themes/final-164/metal-thumb.webp",
+    "source": "geração individual de alta resolução"
+  },
+  {
+    "id": "emo",
+    "art": "/themes/final-164/emo.webp",
+    "thumbnail": "/themes/final-164/emo-thumb.webp",
+    "source": "geração individual de alta resolução"
+  },
+  {
+    "id": "mpb",
+    "art": "/themes/final-164/mpb.webp",
+    "thumbnail": "/themes/final-164/mpb-thumb.webp",
+    "source": "geração individual de alta resolução"
+  },
+  {
+    "id": "eletronica",
+    "art": "/themes/final-164/eletronica.webp",
+    "thumbnail": "/themes/final-164/eletronica-thumb.webp",
+    "source": "geração individual de alta resolução"
+  },
+  {
+    "id": "rock",
+    "art": "/themes/final-164/rock.webp",
+    "thumbnail": "/themes/final-164/rock-thumb.webp",
+    "source": "geração individual de alta resolução"
+  },
+  {
+    "id": "pop",
+    "art": "/themes/final-164/pop.webp",
+    "thumbnail": "/themes/final-164/pop-thumb.webp",
+    "source": "geração individual de alta resolução"
+  },
+  {
+    "id": "rap",
+    "art": "/themes/final-164/rap.webp",
+    "thumbnail": "/themes/final-164/rap-thumb.webp",
+    "source": "composição coletiva ampliada"
+  },
+  {
+    "id": "funk",
+    "art": "/themes/final-164/funk.webp",
+    "thumbnail": "/themes/final-164/funk-thumb.webp",
+    "source": "composição coletiva ampliada"
+  },
+  {
+    "id": "pagode",
+    "art": "/themes/final-164/pagode.webp",
+    "thumbnail": "/themes/final-164/pagode-thumb.webp",
+    "source": "composição coletiva ampliada"
+  },
+  {
+    "id": "sertanejo",
+    "art": "/themes/final-164/sertanejo.webp",
+    "thumbnail": "/themes/final-164/sertanejo-thumb.webp",
+    "source": "composição coletiva ampliada"
+  },
+  {
+    "id": "reggae",
+    "art": "/themes/final-164/reggae.webp",
+    "thumbnail": "/themes/final-164/reggae-thumb.webp",
+    "source": "composição coletiva ampliada"
+  },
+  {
+    "id": "jazz",
+    "art": "/themes/final-164/jazz.webp",
+    "thumbnail": "/themes/final-164/jazz-thumb.webp",
+    "source": "composição coletiva ampliada"
+  },
+  {
+    "id": "forro",
+    "art": "/themes/final-164/forro.webp",
+    "thumbnail": "/themes/final-164/forro-thumb.webp",
+    "source": "composição coletiva ampliada"
+  }
+]
