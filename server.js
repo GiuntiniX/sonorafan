@@ -1437,7 +1437,14 @@ io.on('connection', (socket) => {
       if (command.startsWith('/')) { handleCommand(socket, command, parts.slice(1), room); return; }
       // Respostas só referenciam mensagens válidas da própria sala; nada é aceito por confiança no cliente.
       const refMsg = typeof replyTo==='string' && replyTo.length < 100 ? room.chatHistory.find(m=>m._id===replyTo&&!m.isSystem&&!m.isMusic) : null;
-      const msg = { _id: Date.now().toString() + Math.random(), user: socket.userName, userId: publicUserId(socket.userEmail), text: text.trim(), color: socket.userColor, isSystem: false, isAdmin: socket.isAdmin || false, role: roleOf(socket), avatar: socket.userAvatar || '👤', createdAt: new Date(), ...(refMsg ? { replyTo: { id:refMsg._id, user:refMsg.user, text:String(refMsg.text).slice(0,110) } } : {}) };
+      // URLs de avatar derivadas apenas de metadados confiáveis salvos pelo servidor.
+      // Não permite URLs arbitrárias do cliente, mantendo compatibilidade com o emoji legado.
+      const userAvatar108=users.get(socket.userEmail)?.avatar108;
+      const avatarUrl=userAvatar108?.kind==='photo'
+        ?'/api/profile108/photo/'+publicUserId(socket.userEmail)+'?v='+Number(userAvatar108.updatedAt||0)
+        :userAvatar108?.kind==='character'&&/^[a-z0-9-]{1,40}$/.test(String(userAvatar108.id||''))
+          ?'/avatars-108/'+userAvatar108.id+'.svg':null;
+      const msg = { _id: Date.now().toString() + Math.random(), user: socket.userName, userId: publicUserId(socket.userEmail), text: text.trim(), color: socket.userColor, isSystem: false, isAdmin: socket.isAdmin || false, role: roleOf(socket), avatar: socket.userAvatar || '👤', ...(avatarUrl?{avatarUrl}:{}), createdAt: new Date(), ...(refMsg ? { replyTo: { id:refMsg._id, user:refMsg.user, text:String(refMsg.text).slice(0,110) } } : {}) };
       room.chatHistory.push(msg);
       if (room.chatHistory.length > 300) room.chatHistory.shift();
       io.to(currentRoom).emit('chat', msg);
