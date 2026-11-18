@@ -81,3 +81,15 @@
   #sf88ThemeOverlay .sf88-theme-card{transition:none!important;animation:none!important}
   #screen-lobby .sf107-room-card{transition:none!important}
 }
+
+
+/* Sala pública de amigo seguido: só aparece quando Avisos inteligentes está ligado. */
+.sf5-community-layer .sf150-social-live{display:grid;gap:6px;margin:10px 0}
+.sf5-community-layer .sf150-social-live button{display:flex;align-items:center;justify-content:space-between;
+ gap:10px;min-height:41px;width:100%;border:1px solid #605975;border-radius:11px;
+ background:linear-gradient(115deg,#22243b,#1d182a);color:#e8f8f0;
+ padding:9px 11px;font:700 11px/1.4 system-ui;text-align:left;cursor:pointer}
+.sf5-community-layer .sf150-social-live button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sf5-community-layer .sf150-social-live button b{white-space:nowrap;color:#b3e6c9}
+.sf5-community-layer .sf150-social-live button:focus-visible{outline:2px solid #d1fff0;outline-offset:2px}
+@media(max-width:480px){.sf5-community-layer .sf150-social-live button{min-height:45px;gap:5px}}
