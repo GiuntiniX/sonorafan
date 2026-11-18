@@ -247,48 +247,45 @@
  window.sf88ResetCreateTheme=()=>{createChoice='geral';mini('sf88CreateTheme','create');};
  window.sf88ThemeLabel=id=>find(id).name;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
- fetch('/themes/catalog-88.json',{credentials:'same-origin'})
+ // O catálogo é a fonte única: cada tema possui arte HD e miniatura próprias.
+ // Não aplica um manifesto secundário que possa sobrescrever ou repetir imagens.
+ const ASSETS=Object.freeze({
+   geral:['/themes/final-172/indie.webp','/themes/final-172/indie-thumb.webp'],
+   indie:['/themes/final-164/indie.webp','/themes/final-164/indie-thumb.webp'],
+   metal:['/themes/final-164/metal.webp','/themes/final-164/metal-thumb.webp'],
+   emo:['/themes/final-164/emo.webp','/themes/final-164/emo-thumb.webp'],
+   mpb:['/themes/final-164/mpb.webp','/themes/final-164/mpb-thumb.webp'],
+   eletronica:['/themes/final-164/eletronica.webp','/themes/final-164/eletronica-thumb.webp'],
+   rock:['/themes/final-164/rock.webp','/themes/final-164/rock-thumb.webp'],
+   pop:['/themes/final-164/pop.webp','/themes/final-164/pop-thumb.webp'],
+   rap:['/themes/final-171/rap.webp','/themes/final-171/rap-thumb.webp'],
+   funk:['/themes/final-169/funk.webp','/themes/final-169/funk-thumb.webp'],
+   pagode:['/themes/final-170/pagode.webp','/themes/final-170/pagode-thumb.webp'],
+   sertanejo:['/themes/hd-175/sertanejo.svg','/themes/hd-175/sertanejo.svg'],
+   reggae:['/themes/final-170/reggae.webp','/themes/final-170/reggae-thumb.webp'],
+   jazz:['/themes/final-170/jazz.webp','/themes/final-170/jazz-thumb.webp'],
+   forro:['/themes/final-170/forro.webp','/themes/final-170/forro-thumb.webp']
+ });
+ const themeRevision='176';
+ const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
+ fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'no-store'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
    .then(items=>{
-     if(!Array.isArray(items)||items.length===0)return;
-     const valid=items.filter(t=>KNOWN_THEMES.has(t.id)&&/^#[0-9a-fA-F]{6}$/.test(t.primary)&&/^#[0-9a-fA-F]{6}$/.test(t.secondary)&&/^#[0-9a-fA-F]{6}$/.test(t.bg)&&/^#[0-9a-fA-F]{6}$/.test(t.text)&&(t.id==='geral' ? t.art==='/themes/final-172/indie.webp'&&t.thumbnail==='/themes/final-172/indie-thumb.webp' : (t.id==='sertanejo' ? t.art==='/themes/hd-175/sertanejo.svg'&&t.thumbnail===t.art : t.art==='/themes/illustrations/'+t.id+'.webp')));
-     if(!valid.length)return;
-     themes=valid;byId=new Map(themes.map(x=>[x.id,x]));
+     if(!Array.isArray(items))throw new Error('Catálogo inválido');
+     const valid=items.filter(t=>{
+       const expected=ASSETS[t?.id];
+       return expected && t.art===expected[0] && t.thumbnail===expected[1] &&
+         ['primary','secondary','bg','text'].every(key=>/^#[0-9a-fA-F]{6}$/.test(t[key]));
+     });
+     if(valid.length!==KNOWN_THEMES.size || new Set(valid.map(t=>t.id)).size!==KNOWN_THEMES.size){
+       throw new Error('Catálogo incompleto ou inconsistente');
+     }
+     themes=valid.map(t=>({...t,art:assetUrl(t.art),thumbnail:assetUrl(t.thumbnail)}));
+     byId=new Map(themes.map(t=>[t.id,t]));
      createChoice=safe(createChoice);editChoice=safe(editChoice);
      if(roomSlug)personalOverride=getLocal(roomSlug);
      mini('sf88CreateTheme','create');mini('sf88EditTheme','edit');
      if($('sf88ThemeOverlay')?.hidden===false)drawModal();
-     if(roomSlug)skin();
-     // Catálogo incremental 164–172; o tema padrão usa a mesma arte verificada do festival Indie.
-     // Sem o manifest no servidor, o catálogo anterior continua válido e sem imagens quebradas.
-     fetch('/themes/final-164/manifest.json',{credentials:'same-origin',cache:'no-store'})
-       .then(response=>{if(!response.ok)throw new Error('Artes finais não publicadas');return response.json();})
-       .then(async entries=>{
-         if(!Array.isArray(entries))return;
-         const supported=[...KNOWN_THEMES].filter(id=>id!=='geral'&&id!=='indie');
-         const upgraded=new Set(['pagode','sertanejo','reggae','jazz','forro']);
-         const valid=entries.filter(entry=>{
-           if(!entry||!supported.includes(entry.id))return false;
-           const folder=entry.id==='rap'?'final-171':upgraded.has(entry.id)?'final-170':entry.id==='funk'?'final-169':'final-164';
-           return entry.art==='/themes/'+folder+'/'+entry.id+'.webp'&&
-             entry.thumbnail==='/themes/'+folder+'/'+entry.id+'-thumb.webp';
-         });
-         if(valid.length!==supported.length||new Set(valid.map(x=>x.id)).size!==supported.length)return;
-         const loadImage=src=>new Promise((resolve,reject)=>{
-           const picture=new Image();
-           picture.onload=()=>resolve();
-           picture.onerror=()=>reject(new Error('Arte indisponível: '+src));
-           picture.src=src;
-         });
-         // Só altera o catálogo quando todas as 14 artes e miniaturas estiverem acessíveis.
-         await Promise.all(valid.flatMap(entry=>[loadImage(entry.art),loadImage(entry.thumbnail)]));
-         valid.forEach(entry=>{
-           const theme=byId.get(entry.id);
-           if(theme){theme.art=entry.art;theme.thumbnail=entry.thumbnail;}
-         });
-         mini('sf88CreateTheme','create');mini('sf88EditTheme','edit');
-         if($('sf88ThemeOverlay')?.hidden===false)drawModal();
-         if(roomSlug)skin();
-       }).catch(()=>{});
-   }).catch(()=>{});
+     skin();
+   }).catch(err=>{console.error('[SonoraFan] Falha ao carregar artes dos temas:',err);});
 })();
