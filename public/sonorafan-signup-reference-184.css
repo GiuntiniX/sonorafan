@@ -66,3 +66,61 @@
 #signupModal.sf184-image-ready .sf123-back-home{left:55.7%!important;top:89.4%!important;width:14%!important;pointer-events:auto!important;background:transparent!important;border:0!important}
 #signupModal.sf184-image-ready :is(input,button):focus-visible{outline:2px solid #ff008c!important;outline-offset:2px!important}
 }
+
+/* v184.2 — neutraliza definitivamente o placeholder impresso na arte
+   e qualquer estilo antigo de foco, mantendo o conteúdo digitado legível. */
+@media (min-width:1050px) and (min-height:650px){
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field,
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field:focus-within{
+   background:#fff!important;
+   border:1px solid #e0d7db!important;
+   border-radius:10px!important;
+   box-shadow:none!important;
+   outline:0!important;
+   width:calc(100% + .9cqw)!important;
+   position:relative!important;
+   isolation:isolate!important;
+ }
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field input,
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field input:focus,
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field input:focus-visible{
+   background:#fff!important;
+   background-image:none!important;
+   border:0!important;
+   outline:0!important;
+   box-shadow:none!important;
+   opacity:1!important;
+   z-index:1!important;
+   position:relative!important;
+   -webkit-text-fill-color:#251522!important;
+   color:#251522!important;
+   caret-color:#251522!important;
+   padding:0 12px!important;
+ }
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field input::placeholder{
+   opacity:1!important;
+   color:#9c929a!important;
+   -webkit-text-fill-color:#9c929a!important;
+ }
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field .sf123-eye{
+   position:relative!important;
+   z-index:2!important;
+   background:#fff!important;
+   color:#33262f!important;
+   font-size:14px!important;
+   border:0!important;
+   outline:0!important;
+   box-shadow:none!important;
+ }
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field input:-webkit-autofill,
+ #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field input:-webkit-autofill:focus{
+   -webkit-box-shadow:0 0 0 1000px #fff inset!important;
+   box-shadow:0 0 0 1000px #fff inset!important;
+   -webkit-text-fill-color:#251522!important;
+ }
+ #signupModal.sf184-image-ready .sf123-back-home{
+   display:block!important;
+   text-decoration:none!important;
+   cursor:pointer!important;
+ }
+}
