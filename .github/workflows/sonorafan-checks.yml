@@ -38,6 +38,11 @@ jobs:
           node --check sonorafan-profile-108.js
           node --check public/sonorafan-profile-108.js
           node --check public/sonorafan-profile-library-112.js
+          node --check avatar-catalog-60.js
+          node --check ranking-60.js
+          node --check public/sonorafan-club-45.js
+          node --check public/sonorafan-ranking-60.js
+          node --check public/sonorafan-ux-50.js
           node --check room-genres-109.js
           node --check public/sonorafan-room-genres-109.js
           node --check public/sonorafan-community-110.js
