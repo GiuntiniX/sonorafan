@@ -322,7 +322,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await db.runTransaction(async tx=>{
         const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();
-        if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador administra moderadores.');
+        if(data.ownerId!==me.id)throwHttp(403,'Somente quem criou o Fan Club pode compartilhar a administração.');
         if(userId===data.ownerId)throwHttp(400,'O criador já administra a comunidade.');
         if(enabled&&!unique(data.memberIds).includes(userId))throwHttp(400,'Escolha um membro ativo.');
         const next=unique(data.moderatorIds).filter(x=>x!==userId);
