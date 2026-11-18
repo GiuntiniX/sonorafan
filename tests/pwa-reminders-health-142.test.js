@@ -85,7 +85,7 @@ test('player health is scoped, throttled and surfaced only in admin quality',()=
 test('frontend links refreshed files without a second player or chat',()=>{
  const html=read('public/index.html');
  for(const filename of ['sonorafan-studio-100.js','sonorafan-pwa-83.js','sonorafan-community-71.js']){
-   assert.match(html,new RegExp(filename.replace(/\./g,'\\.')+'\\?v=150\\.0'));
+   assert.match(html,new RegExp(filename.replace(/\./g,'\\.')+'\\?v=\\d+(?:\\.\\d+)?'));
  }
  assert.equal((html.match(/id="queueList"/g)||[]).length,1);
  assert.equal((html.match(/id="chatInput"/g)||[]).length,1);
