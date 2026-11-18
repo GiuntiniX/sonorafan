@@ -82,7 +82,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     return {id,...p,title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
       pinned:id===data.pinnedPostId,likeCount:unique(p.likedBy).length,
       liked:unique(p.likedBy).includes(me.id),favorite:unique(profile.favorites).includes(id),
-      unread:!Number(profile.readAt?.[id])||Number(profile.readAt[id])<Number(p.lastActivityAt||p.createdAt||0),
+      unread:!Number(profile.readAt?.[id])||
+        Number(profile.readAt[id])<Number(p.lastActivityAt||p.createdAt||0)||
+        Number(profile.readReplyCounts?.[id]||0)<Number(p.replyCount||0),
       replyCount:Math.max(0,Number(p.replyCount)||0),
       canResolve:p.authorId===me.id||canModerate(data,me),
       resolved:!!p.resolved,bestCommentId:p.bestCommentId||null,
@@ -447,8 +449,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
           delete readAt[keys[0]];
         }
         readAt[req.params.postId]=Math.max(Date.now(),Number(post.data().lastActivityAt||post.data().createdAt)||0);
-        tx.set(profileRef,{readAt},{merge:true});
-        return {...previous,readAt};
+        const readReplyCounts={...(previous.readReplyCounts||{}),
+          [req.params.postId]:Math.max(0,Number(post.data().replyCount)||0)};
+        tx.set(profileRef,{readAt,readReplyCounts},{merge:true});
+        return {...previous,readAt,readReplyCounts};
       });
       const result=forumPost(post,data,me,profile);
       res.json({post:result,permalink:'#fanclub/'+req.params.id+'/topic/'+req.params.postId});
