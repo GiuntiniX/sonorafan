@@ -49,38 +49,38 @@
   },
   {
     "id": "funk",
-    "art": "/themes/final-164/funk.webp",
-    "thumbnail": "/themes/final-164/funk-thumb.webp",
-    "source": "composição coletiva ampliada"
+    "art": "/themes/final-169/funk.webp",
+    "thumbnail": "/themes/final-169/funk-thumb.webp",
+    "source": "arte individual recriada em alta resolução"
   },
   {
     "id": "pagode",
-    "art": "/themes/final-164/pagode.webp",
-    "thumbnail": "/themes/final-164/pagode-thumb.webp",
-    "source": "composição coletiva ampliada"
+    "art": "/themes/final-169/pagode.webp",
+    "thumbnail": "/themes/final-169/pagode-thumb.webp",
+    "source": "tratamento de nitidez e contraste de arte anterior"
   },
   {
     "id": "sertanejo",
-    "art": "/themes/final-164/sertanejo.webp",
-    "thumbnail": "/themes/final-164/sertanejo-thumb.webp",
-    "source": "composição coletiva ampliada"
+    "art": "/themes/final-169/sertanejo.webp",
+    "thumbnail": "/themes/final-169/sertanejo-thumb.webp",
+    "source": "tratamento de nitidez e contraste de arte anterior"
   },
   {
     "id": "reggae",
-    "art": "/themes/final-164/reggae.webp",
-    "thumbnail": "/themes/final-164/reggae-thumb.webp",
-    "source": "composição coletiva ampliada"
+    "art": "/themes/final-169/reggae.webp",
+    "thumbnail": "/themes/final-169/reggae-thumb.webp",
+    "source": "tratamento de nitidez e contraste de arte anterior"
   },
   {
     "id": "jazz",
-    "art": "/themes/final-164/jazz.webp",
-    "thumbnail": "/themes/final-164/jazz-thumb.webp",
-    "source": "composição coletiva ampliada"
+    "art": "/themes/final-169/jazz.webp",
+    "thumbnail": "/themes/final-169/jazz-thumb.webp",
+    "source": "tratamento de nitidez e contraste de arte anterior"
   },
   {
     "id": "forro",
-    "art": "/themes/final-164/forro.webp",
-    "thumbnail": "/themes/final-164/forro-thumb.webp",
-    "source": "composição coletiva ampliada"
+    "art": "/themes/final-169/forro.webp",
+    "thumbnail": "/themes/final-169/forro-thumb.webp",
+    "source": "tratamento de nitidez e contraste de arte anterior"
   }
 ]
