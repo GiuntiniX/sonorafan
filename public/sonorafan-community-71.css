@@ -281,3 +281,19 @@
  #sf71ClubDetail .sf170-community-aside{min-width:0}
  #sf71ClubDetail #sf170Topic{max-width:100%;width:100%}
 }
+
+/* Guide da comunidade e indicadores administrativos sem painéis duplicados. */
+#sf71ClubDetail .sf170-welcome{border:1px solid var(--sf160-line);background:rgba(86,47,108,.13);border-radius:12px;margin:8px 0;padding:10px 13px}
+#sf71ClubDetail .sf170-welcome summary{font-size:12px;font-weight:800;color:#ead6f7;cursor:pointer}
+#sf71ClubDetail .sf170-welcome p{font-size:12px;color:#cdb9db;line-height:1.6;margin:8px 0}
+#sf71ClubDetail .sf170-insights{background:#24192e;border:1px solid var(--sf160-line);border-radius:12px;padding:14px;margin:14px 0}
+#sf71ClubDetail .sf170-insights h4{margin:0 0 10px}
+#sf71ClubDetail .sf170-insights>div{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:8px}
+#sf71ClubDetail .sf170-insights span{padding:9px;background:#32203e;border-radius:8px;font-size:12px;color:#f4e8fc}
+#sf71ClubDetail .sf170-insights>small{display:block;color:#a990bd;margin-top:10px}
+#sf71ClubDetail .sf170-blocked{margin:15px 0;padding-top:10px;border-top:1px solid var(--sf160-line)}
+#sf71ClubDetail .sf170-blocked h4{color:#f7d2d2}
+#sf71ClubDetail .sf160-extra-panel .sf71-club-event{margin-top:12px}
+#sf71ClubDetail .sf160-extra-panel .sf71-club-event p{color:#c9b4d5;font-size:12px}
+#sf71ClubDetail .sf160-extra-panel .sf141-event-actions button{min-height:42px}
+@media(max-width:760px){#sf71ClubDetail .sf170-insights>div{grid-template-columns:repeat(2,minmax(0,1fr))}#sf71ClubDetail .sf170-welcome{margin:6px 0}}
