@@ -73,7 +73,7 @@ test('Fan Club mantém foco na comunidade, sem compartilhamento musical no mural
  const js=read('public/sonorafan-community-71.js');
  const server=read('fan-clubs-71.js');
  const studio=read('public/sonorafan-studio-100.js');
- assert.match(js,/\/api\/fan-clubs\/');
+ assert(js.includes('/api/fan-clubs/'));
  assert.match(js,/data-sf160-comments/);
  assert.match(js,/data-sf160-create-poll/);
  assert.match(js,/data-sf160-pane/);
