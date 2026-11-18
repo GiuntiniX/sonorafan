@@ -2,13 +2,13 @@
  'use strict';
  const $=id=>document.getElementById(id);
  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const avatars=[
+ let avatars=[
   ['indie','Indie'],['pop','Pop'],['eletronico','Eletrônico'],['rock','Rock'],
   ['festival','Festival'],['rapper','Rap'],['jazz','Jazz'],['mpb','MPB']
  ];
  const styles=['Rock','Pop','Indie','Eletrônica','Funk','MPB','Hip-hop','Jazz','Reggae','K-pop','Clássica','Sertanejo'];
  const state={profile:null,avatar:null,selectedTab:'rooms',rooms:[],mixtapes:[],clubs:[],busy:false,
-   avatarExpanded:false,lastOpen:0,requestId:0,photoBusy:false};
+   avatarExpanded:false,avatarCategory:'all',avatarQuery:'',avatarItems:[],lastOpen:0,requestId:0,photoBusy:false};
  const modal=()=>$('sf43ProfileModal');
  const active=()=>modal()?.classList.contains('active');
  const codeAllowed=id=>/^[a-z0-9_-]{1,75}$/i.test(String(id||''));
@@ -69,8 +69,17 @@
       <button type="button" id="sf108DefaultAvatar" class="sf108-text-button">Usar avatar padrão</button>`;
   const right=document.createElement('div');right.className='sf108-studio-right';
   right.innerHTML=`<div class="sf108-studio-subhead"><strong>♫ Avatares SonoraFan</strong><small>Personagens originais de gêneros musicais</small></div>
+      <div class="sf600-avatar-controls">
+        <label for="sf600AvatarCategory">Estilo<select id="sf600AvatarCategory">
+          <option value="all">Todos os personagens</option><option value="identity">Identidade e expressão</option>
+          <option value="music">Música</option><option value="brazil">Brasil e culturas urbanas</option>
+          <option value="future">Robôs e cyberpunk</option><option value="fantasy">Fantasia</option>
+          <option value="creative">Criativos e tropicais</option></select></label>
+        <label for="sf600AvatarSearch">Buscar personagem<input type="search" id="sf600AvatarSearch" placeholder="Robô, funk, indie, tropical…"></label>
+      </div>
+      <p class="sf600-avatar-count" id="sf600AvatarCount" role="status" aria-live="polite">40 personagens originais disponíveis</p>
       <div class="sf108-avatar-grid" id="sf108AvatarGrid"></div>
-      <button type="button" class="sf108-gallery-more" id="sf108MoreAvatars">＋ Ver mais personagens</button>`;
+      <button type="button" class="sf108-gallery-more" id="sf108MoreAvatars">＋ Ver todos os personagens</button>`;
   content.append(left,right);studio.append(content);
   const mid=document.createElement('div');mid.className='sf108-duo';mid.append(bioCard,moment);
   const xp=body.querySelector('.sf50-profile-club');
@@ -103,11 +112,7 @@
   // Use existing dynamic XP, stats, ids and save controls; never duplicate them.
   hero?.after(main,studio,mid,milestones,recent,clubs,controls);
   originalStats?.remove();
-  if(studio){
-   $('sf108AvatarGrid').innerHTML=avatars.map(([id,label],i)=>`<button type="button" data-sf108-avatar="${id}" class="sf108-avatar-tile" ${i>=5?'hidden':''} aria-pressed="false">
-     <img src="/avatars-108/${id}.svg" alt="Personagem ilustrado ${label}" loading="lazy">
-     <span>${esc(label)}</span></button>`).join('');
-  }
+  if(studio)renderAvatarCatalog();
   const genreList=$('sf43StyleChips');
   genreList?.addEventListener('click',event=>{
    const btn=event.target.closest('.sf43-style-chip');if(!btn)return;
@@ -116,11 +121,9 @@
    btn.classList.toggle('is-on',!selected);btn.setAttribute('aria-pressed',String(!selected));
   });
   document.querySelector('#sf43ProfileAvatar')?.setAttribute('aria-label','Seu avatar');
-  $('sf108MoreAvatars')?.addEventListener('click',()=>{
-   state.avatarExpanded=!state.avatarExpanded;
-   $('sf108AvatarGrid')?.querySelectorAll('.sf108-avatar-tile').forEach((b,i)=>b.hidden=!state.avatarExpanded&&i>=5);
-   $('sf108MoreAvatars').textContent=state.avatarExpanded?'Ver menos personagens':'＋ Ver mais personagens';
-  });
+  $('sf108MoreAvatars')?.addEventListener('click',()=>{state.avatarExpanded=!state.avatarExpanded;renderAvatarCatalog();});
+  $('sf600AvatarCategory')?.addEventListener('change',e=>{state.avatarCategory=e.target.value;renderAvatarCatalog();});
+  $('sf600AvatarSearch')?.addEventListener('input',e=>{state.avatarQuery=String(e.target.value||'').trim().slice(0,50);renderAvatarCatalog();});
   $('sf108EditAvatar')?.addEventListener('click',()=>focusStudio());
   $('sf108ChooseCharacter')?.addEventListener('click',()=>{$('sf108AvatarGrid')?.querySelector('button')?.focus();});
   $('sf108UploadButton')?.addEventListener('click',()=>{$('sf108FileInput')?.click();});
@@ -151,6 +154,33 @@
    save.addEventListener('click',saveProfile);
   }
   // Prevent the original local-only save button from hiding server failures.
+ }
+ function renderAvatarCatalog(){
+   const grid=$('sf108AvatarGrid');if(!grid)return;
+   const entries=state.avatarItems.length?state.avatarItems:avatars.map(([id,label])=>({id,label,category:'music',description:'Personagem ilustrado original'}));
+   const query=state.avatarQuery.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+   const filtered=entries.filter(a=>{
+     const plain=String(a.label+' '+a.description).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+     return (state.avatarCategory==='all'||a.category===state.avatarCategory)&&(!query||plain.includes(query));
+   });
+   const visible=state.avatarExpanded||state.avatarCategory!=='all'||query?filtered:filtered.slice(0,8);
+   grid.innerHTML=visible.map(a=>`<button type="button" data-sf108-avatar="${esc(a.id)}" class="sf108-avatar-tile"
+       aria-pressed="${state.avatar?.id===a.id}" title="${esc(a.description)}">
+       <img src="/avatars-108/${encodeURIComponent(a.id)}.svg" alt="${esc(a.description)}" loading="lazy">
+       <span>${esc(a.label)}</span></button>`).join('')||'<p class="sf108-empty">Nenhum personagem encontrado para este filtro.</p>';
+   const count=$('sf600AvatarCount');if(count)count.textContent=`${filtered.length} personagens encontrados · ${entries.length} disponíveis · qualquer pessoa pode escolher qualquer visual`;
+   const more=$('sf108MoreAvatars');if(more){
+     more.hidden=state.avatarCategory!=='all'||!!query||filtered.length<=8;
+     more.textContent=state.avatarExpanded?'Ver menos personagens':'＋ Ver todos os personagens';
+   }
+ }
+ async function loadAvatarCatalog(){
+   try{
+     const result=await api('/api/profile108/characters');
+     if(!Array.isArray(result.items))throw Error('Catálogo indisponível.');
+     state.avatarItems=result.items.filter(a=>a&&codeAllowed(a.id)&&typeof a.label==='string'&&typeof a.category==='string').slice(0,40);
+     renderAvatarCatalog();
+   }catch(e){renderAvatarCatalog();message('Usando personagens existentes. A galeria completa está temporariamente indisponível.',true);}
  }
  function focusStudio(){
   if(!active()&&typeof window.sf5OpenProfile==='function')window.sf5OpenProfile();
@@ -323,6 +353,7 @@
   const tasks=[
    api('/api/community/profile').then(v=>{if(req===state.requestId)populateProfile(v);}),
    api('/api/profile108/avatar').then(v=>{if(req===state.requestId){state.avatar=v;syncAvatar();}}),
+   loadAvatarCatalog(),
    api('/api/rooms').then(v=>{if(req===state.requestId){state.rooms=Array.isArray(v)?v:[];renderRecent();}}),
    api('/api/studio100/mixtapes').then(v=>{if(req===state.requestId){state.mixtapes=v.items||[];renderRecent();}}),
    api('/api/fan-clubs?mine=true').then(v=>{if(req===state.requestId){state.clubs=v.clubs||[];renderClubs();}})
