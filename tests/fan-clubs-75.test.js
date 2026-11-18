@@ -5,7 +5,7 @@ const {installFanClubs71,clean}=require('../fan-clubs-71');
 
 function mock(gamification45){
  const docs=new Map(),routes=[];let autoPostId=0;
- function ref(key){return {key, async get(){const d=docs.get(key);return {exists:!!d,data:()=>d?structuredClone(d):undefined,ref:this};},
+ function ref(key){return {key,id:key.split('/').at(-1), async get(){const d=docs.get(key);return {exists:!!d,data:()=>d?structuredClone(d):undefined,ref:this};},
    async create(data){if(docs.has(key))throw Error('exists');docs.set(key,structuredClone(data));},
    async set(data){docs.set(key,structuredClone(data));},
    async update(data){docs.set(key,{...docs.get(key),...structuredClone(data)});},
