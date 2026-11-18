@@ -11,6 +11,10 @@
     rooms: ['Salas','Supervisione as comunidades e a reprodução.'],
     queues: ['Filas musicais','Acompanhe as músicas da comunidade.'],
     moderation: ['Moderação','Consulte sanções e mantenha a comunidade segura.'],
+    reports: ['Denúncias','Analise e resolva denúncias do chat com registro de auditoria.'],
+    music: ['Música & Insights','Indicadores musicais realmente registrados no servidor.'],
+    system: ['Saúde da plataforma','Diagnóstico instantâneo de serviços e conexões.'],
+    insights: ['Alertas operacionais','Regras transparentes sobre os contadores disponíveis.'],
     audit: ['Auditoria','Acompanhe as ações administrativas registradas.'],
     settings: ['Operação','Comunicação e manutenção da plataforma.']
   };
@@ -45,6 +49,7 @@
     $('sf12LiveRooms').innerHTML = el(rooms.map(r => `<div class="sf12-row"><div><strong>${esc(r.emoji||'♫')} ${esc(r.name)}</strong><small>${r.isPrivate?'🔒 Privada · ':''}${esc(r.now||'Nenhuma música tocando')}</small></div><span class="sf12-pill ${r.listeners?'live':''}">${Number(r.listeners||0)} ouvintes</span></div>`).join(''),'Nenhuma sala disponível.');
     $('sf12RecentAudit').innerHTML = el(state.logs.slice(0,6).map(l=>`<div class="sf12-row"><div><strong>${esc(l.action)}</strong><small>${esc(l.detail||'Sem detalhes')} · ${dt(l.t)}</small></div></div>`).join(''),'Nenhuma ação recente nesta instância.');
     $('sf12CheckedAt').textContent = s.checkedAt ? 'Atualizado em '+dt(s.checkedAt) : 'Aguardando atualização';
+    window.sf13Overview?.(s,state.rooms,state.logs);
   }
   function renderUsers() {
     const term = ($('sf12UserSearch').value||'').toLowerCase().trim();
@@ -72,6 +77,10 @@
     rooms:async()=>{state.rooms=await json('/api/admin/rooms');renderRooms();},
     queues:async()=>{state.rooms=await json('/api/admin/rooms');renderQueues();},
     moderation:async()=>{state.sanctions=await json('/api/admin/sanctions');renderModeration();},
+    reports:async()=>window.sf13Load?.('reports'),
+    music:async()=>window.sf13Load?.('music'),
+    system:async()=>window.sf13Load?.('system'),
+    insights:async()=>window.sf13Load?.('insights'),
     audit:async()=>{state.logs=await json('/api/admin/log');renderAudit();},
     settings:async()=>{}
   };
@@ -138,5 +147,5 @@
   observer.observe(panel,{attributes:true,attributeFilter:['class']});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('active')){if(typeof closeAdmin==='function')closeAdmin();}});
   // Refresh while open only; browser tab hidden does not poll.
-  setInterval(()=>{if(panel.classList.contains('active')&&!document.hidden&&state.view==='overview')load('overview');},30000);
+  setInterval(()=>{if(panel.classList.contains('active')&&!document.hidden&&['overview','system','music','insights'].includes(state.view))load(state.view);},30000);
 })();
