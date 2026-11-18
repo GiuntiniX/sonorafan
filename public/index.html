@@ -1470,7 +1470,7 @@
   <link rel="stylesheet" href="/sonorafan-experience-150.css?v=150.1">
   <link rel="stylesheet" href="/sonorafan-theme-integration-161.css?v=161.0">
   <link rel="stylesheet" href="/sonorafan-theme-gallery-162.css?v=163.0">
-  <link rel="stylesheet" href="/sonorafan-room-menu-167.css?v=167.0">
+  <link rel="stylesheet" href="/sonorafan-room-menu-168.css?v=168.0">
   <link rel="stylesheet" href="/sonorafan-ranking-60.css?v=600.0">
   <link rel="stylesheet" href="/admin-control-13.css?v=13.1">
 </head>
@@ -2138,11 +2138,21 @@
         </div>
 <div class="header-right sf9-room-header-actions">
           <div class="sf167-room-menu" id="sf167RoomMenu">
-            <button id="sf167MenuTrigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="sf167MenuPanel" title="Abrir opções da sala"><span class="sf167-icon" aria-hidden="true">✦</span><span>Menu da Sala</span><span class="sf167-arrow" aria-hidden="true">⌄</span></button>
+            <button id="sf167MenuTrigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="sf167MenuPanel" title="Abrir opções da sala"><span class="sf167-icon" aria-hidden="true">☰</span><span>Menu da Sala</span><span class="sf167-arrow" aria-hidden="true">⌄</span></button>
             <div id="sf167MenuPanel" aria-label="Opções da sala" hidden>
               <div class="sf167-menu-heading">PERSONALIZE SUA EXPERIÊNCIA</div>
               <button type="button" class="sf167-menu-action" id="sf88RoomThemeButton" data-sf167-action="theme" aria-haspopup="dialog" aria-controls="sf88ThemeOverlay" aria-expanded="false" title="Escolher atmosfera da sala"><span class="sf167-menu-symbol" aria-hidden="true">🎨</span><span class="sf167-menu-copy"><strong>Temas e atmosferas</strong><small id="sf88ThemeName">Geral · Original</small></span></button>
               <button type="button" class="sf167-menu-action" data-sf167-action="invite" title="Copiar convite da sala"><span class="sf167-menu-symbol" aria-hidden="true">✉</span><span class="sf167-menu-copy"><strong>Convidar amigos</strong><small>Copiar link da sala</small></span></button>
+              <div class="sf168-menu-separator" role="separator"></div>
+              <div class="sf167-menu-heading">MÚSICA E COMUNIDADE</div>
+              <button type="button" class="sf167-menu-action" data-sf167-action="favorites" onclick="toggleFavorites()"><span class="sf167-menu-symbol" aria-hidden="true">♡</span><span class="sf167-menu-copy"><strong>Minhas favoritas</strong><small>Ver músicas salvas</small></span></button>
+              <button type="button" class="sf167-menu-action" data-sf167-action="queue" onclick="copyQueueIds()"><span class="sf167-menu-symbol" aria-hidden="true">☷</span><span class="sf167-menu-copy"><strong>Copiar fila</strong><small>Copiar músicas da sala</small></span></button>
+              <button type="button" class="sf167-menu-action" data-sf167-action="messages" onclick="window.sf53OpenInbox?.()"><span class="sf167-menu-symbol" aria-hidden="true">✉</span><span class="sf167-menu-copy"><strong>Mensagens privadas</strong><small>Abrir conversas</small></span></button>
+              <button type="button" class="sf167-menu-action" data-sf167-action="profile" onclick="window.sf5OpenProfile?.()"><span class="sf167-menu-symbol" aria-hidden="true">◉</span><span class="sf167-menu-copy"><strong>Meu perfil</strong><small>Ver seu perfil</small></span></button>
+              <div class="sf168-menu-separator" role="separator"></div>
+              <div class="sf167-menu-heading">SALA E SUPORTE</div>
+              <button type="button" class="sf167-menu-action" data-sf167-action="settings" onclick="openRoomCfg()"><span class="sf167-menu-symbol" aria-hidden="true">⚙</span><span class="sf167-menu-copy"><strong>Configurações da sala</strong><small>Personalização e controles</small></span></button>
+              <button type="button" class="sf167-menu-action" data-sf167-action="help" onclick="openTutorial(0)"><span class="sf167-menu-symbol" aria-hidden="true">?</span><span class="sf167-menu-copy"><strong>Ajuda / Tour</strong><small>Conheça os recursos</small></span></button>
             </div>
           </div>
           <button class="sf64-room-menu-toggle" id="sf64RoomSidebarToggle" type="button" aria-controls="sf64RoomSidebar" aria-expanded="false" aria-label="Menu lateral antigo (inativo)"><span aria-hidden="true">☰</span><span id="sf64RoomSidebarToggleLabel">Menu</span></button>
@@ -2151,7 +2161,7 @@
 
           <span id="adminBadge" class="admin-badge hidden">Admin</span>
         </div>
-          <div class="sf116-menu" id="sf116More">
+          <div class="sf116-menu" id="sf116More" hidden aria-hidden="true" inert>
             <button class="sf116-more-trigger" id="sf116MoreButton" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="sf116MorePanel" aria-label="Abrir menu da sala" title="Abrir menu da sala"><span aria-hidden="true">☰</span></button>
             <div class="sf116-more-panel" id="sf116MorePanel" role="menu" aria-label="Mais opções da sala" hidden>
               <button type="button" role="menuitem" onclick="toggleFavorites()">♡ Minhas favoritas</button>
@@ -4899,7 +4909,7 @@ function openRoomCfg() {
   
   <script defer src="/sonorafan-pwa-83.js?v=142.0"></script>
   <script defer src="/sonorafan-room-themes-88.js?v=167.0"></script>
-  <script defer src="/sonorafan-room-menu-167.js?v=167.0"></script>
+  <script defer src="/sonorafan-room-menu-167.js?v=168.0"></script>
   <script defer src="/sonorafan-lobby-account-92.js?v=92"></script>
   <script defer src="/sonorafan-room-ux-93.js?v=93"></script>
   <script defer src="/sonorafan-queue-tools-95.js?v=140.0"></script>
