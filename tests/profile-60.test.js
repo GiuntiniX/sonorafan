@@ -99,3 +99,39 @@ test('Perfil 6.0: tab layout respects guide, full-screen mobile and reduced moti
  }
  assert(css.includes('sf600-missions'));
 });
+
+test('Perfil: avatar preview and actions stay together without detached CTA',()=>{
+ const js=read('public/sonorafan-profile-108.js');
+ const css=read('public/sonorafan-profile-60.css');
+ assert(js.includes('class="sf108-avatar-summary"'));
+ assert(js.includes('class="sf108-avatar-summary-copy"'));
+ assert(js.includes('Sua imagem atual'));
+ assert(js.includes('Enviar minha foto'));
+ assert(js.includes('Escolher personagem'));
+ assert(js.includes('sf108GalleryHeading'));
+ assert(!js.includes('id="sf108EditAvatar"'),'old detached bottom button removed');
+ assert(js.includes("window.sf112OpenProfile('avatars')"));
+ assert(js.includes('chooseAvatar'));
+ assert(js.includes('sf108FileInput'));
+ for(const selector of [
+   '.sf108-avatar-summary','.sf108-avatar-choices','.sf108-studio-left',
+   '.sf108-studio-right','#sf108AvatarPreview','#sf108DefaultAvatar',
+   '.sf108-avatar-grid','.sf108-identity'
+ ]){
+   assert(css.includes(selector),'Missing profile layout '+selector);
+ }
+ assert(css.includes('align-content:start'),'avatar action layout must not stretch across available height');
+ assert(css.includes('grid-row:auto!important'),'preview must not span artificial grid rows');
+ assert(css.includes('.sf112-tab-profile #sf108Studio'),'avatar studio belongs in its own tab');
+ assert(css.includes('max-width:390px'),'compact mobile portrait layout');
+});
+
+test('Perfil: avatar changes preserve authenticated upload and selected gallery character',()=>{
+ const js=read('public/sonorafan-profile-108.js');
+ assert(js.includes("api('/api/profile108/avatar'"));
+ assert(js.includes('state.avatar=response.avatar;syncAvatar()'));
+ assert(js.includes('state.avatar=res.avatar;syncAvatar()'));
+ assert(js.includes("window.sf112SwitchProfileTab?.('avatars')"));
+ assert(js.includes("aria-pressed="));
+ assert(js.includes('loading="lazy"'));
+});
