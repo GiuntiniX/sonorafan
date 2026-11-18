@@ -35,6 +35,16 @@
      screen.style.setProperty('--sf88-label',chosen.text);
      screen.style.setProperty('--sf88-art','url("'+chosen.art+'")');
    }
+   // O palco mostra a arte da atmosfera, não a miniatura da música atual.
+   // O catálogo continua sendo a única fonte de imagem para cada tema.
+   const stageBackdrop=$('sf113VisualBackdrop');
+   if(stageBackdrop){
+     const art=chosen.art || FALLBACK.art;
+     if(stageBackdrop.getAttribute('src')!==art){
+       stageBackdrop.dataset.fallback='';
+       stageBackdrop.src=art;
+     }
+   }
    const label=$('sf88ThemeName');
    if(label)label.textContent=chosen.name;
    const switcher=$('sf88RoomThemeButton');
