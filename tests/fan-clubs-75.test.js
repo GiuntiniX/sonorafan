@@ -226,3 +226,45 @@ test('v151: reação é exclusiva de membros e não revela IDs nem concede XP',a
  await m.call('post',`/api/fan-clubs/${id}/moderation`,{userId:'b'.repeat(24),action:'block'});
  assert.equal((await m.call('post',url,{},'leo@exemplo.com')).code,403);
 });
+
+test('v160: comentários exigem participação, respeitam autoria e moderação',async()=>{
+ const m=mock(),id=await create(m);
+ const post=(await m.call('post',`/api/fan-clubs/${id}/posts`,{text:'Minha música favorita'})).data.post;
+ const base=`/api/fan-clubs/${id}/posts/${post.id}/comments`;
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',base,{text:'Legal!'},'leo@exemplo.com')).code,403);
+ await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com');
+ const created=await m.call('post',base,{text:'Ótima recomendação'},'leo@exemplo.com');
+ assert.equal(created.code,201);
+ const result=await m.call('get',base,{},'leo@exemplo.com');
+ assert.equal(result.data.comments.length,1);
+ assert.equal(result.data.comments[0].text,'Ótima recomendação');
+ assert.equal((await m.call('delete',`/api/fan-clubs/${id}/comments/${created.data.comment.id}`,{},'admin@sonora.com')).code,200);
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).data.comments.length,0);
+});
+test('v160: enquete valida opções, uma pessoa só vota uma vez e bloqueio impede voto',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}/polls`;
+ assert.equal((await m.call('post',base,{question:'Melhor música?',options:['X','X']})).code,400);
+ assert.equal((await m.call('post',base,{question:'Melhor música?',options:['Rock','Indie']},'leo@exemplo.com')).code,403);
+ const made=await m.call('post',base,{question:'Qual gênero domina?',options:['Rock','Indie']});
+ assert.equal(made.code,201);
+ const vote=`${base}/${made.data.id}/vote`;
+ assert.equal((await m.call('post',vote,{choice:1},'leo@exemplo.com')).code,403);
+ await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com');
+ assert.equal((await m.call('post',vote,{choice:1},'leo@exemplo.com')).code,200);
+ assert.equal((await m.call('post',vote,{choice:0},'leo@exemplo.com')).code,409);
+ const polls=(await m.call('get',base,{},'leo@exemplo.com')).data.polls;
+ assert.deepEqual(polls[0].counts,[0,1]);assert.equal(polls[0].voted,true);
+ await m.call('post',`/api/fan-clubs/${id}/moderation`,{userId:'b'.repeat(24),action:'block'});
+ assert.equal((await m.call('post',vote,{choice:0},'leo@exemplo.com')).code,403);
+});
+test('v160: música do YouTube aparece somente a membros e é agregada por vídeo',async()=>{
+ const m=mock(),id=await create(m),url=`/api/fan-clubs/${id}/music`;
+ assert.equal((await m.call('get',url,{},'leo@exemplo.com')).code,403);
+ await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com');
+ for(const text of ['♫ https://www.youtube.com/watch?v=dQw4w9WgXcQ','https://youtu.be/dQw4w9WgXcQ'])
+   await m.call('post',`/api/fan-clubs/${id}/posts`,{text});
+ const data=(await m.call('get',url,{},'leo@exemplo.com')).data;
+ assert.equal(data.tracks[0].videoId,'dQw4w9WgXcQ');
+ assert.equal(data.tracks[0].shares,2);
+});
