@@ -101,6 +101,6 @@ test('responsive design keeps the single queue, chat, player and original theme 
  assert.match(css,/#sf95Overlay \.sf150-quality-overview/);
  for(const id of ['queueList','chatInput','roomLayout','sf88ThemeOverlay'])
    assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
- assert.match(html,/sonorafan-experience-150\.css\?v=150\.0/);
+ assert.match(html,/sonorafan-experience-150\.css\?v=150\.1/);
  assert.match(html,/sonorafan-studio-100\.js\?v=150\.0/);
 });
