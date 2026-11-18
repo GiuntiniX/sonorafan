@@ -91,3 +91,34 @@ test('v180: edição da bio e das regras e administração com teto de dois',()=
  assert.match(api,/next.length>2/);
  assert.match(api,/canDelete:ownerOrAdmin/);
 });
+
+test('Forum 6.0 has stable topic routes, nested replies, quotes, tags and follow-up actions',()=>{
+ const js=read('public/sonorafan-community-71.js');
+ const api=read('fan-clubs-71.js');
+ for(const name of ['sf600-topic-title','sf600-tags','sf600-favorite','sf600-unread','sf600-topic-detail',
+   'data-sf600-open','data-sf600-share','data-sf600-reply-to','data-sf600-quote','sf600-related','sf600-back']){
+   assert(js.includes(name),'missing '+name);
+ }
+ assert(js.includes("'#fanclub/'"),'permanent hash links are required');
+ assert(js.includes('handleForumRoute'),'browser deep links need restoration');
+ assert(js.includes('searchForum'),'history search should be server-backed');
+ assert(api.includes("'/api/fan-clubs/:id/forum/search'"));
+ assert(api.includes("'/api/fan-clubs/:id/posts/:postId/favorite'"));
+ assert(api.includes("'/api/fan-clubs/:id/posts/:postId/related'"));
+ assert(api.includes('forumTitle'),'legacy titles must be derived');
+ assert(api.includes('parentId'),'thread references must persist');
+ assert(api.includes('quoteText'),'quotations must be preserved');
+});
+test('Forum 6.0 keeps legacy Fan Club identity, five categories and separate music rooms',()=>{
+ const js=read('public/sonorafan-community-71.js');
+ const api=read('fan-clubs-71.js');
+ const css=read('public/sonorafan-community-71.css');
+ assert(js.includes('sf170CommunityAside'));
+ assert(js.includes('data-sf180-edit-profile'));
+ assert(api.includes('next.length>2'));
+ for(const t of ['conversa','duvida','novidade','evento','ideia'])assert(js.includes(t+':{icon:'));
+ assert.doesNotMatch(js,/data-sf140-share-song|data-sf150-music-filter|musicCard\(/);
+ assert(css.includes('.sf600-topic-detail'));
+ assert(css.includes('.sf600-reply'));
+ assert(css.includes('background:#352441'));
+});
