@@ -265,7 +265,7 @@
          const upgraded=new Set(['pagode','sertanejo','reggae','jazz','forro']);
          const valid=entries.filter(entry=>{
            if(!entry||!supported.includes(entry.id))return false;
-           const folder=upgraded.has(entry.id)?'final-170':entry.id==='funk'?'final-169':'final-164';
+           const folder=entry.id==='rap'?'final-171':upgraded.has(entry.id)?'final-170':entry.id==='funk'?'final-169':'final-164';
            return entry.art==='/themes/'+folder+'/'+entry.id+'.webp'&&
              entry.thumbnail==='/themes/'+folder+'/'+entry.id+'-thumb.webp';
          });
