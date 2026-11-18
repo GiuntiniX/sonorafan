@@ -165,3 +165,64 @@
 .sf151-post-actions .sf151-like[aria-pressed="true"]{border-color:#d59be7;color:#f2c5ff;background:rgba(178,92,212,.14)}
 .sf151-post-actions button:focus-visible{outline:2px solid #f1d1fc;outline-offset:3px}
 @media(max-width:600px){.sf151-post-actions{gap:.4rem}.sf151-post-actions button{min-height:44px;flex:0 1 auto}}
+
+/* Fan Clubs 4.0 — respeita o guide indie existente: grafite, roxo e lima. */
+#sf71ClubDetail{--sf160-bg:#131018;--sf160-panel:#1c1525;--sf160-line:rgba(191,132,213,.27);--sf160-text:#f4eafd;--sf160-muted:#c4b2d1;--sf160-accent:#caff00;color:var(--sf160-text);scroll-margin-top:90px}
+#sf71ClubDetail .sf71-back{margin:8px 0 12px}
+#sf71ClubDetail .sf71-detail-hero{min-height:160px;padding:20px 24px;margin:0;isolation:isolate;overflow:hidden;border:1px solid var(--sf160-line);background-color:#24152e}
+#sf71ClubDetail .sf71-detail-hero .sf73-cover-img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:-2!important;opacity:.6}
+#sf71ClubDetail .sf71-detail-hero::before{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(13,9,21,.96),rgba(13,9,21,.47))}
+#sf71ClubDetail .sf71-detail-desc{font-size:13px;margin:12px 2px;line-height:1.55}
+#sf71ClubDetail .sf160-rules{padding:11px 14px!important;margin:6px 0 10px;border-radius:12px;border:1px solid var(--sf160-line);background:rgba(104,63,124,.13)}
+#sf71ClubDetail .sf160-rules summary{cursor:pointer;font-weight:750;font-size:12px;color:var(--sf160-text)}
+#sf71ClubDetail .sf160-rules p{margin:10px 0 0;color:var(--sf160-muted)}
+#sf71ClubDetail .sf160-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;padding:3px 0 10px;margin-top:8px}
+#sf71ClubDetail .sf160-tabs button{flex:none;padding:10px 14px;border:1px solid var(--sf160-line);border-radius:999px;background:#21172b;color:#e6d8f0;cursor:pointer;font-weight:750;font-size:12px}
+#sf71ClubDetail .sf160-tabs button[aria-selected=true]{color:#141014;background:var(--sf160-accent);border-color:var(--sf160-accent)}
+#sf71ClubDetail .sf71-detail-actions{margin:2px 0 12px;gap:7px}
+#sf71ClubDetail .sf71-detail-columns{grid-template-columns:minmax(0,1.65fr) minmax(255px,.9fr);gap:14px}
+#sf71ClubDetail .sf71-feed,#sf71ClubDetail .sf71-room-list{background:linear-gradient(145deg,#1c1523,#141118);border:1px solid var(--sf160-line);border-radius:15px;padding:17px}
+#sf71ClubDetail .sf71-feed [hidden]{display:none!important}
+#sf71ClubDetail .sf160-feed-tools{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0 8px}
+#sf71ClubDetail .sf160-feed-tools input,#sf71ClubDetail .sf160-feed-tools select{min-height:42px;border:1px solid var(--sf160-line);border-radius:10px;background:#100c17;color:#fff;padding:10px 12px;font:inherit;font-size:12px}
+#sf71ClubDetail .sf160-feed-tools input{flex:1;min-width:160px}
+#sf71ClubDetail .sf160-feed-tools select{max-width:235px}
+#sf71ClubDetail .sf71-post{padding:14px 4px;border-bottom:1px solid var(--sf160-line)}
+#sf71ClubDetail .sf71-post-head{gap:10px}
+#sf71ClubDetail .sf71-post p{line-height:1.6;overflow-wrap:anywhere}
+#sf71ClubDetail .sf160-music-card{display:flex;align-items:center;gap:12px;background:#261b31;border:1px solid var(--sf160-line);border-radius:12px;overflow:hidden;margin:10px 0;padding:8px}
+#sf71ClubDetail .sf160-music-card img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
+#sf71ClubDetail .sf160-music-card div{display:flex;flex-direction:column;gap:6px}
+#sf71ClubDetail .sf160-music-card a,#sf71ClubDetail .sf160-track{color:#d7f799}
+#sf71ClubDetail .sf160-comments{margin-top:10px;border-radius:10px;border:1px solid var(--sf160-line);padding:12px;background:#17111f}
+#sf71ClubDetail .sf160-comments h5{font-size:13px;margin:0 0 10px}
+#sf71ClubDetail .sf160-comment{border-bottom:1px solid var(--sf160-line);padding:9px 0}
+#sf71ClubDetail .sf160-comment p{margin:4px 0}
+#sf71ClubDetail .sf160-comments form{display:flex;gap:8px;margin-top:12px}
+#sf71ClubDetail .sf160-comments input{flex:1;min-width:0;padding:10px;border:1px solid var(--sf160-line);background:#100d16;color:#fff;border-radius:9px}
+#sf71ClubDetail .sf160-comments button,#sf71ClubDetail .sf160-extra-panel button{padding:10px 12px;border-radius:9px;border:1px solid var(--sf160-line);background:#3b234c;color:#fff;cursor:pointer}
+#sf71ClubDetail .sf160-extra-panel{padding:5px 0}
+#sf71ClubDetail .sf160-extra-panel h4{margin:4px 0 10px}
+#sf71ClubDetail .sf160-extra-panel>p{color:var(--sf160-muted)}
+#sf71ClubDetail .sf160-extra-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#sf71ClubDetail .sf160-poll{border:1px solid var(--sf160-line);background:#21172a;border-radius:12px;padding:14px;margin:10px 0}
+#sf71ClubDetail .sf160-poll-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+#sf71ClubDetail .sf160-poll-options button{text-align:left;white-space:normal}
+#sf71ClubDetail .sf160-poll-options small{display:block;margin-top:4px;opacity:.75}
+#sf71ClubDetail .sf160-music-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#sf71ClubDetail .sf160-track{display:flex;align-items:center;gap:10px;background:#21172a;border:1px solid var(--sf160-line);padding:8px;border-radius:12px;text-decoration:none}
+#sf71ClubDetail .sf160-track img{width:86px;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
+#sf71ClubDetail .sf160-track span{min-width:0}
+#sf71ClubDetail .sf160-track small{display:block;color:var(--sf160-muted);margin-top:5px}
+#sf71ClubDetail :is(button,a,input,select,summary):focus-visible{outline:2px solid var(--sf160-accent);outline-offset:3px}
+@media(max-width:760px){
+ #sf71ClubDetail .sf71-detail-hero{min-height:125px;padding:16px}
+ #sf71ClubDetail .sf71-detail-columns{grid-template-columns:minmax(0,1fr)}
+ #sf71ClubDetail .sf71-feed,#sf71ClubDetail .sf71-room-list{padding:12px}
+ #sf71ClubDetail .sf160-music-grid{grid-template-columns:1fr}
+ #sf71ClubDetail .sf160-poll-options{grid-template-columns:1fr}
+ #sf71ClubDetail .sf160-comments form{flex-wrap:wrap}
+ #sf71ClubDetail .sf160-comments form button{min-height:44px}
+ #sf71ClubDetail .sf160-tabs{position:sticky;top:0;z-index:3;background:#100d16;padding-top:8px}
+}
+@media(prefers-reduced-motion:reduce){#sf71ClubDetail *,#sf71ClubDetail *::before{scroll-behavior:auto!important;transition:none!important}}
