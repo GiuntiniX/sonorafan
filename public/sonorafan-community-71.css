@@ -382,3 +382,11 @@
  #sf71ClubDetail .sf600-related>button{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){#sf71ClubDetail .sf600-topic-detail{scroll-behavior:auto}}
+
+/* Fórum 6.0: o modo leitura dedica a coluna principal à discussão aberta. */
+#sf71ClubDetail.sf600-reading #sf71PostForm,
+#sf71ClubDetail.sf600-reading .sf160-feed-tools,
+#sf71ClubDetail.sf600-reading #sf180ForumCounts,
+#sf71ClubDetail.sf600-reading #sf180FeedSummary{display:none!important}
+#sf71ClubDetail.sf600-reading .sf71-rooms-head{margin-bottom:12px}
+#sf71ClubDetail.sf600-reading .sf600-topic-detail{width:100%;min-width:0}
