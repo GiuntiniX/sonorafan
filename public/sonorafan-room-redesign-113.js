@@ -43,7 +43,8 @@
     if ($('sf113NowTheme')) $('sf113NowTheme').textContent = chosenTheme;
     const img = $('trackCover')?.querySelector('img');
     const src = img?.getAttribute('src') || FALLBACK;
-    for (const id of ['sf113NowImage','sf113VisualCover','sf113VisualBackdrop']) {
+    // Fundo temático é independente da capa da faixa: somente miniaturas da música são sincronizadas.
+    for (const id of ['sf113NowImage','sf113VisualCover']) {
       const target = $(id);
       if (target && target.getAttribute('src') !== src) {
         target.dataset.fallback = '';
