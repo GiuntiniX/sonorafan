@@ -62,6 +62,7 @@ function normalizeProgress(data, period = localPeriod()) {
       votes: validArray(day.votes, 30), likes: validArray(day.likes, 30), clubs: validArray(day.clubs, 15), awardedRoom: !!day.awardedRoom
     },
     weekly: { rooms: validArray(week.rooms, 50), songs: validArray(week.songs, 80), clubs: validArray(week.clubs, 30) },
+    lifetimeClubIds: validArray(g.lifetimeClubIds, 100),
     lifetime: {
       rooms: positiveNumber(g.lifetime?.rooms), songs: positiveNumber(g.lifetime?.songs),
       votes: positiveNumber(g.lifetime?.votes), likes: positiveNumber(g.lifetime?.likes), clubs: positiveNumber(g.lifetime?.clubs)
@@ -144,7 +145,10 @@ function applyAction(doc, action, id, now = new Date()) {
     }
     if (!g.weekly.clubs.includes(key) && g.weekly.clubs.length < 30) {
       g.weekly.clubs.push(key);
-      g.lifetime.clubs += 1;
+      if (!g.lifetimeClubIds.includes(key) && g.lifetimeClubIds.length < 100) {
+        g.lifetimeClubIds.push(key);
+        g.lifetime.clubs += 1;
+      }
       actionCounted = true;
     }
   } else if (action === 'vote') {
