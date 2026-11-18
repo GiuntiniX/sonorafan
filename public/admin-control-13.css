@@ -76,3 +76,9 @@
  #adminPanel .sf12-admin-sidebar{background:#160e26!important}
 }
 @media(prefers-reduced-motion:reduce){#adminPanel .sf13-live-marker{animation:none!important}}
+
+#adminPanel .sf13-report-ticker{border-color:rgba(251,105,155,.35)}
+#adminPanel .sf13-report-counter{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+#adminPanel .sf13-report-counter strong{font:850 35px/1 'Space Grotesk',Inter,sans-serif;color:#ff91bd;font-variant-numeric:tabular-nums}
+#adminPanel .sf13-report-counter button{font:800 11px Inter,sans-serif;border:1px solid #c961a2;color:#fff;background:linear-gradient(110deg,#9035bb,#c54788);border-radius:10px;padding:10px 15px;cursor:pointer}
+@media(max-width:700px){#adminPanel .sf13-report-counter{gap:8px}#adminPanel .sf13-report-counter strong{font-size:27px}}
