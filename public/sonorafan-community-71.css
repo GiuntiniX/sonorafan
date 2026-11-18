@@ -156,3 +156,12 @@
 .sf71-panel .sf141-event-actions button:focus-visible{outline:2px solid #f1c7ff;outline-offset:2px}
 .sf71-panel .sf141-event-actions button:disabled{opacity:.55;cursor:wait}
 @media(max-width:650px){.sf71-panel .sf141-event-actions{display:grid;grid-template-columns:1fr 1fr}.sf71-panel .sf141-event-actions button{min-width:0;white-space:normal}}
+
+/* v151 — reações e publicações fixadas, sem novos painéis no mural. */
+.sf71-post.sf151-pinned{border:1px solid rgba(232,185,100,.54);background:linear-gradient(120deg,rgba(232,185,100,.10),transparent 72%)}
+.sf151-pin-label{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:750;color:#f5ca82;margin-bottom:.5rem}
+.sf151-post-actions{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem;margin-top:.65rem}
+.sf151-post-actions button{min-height:36px;border-radius:9px;padding:.4rem .75rem;white-space:normal}
+.sf151-post-actions .sf151-like[aria-pressed="true"]{border-color:#d59be7;color:#f2c5ff;background:rgba(178,92,212,.14)}
+.sf151-post-actions button:focus-visible{outline:2px solid #f1d1fc;outline-offset:3px}
+@media(max-width:600px){.sf151-post-actions{gap:.4rem}.sf151-post-actions button{min-height:44px;flex:0 1 auto}}
