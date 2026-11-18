@@ -28,10 +28,10 @@ function mock(gamification45){
  const db={collection,async runTransaction(cb){const writes=[];const tx={get:r=>r.get(),update:(r,v)=>writes.push(()=>r.update(v)),delete:r=>writes.push(()=>r.delete()),set:(r,v)=>writes.push(()=>r.set(v))};
    const result=await cb(tx);for(const run of writes)await run();return result;
  }};
- const users=new Map([['ana@exemplo.com',{nome:'Ana Indie'}],['leo@exemplo.com',{nome:'Leo Rock'}],['admin@sonora.com',{nome:'Admin'}]]);
+ const users=new Map([['ana@exemplo.com',{nome:'Ana Indie'}],['leo@exemplo.com',{nome:'Leo Rock'}],['admin@sonora.com',{nome:'Admin'}],['bia@exemplo.com',{nome:'Bia Indie'}],['caio@exemplo.com',{nome:'Caio Rock'}]]);
  const owners=new Set(['admin@sonora.com']);
  const room=new Map([['sala-indie',{slug:'sala-indie',name:'Sala Indie',ownerEmail:'ana@exemplo.com',isPrivate:false,listenerCount:3,isPlaying:true,queue:[{title:'Faixa indie',artist:'Banda'}],currentIndex:0}],['sala-privada',{slug:'sala-privada',ownerEmail:'ana@exemplo.com',isPrivate:true,queue:[]}]]);
- const publicUserId=email=>({ 'ana@exemplo.com':'a'.repeat(24),'leo@exemplo.com':'b'.repeat(24),'admin@sonora.com':'c'.repeat(24)})[email];
+ const publicUserId=email=>({ 'ana@exemplo.com':'a'.repeat(24),'leo@exemplo.com':'b'.repeat(24),'admin@sonora.com':'c'.repeat(24),'bia@exemplo.com':'d'.repeat(24),'caio@exemplo.com':'e'.repeat(24)})[email];
  const notifications=[];
  const app={};for(const method of ['get','post','delete'])app[method]=(path,...funcs)=>routes.push({method,path,handler:funcs.at(-1)});
  installFanClubs71({app,db,users,rooms:room,sessionEmail:req=>req.email,publicUserId,adminEmails:owners,rateLimit:()=>((req,res,next)=>next?.()),sf15Notify:async(email,data)=>{notifications.push({email,...data});},gamification45});
@@ -387,4 +387,77 @@ test('v170: mural oferece carregamento progressivo sem repetir mensagens',async(
  const second=(await m.call('get',base+'/posts',undefined,'ana@exemplo.com',{before:String(first.nextBefore)})).data;
  assert(second.posts.length>0);assert.equal(second.hasMore,false);
  assert(second.posts.every(p=>!first.posts.some(x=>x.id===p.id)));
+});
+
+test('v180: somente criador e até dois coadministradores editam bio e regras',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ const update=base+'/profile';
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ await m.call('post',base+'/join',{},'bia@exemplo.com');
+ await m.call('post',base+'/join',{},'caio@exemplo.com');
+ const payload={description:'Bio nova do fã clube',rules:'Trate a comunidade com respeito'};
+ assert.equal((await m.call('post',update,payload,'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',update,payload)).code,200);
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).data.club.description,payload.description);
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).data.club.rules,payload.rules);
+ assert.equal((await m.call('post',base+'/moderators',{userId:'b'.repeat(24),enabled:true})).code,200);
+ assert.equal((await m.call('post',base+'/moderators',{userId:'d'.repeat(24),enabled:true})).code,200);
+ assert.equal((await m.call('post',base+'/moderators',{userId:'e'.repeat(24),enabled:true})).code,409);
+ assert.equal((await m.call('post',update,{description:'Atualizado pelo coadmin',rules:'Novas regras'},'leo@exemplo.com')).code,200);
+ assert.equal((await m.call('post',update,{description:'Inválido',rules:'Sem acesso'},'caio@exemplo.com')).code,403);
+ assert.equal((await m.call('post',base+'/moderators',{userId:'b'.repeat(24),enabled:false})).code,200);
+ assert.equal((await m.call('post',update,payload,'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('get',base,{},'leo@exemplo.com')).data.club.canEditProfile,false);
+});
+
+test('v180: todas as cinco categorias mantêm classificação e edição é exclusiva do autor',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ for(const topic of ['duvida','evento','conversa','novidade','ideia']){
+   const response=await m.call('post',base+'/posts',{text:'Uma publicação sobre '+topic,topic},'leo@exemplo.com');
+   assert.equal(response.code,201);
+ }
+ const posts=(await m.call('get',base+'/posts',{},'leo@exemplo.com')).data.posts;
+ assert.deepEqual(new Set(posts.map(p=>p.topic)),new Set(['duvida','evento','conversa','novidade','ideia']));
+ const entry=posts.find(p=>p.topic==='novidade'),route=base+'/posts/'+entry.id+'/edit';
+ assert.equal(entry.authorCanEdit,true);
+ assert.equal((await m.call('post',route,{text:'Texto atualizado pelo criador do post'})).code,403);
+ assert.equal((await m.call('post',route,{text:'Texto atualizado'},'leo@exemplo.com')).code,200);
+ const updated=(await m.call('get',base+'/posts',{},'leo@exemplo.com')).data.posts.find(p=>p.id===entry.id);
+ assert.equal(updated.text,'Texto atualizado');
+ assert(updated.editedAt>0);
+ assert.equal(updated.authorCanEdit,true);
+});
+
+test('v180: somente dúvida pode ser resolvida e resposta escolhida pertence à pergunta',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ const question=(await m.call('post',base+'/posts',{topic:'duvida',text:'Como participar do próximo encontro?'},'leo@exemplo.com')).data.post;
+ const normal=(await m.call('post',base+'/posts',{topic:'conversa',text:'Olá comunidade'})).data.post;
+ const r1=(await m.call('post',base+'/posts/'+question.id+'/comments',{text:'Você pode confirmar a presença.'})).data.comment;
+ const r2=(await m.call('post',base+'/posts/'+normal.id+'/comments',{text:'Resposta de outro tópico.'})).data.comment;
+ const q=base+'/posts/'+question.id;
+ assert.equal((await m.call('post',base+'/posts/'+normal.id+'/resolve',{resolved:true})).code,400);
+ assert.equal((await m.call('post',q+'/resolve',{resolved:true})).code,200);
+ assert.equal((await m.call('post',q+'/best-answer',{commentId:r2.id},'leo@exemplo.com')).code,404);
+ assert.equal((await m.call('post',q+'/best-answer',{commentId:r1.id},'leo@exemplo.com')).code,200);
+ let posts=(await m.call('get',base+'/posts',{},'leo@exemplo.com')).data.posts;
+ assert.equal(posts.find(p=>p.id===question.id).resolved,true);
+ const comments=(await m.call('get',q+'/comments',{},'leo@exemplo.com')).data.comments;
+ assert.equal(comments.find(c=>c.id===r1.id).best,true);
+ assert.equal((await m.call('post',q+'/resolve',{resolved:false},'leo@exemplo.com')).code,200);
+ posts=(await m.call('get',base+'/posts',{},'leo@exemplo.com')).data.posts;
+ assert.equal(posts.find(p=>p.id===question.id).bestCommentId,null);
+});
+
+test('v180: permissões de coadministrador não incluem exclusão e transferência de controle',async()=>{
+ const m=mock(),id=await create(m),base=`/api/fan-clubs/${id}`;
+ await m.call('post',base+'/join',{},'leo@exemplo.com');
+ await m.call('post',base+'/moderators',{userId:'b'.repeat(24),enabled:true});
+ const club=(await m.call('get',base,{},'leo@exemplo.com')).data.club;
+ assert.equal(club.canModerate,true);
+ assert.equal(club.canEditProfile,true);
+ assert.equal(club.canDelete,false);
+ assert.equal((await m.call('delete',base,{confirmation:'Fãs de Linkin Park'},'leo@exemplo.com')).code,403);
+ assert.equal((await m.call('post',base+'/moderators',{userId:'d'.repeat(24),enabled:true},'leo@exemplo.com')).code,403);
 });
