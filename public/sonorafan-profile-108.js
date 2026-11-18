@@ -58,17 +58,20 @@
   const studio=card('✧ Estúdio de avatar','Crie ou escolha um visual que represente sua vibe musical.','sf108Studio','sf108-avatar-studio');
   const content=document.createElement('div');content.className='sf108-studio-content';
   const left=document.createElement('div');left.className='sf108-studio-left';
-  left.innerHTML=`<div id="sf108AvatarPreview" class="sf108-avatar-preview" aria-label="Seu avatar atual">
-       <span>🎧</span></div>
-      <button type="button" id="sf108EditAvatar" class="sf108-main-button">⇄ Trocar avatar</button>
-      <div class="sf108-avatar-choices">
-       <button type="button" id="sf108UploadButton"><b>☁</b><span><strong>Subir minha foto</strong><small>Escolha uma foto do seu dispositivo.</small></span>›</button>
-       <button type="button" id="sf108ChooseCharacter"><b>◉</b><span><strong>Usar personagem desenhado</strong><small>Escolha uma arte exclusiva da galeria.</small></span>›</button>
-      </div>
-      <input type="file" accept="image/jpeg,image/png,image/webp" id="sf108FileInput" hidden aria-label="Selecionar foto de avatar">
-      <button type="button" id="sf108DefaultAvatar" class="sf108-text-button">Usar avatar padrão</button>`;
+  left.innerHTML=`<div class="sf108-avatar-summary">
+       <div id="sf108AvatarPreview" class="sf108-avatar-preview" aria-label="Seu avatar atual"><span>🎧</span></div>
+       <div class="sf108-avatar-summary-copy"><strong>Sua imagem atual</strong>
+         <small>Esta imagem aparece no perfil, nas salas e nas comunidades.</small>
+         <button type="button" id="sf108DefaultAvatar" class="sf108-text-button">Usar avatar padrão</button>
+       </div>
+     </div>
+     <div class="sf108-avatar-choices" aria-label="Alterar imagem do perfil">
+       <button type="button" id="sf108UploadButton"><b aria-hidden="true">☁</b><span><strong>Enviar minha foto</strong><small>Escolha uma imagem do seu dispositivo.</small></span><span aria-hidden="true">›</span></button>
+       <button type="button" id="sf108ChooseCharacter"><b aria-hidden="true">◉</b><span><strong>Escolher personagem</strong><small>Explore os 40 avatares ilustrados.</small></span><span aria-hidden="true">›</span></button>
+     </div>
+     <input type="file" accept="image/jpeg,image/png,image/webp" id="sf108FileInput" hidden aria-label="Selecionar foto de avatar">`;
   const right=document.createElement('div');right.className='sf108-studio-right';
-  right.innerHTML=`<div class="sf108-studio-subhead"><strong>♫ Avatares SonoraFan</strong><small>Personagens originais de gêneros musicais</small></div>
+  right.innerHTML=`<div class="sf108-studio-subhead" id="sf108GalleryHeading"><strong>✦ Galeria de personagens</strong><small>Escolha livremente um visual que combine com você.</small></div>
       <div class="sf600-avatar-controls">
         <label for="sf600AvatarCategory">Estilo<select id="sf600AvatarCategory">
           <option value="all">Todos os personagens</option><option value="identity">Identidade e expressão</option>
@@ -124,8 +127,11 @@
   $('sf108MoreAvatars')?.addEventListener('click',()=>{state.avatarExpanded=!state.avatarExpanded;renderAvatarCatalog();});
   $('sf600AvatarCategory')?.addEventListener('change',e=>{state.avatarCategory=e.target.value;renderAvatarCatalog();});
   $('sf600AvatarSearch')?.addEventListener('input',e=>{state.avatarQuery=String(e.target.value||'').trim().slice(0,50);renderAvatarCatalog();});
-  $('sf108EditAvatar')?.addEventListener('click',()=>focusStudio());
-  $('sf108ChooseCharacter')?.addEventListener('click',()=>{$('sf108AvatarGrid')?.querySelector('button')?.focus();});
+  $('sf108ChooseCharacter')?.addEventListener('click',()=>{
+    window.sf112SwitchProfileTab?.('avatars');
+    $('sf108GalleryHeading')?.scrollIntoView({behavior:'smooth',block:'start'});
+    $('sf600AvatarSearch')?.focus({preventScroll:true});
+  });
   $('sf108UploadButton')?.addEventListener('click',()=>{$('sf108FileInput')?.click();});
   $('sf108FileInput')?.addEventListener('change',onPhoto);
   $('sf108DefaultAvatar')?.addEventListener('click',()=>chooseAvatar('default'));
@@ -183,9 +189,15 @@
    }catch(e){renderAvatarCatalog();message('Usando personagens existentes. A galeria completa está temporariamente indisponível.',true);}
  }
  function focusStudio(){
-  if(!active()&&typeof window.sf5OpenProfile==='function')window.sf5OpenProfile();
-  $('sf108Studio')?.scrollIntoView({behavior:'smooth',block:'center'});
-  $('sf108UploadButton')?.focus({preventScroll:true});
+  if(typeof window.sf112OpenProfile==='function'){
+    window.sf112OpenProfile('avatars');
+  }else if(!active()&&typeof window.sf5OpenProfile==='function'){
+    window.sf5OpenProfile();
+  }
+  requestAnimationFrame(()=>{
+    $('sf108Studio')?.scrollIntoView({behavior:'smooth',block:'start'});
+    $('sf108UploadButton')?.focus({preventScroll:true});
+  });
  }
  function portrait(container,avatar,fallback='🎸'){
   if(!container)return;
