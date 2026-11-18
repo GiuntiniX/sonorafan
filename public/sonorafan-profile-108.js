@@ -301,7 +301,7 @@
     identity.textContent=genres.length?genres.slice(0,3).join(' · ')+(genres.length>3?' +'+(genres.length-3)+' estilos':''):'Escolha até 6 estilos para sua identidade musical';
   }
   if(!badges.length){
-   host.innerHTML='<div class="sf108-empty">Suas medalhas oficiais aparecerão aqui quando forem conquistadas. Acompanhe as missões no SonoraFan Club.</div>';
+   host.innerHTML='<div class="sf108-empty">Suas medalhas oficiais aparecerão aqui quando forem conquistadas. Acompanhe as missões em Minha Jornada.</div>';
    return;
   }
   const icons=['♬','♨','♧','★'];
