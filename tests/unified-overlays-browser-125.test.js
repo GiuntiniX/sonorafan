@@ -14,7 +14,10 @@ function fixture(){
  const a=html.indexOf('<div class="modal-overlay" id="sf43ProfileModal"'),b=html.indexOf('<div class="sf50-status"',a);
  assert.ok(a>0&&b>a);
  const profile=html.slice(a,b).replace(/src="\//g,'src="./');
- const ranking=html.split('\n').find(line=>line.includes('id="lbModal"'));assert.ok(ranking);
+ const rankingStart=html.indexOf('<div class="modal-overlay sf60-overlay" id="lbModal"');
+ const rankingEnd=html.indexOf('<div class="users-pop"',rankingStart);
+ assert.ok(rankingStart>=0&&rankingEnd>rankingStart);
+ const ranking=html.slice(rankingStart,rankingEnd);
  const community='<div class="sf5-community-layer sf125-community" style="display:none"><div class="sf5-community-shell sf110-community-shell"><div class="sf5-community-top"><h2>Comunidades</h2></div><div class="sf5-community-scroll"><div class="sf110-dashboard">Comunidade</div></div></div></div>';
  const boot=['<script>',
   'window.__sf125Errors=[];',
@@ -41,7 +44,7 @@ function fixture(){
   'profileContent:$("#sf43ProfileModal .sf43-profile-shell").getBoundingClientRect().width,',
   'profileOverflow:$("#sf43ProfileModal .sf43-profile-modal").getBoundingClientRect().right<=innerWidth+5,',
   'profilePadding:parseFloat(getComputedStyle($("#sf43ProfileModal .sf43-profile-modal")).paddingLeft),',
-  'rankPadding:parseFloat(getComputedStyle($("#lbModal .sf35-ranking-modal")).paddingLeft),',
+  'rankPadding:parseFloat(getComputedStyle($("#lbModal .sf60-ranking-modal")).paddingLeft),',
   'communityPadding:parseFloat(getComputedStyle($(".sf5-community-shell")).paddingLeft)};',
   'const mobile=innerWidth<=860;',
   'const pass=!metrics.profile&&!metrics.ranking&&!metrics.community&&metrics.profileOverflow',
