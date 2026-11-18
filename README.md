@@ -6,6 +6,29 @@ Salas colaborativas de música onde todo mundo adiciona suas músicas do YouTube
 ![Node.js](https://img.shields.io/badge/Node.js-22%2B-green)
 ![Socket.io](https://img.shields.io/badge/Socket.io-4.x-purple)
 
+## ✦ Fan Clubs 5.0 — evolução v170
+
+Os Fan Clubs priorizam **convivência entre fãs, ideias, enquetes, eventos e comunidade**. Não existe compartilhamento de músicas no Fan Club; ouvir e adicionar músicas continua nas salas colaborativas.
+
+### Nova distribuição visual
+- A coluna **Salas do Fan Club** foi removida da tela interna e substituída por **Ideias dos fãs** (propostas, votos, planejadas e concluídas) e **Enquetes em destaque**.
+- O guide atual do SonoraFan (grafite, roxo e destaque lima) permanece, com layout adaptável ao mobile e foco acessível.
+- As abas Mural, Enquetes, Eventos e Membros mantêm o restante da experiência. Eventos antes exibidos na lateral agora ficam na aba própria.
+
+### Comunidade e moderação
+- Posts classificados por assunto (conversa, dúvida, novidade, evento ou ideia), comentários, fotos JPG/PNG/WebP otimizadas até 180 KiB e busca no mural.
+- Notificações de novos posts, respostas, menções e encontros, com preferência individual de silenciamento no Fan Club.
+- Moderadores convidados pelo criador (até cinco), sem permissão para excluir o Fan Club, alterar capa ou nomear outros moderadores.
+- Enquetes com prazo opcional de 1, 3, 7 ou 14 dias e votação limitada a uma por usuário.
+- Ideias com apoio revogável, estados em discussão, planejada, realizada e encerrada; não geram XP por votos repetidos.
+- Encontros próprios da comunidade, independentes de salas, com RSVP e convite de calendário (arquivo ICS).
+- Diretório de membros, destaque de contribuidores, denúncias privadas e indicadores agregados visíveis apenas para a moderação.
+- Mural com paginação por cursor de documento para evitar perda de publicações com timestamps iguais; imagens protegidas por autenticação e autorização.
+
+### Qualidade
+- Testes de backend para ideias, votos, moderadores, notificações, encontros, imagens e paginação, além de testes de estrutura visual/responsividade.
+- O deploy real deve ser confirmado no Render e revisado em browser desktop e mobile antes de considerar a experiência de produção validada.
+
 ## ✦ Fan Clubs 4.0 — evolução v160
 
 O Fan Club agora utiliza o mesmo guide visual escuro/indie do SonoraFan, com layout compacto, hero sem sobreposição, regras recolhíveis e navegação por **Mural, Enquetes, Eventos e Membros**.
