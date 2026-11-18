@@ -26,7 +26,8 @@
   const state = {
     tab:'profile',request:0,loading:false,loaded:false,query:'',genre:'',
     data:{mixtapes:[],favorites:[],genres:[],profile:null}, errors:[],
-    expanded:{mixtapes:false,favorites:false,genres:false,recent:false,rooms:false},opening:null
+    expanded:{mixtapes:false,favorites:false,genres:false,recent:false,rooms:false},opening:null,
+    journey:null,journeyBusy:false,journeyError:'',journeyRequest:0,forumClubs:[]
   };
   const api = async path => {
     const res = await fetch(path,{credentials:'include',cache:'no-store'});
@@ -47,8 +48,9 @@
     nav.className='sf112-tabs';nav.id='sf112Tabs';
     nav.setAttribute('aria-label','Áreas do perfil musical');
     nav.innerHTML=[
-      ['profile','◉ Meu perfil'],['library','▣ Minha Biblioteca'],
-      ['dna','◈ Meu DNA'],['achievements','♕ Conquistas']
+      ['profile','◉ Meu Perfil'],['achievements','✦ Minha Jornada'],
+      ['library','▣ Minha Biblioteca'],['dna','◈ Meu DNA'],
+      ['community','♧ Comunidade'],['avatars','◉ Avatares']
     ].map(([id,label])=>'<button type="button" data-sf112-tab="'+id+'" aria-pressed="false">'+label+'</button>').join('');
     const lib=document.createElement('section');lib.id='sf112Library';lib.className='sf112-library';lib.hidden=true;
     lib.setAttribute('aria-label','Minha biblioteca musical');
@@ -95,12 +97,17 @@
     dna.innerHTML='<header><span>SONORAFAN · IDENTIDADE MUSICAL</span><h2>Meu DNA musical</h2><p>Uma visão real das suas contribuições, não de minutos ouvidos.</p></header><div id="sf112DNAContent"></div>';
     const achievements=document.createElement('section');achievements.id='sf112AchievementsHeader';achievements.hidden=true;
     achievements.className='sf112-achievements-intro';
-    achievements.innerHTML='<span>SONORAFAN · SUA JORNADA</span><h2>Conquistas e evolução</h2><p>Suas medalhas e seu progresso real na comunidade.</p>';
+    achievements.innerHTML='<span>SONORAFAN · CONQUISTAS</span><h2>✦ Minha Jornada</h2><p>XP, medalhas, missões, especializações, reputação e histórico — tudo em uma só aba.</p><div id="sf600Journey" aria-live="polite"></div>';
+    const community=document.createElement('section');
+    community.id='sf600Community';community.className='sf600-community';community.hidden=true;
+    community.innerHTML='<header><span>SONORAFAN · FÓRUM 6.0</span><h2>♧ Minhas comunidades</h2><p>Seus Fan Clubs, sua reputação e sua participação no Fórum.</p></header><div id="sf600CommunityBody" aria-live="polite"></div>';
     const hero=root.querySelector('.sf43-profile-hero');
-    if(hero)hero.after(nav,lib,dna,achievements);
-    else root.prepend(nav,lib,dna,achievements);
+    if(hero)hero.after(nav,lib,dna,achievements,community);
+    else root.prepend(nav,lib,dna,achievements,community);
     nav.addEventListener('click',e=>{const b=e.target.closest('[data-sf112-tab]');if(b)select(b.dataset.sf112Tab);});
     lib.addEventListener('click',onClick);
+    achievements.addEventListener('click',onJourneyClick);
+    community.addEventListener('click',onJourneyClick);
     $('sf112Search').addEventListener('input',e=>{
       state.query=String(e.target.value||'').trim().slice(0,100);render();
     });
@@ -115,13 +122,13 @@
     select('profile',false);
   }
   function select(tab,fetchData=true){
-    if(!['profile','library','dna','achievements'].includes(tab))tab='profile';
+    if(!['profile','library','dna','achievements','community','avatars'].includes(tab))tab='profile';
     state.tab=tab;
     const m=panel();if(!m)return;
-    m.classList.remove('sf112-tab-profile','sf112-tab-library','sf112-tab-dna','sf112-tab-achievements');
+    m.classList.remove('sf112-tab-profile','sf112-tab-library','sf112-tab-dna','sf112-tab-achievements','sf112-tab-community','sf112-tab-avatars');
     m.classList.add('sf112-tab-'+tab);
     for(const [id,selected] of [['sf112Library',tab==='library'],['sf112DNA',tab==='dna'],
-                               ['sf112AchievementsHeader',tab==='achievements']]){
+                               ['sf112AchievementsHeader',tab==='achievements'],['sf600Community',tab==='community']]){
       if($(id))$(id).hidden=!selected;
     }
     m.querySelectorAll('#sf112Tabs [data-sf112-tab]').forEach(b=>{
@@ -133,9 +140,13 @@
       render();
       if(fetchData&&(!state.loaded||Date.now()-(state.lastFetch||0)>30000))load();
     }
-    if(tab==='achievements') {
-      // The existing sf50 XP card and sf108 badges remain the source of truth.
-      window.sf50RefreshProfile?.();
+    if(tab==='achievements'||tab==='community'){
+      renderJourney();
+      if(fetchData&&(!state.journey||Date.now()-(state.journeyFetched||0)>25000))loadJourney();
+    }
+    if(tab==='avatars'){
+      window.sf108AvatarRefresh?.();
+      document.getElementById('sf600AvatarSearch')?.focus({preventScroll:true});
     }
   }
   function open(tab='profile'){
@@ -146,6 +157,122 @@
       else {state.opening=null;return;}
     }else{
       select(tab);state.opening=null;
+    }
+  }
+  const journeyFmt=value=>Math.max(0,Number(value)||0).toLocaleString('pt-BR');
+  const journeyDate=value=>{
+    const d=new Date(value);return Number.isFinite(d.getTime())?d.toLocaleDateString('pt-BR'):'Data indisponível';
+  };
+  function journeyMission(m){
+    const target=Math.max(1,Number(m.target)||1),progress=Math.min(target,Math.max(0,Number(m.progress)||0));
+    return `<article class="sf600-mission"><div class="sf600-mission-head"><strong>${esc(m.icon||'🎯')} ${esc(m.name)}</strong>
+      <small>${journeyFmt(progress)}/${journeyFmt(target)} · ${m.claimed?'✓ Concluída':'+'+journeyFmt(m.reward)+' XP'}</small></div>
+      <p>${esc(m.description||'')}</p><div class="sf600-bar"><span style="width:${Math.round(progress/target*100)}%"></span></div></article>`;
+  }
+  function renderJourney(){
+    const host=$('sf600Journey'),community=$('sf600CommunityBody');
+    const data=state.journey;
+    if(host&&state.tab==='achievements'){
+      if(!data){host.innerHTML='<div class="sf112-empty"><strong>Carregando Minha Jornada…</strong><p>'+esc(state.journeyError||'Consultando XP, medalhas e missões oficiais.')+'</p><button type="button" data-sf600="refresh">Tentar novamente</button></div>';return;}
+      const level=data.level||{},missions=Array.isArray(data.missions)?data.missions:[],
+        achievements=Array.isArray(data.achievements)?data.achievements:[],
+        badges=Array.isArray(data.badges)?data.badges:[],
+        selected=data.preferences?.showcase||[],lifetime=data.lifetime||{},
+        reputation=data.reputation||{},recent=Array.isArray(data.recent)?data.recent:[],
+        next=data.nextLevel;
+      const specializations=[
+        ['🎧 DJ',lifetime.songs||0,50,'músicas adicionadas'],
+        ['🧭 Explorador',lifetime.rooms||0,20,'salas diferentes'],
+        ['🧠 Especialista',reputation.acceptedAnswers||0,10,'respostas aceitas'],
+        ['🤝 Comunidade',lifetime.clubs||0,10,'Fan Clubs conhecidos']
+      ];
+      const catalog=[...achievements].sort((a,b)=>Number(!!b.unlocked)-Number(!!a.unlocked));
+      const extra=badges.filter(b=>!achievements.some(x=>x.name===b));
+      const pending=missions.filter(m=>!m.claimed).sort((a,b)=>(a.target-a.progress)-(b.target-b.progress));
+      host.innerHTML=`<section class="sf600-journey-hero"><div class="sf600-journey-kicker">SUA EVOLUÇÃO É REAL</div>
+        <h3>${esc(level.icon||'🎧')} ${esc(level.name||'Ouvinte')}</h3>
+        <div class="sf600-journey-stats"><div><strong>${journeyFmt(data.points)}</strong><span>XP acumulado</span></div>
+          <div><strong>${journeyFmt(reputation.score)}</strong><span>Reputação no Fórum</span></div>
+          <div><strong>${journeyFmt(badges.length)}</strong><span>Medalhas conquistadas</span></div></div>
+        <div class="sf600-bar" role="progressbar" aria-label="Progresso para o próximo nível" aria-valuenow="${Math.min(100,Number(level.progress)||0)}" aria-valuemin="0" aria-valuemax="100">
+          <span style="width:${Math.min(100,Number(level.progress)||0)}%"></span></div>
+        <small>${next?'Faltam '+journeyFmt(Math.max(0,next.min-data.points))+' XP para '+esc(next.name):'Nível máximo atual alcançado.'} · XP histórico preservado</small>
+        <div class="sf600-j-actions"><button type="button" data-sf600="ranking">🏆 Ver minha posição no Ranking 6.0</button>
+          <button type="button" data-sf600="refresh">↻ Atualizar jornada</button></div></section>
+        ${pending.length?`<section class="sf600-j-section sf600-next"><h3>✨ Próximo desafio</h3><p>${esc(pending[0].name)} · ${journeyFmt(Math.max(0,pending[0].target-pending[0].progress))} etapas restantes</p></section>`:''}
+        <section class="sf600-j-section"><h3>🎯 Missões diárias e semanais</h3>
+          <div class="sf600-missions">${missions.map(journeyMission).join('')||'<p>Novas missões serão exibidas aqui.</p>'}</div></section>
+        <section class="sf600-j-section"><h3>🏅 Minhas medalhas</h3><p>Escolha até três medalhas conquistadas para destacar no seu perfil e ranking.</p>
+          <div class="sf600-medals">${catalog.map(b=>{
+            const earned=!!b.unlocked,current=Number(lifetime[b.field])||0,target=Math.max(1,Number(b.at)||1);
+            return `<button type="button" data-sf600="medal" data-name="${esc(b.name)}" ${earned?'':'disabled'} aria-pressed="${selected.includes(b.name)}">
+              <strong>${esc(earned?b.icon||'🏅':'🔒')} ${esc(b.name)}</strong><small>${esc(b.description||'')}${earned?' · Conquistada':' · '+journeyFmt(Math.min(current,target))+'/'+journeyFmt(target)}</small></button>`;
+          }).join('')}${extra.map(b=>`<button type="button" data-sf600="medal" data-name="${esc(b)}" aria-pressed="${selected.includes(b)}"><strong>🏅 ${esc(b)}</strong><small>Medalha histórica preservada</small></button>`).join('')}</div>
+          <small>${selected.length}/3 medalhas em destaque. As conquistas permanecem salvas no servidor.</small></section>
+        <section class="sf600-j-section"><h3>🌟 Trilhas de especialização</h3><p>Indicadores de participação, sem criação automática de XP extra.</p>
+          <div class="sf600-specializations">${specializations.map(([name,value,target,unit])=>`
+            <article><strong>${name}</strong><small>${journeyFmt(value)} ${unit}</small>
+             <div class="sf600-bar"><span style="width:${Math.min(100,value/target*100)}%"></span></div></article>`).join('')}</div></section>
+        <section class="sf600-j-section"><h3>📜 Histórico de recompensas</h3>
+          ${recent.length?recent.slice(0,12).map(x=>`<div class="sf600-recent"><strong>${esc(x.name)}</strong><span>+${journeyFmt(x.xp)} XP · ${journeyDate(x.time)}</span></div>`).join(''):'<p>Suas próximas conquistas registradas aparecerão aqui.</p>'}
+          <div class="sf600-milestones">${(data.milestones||[]).map(m=>`<span>${m.unlocked?'✓':'🔒'} ${journeyFmt(m.days)} dias</span>`).join('')}</div></section>`;
+    }
+    if(community&&state.tab==='community'){
+      if(!data){community.innerHTML='<p class="sf112-empty">Carregando comunidades e reputação…</p>';return;}
+      const rep=data.reputation||{},clubs=state.forumClubs||[];
+      community.innerHTML=`<div class="sf600-community-stats"><div><strong>${journeyFmt(rep.score)}</strong><span>Reputação</span></div>
+         <div><strong>${journeyFmt(rep.acceptedAnswers)}</strong><span>Respostas reconhecidas</span></div>
+         <div><strong>${journeyFmt(clubs.length)}</strong><span>Fan Clubs</span></div></div>
+         <section class="sf600-j-section"><h3>♧ Meus Fan Clubs</h3>
+         ${clubs.length?clubs.slice(0,30).map(c=>`<button type="button" data-sf600="club" data-id="${esc(c.id)}">
+           <strong>${esc(c.title)}</strong><small>${esc(c.artist||'Comunidade musical')} · ${journeyFmt(c.memberCount)} participantes</small></button>`).join(''):'<p>Entre em um Fan Club pelo Fórum para começar a participar.</p>'}</section>
+         <section class="sf600-j-section"><h3>✦ Contribuições validadas</h3>
+           <p>Reputação do Fórum é contabilizada separadamente do XP musical. Ações repetitivas ou não validadas não concedem recompensas.</p>
+           <button type="button" data-sf600="ranking">🏆 Ver o Ranking de reputação</button></section>`;
+    }
+  }
+  async function loadJourney(force=false){
+    if(state.journeyBusy&&!force)return;
+    const token=++state.journeyRequest;state.journeyBusy=true;state.journeyError='';
+    try{
+      const result=await Promise.allSettled([api('/api/ranking60/me'),api('/api/fan-clubs?mine=true')]);
+      if(token!==state.journeyRequest)return;
+      if(result[0].status!=='fulfilled')throw result[0].reason;
+      state.journey=result[0].value;
+      if(result[1].status==='fulfilled')state.forumClubs=Array.isArray(result[1].value?.clubs)?result[1].value.clubs:[];
+      state.journeyFetched=Date.now();
+    }catch(err){if(token===state.journeyRequest)state.journeyError=err.message||'Progresso indisponível.';}
+    finally{if(token===state.journeyRequest){state.journeyBusy=false;renderJourney();}}
+  }
+  async function onJourneyClick(e){
+    const btn=e.target.closest('[data-sf600]');if(!btn)return;
+    const action=btn.dataset.sf600;
+    if(action==='refresh'){await loadJourney(true);return;}
+    if(action==='ranking'){
+      window.sf43CloseProfile?.();window.sf60Ranking?.open?.();return;
+    }
+    if(action==='club'){
+      if(!/^[a-f0-9-]{36}$/i.test(btn.dataset.id||''))return;
+      window.sf43CloseProfile?.();window.sf107OpenFanClub?.(btn.dataset.id);return;
+    }
+    if(action==='medal'){
+      const data=state.journey;if(!data)return;
+      const earned=new Set(data.badges||[]),name=btn.dataset.name;
+      if(!earned.has(name))return;
+      const selected=[...(data.preferences?.showcase||[])],index=selected.indexOf(name);
+      if(index>=0)selected.splice(index,1);
+      else if(selected.length<3)selected.push(name);
+      else {say('Escolha até três medalhas.',true);return;}
+      btn.disabled=true;
+      try{
+        const response=await fetch('/api/ranking60/preferences',{
+          method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({showcase:selected})
+        });
+        const saved=await response.json();
+        if(!response.ok)throw Error(saved.error||'Não foi possível salvar.');
+        state.journey.preferences=saved.preferences;renderJourney();
+      }catch(err){say(err.message,true);btn.disabled=false;}
     }
   }
   function stats(){
@@ -388,6 +515,7 @@
         state.request++;state.loaded=false;state.loading=false;state.lastFetch=0;
         state.data={mixtapes:[],favorites:[],genres:[],profile:null};
         state.errors=[];state.query='';state.genre='';
+        state.journey=null;state.journeyFetched=0;state.forumClubs=[];state.journeyRequest++;
         if($('sf112Search'))$('sf112Search').value='';
         const target=state.opening||'profile';state.opening=null;
         select(target);
