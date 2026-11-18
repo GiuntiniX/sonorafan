@@ -254,5 +254,27 @@
      mini('sf88CreateTheme','create');mini('sf88EditTheme','edit');
      if($('sf88ThemeOverlay')?.hidden===false)drawModal();
      if(roomSlug)skin();
+     // Pacote final 164: só ativa imagens novas quando os arquivos realmente existem.
+     // Sem o manifest no servidor, o catálogo anterior continua válido e sem imagens quebradas.
+     fetch('/themes/final-164/manifest.json',{credentials:'same-origin',cache:'no-store'})
+       .then(response=>{if(!response.ok)throw new Error('Artes finais não publicadas');return response.json();})
+       .then(entries=>{
+         if(!Array.isArray(entries))return;
+         entries.filter(entry=>entry&&KNOWN_THEMES.has(entry.id)&&entry.id!=='geral'&&
+           entry.art==='/themes/final-164/'+entry.id+'.webp').forEach(entry=>{
+           const probe=new Image();
+           probe.onload=()=>{
+             const theme=byId.get(entry.id);
+             if(!theme)return;
+             theme.art=entry.art;
+             // Galeria, prévia, miniaturas de criação/edição e palco compartilham o catálogo.
+             mini('sf88CreateTheme','create');mini('sf88EditTheme','edit');
+             if($('sf88ThemeOverlay')?.hidden===false)drawModal();
+             if(roomSlug)skin();
+           };
+           probe.onerror=()=>{};
+           probe.src=entry.art;
+         });
+       }).catch(()=>{});
    }).catch(()=>{});
 })();
