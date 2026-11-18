@@ -265,3 +265,19 @@
 #sf71ClubDetail .sf170-aside-title button:focus-visible,#sf71ClubDetail .sf170-idea button:focus-visible,#sf71ClubDetail .sf170-poll button:focus-visible{outline:2px solid #caff00;outline-offset:3px}
 @media(max-width:900px){#sf71ClubDetail .sf71-detail-columns{grid-template-columns:minmax(0,1fr)}#sf71ClubDetail .sf170-community-aside{padding:14px}}
 @media(max-width:500px){#sf71ClubDetail .sf170-inline-actions button{min-height:44px}#sf71ClubDetail .sf170-aside-title button{min-height:44px}}
+
+/* Fan Clubs 5.0 — publicações com fotos privadas, paginação e novos controles. */
+#sf71ClubDetail .sf170-post-image{display:block;width:min(100%,540px);max-height:360px;object-fit:contain;background:#100b16;border:1px solid var(--sf160-line);border-radius:12px;margin:12px 0}
+#sf71ClubDetail #sf170Topic{display:block;max-width:190px;min-height:40px;padding:8px 10px;margin:7px 0 10px;color:#f3e7ff;background:#24172e;border:1px solid var(--sf160-line);border-radius:9px}
+#sf71ClubDetail .sf170-photo-label{display:block;width:max-content;max-width:100%;color:#ddd0e9;font-weight:750;font-size:12px;margin:8px 0 4px}
+#sf71ClubDetail #sf170PostImage{display:block;max-width:100%;font-size:12px;color:#c1aed0;margin:5px 0 12px}
+#sf71ClubDetail #sf170PostImage::file-selector-button{border:1px solid var(--sf160-line);background:#352240;color:#eee1fa;padding:7px 11px;border-radius:9px;margin-right:8px;cursor:pointer}
+#sf71ClubDetail .sf170-load-more{display:block;margin:16px auto 0;padding:12px 16px;border-radius:11px;border:1px solid var(--sf160-line);background:#362147;color:#fff;cursor:pointer;min-height:42px}
+#sf71ClubDetail .sf160-member button{max-width:100%;white-space:normal}
+#sf71ClubDetail .sf71-detail-actions>[data-sf170-notifications]{min-height:40px}
+@media(max-width:760px){
+ #sf71ClubDetail .sf170-post-image{width:100%;max-height:290px}
+ #sf71ClubDetail .sf71-detail-columns{grid-template-columns:1fr;gap:12px}
+ #sf71ClubDetail .sf170-community-aside{min-width:0}
+ #sf71ClubDetail #sf170Topic{max-width:100%;width:100%}
+}
