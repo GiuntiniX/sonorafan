@@ -71,7 +71,7 @@ test('Perfil 6.0: Conquistas is unified as Minha Jornada inside Profile',()=>{
  assert(compat.includes("window.sf112OpenProfile('achievements')"));
  assert(!html.includes('Abrir SonoraFan Club ↗'));
  assert(html.includes('Ver Conquistas e Minha Jornada'));
- assert(html.includes('sonorafan-profile-60.css?v=601.0'));
+ assert(html.includes('sonorafan-profile-60.css?v=602.0'));
  assert(html.includes('sonorafan-profile-108.js?v=601.0'));
 });
 
