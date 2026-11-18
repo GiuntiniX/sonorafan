@@ -69,13 +69,19 @@ test('history uses real authenticated setlist and local search, no duplicate pla
  assert.match(js,/trackCard\(t,'song:'\+t\.id\)/);
 });
 
-test('Fan Club mural filters only music recommendations from existing authorized posts',()=>{
+test('Fan Club mantém foco na comunidade, sem compartilhamento musical no mural',()=>{
  const js=read('public/sonorafan-community-71.js');
- assert.match(js,/data-sf150-music-filter/);
- assert.match(js,/state\.onlyMusic/);
- assert.match(js,/\/api\/fan-clubs\/'\+encodeURIComponent\(id\)\+'\/posts'/);
- assert.match(js,/data-sf140-share-song/);
- assert.match(js,/canDelete/);
+ const server=read('fan-clubs-71.js');
+ const studio=read('public/sonorafan-studio-100.js');
+ assert.match(js,/\/api\/fan-clubs\/');
+ assert.match(js,/data-sf160-comments/);
+ assert.match(js,/data-sf160-create-poll/);
+ assert.match(js,/data-sf160-pane/);
+ assert.doesNotMatch(js,/data-sf140-share-song|data-sf150-music-filter|state\.onlyMusic|musicCard\(/);
+ assert.doesNotMatch(js,/\['music','Músicas'\]|\/api\/fan-clubs\/.*\/music/);
+ assert.doesNotMatch(server,/app\.get\('\/api\/fan-clubs\/:id\/music'/);
+ assert.doesNotMatch(studio,/mix-club|club-post|Enviar ao Fan Club/);
+ assert.match(studio,/mix-copy/);
 });
 
 test('admin metrics are aggregated, access restriction preserved and no personal logs added',()=>{
