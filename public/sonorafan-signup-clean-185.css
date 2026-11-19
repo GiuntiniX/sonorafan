@@ -1,7 +1,7 @@
 
 /* SonoraFan v185 — refatoração do cadastro: controles reais, nunca duplicados
    com os elementos impressos na fotografia de referência. */
-@media (min-width:1050px) and (min-height:650px) {
+@media (min-width:1050px) {
  #signupModal.sf184-image-ready .sf123-signup-layout {
    container-type:inline-size!important;
  }
