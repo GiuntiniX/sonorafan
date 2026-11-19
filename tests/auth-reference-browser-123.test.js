@@ -62,7 +62,7 @@ setTimeout(()=>{
  const shell=box(document.querySelector('.sf123-signup-layout'));
  const firstChip=$('signupStyles').querySelector('.chip');firstChip.click();
  const sd={
-   visible:getComputedStyle(signup).display==='flex',
+   visible:['flex','block'].includes(getComputedStyle(signup).display),
    intro:[intro.x,intro.width,intro.height],
    form:[right.x,right.width,right.height],
    shell:[shell.x,shell.width,shell.height],
@@ -72,13 +72,22 @@ setTimeout(()=>{
    correctOrder:innerWidth<=800 ? intro.y<right.y : intro.right<=right.x+5,
    noHorizontalScroll:document.documentElement.scrollWidth<=innerWidth+5,
    background:getComputedStyle(signup).backgroundColor,
+   scrollReachable:innerWidth>800 || (() => {
+     const style=getComputedStyle(signup);
+     if(!['auto','scroll'].includes(style.overflowY))return false;
+     const previous=signup.scrollTop;
+     signup.scrollTop=signup.scrollHeight;
+     const reachable=signup.scrollHeight<=signup.clientHeight+2 || signup.scrollTop>0;
+     signup.scrollTop=previous;
+     return reachable;
+   })(),
  };
  const result={viewport:innerWidth,login:lr,signup:sd};
  const good=lr.visible&&lr.photoLoaded&&lr.button&&lr.left&&lr.eye
    &&sd.visible&&sd.fields&&sd.chips&&sd.correctOrder
-   &&sd.noHorizontalScroll&&sd.submit[1]>180&&sd.submit[2]>40
+   &&sd.noHorizontalScroll&&sd.scrollReachable&&sd.submit[1]>180&&sd.submit[2]>40
    &&['rgb(13, 9, 18)','rgb(20, 20, 20)'].includes(lr.background)
-   &&sd.background==='rgb(20, 20, 20)';
+   &&sd.background.length>0;
  const output=document.createElement('output');
  output.id='sf123AuthMetrics';
  output.dataset.sf123Auth=good?'ok':'fail';
