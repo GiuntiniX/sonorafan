@@ -436,6 +436,8 @@
   }
   function sync(){renderStyles();renderRooms();}
   function handleClick(e){
+    const removeNotice=e.target.closest('[data-sf111-dismiss]');
+    if(removeNotice){e.preventDefault();e.stopPropagation();window.sf15DismissNotification?.(removeNotice.dataset.sf111Dismiss);return;}
     const targetNotice=e.target.closest('[data-sf111-notice]');
     if(targetNotice){window.sf15OpenNotification?.(targetNotice.dataset.sf111Notice);return;}
     const room=e.target.closest('[data-sf107-room]');
