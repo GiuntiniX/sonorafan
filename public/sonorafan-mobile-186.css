@@ -454,3 +454,50 @@
    padding:10px 8px!important;
  }
 }
+
+
+/* v186.2 — correção isolada: rolagem vertical do cadastro no celular.
+ * O container fixo é o único scrollport; o cartão acompanha a altura do conteúdo.
+ * Evita o comportamento flex + margin:auto que impede acessar o fim do formulário.
+ */
+@media (max-width:800px){
+  #signupModal.sf123-signup-screen.active{
+    display:block!important;
+    position:fixed!important;
+    inset:0!important;
+    width:100%!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    margin:0!important;
+    padding:12px 10px calc(24px + env(safe-area-inset-bottom,0px))!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-y:contain!important;
+    touch-action:pan-y!important;
+    box-sizing:border-box!important;
+  }
+  #signupModal.sf123-signup-screen.active > .sf123-signup-layout{
+    display:flex!important;
+    flex-direction:column!important;
+    width:min(100%,560px)!important;
+    height:max-content!important;
+    min-height:0!important;
+    max-height:none!important;
+    margin:0 auto!important;
+    overflow:visible!important;
+    flex:0 0 auto!important;
+    box-sizing:border-box!important;
+  }
+  #signupModal.sf123-signup-screen.active .sf123-signup-form{
+    flex:0 0 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    touch-action:pan-y!important;
+  }
+  #signupModal.sf123-signup-screen.active .sf123-signup-intro{
+    flex:0 0 auto!important;
+  }
+}
