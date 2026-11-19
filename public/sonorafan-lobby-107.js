@@ -299,14 +299,18 @@
         n.type==='event'?'▦':n.type==='follow'?'♧':'✦';
       const label=n.type==='message'?'Mensagem privada':
         n.type==='mention'?'Menção ou resposta':'Comunidade';
-      return `<button type="button" class="sf107-notice sf111-lobby-notice" data-sf111-notice="${esc(n.id)}"
-        aria-label="${esc(n.title||label)}. ${n.read?'Lida':'Não lida'}. Abrir">
-        <span aria-hidden="true">${icon}</span>
-        <span><small class="sf111-lobby-kind">${label}</small>
-          <strong>${esc(n.title||label)}</strong>
-          <small>${esc(n.message||'')}</small></span>
-        ${n.read?'':'<i class="sf107-dot" aria-label="Não lida"></i>'}
-      </button>`;
+      return `<div class="sf111-lobby-notice-wrap">
+        <button type="button" class="sf107-notice sf111-lobby-notice" data-sf111-notice="${esc(n.id)}"
+          aria-label="${esc(n.title||label)}. ${n.read?'Lida':'Não lida'}. Abrir">
+          <span aria-hidden="true">${icon}</span>
+          <span><small class="sf111-lobby-kind">${label}</small>
+            <strong>${esc(n.title||label)}</strong>
+            <small>${esc(n.message||'')}</small></span>
+          ${n.read?'':'<i class="sf107-dot" aria-label="Não lida"></i>'}
+        </button>
+        <button type="button" class="sf111-lobby-dismiss" data-sf111-dismiss="${esc(n.id)}"
+          aria-label="Remover notificação: ${esc(n.title||label)}" title="Remover notificação">×</button>
+      </div>`;
     }).join(''):'<p class="sf107-muted">Nenhuma novidade no momento. Mensagens privadas e menções aparecerão aqui.</p>';
   }
   function renderAll(){renderFeatured();renderRecent();renderRooms();}
