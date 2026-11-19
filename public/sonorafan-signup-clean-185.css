@@ -287,3 +287,66 @@
     height:81.3%!important;
   }
 }
+
+/* v189 — Cadastro desktop legível em notebooks e telas com pouca altura.
+   Antes: a altura de 96vh encolhia a imagem inteira, inclusive os textos.
+   Agora: a largura governa a cena; quando não cabe verticalmente, o modal rola.
+   Preserva os campos HTML reais, a arte aprovada e o layout mobile existente. */
+@media (min-width:1050px) {
+ #signupModal.sf123-signup-screen.sf184-image-ready.active {
+   align-items:flex-start!important;
+   justify-content:center!important;
+   overflow-y:auto!important;
+   overflow-x:hidden!important;
+   padding:12px 10px 28px!important;
+   -webkit-overflow-scrolling:touch;
+   overscroll-behavior-y:contain!important;
+ }
+ #signupModal.sf184-image-ready .sf123-signup-layout {
+   width:min(98vw,1672px)!important;
+   height:auto!important;
+   max-height:none!important;
+   min-height:0!important;
+   aspect-ratio:1672/941!important;
+   flex:0 0 auto!important;
+   margin:0 auto!important;
+ }
+ /* A tipografia interativa não depende apenas de unidades relativas ao pôster. */
+ #signupModal.sf184-image-ready .sf123-signup-heading h2{
+   font-size:clamp(27px,2.48cqw,41px)!important;
+   white-space:normal!important;
+ }
+ #signupModal.sf184-image-ready .sf123-signup-heading .sf123-kicker{
+   font-size:clamp(11px,.85cqw,15px)!important;
+ }
+ #signupModal.sf184-image-ready .sf123-signup-heading p{
+   font-size:clamp(12px,.83cqw,16px)!important;
+ }
+ #signupModal.sf184-image-ready .sf123-form-group>.form-label{
+   font-size:clamp(12px,.82cqw,15px)!important;
+ }
+ #signupModal.sf184-image-ready .sf123-form-grid .sf123-auth-field input{
+   font-size:clamp(13px,.85cqw,17px)!important;
+ }
+ #signupModal.sf184-image-ready .sf123-genres-title{
+   font-size:clamp(13px,1.05cqw,18px)!important;
+ }
+ #signupModal.sf184-image-ready .sf123-genres>p{
+   font-size:clamp(11px,.75cqw,14px)!important;
+ }
+ #signupModal.sf184-image-ready #signupStyles .chip,
+ #signupModal.sf184-image-ready #signupStyles .chip:nth-child(n){
+   font-size:clamp(10px,.72cqw,13px)!important;
+ }
+ #signupModal.sf184-image-ready .sf123-consent,
+ #signupModal.sf184-image-ready .sf123-consent span{
+   font-size:clamp(11px,.74cqw,14px)!important;
+ }
+ #signupModal.sf184-image-ready .sf123-submit-signup{
+   font-size:clamp(15px,1.2cqw,21px)!important;
+ }
+ #signupModal.sf184-image-ready .sf123-signup-switch,
+ #signupModal.sf184-image-ready a.sf123-back-home{
+   font-size:clamp(11px,.85cqw,15px)!important;
+ }
+}
