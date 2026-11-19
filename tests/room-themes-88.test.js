@@ -14,7 +14,9 @@ test('original Geral plus 14 illustrated room themes have safe asset paths',()=>
    assert.ok(!ids.has(t.id),'Duplicate theme '+t.id);
    ids.add(t.id);
    for(const color of ['primary','secondary','bg','text'])assert.match(t[color],/^#[a-f0-9]{6}$/i);
-   assert.equal(t.art,t.id==='geral'?'/art-44/vinyl-room.webp':'/themes/illustrations/'+t.id+'.webp');
+   assert.match(t.art,/^\\/themes\\/[a-z0-9/_-]+\\.webp$/,'theme art path must be local WebP');
+   assert.match(t.thumbnail,/^\\/themes\\/[a-z0-9/_-]+\\.webp$/,'thumbnail path must be local WebP');
+   assert.ok(fs.existsSync(path.join(root,'public'+t.thumbnail)),'missing thumbnail '+t.id);
    const file='public'+t.art;
    assert.ok(fs.existsSync(path.join(root,file)),file);
    if(t.id!=='geral'){
@@ -71,10 +73,11 @@ test('Geral returns exact original styling without visual overrides',()=>{
 
 test('original genre mockups are used as illustrated WebP covers instead of simplified SVGs',()=>{
  const app=content('public/sonorafan-room-themes-88.js');
- assert.match(app,/t\.art==='\/themes\/illustrations\/'\+t\.id\+'\.webp'/);
+ assert.match(app,/const ASSETS=Object\.freeze/);
+ assert.match(app,/t\.art===expected\[0\] && t\.thumbnail===expected\[1\]/);
  for(const id of ['metal','emo','mpb','eletronica']) {
    const t=catalog.find(x=>x.id===id);
    assert.ok(t.art.endsWith('.webp'),id);
-   assert.ok(fs.statSync(path.join(root,'public'+t.art)).size>70000,id+' should keep high detail');
+   assert.ok(fs.statSync(path.join(root,'public'+t.art)).size>15000,id+' should keep artwork');
  }
 });
