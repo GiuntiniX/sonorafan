@@ -1023,3 +1023,51 @@ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app{
   overflow:clip!important;
  }
 }
+
+/* Room view switch alignment (187.1): keep Visual/Vídeo as a compact
+   overlay anchored to the top right corner of the media frame. */
+#screen-room.sf113-room .player-column .player-section .player-frame {
+  position:relative!important;
+}
+#screen-room.sf113-room .player-column .player-section .player-frame > .sf113-view-switch {
+  position:absolute!important;
+  inset:auto!important;
+  top:8px!important;
+  right:10px!important;
+  bottom:auto!important;
+  left:auto!important;
+  width:max-content!important;
+  max-width:calc(100% - 20px)!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:3px!important;
+  display:inline-flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  flex-wrap:nowrap!important;
+  flex:0 0 auto!important;
+  transform:none!important;
+  z-index:80!important;
+  box-sizing:border-box!important;
+  border-radius:999px!important;
+}
+#screen-room.sf113-room .player-column .player-section .player-frame > .sf113-view-switch > button {
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  margin:0!important;
+  white-space:nowrap!important;
+}
+@media (max-width:768px) {
+  #screen-room.sf113-room .player-column .player-section .player-frame > .sf113-view-switch {
+    top:6px!important;
+    right:6px!important;
+    max-width:calc(100% - 12px)!important;
+    padding:2px!important;
+  }
+}
