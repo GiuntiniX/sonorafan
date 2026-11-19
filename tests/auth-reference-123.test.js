@@ -19,7 +19,7 @@ test('login and registration reproduce the approved mockups with the approved v1
  assert.match(form,/class="sf123-login-layout"/);
  assert.match(form,/class="sf123-login-art"/);
  assert.match(form,/class="modal sf26-signup-shell sf123-signup-layout"/);
- assert.match(form,/Entre para a/);
+ assert.match(form,/Entre na sua conta/);
  assert.match(form,/Junte-se ao SonoraFan/);
  for(const filename of ['login-festival.webp','signup-crowd.webp']){
   const file=path.join(root,'art-123',filename);
