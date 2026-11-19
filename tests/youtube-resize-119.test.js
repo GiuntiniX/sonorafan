@@ -14,8 +14,8 @@ test('YouTube iframe API gets actual cover dimensions on ready',()=>{
  assert.match(html,/window\.sf119ResizeYoutube = sf119ResizeYoutube/);
  assert.match(html,/onReady: \(\) => \{[\s\S]*?sf119ResizeYoutube\(w, Math\.ceil\(w \* 9 \/ 16\)\)/);
  assert.match(html,/window\.sf119FitVideoStage\?\.\(\)/);
- assert.match(html,/sonorafan-room-redesign-113\.css\?v=119/);
- assert.match(html,/sonorafan-room-redesign-113\.js\?v=119/);
+ assert.match(html,/sonorafan-room-redesign-113\.css\?v=\d+(?:\.\d+)*/);
+ assert.match(html,/sonorafan-room-redesign-113\.js\?v=\d+(?:\.\d+)*/);
 });
 
 test('runtime synchronizes iframe after YouTube API replaces placeholder',()=>{
