@@ -370,3 +370,87 @@
    animation:none!important;transition:none!important;scroll-behavior:auto!important;
  }
 }
+
+
+/* Acesso mobile: login sem zoom de teclado nem área de arte bloqueando toques. */
+@media(max-width:800px){
+ #loginScreen.sf123-login-screen{
+   overflow-y:auto!important;overflow-x:hidden!important;
+   -webkit-overflow-scrolling:touch!important;
+   overscroll-behavior:contain!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-layout{
+   display:flex!important;flex-direction:column!important;
+   min-height:100dvh!important;height:auto!important;
+   max-height:none!important;width:100%!important;
+   overflow:visible!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-form{
+   position:relative!important;z-index:2!important;
+   display:flex!important;flex-direction:column!important;
+   justify-content:center!important;
+   width:min(100%,560px)!important;
+   height:auto!important;min-height:100dvh!important;
+   margin:0 auto!important;
+   padding:calc(25px + env(safe-area-inset-top,0px)) 20px calc(32px + env(safe-area-inset-bottom,0px))!important;
+   box-sizing:border-box!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-form>.sf123-auth-field{
+   display:flex!important;align-items:center!important;
+   width:100%!important;min-height:52px!important;height:52px!important;
+   border-radius:12px!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-form>.sf123-auth-field input{
+   min-height:50px!important;height:50px!important;min-width:0!important;
+   font-size:16px!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-eye{
+   min-width:44px!important;width:44px!important;height:48px!important;
+   display:grid!important;place-items:center!important;
+   font-size:0!important;cursor:pointer!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-eye::before{
+   content:"";display:block;width:21px;height:21px;
+   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='%23f8edf9' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E") center/contain no-repeat;
+ }
+ #loginScreen.sf123-login-screen .sf123-eye[aria-pressed="true"]::before{
+   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='%23f8edf9' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 3l18 18'/%3E%3Cpath d='M9.7 6.2A11 11 0 0 1 12 6c6.5 0 10 6 10 6s-1.2 2-3.5 3.8'/%3E%3Cpath d='M6.3 6.3C3.4 8.2 2 12 2 12s3.5 6 10 6a11 11 0 0 0 3.8-.7'/%3E%3Cpath d='M10 10a3 3 0 0 0 4 4'/%3E%3C/svg%3E");
+ }
+ #loginScreen.sf123-login-screen .sf123-login-options{
+   display:flex!important;align-items:center!important;justify-content:space-between!important;
+   flex-wrap:wrap!important;gap:10px!important;
+ }
+ #loginScreen.sf123-login-screen #loginBtn,
+ #loginScreen.sf123-login-screen .sf123-switch-signup{
+   min-height:50px!important;touch-action:manipulation!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-login-art{
+   position:fixed!important;inset:0!important;z-index:0!important;
+   opacity:.12!important;pointer-events:none!important;
+ }
+ #loginScreen.sf123-login-screen .sf123-back-home{
+   min-height:44px!important;padding:11px!important;
+   color:#eaddec!important;
+   text-decoration:underline!important;text-underline-offset:3px!important;
+ }
+ #loginScreen.sf123-login-screen :is(input,button):focus-visible{
+   outline:2px solid #cfff00!important;outline-offset:2px!important;
+ }
+}
+@media(max-width:410px){
+ #landingScreen.sf121-home .sf122-topbar .topnav-logo{
+   min-width:0!important;
+ }
+ #landingScreen.sf121-home .sf122-topbar .topnav-logo img{
+   max-width:min(225px,68vw)!important;height:auto!important;
+ }
+ #landingScreen.sf121-home .sf121-actions.sf122-auth-actions{
+   justify-content:stretch!important;gap:8px!important;
+ }
+ #landingScreen.sf121-home .sf122-login-button,
+ #landingScreen.sf121-home .sf121-actions.sf122-auth-actions .sf120-top-signup{
+   flex:1 1 0!important;min-width:0!important;
+   font-size:12px!important;min-height:44px!important;
+   padding:10px 8px!important;
+ }
+}
