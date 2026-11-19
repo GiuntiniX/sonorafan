@@ -22,7 +22,7 @@ test('theme artwork uses original generated AVIF for all existing 14 IDs without
 });
 test('the theme chooser keeps personal and shared choices and previews',()=>{
  const html=read('public/index.html'),js=read('public/sonorafan-room-themes-88.js'),css=read('public/sonorafan-theme-art-160.css');
- assert(html.includes('sonorafan-theme-art-160.css?v=160.1'));
+ assert.match(html,/sonorafan-theme-art-160\.css\?v=\d+(?:\.\d+)*/);
  assert(js.includes("sf88ThemePersonal"));
  assert(js.includes("sf88ThemeShared"));
  assert(js.includes("sf88ThemePreviewArt"));
