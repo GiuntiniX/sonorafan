@@ -40,7 +40,8 @@ test('features and login/signup actions are preserved',()=>{
 });
 
 test('preview clearly marked as mockup; scalable concert art and original brand are used',()=>{
- assert.match(landing,/Prévia ilustrativa/);
+ assert.doesNotMatch(landing,/Prévia ilustrativa · Não é uma sala conectada/);
+ assert.match(landing,/aria-label="Demonstração visual ilustrativa de uma sala SonoraFan"/);
  assert.match(landing,/sf121-room-preview/);
  assert.match(landing,/src="\/art-129\/sonorafan-stage\.svg"/);
  assert.match(landing,/src="\/brand-144\/sonorafan-logo\.svg"/);
