@@ -1,5 +1,5 @@
 /* v184: usa a imagem original, preservando o HTML do cadastro. Ativo apenas se asset 1672x941 existir. */
-@media(min-width:1050px) and (min-height:650px){
+@media (min-width:1050px){
 #signupModal.sf184-image-ready .sf123-signup-layout{width:min(98vw,calc(96vh * 1672 / 941))!important;max-width:none!important;height:auto!important;max-height:96vh!important;aspect-ratio:1672/941!important;display:block!important;position:relative!important;overflow:hidden!important;padding:0!important;border:0!important;border-radius:2%!important;background:#170e20 url('/art-132/sonorafan-cadastro-referencia-exata.webp') center/100% 100% no-repeat!important;container-type:inline-size}
 #signupModal.sf184-image-ready .sf123-signup-intro,#signupModal.sf184-image-ready .sf123-signup-layout>:is(.sf180-clipboard-clip,.sf180-backstage-badge,.sf180-setlist-note,.sf181-polaroid,.sf181-pink-note,.sf181-flightcase){display:none!important}
 #signupModal.sf184-image-ready .sf123-signup-form{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;pointer-events:none!important}
@@ -69,7 +69,7 @@
 
 /* v184.2 — neutraliza definitivamente o placeholder impresso na arte
    e qualquer estilo antigo de foco, mantendo o conteúdo digitado legível. */
-@media (min-width:1050px) and (min-height:650px){
+@media (min-width:1050px){
  #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field,
  #signupModal.sf184-image-ready .sf123-form-grid > .sf123-form-group .sf123-auth-field:focus-within{
    background:#fff!important;
@@ -127,7 +127,7 @@
 
 
 /* v184.3 — único check alinhado sobre a marca impressa na imagem. */
-@media(min-width:1050px) and (min-height:650px){
+@media (min-width:1050px){
 #signupModal.sf184-image-ready .sf123-consent input{
  left:-1.34cqw!important;
  top:50%!important;
@@ -172,7 +172,7 @@
 
 
 /* v184.4 — controles sobre a arte, sem preencher as palavras desenhadas. */
-@media(min-width:1050px) and (min-height:650px){
+@media (min-width:1050px){
   /* O texto dos estilos faz parte da imagem; o clique real só desenha borda. */
   #signupModal.sf184-image-ready #signupStyles .chip,
   #signupModal.sf184-image-ready #signupStyles .chip.selected,
@@ -232,7 +232,7 @@
 }
 
 /* v184.4.1: coincide com a caixa impressa (posição medida na arte 1672x941). */
-@media(min-width:1050px) and (min-height:650px){
+@media (min-width:1050px){
 #signupModal.sf184-image-ready .sf123-consent{left:43.2%!important}
 #signupModal.sf184-image-ready .sf123-consent input{width:1.4cqw!important;height:1.4cqw!important}
 }
