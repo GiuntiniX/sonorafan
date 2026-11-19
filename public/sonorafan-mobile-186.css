@@ -501,3 +501,20 @@
     flex:0 0 auto!important;
   }
 }
+
+/* v186.3 — legibilidade do slogan no cadastro mobile.
+ * As quebras <br> da frase são mantidas (antes estavam escondidas e
+ * as palavras ficavam concatenadas). Não altera o desktop.
+ */
+@media (max-width:800px){
+ #signupModal.sf123-signup-screen .sf123-signup-intro h2{
+   letter-spacing:-.015em!important;
+   word-spacing:.06em!important;
+   line-height:1.14!important;
+   overflow-wrap:normal!important;
+   word-break:normal!important;
+ }
+ #signupModal.sf123-signup-screen .sf123-signup-intro h2 br{
+   display:block!important;
+ }
+}
