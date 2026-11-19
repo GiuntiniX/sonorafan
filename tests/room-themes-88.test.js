@@ -14,8 +14,8 @@ test('original Geral plus 14 illustrated room themes have safe asset paths',()=>
    assert.ok(!ids.has(t.id),'Duplicate theme '+t.id);
    ids.add(t.id);
    for(const color of ['primary','secondary','bg','text'])assert.match(t[color],/^#[a-f0-9]{6}$/i);
-   assert.match(t.art,/^\\/themes\\/[a-z0-9/_-]+\\.webp$/,'theme art path must be local WebP');
-   assert.match(t.thumbnail,/^\\/themes\\/[a-z0-9/_-]+\\.webp$/,'thumbnail path must be local WebP');
+   assert.match(t.art,/^\/themes\/[a-z0-9/_-]+\.webp$/,'theme art path must be local WebP');
+   assert.match(t.thumbnail,/^\/themes\/[a-z0-9/_-]+\.webp$/,'thumbnail path must be local WebP');
    assert.ok(fs.existsSync(path.join(root,'public'+t.thumbnail)),'missing thumbnail '+t.id);
    const file='public'+t.art;
    assert.ok(fs.existsSync(path.join(root,file)),file);
