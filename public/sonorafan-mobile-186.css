@@ -194,7 +194,7 @@
  #signupModal.sf123-signup-screen .sf123-consent button{
    display:inline!important;pointer-events:auto!important;
    margin:0!important;padding:0!important;border:0!important;
-   background:linear-gradient(transparent 68%,#d0ff21 68%)!important;
+   background:transparent!important;background-image:none!important;
    color:#211523!important;-webkit-text-fill-color:#211523!important;
    font-weight:750!important;font-size:inherit!important;font-family:inherit!important;text-decoration:underline!important;
    cursor:pointer!important;
