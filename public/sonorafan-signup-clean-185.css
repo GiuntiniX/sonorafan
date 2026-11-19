@@ -350,3 +350,21 @@
    font-size:clamp(11px,.85cqw,15px)!important;
  }
 }
+
+/* v190 — o modal é o único contêiner de rolagem vertical do cadastro.
+   Nenhum filho deve interromper o encadeamento do wheel/touchpad. */
+@media (min-width:1050px){
+  #signupModal.sf123-signup-screen.sf184-image-ready.active{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-y:auto!important;
+    scroll-behavior:auto!important;
+  }
+  #signupModal.sf184-image-ready .sf123-signup-layout,
+  #signupModal.sf184-image-ready .sf123-signup-form{
+    overscroll-behavior-y:auto!important;
+  }
+  #signupModal.sf184-image-ready .sf123-signup-form{
+    overflow:visible!important;
+  }
+}
