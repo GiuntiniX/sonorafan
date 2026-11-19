@@ -272,3 +272,18 @@
  #signupModal.sf184-image-ready a.sf123-back-home:hover{color:#e50087!important;-webkit-text-fill-color:#e50087!important}
  #signupModal.sf184-image-ready a.sf123-back-home:focus-visible{outline:2px solid #e50087!important;outline-offset:2px!important}
 }
+
+/* v188 — Arte aprovada sem a foto sobre o crachá, somente quando o AVIF carregar.
+   O formulário continua sendo HTML real sobre a imagem, sem criar duas interfaces.
+   Preserva o fallback anterior até que o novo arquivo esteja no GitHub. */
+@media (min-width:1050px) {
+  #signupModal.sf184-image-ready.sf188-backstage-ready .sf123-signup-layout {
+    background-image:url('/art-132/sonorafan-cadastro-backstage-final.avif?v=188')!important;
+  }
+  #signupModal.sf184-image-ready.sf188-backstage-ready .sf123-signup-form {
+    left:37.45%!important;
+    top:11.8%!important;
+    width:44.1%!important;
+    height:81.3%!important;
+  }
+}
