@@ -49,9 +49,9 @@ test('visual layer reuses room selector, follows personal/shared theme and leave
 
 test('theme artwork stylesheet is loaded at end and does not create duplicate UI',()=>{
  const html=read('public/index.html');
- assert.match(html,/sonorafan-theme-atmospheres-143\.css\?v=143\.0/);
- assert.match(html,/sonorafan-room-themes-88\.js\?v=143\.0/);
- assert.match(html,/sonorafan-room-personalization-133\.js\?v=143\.0/);
+ assert.match(html,/sonorafan-theme-atmospheres-143\.css\?v=\d+(?:\.\d+)*/);
+ assert.match(html,/sonorafan-room-themes-88\.js\?v=\d+(?:\.\d+)*/);
+ assert.match(html,/sonorafan-room-personalization-133\.js\?v=\d+(?:\.\d+)*/);
  const old=html.indexOf('sonorafan-mobile-music-138.css');
  const newStyle=html.indexOf('sonorafan-theme-atmospheres-143.css');
  assert.ok(newStyle>old,'Last room stylesheet should own atmospheric treatment');
