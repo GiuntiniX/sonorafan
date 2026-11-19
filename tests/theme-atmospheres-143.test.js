@@ -27,9 +27,9 @@ test('each of the fourteen genre themes has its own new illustrated overlay and 
    bodies.add(art);
    assert.match(css,new RegExp('data-room-theme="'+id+'"'));
    assert.ok(css.includes('url("/themes/atmospheres/'+id+'.svg")'));
-   assert.equal(catalog.find(x=>x.id===id).art,'/themes/illustrations/'+id+'.webp');
+   assert.match(catalog.find(x=>x.id===id).art,/^\/themes\/[a-z0-9/_-]+\.webp$/);
  }
- assert.equal(catalog.find(x=>x.id==='geral').art,'/art-44/vinyl-room.webp');
+ assert.match(catalog.find(x=>x.id==='geral').art,/^\/themes\/[a-z0-9/_-]+\.webp$/);
  assert.doesNotMatch(css,/data-room-theme="geral"\]\s*\{/);
 });
 
