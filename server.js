@@ -48,7 +48,7 @@ const db = getFirestore();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: process.env.CORS_ORIGIN || false, credentials: true } });
+const io = new Server(server, { cors: { origin: process.env.CORS_ORIGIN?.trim().replace(/\/$/, '') || false, credentials: true } });
 
 app.use(compression());
 app.use((req, res, next) => {
@@ -66,7 +66,7 @@ app.use((req,res,next)=>{
 });
 app.get('/api/client-version',(req,res)=>{
   res.set('Cache-Control','no-store');
-  res.json({mobile:'137.1',commit:process.env.RENDER_GIT_COMMIT||null});
+  res.json({mobile:'186.3',commit:process.env.RENDER_GIT_COMMIT||null});
 });
 // Compatibilidade com páginas/atalhos ainda em cache das marcas v54/v64.
 // Os binários obsoletos podem ser retirados sem quebrar URLs legadas.
@@ -143,16 +143,46 @@ const users = new Map();
 const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 const sh = t => crypto.createHash('sha256').update(String(t)).digest('hex');
 const sessionMap = new Map();
+const sessionExpirations = new Map();
 const sessions = {
-  get: t => sessionMap.get(sh(t)),
-  set: (t, email) => { const k = sh(t); sessionMap.set(k, email); db.collection('sessions').doc(k).set({ email, exp: Date.now() + SESSION_MS }).catch(() => {}); },
-  delete: t => { const k = sh(t); sessionMap.delete(k); db.collection('sessions').doc(k).delete().catch(() => {}); }
+  get: t => {
+    if (!t) return null;
+    const key = sh(t), email = sessionMap.get(key), expiry = sessionExpirations.get(key);
+    if (!email) return null;
+    if (expiry !== undefined && expiry <= Date.now()) {
+      sessionMap.delete(key);
+      sessionExpirations.delete(key);
+      db.collection('sessions').doc(key).delete().catch(() => {});
+      return null;
+    }
+    return email;
+  },
+  set: (t, email) => {
+    const key = sh(t), exp = Date.now() + SESSION_MS;
+    sessionMap.set(key, email);
+    sessionExpirations.set(key, exp);
+    db.collection('sessions').doc(key).set({ email, exp }).catch(e => console.error('Erro ao persistir sessão:', e.message));
+  },
+  delete: t => {
+    if (!t) return;
+    const key = sh(t);
+    sessionMap.delete(key);
+    sessionExpirations.delete(key);
+    db.collection('sessions').doc(key).delete().catch(() => {});
+  }
 };
-function dropSessions(email) { for (const [k, e] of sessionMap) if (e === email) { sessionMap.delete(k); db.collection('sessions').doc(k).delete().catch(() => {}); } }
+function dropSessions(email) {
+  for (const [key, currentEmail] of sessionMap)
+    if (currentEmail === email) {
+      sessionMap.delete(key);
+      sessionExpirations.delete(key);
+      db.collection('sessions').doc(key).delete().catch(() => {});
+    }
+}
 async function loadSessions() {
   try {
     const snap = await db.collection('sessions').get(), now = Date.now();
-    snap.forEach(d => { const v = d.data(); if (v.exp > now) sessionMap.set(d.id, v.email); else d.ref.delete().catch(() => {}); });
+    snap.forEach(d => { const v = d.data(); if (v.exp > now) { sessionMap.set(d.id, v.email); sessionExpirations.set(d.id, v.exp); } else d.ref.delete().catch(() => {}); });
     console.log(`✅ ${sessionMap.size} sessões restauradas.`);
   } catch (e) {}
 }
