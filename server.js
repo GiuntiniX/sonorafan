@@ -834,8 +834,9 @@ app.get('/api/social/notifications',rateLimit(50,60000),async(req,res)=>{
     const reminders=[...socialEvents.values()].filter(e=>e&&e.startAt>=now&&e.startAt<now+24*3600000&&Array.isArray(e.attendees)&&e.attendees.includes(me)&&rooms.get(e.roomSlug)&&!rooms.get(e.roomSlug).isPrivate)
       .map(e=>({id:'event-'+e.id,type:'event',title:'Evento chegando',message:eventClean(e.title,70)+' · '+new Date(e.startAt).toLocaleString('pt-BR'),roomSlug:e.roomSlug,createdAt:e.startAt,read:false}));
     const readIds=new Set(stored.filter(x=>x.type==='event_seen').map(x=>x.id));
-    const normal=stored.filter(x=>x.type!=='event_seen' && (x.type!=='invite' || (rooms.has(x.roomSlug)&&!rooms.get(x.roomSlug).isPrivate)));
-    res.json([...reminders.map(x=>({...x,read:readIds.has('seen-'+x.id)})),...normal].sort((a,b)=>b.createdAt-a.createdAt).slice(0,70));
+    const dismissedIds=new Set(stored.filter(x=>x.type==='event_hidden').map(x=>x.id));
+    const normal=stored.filter(x=>x.type!=='event_seen' && x.type!=='event_hidden' && (x.type!=='invite' || (rooms.has(x.roomSlug)&&!rooms.get(x.roomSlug).isPrivate)));
+    res.json([...reminders.filter(x=>!dismissedIds.has('hidden-'+x.id)).map(x=>({...x,read:readIds.has('seen-'+x.id)})),...normal].sort((a,b)=>b.createdAt-a.createdAt).slice(0,70));
   }catch(e){console.error('notifications read:',e.message);res.status(503).json({error:'Notificações indisponíveis'});}
 });
 app.post('/api/social/notifications/read',rateLimit(30,60000),async(req,res)=>{
@@ -848,6 +849,30 @@ app.post('/api/social/notifications/read',rateLimit(30,60000),async(req,res)=>{
     for(const id of ids.filter(x=>x.startsWith('event-'))){const mark='seen-'+id;if(!current.some(x=>x.id===mark))current.unshift({id:mark,type:'event_seen',read:true,createdAt:Date.now()});}
     await sf15WriteAlerts(email,current);res.json({success:true});
   }catch(e){res.status(503).json({error:'Não foi possível atualizar'});}
+});
+// Arquivar notificações não apaga mensagens, eventos nem o conteúdo de Fan Clubs.
+// Os lembretes calculados recebem um registro de ocultação para não reaparecerem.
+app.post('/api/social/notifications/dismiss',rateLimit(30,60000),async(req,res)=>{
+  const email=sessionEmail(req);if(!email)return res.status(401).json({error:'Faça login'});
+  const all=req.body?.all===true;
+  const ids=Array.isArray(req.body?.ids)?req.body.ids.filter(x=>typeof x==='string'&&x.length<100).slice(0,70):[];
+  if(!all&&!ids.length)return res.status(400).json({error:'Selecione uma notificação'});
+  try{
+    const stored=await sf15GetAlerts(email);
+    const eventPrefix='event-';
+    const activeEvents=[...socialEvents.values()].filter(e=>e&&e.startAt>=Date.now()&&e.startAt<Date.now()+24*3600000&&Array.isArray(e.attendees)&&e.attendees.includes(sf15UserKey(email))&&rooms.get(e.roomSlug)&&!rooms.get(e.roomSlug).isPrivate).map(e=>eventPrefix+e.id);
+    const eventIds=all?activeEvents:ids.filter(id=>id.startsWith(eventPrefix)&&activeEvents.includes(id));
+    const removeIds=new Set(ids);
+    const remaining=all?stored.filter(x=>x.type==='event_hidden'):stored.filter(x=>!removeIds.has(x.id));
+    // Registramos somente identificadores de eventos realmente acessíveis ao usuário.
+    for(const id of eventIds){
+      const marker='hidden-'+id;
+      if(!remaining.some(x=>x.id===marker))remaining.unshift({id:marker,type:'event_hidden',createdAt:Date.now(),read:true});
+    }
+    await sf15WriteAlerts(email,remaining);
+    io.to('sf53-user-'+sf15UserKey(email)).emit('sf111Notification',{type:'dismiss'});
+    res.json({success:true,removed:all?stored.filter(x=>x.type!=='event_hidden').length+eventIds.length:ids.length});
+  }catch(err){console.error('notifications dismiss:',err.message);res.status(503).json({error:'Não foi possível limpar notificações'});}
 });
 app.post('/api/social/invite-friend',rateLimit(8,60000),async(req,res)=>{
   const email=sessionEmail(req);if(!email)return res.status(401).json({error:'Faça login'});
