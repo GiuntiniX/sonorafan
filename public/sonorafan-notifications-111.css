@@ -184,3 +184,54 @@
 @media(prefers-reduced-motion:reduce){
   #screen-room #chatMessagesInner .msg.sf111-mention-highlight{scroll-behavior:auto!important}
 }
+
+/* Notificações 187 — ações de descarte em todas as telas, sem tocar no chat. */
+.sf111-panel .sf111-bar-actions{flex-wrap:wrap!important;justify-content:flex-end!important}
+.sf111-panel .sf111-clear-all{
+  border:1px solid rgba(244,141,170,.52)!important;
+  background:rgba(84,26,65,.52)!important;
+  color:#ffd2e2!important;
+  border-radius:999px!important;
+  min-height:34px!important;
+  padding:8px 11px!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+}
+.sf111-panel .sf111-clear-all:hover{background:#71334d!important;border-color:#ffc0d4!important}
+.sf111-panel .sf111-clear-all:disabled{opacity:.45!important;cursor:default!important}
+.sf111-panel .sf111-item-meta{align-items:center!important}
+.sf111-panel .sf111-dismiss{
+  display:grid!important;place-items:center!important;
+  min-width:32px!important;width:32px!important;min-height:32px!important;height:32px!important;
+  flex:0 0 32px!important;padding:0!important;
+  border:1px solid #865576!important;border-radius:50%!important;
+  background:#2c1837!important;color:#ffcfdf!important;
+  font:700 21px/1 system-ui,sans-serif!important;
+  cursor:pointer!important;
+}
+.sf111-panel .sf111-dismiss:hover{color:#fff!important;border-color:#ffbed5!important;background:#673250!important}
+.sf111-panel .sf111-dismiss:disabled{opacity:.45!important;cursor:default!important}
+#screen-lobby .sf111-lobby-notice-wrap{
+  position:relative;display:flex;align-items:center;min-width:0;width:100%;
+}
+#screen-lobby .sf111-lobby-notice-wrap>.sf111-lobby-notice{
+  flex:1 1 auto;min-width:0;width:100%;padding-right:38px!important;
+}
+#screen-lobby .sf111-lobby-dismiss{
+  position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  display:grid;place-items:center;
+  min-width:30px;width:30px;height:30px;padding:0;
+  border-radius:50%;border:1px solid #7c5276;
+  background:#311a37;color:#f8cedd;
+  font:700 19px/1 system-ui,sans-serif;
+  cursor:pointer;z-index:2;touch-action:manipulation;
+}
+#screen-lobby .sf111-lobby-dismiss:hover{border-color:#ffc3d8;background:#623354;color:white}
+#screen-lobby .sf111-lobby-dismiss:focus-visible{outline:2px solid #ffc3a2;outline-offset:2px}
+@media(max-width:600px){
+  .sf111-panel .sf111-bar-actions{gap:6px!important}
+  .sf111-panel .sf111-clear-all{min-height:40px!important}
+  .sf111-panel .sf111-dismiss{width:36px!important;height:36px!important;min-width:36px!important}
+  #screen-lobby .sf111-lobby-dismiss{width:36px;height:36px}
+}
