@@ -91,9 +91,12 @@ function open(){
  const actions=el('div','sf111-bar-actions');
  const all=el('button','sf111-mark-all','✓ Marcar todas como lidas');
  all.type='button';all.addEventListener('click',markAll);
+ const clear=el('button','sf111-clear-all','✕ Limpar todas');
+ clear.type='button';clear.setAttribute('aria-label','Limpar todas as notificações');
+ clear.addEventListener('click',clearAll);
  const invite=el('button','sf15-invite','＋ Convidar amigo');
  invite.type='button';invite.addEventListener('click',inviteFriend);
- actions.append(all,invite);toolbar.append(tabs,actions);
+ actions.append(all,clear,invite);toolbar.append(tabs,actions);
  const content=el('div','sf15-content sf111-content');
  content.setAttribute('aria-live','polite');
  panel.append(head,toolbar,content);overlay.append(panel);
@@ -118,6 +121,29 @@ async function markAll(){
   renderBadge();paint();
  }catch(e){info(e.message);}
  finally{state.busy=false;}
+}
+async function dismissOne(id){
+ if(state.busy||typeof id!=='string')return false;
+ const found=state.alerts.some(a=>a.id===id);if(!found)return false;
+ state.busy=true;paint();
+ try{
+   await post('/api/social/notifications/dismiss',{ids:[id]});
+   state.alerts=state.alerts.filter(a=>a.id!==id);
+   state.lastFetch=0;renderBadge();if(state.drawer&&!state.inInvite)paint();
+   return true;
+ }catch(e){info(e.message);return false;}
+ finally{state.busy=false;if(state.drawer&&!state.inInvite)paint();}
+}
+async function clearAll(){
+ if(state.busy||!state.alerts.length)return;
+ state.busy=true;paint();
+ try{
+   await post('/api/social/notifications/dismiss',{all:true});
+   state.alerts=[];
+   state.lastFetch=0;renderBadge();if(state.drawer&&!state.inInvite)paint();
+   info('Notificações removidas.','success');
+ }catch(e){info(e.message);}
+ finally{state.busy=false;if(state.drawer&&!state.inInvite)paint();}
 }
 function focusChatMessage(a){
  const id=String(a.messageId||'');if(!/^[A-Za-z0-9._-]{1,100}$/.test(id))return;
@@ -190,6 +216,8 @@ function paint(){
  }
  const all=shown(),bar=state.drawer.querySelector('.sf111-mark-all');
  if(bar)bar.disabled=!all.some(a=>!a.read)||state.busy;
+ const clear=state.drawer.querySelector('.sf111-clear-all');
+ if(clear)clear.disabled=!state.alerts.length||state.busy;
  if(!all.length){
   box.append(el('div','sf15-empty sf111-empty',
    state.filter==='message'?'Nenhuma mensagem privada por enquanto.':
@@ -207,6 +235,12 @@ function paint(){
   infoBox.append(el('span','sf111-type-name',category),el('strong','',a.title||category),el('p','',a.message||''));
   const meta=el('div','sf111-item-meta');
   meta.append(el('small','',since(a.createdAt)));if(!a.read)meta.append(el('i','sf111-unread-dot'));
+  const dismiss=el('button','sf111-dismiss','×');
+  dismiss.type='button';dismiss.title='Remover notificação';
+  dismiss.setAttribute('aria-label','Remover notificação: '+(a.title||category));
+  dismiss.disabled=state.busy;
+  dismiss.addEventListener('click',e=>{e.stopPropagation();dismissOne(a.id);});
+  meta.append(dismiss);
   head.append(icon,infoBox,meta);card.append(head);
   const actions=el('div','sf15-actions sf111-item-actions');
   const label=a.type==='message'?'Abrir conversa':a.type==='mention'?'Ver na sala':
@@ -262,6 +296,8 @@ function init(){
  mount();window.sf15OpenNotifications=open;
  window.sf15InviteFriend=()=>{if(!state.drawer)open();if(state.drawer)inviteFriend();};
  window.sf15RefreshNotifications=()=>load(true);
+ window.sf15DismissNotification=id=>dismissOne(id);
+ window.sf15ClearNotifications=()=>clearAll();
  window.sf15OpenNotification=id=>{const item=state.alerts.find(a=>a.id===id);if(item)navigate(item);else open();};
  window.sf15MarkPrivateRead=async id=>{
    if(!peer(id))return;
