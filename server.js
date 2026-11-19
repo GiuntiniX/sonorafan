@@ -386,7 +386,14 @@ function broadcastUsers(slug) {
     io.to(slug).emit('users', userList);
   });
 }
+// Eventos rotineiros da fila são refletidos no player e na própria fila,
+// não no chat público. Avisos administrativos e de moderação continuam visíveis.
+function isRoutineMusicChatNotice(text) {
+  return typeof text === 'string' &&
+    /^(?:▶ |📥 Música da fila de espera:|🏁 Fila encerrada\.|📻 Rádio automático:|🧹 A fila foi limpa por um administrador\.|🗑️ "|⏭️ |⏳ "|⛔ "|👎 ")/u.test(text);
+}
 function addSystemMsg(slug, text) {
+  if (isRoutineMusicChatNotice(text)) return;
   const room = rooms.get(slug);
   if (!room) return;
   const msg = { _id: Date.now().toString() + Math.random(), user: 'Sistema', text, color: '#888', isSystem: true, createdAt: new Date() };
