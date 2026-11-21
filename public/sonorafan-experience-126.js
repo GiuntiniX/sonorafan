@@ -196,6 +196,8 @@
    }
    clubRail(shell);
    window.sf71LoadFanClubs?.();
+   // Assegurar que a home independente seja montada após o shell mover o hub.
+   window.sf235ShowHome?.();
  }
  function installFanClubs(){
    if(typeof window.sf110OpenCommunity==='function'){
