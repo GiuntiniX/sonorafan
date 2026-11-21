@@ -201,9 +201,16 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const room=rooms.get(clean(req.params.slug,100));
     if(!room||room.isPrivate||room.slug.toLowerCase()==='lobby')return res.json({clubs:[]});
     try{
-      const snap=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).limit(6).get();
-      const clubs=snap.docs.filter(d=>!d.data()?.deleting)
-        .map(d=>({...record(d.data(),d.id),primary:d.data().defaultRoomSlug===room.slug}));
+      // Consultar por array; em documentos legados, reconciliar pelo registro persistido.
+      const direct=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).limit(100).get();
+      let docs=direct.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug));
+      if(!docs.length){
+        const all=await db.collection(CLUBS).limit(500).get();
+        docs=all.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug));
+      }
+      const clubs=docs.map(d=>({...record(d.data(),d.id),primary:d.data().defaultRoomSlug===room.slug}))
+        .sort((a,b)=>Number(b.primary)-Number(a.primary)||String(a.title||'').localeCompare(String(b.title||''),'pt-BR'));
+      res.set('Cache-Control','private, no-store');
       res.json({clubs});
     }catch(e){error(res,e);}
   });
