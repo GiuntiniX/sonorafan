@@ -265,3 +265,17 @@
 @media(prefers-reduced-motion:reduce){
  #sf43ProfileModal.sf112-ready .sf206-hero *,#sf43ProfileModal.sf112-ready .sf206-panel *{transition:none!important}
 }
+
+
+/* Evitar dois menus de navegação simultâneos na visão geral.
+   As abas legadas continuam acessíveis ao abrir Editar Perfil, Biblioteca ou Jornada. */
+#sf43ProfileModal.sf112-ready.sf112-tab-overview #sf112Tabs{display:none!important}
+#sf43ProfileModal.sf112-ready.sf112-tab-overview .sf43-profile-close{
+ top:13px!important;right:19px!important;z-index:80!important;
+}
+#sf43ProfileModal.sf112-ready.sf112-tab-overview .sf206-hero .sf206-hero-actions{
+ margin-right:34px!important;
+}
+@media(max-width:600px){
+ #sf43ProfileModal.sf112-ready.sf112-tab-overview .sf206-hero .sf206-hero-actions{margin-right:0!important}
+}
