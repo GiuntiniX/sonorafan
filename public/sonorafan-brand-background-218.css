@@ -66,3 +66,17 @@ body>.screen,
 @media(prefers-color-scheme:light){
  html,body,#screen-lobby,#screen-room{background-color:var(--sf-brand-bg)!important}
 }
+
+/* Remove texturas/gradientes concorrentes somente dos canvases estruturais. */
+#screen-lobby.sf125-platform .sf28-lobby-app.sf125-app,
+#screen-lobby.sf125-platform .sf125-main,
+#screen-lobby.sf125-platform .sf125-sidebar,
+#screen-lobby .sf28-lobby-main,
+#screen-room>.app{
+ background-image:none!important;
+}
+#screen-lobby .sf216-page,
+#screen-lobby .sf216-content,
+#screen-lobby .sf216-shell{background-image:none!important}
+/* Elementos de arte, capas, cenas de temas, banners e cards são exceções
+   deliberadas ao canvas uniforme: suas imagens permanecem disponíveis. */
