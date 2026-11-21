@@ -20,7 +20,7 @@ test('Overview does not clone the legacy avatar and preserves original editor',(
  new Function(overview);
  assert.doesNotMatch(overview,/cloneNode\(true\)/);
  assert.doesNotMatch(overview,/sf202-profile-avatar/);
- assert.match(overview,/const move=tab=>\{window\.sf112SwitchProfileTab\?\.\(tab\);\}/);
+ assert.match(overview,/function move\(tab\)\{window\.sf112SwitchProfileTab\?\.\(tab\);\}/);
  assert.match(tabs,/\['profile','◉ Editar perfil'\]/);
 });
 test('Club participation matches overview totals even for clubs you administer',()=>{
