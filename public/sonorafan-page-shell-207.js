@@ -21,6 +21,7 @@ function restore(){
  screen.classList.remove('sf207-profile-page');
  content.classList.remove('sf207-profile-content');
  content.querySelector('#sf43ProfileModal')?.classList.remove('sf207-in-page');
+ const p=$('sf43ProfileModal');if(p){p.setAttribute('role','dialog');p.setAttribute('aria-modal','true');}
  document.body.classList.remove('sf43-modal-open');
  if(lastSection==='profile')menu(content.classList.contains('sf200-is-open')?'agenda':'lobby');
 }
@@ -30,6 +31,8 @@ function endSecondary(){
  if(!content)return;
  const old=secondaryPage;
  secondaryPage='';
+ const inactive=old==='clubs'?content.querySelector('.sf5-community-layer'):old==='ranking'?$('lbModal'):null;
+ inactive?.querySelector('[aria-modal="false"]')?.setAttribute('aria-modal','true');
  content.classList.remove('sf207-clubs-content','sf207-ranking-content');
  $('screen-lobby')?.classList.remove('sf207-clubs-page','sf207-ranking-page');
  if(old==='clubs')content.querySelector('.sf5-community-layer .sf5-close')?.click();
@@ -52,6 +55,7 @@ function startSecondary(type){
  content.classList.add(type==='clubs'?'sf207-clubs-content':'sf207-ranking-content');
  screen.classList.add(type==='clubs'?'sf207-clubs-page':'sf207-ranking-page');
  node.classList.add('sf207-in-page');
+ node.querySelector('[aria-modal="true"]')?.setAttribute('aria-modal','false');
  secondaryPage=type;
  menu(type);
  content.scrollTo({top:0,behavior:'instant'});
@@ -73,6 +77,7 @@ function openProfile(tab='overview'){
  screen.classList.add('sf207-profile-page');
  content.classList.add('sf207-profile-content');
  modal.classList.add('sf207-in-page');
+ modal.setAttribute('role','region');modal.setAttribute('aria-modal','false');
  isPage=true;
  // Reutiliza a abertura, autenticação, dados e carregamento das abas existentes.
  if(typeof window.sf112OpenProfile==='function')window.sf112OpenProfile(tab);
@@ -85,6 +90,11 @@ let originalOpen=null,originalClose=null,originalNavigate=null;
 function init(){
  const modal=$('sf43ProfileModal'),content=$('screen-lobby')?.querySelector('.sf28-lobby-content');
  if(!modal||!content)return;
+ modal.addEventListener('click',event=>{
+  if(!isPage||!event.target.closest('.sf43-profile-close'))return;
+  event.preventDefault();event.stopImmediatePropagation();
+  window.sf112SwitchProfileTab?.('overview');
+ },true);
  originalOpen=window.sf5OpenProfile;
  originalClose=window.sf43CloseProfile;
  originalNavigate=window.sf125Navigate;
