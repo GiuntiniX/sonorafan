@@ -52,7 +52,7 @@
     if(typeof window.leaveRoom==='function')window.leaveRoom();
     window.sf125Navigate?.('clubs');
     window.sf71OpenFanClub(id);
-    history.replaceState(null,'',location.pathname+location.search.replace(/[?&]sala=[^&]*/,'')+'#fanclub/'+encodeURIComponent(id));
+    history.replaceState(null,'',location.pathname+'#fanclub/'+encodeURIComponent(id));
    });
   }
   if(!panel.isConnected||panel.previousElementSibling!==head)head.after(panel);
