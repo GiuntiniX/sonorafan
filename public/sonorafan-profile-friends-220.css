@@ -59,3 +59,19 @@
 #sf202ProfileOverview .sf220-received>header span{font-size:11px;color:#c5b5ce}
 #sf202ProfileOverview .sf220-received-empty{margin:0;padding:15px 12px;border-radius:10px;background:#26172e;color:#c6afce;font-size:11px;line-height:1.5}
 #sf202ProfileOverview .sf220-friend-card.sf220-highlight{outline:2px solid #c4ff00;outline-offset:2px}
+
+
+/* Fluxo de amizade por consentimento — solicitações em primeiro plano. */
+#sf202ProfileOverview .sf220-friends .sf220-request-section{margin:17px 0 19px;padding:14px;border:1px solid #82518a;border-radius:13px;background:linear-gradient(140deg,#281530,#201528)}
+#sf202ProfileOverview .sf220-friends .sf220-request-section>header{margin:0 0 13px}
+#sf202ProfileOverview .sf220-request-badge{display:inline-grid;place-items:center;min-width:23px;height:22px;margin-left:5px;border-radius:999px;background:#ceff2b;color:#1a1e11;font-size:11px;font-weight:900;padding:0 6px}
+#sf202ProfileOverview .sf220-section-title{font-size:14px;color:#f8eaff;margin:16px 0 12px}
+#sf202ProfileOverview .sf220-request-section .sf220-friend-card{background:#301c36;border-color:#a56eaf}
+#sf202ProfileOverview .sf220-request-section .sf220-friend-status{color:#e4c8ff}
+#sf202ProfileOverview .sf220-friend-actions button.sf220-accept{border-color:#c6ff38;background:#c6ff38;color:#172015;font-weight:850}
+#sf202ProfileOverview .sf220-friend-actions button.sf220-decline{background:transparent;color:#ddc7e6;border-color:#855c92}
+#sf202ProfileOverview .sf220-friend-actions button:focus-visible{outline:2px solid #d2ff58;outline-offset:2px}
+#sf202ProfileOverview .sf220-friend-actions button[disabled]{opacity:.6;cursor:wait}
+#sf202ProfileOverview .sf220-friends .sf220-received:not(.sf220-request-section){margin-top:22px}
+#sf202ProfileOverview .sf220-friend-card.sf220-pending-card{position:relative}
+@media(max-width:620px){#sf202ProfileOverview .sf220-friends .sf220-request-section{padding:11px}#sf202ProfileOverview .sf220-request-section .sf220-friend-actions button{flex:1}}
