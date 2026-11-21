@@ -106,7 +106,16 @@
 
  async function api(url,opts={}){
    const r=await fetch(url,{credentials:'include',...opts,headers:{...(opts.body?{'Content-Type':'application/json'}:{}),...(opts.headers||{})}});
-   const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(r.status===429?'Muitas tentativas em pouco tempo. Tente novamente em aproximadamente 1 minuto.':(data.error||'Erro ao carregar a comunidade.'));return data;
+   const data=await r.json().catch(()=>({}));
+   if(!r.ok){
+     const detail=r.status===429?'Muitas tentativas em pouco tempo. Tente novamente em aproximadamente 1 minuto.':
+       r.status===401?'Sessão expirada. Entre novamente na sua conta.':
+       r.status===404?'Recurso não encontrado. Verifique se o servidor foi atualizado.':
+       r.status>=500?'Falha temporária no servidor da comunidade.':
+       (data.error||'Não foi possível concluir esta operação.');
+     throw Error(detail+' (HTTP '+r.status+')');
+   }
+   return data;
  }
  const post=(url,data)=>api(url,{method:'POST',body:JSON.stringify(data||{})});
  const action=async (fn,msg)=>{if(state.busy)return;state.busy=true;status('Salvando…');
@@ -752,7 +761,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
      renderSocialWidgets();
      if(c.joined){
        const feedArea=$('sf160FeedArea');if(feedArea)feedArea.hidden=false;
-          await loadPosts(id);await loadExtras(id);
+          await Promise.allSettled([loadPosts(id),loadExtras(id)]);
          if(state.activeId===id)startLive(id);
          const match=decodeURIComponent(location.hash).match(/^#fanclub\/([a-f0-9-]{36})\/topic\/([A-Za-z0-9_-]{1,100})$/);
          if(match?.[1]===id){switchPane('mural');await openTopic(id,match[2],false);}
@@ -940,11 +949,11 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
      '<label>Segunda imagem · ícone quadrado (URL HTTPS)<input type="url" name="badgeImageUrl" maxlength="500" placeholder="https://exemplo.com/icone.webp" value="'+esc(club.badgeImageUrl||'')+'"></label>'+
       '<small>Substitui a nota musical no topo do Fanclub. Deixe vazio para restaurar o ícone original. A capa principal continua independente.</small>',
      async fd=>{
-       await api('/api/fan-clubs/'+encodeURIComponent(id)+'/identity',{method:'PATCH',body:JSON.stringify({
-         title:fd.get('title'),artist:fd.get('artist'),genre:fd.get('genre'),theme:fd.get('theme')})});
         const raw=String(fd.get('badgeImageUrl')||'').trim();
         if(raw&&!safeUrl(raw))throw Error('A segunda imagem precisa de um endereço HTTPS público válido.');
-        await api('/api/fan-clubs/'+encodeURIComponent(id)+'/badge-image',{method:'PATCH',body:JSON.stringify({badgeImageUrl:raw})});return id;
+        await api('/api/fan-clubs/'+encodeURIComponent(id)+'/identity',{method:'PATCH',body:JSON.stringify({
+          title:fd.get('title'),artist:fd.get('artist'),genre:fd.get('genre'),theme:fd.get('theme'),badgeImageUrl:raw})});
+        return id;
      },async ()=>{await openDetail(id);await loadClubs();window.sf107RefreshFanClubs?.();status('Identidade atualizada.');});
    const picker=themeOverlay.querySelector('[name=theme]'),sample=themeOverlay.querySelector('#sf208ThemePreview');
    picker?.addEventListener('change',()=>{if(sample)sample.className='sf208-theme-preview sf71-theme-'+picker.value;});
