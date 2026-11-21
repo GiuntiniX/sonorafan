@@ -234,7 +234,7 @@
 
  document.addEventListener('error',event=>{
    const img=event.target;
-   if(!img?.matches?.('#sf71ClubDetail .sf226-member-avatar img'))return;
+   if(!img?.matches?.('#sf71ClubDetail .sf226-member-avatar img, #sf71ClubDetail .sf227-mini-photo img, #sf71ClubDetail .sf227-online-strip img, #sf71ClubDetail .sf228-author-avatar img'))return;
    const box=img.parentElement;if(!box)return;
    img.remove();
    const fallback=document.createElement('span');
@@ -637,8 +637,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
        </div><div id="sf160Extras" aria-live="polite"></div></section><div class="sf227-side sf227-right"><aside id="sf227Right" aria-label="Novidades e assuntos em destaque"></aside><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div></div>`;
      renderSocialWidgets();
      if(c.joined){
-     const feedArea=$('sf160FeedArea');if(feedArea)feedArea.hidden=false;
-          renderSocialWidgets();
+       const feedArea=$('sf160FeedArea');if(feedArea)feedArea.hidden=false;
           await loadPosts(id);await loadExtras(id);
          if(state.activeId===id)startLive(id);
          const match=decodeURIComponent(location.hash).match(/^#fanclub\/([a-f0-9-]{36})\/topic\/([A-Za-z0-9_-]{1,100})$/);
