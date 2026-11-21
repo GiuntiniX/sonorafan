@@ -226,9 +226,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
           byId.set(snap.id,snap);
       }
     }catch(e){queryFailed=true;console.warn('[Fanclubs] Consulta por sala indisponível:',e.message);}
-    // Fallback para vínculos antigos e instalações com índices incompletos.
-    // Não usar limit(500): isso descartava Fanclubs mais recentes silenciosamente.
-    if(queryFailed||!byId.size){
+    // Quando um índice falha, examinar os vínculos persistidos sem limite arbitrário.
+    // Se a consulta Firestore por roomSlugs funcionou e retornou vazio, a sala
+    // realmente não tem vínculos; não fazer leitura integral a cada polling.
+    if(queryFailed){
       const all=await db.collection(CLUBS).get();
       for(const snap of all.docs){
         if(!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).includes(room.slug))
