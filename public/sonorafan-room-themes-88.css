@@ -15,6 +15,15 @@
 .sf88-modal-head p{font-size:12px;color:#c8b9d3;line-height:1.4}
 .sf88-close{border:1px solid #6d4b79;background:#2b1d36;color:#fff;border-radius:10px;min-height:40px;min-width:43px;font-size:20px;cursor:pointer}
 .sf88-theme-grid{overflow-y:auto;min-height:0;overscroll-behavior:contain;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:16px 22px}
+/* Grupos independentes: a biblioteca ilustrada continua antes das paletas. */
+.sf88-group-heading{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;padding:12px 3px 5px;border-bottom:1px solid rgba(232,198,255,.18)}
+.sf88-group-heading:not(:first-child){margin-top:8px}
+.sf88-group-heading strong{font-size:14px;color:#f6e7ff;font-weight:850}
+.sf88-group-heading small{font-size:11px;color:#c5b4ce;line-height:1.4}
+.sf88-theme-card.sf88-color-card{background:#16121d}
+.sf88-color-card img{aspect-ratio:2/1;object-fit:cover}
+.sf88-color-card .sf88-palette{margin-top:auto;padding-top:10px}
+@media(max-width:600px){.sf88-group-heading{gap:5px}.sf88-group-heading small{width:100%}}
 .sf88-theme-card{position:relative;display:flex;flex-direction:column;text-align:left;min-width:0;padding:0 0 12px;color:#f9f0ff;background:#201529;border:2px solid #584067;border-radius:13px;overflow:hidden;cursor:pointer;font:inherit;transition:border-color .15s,transform .15s}
 .sf88-theme-card:hover{border-color:#d78cef;transform:translateY(-2px)}
 .sf88-theme-card.is-selected{border-color:#fbc1ff;box-shadow:0 0 0 2px #a24fbe99}
