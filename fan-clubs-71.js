@@ -909,7 +909,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{
       const now=Date.now();
       let items=agendaCache.items;
-      if(now>=agendaCache.expires){
+      if(now>=agendaCache.expires || req.query.refresh==='1'){
         const snap=await db.collection(CLUBS).limit(100).get();
         const clubs=snap.docs.filter(d=>!d.data()?.deleting);
         const clubItems=await Promise.all(clubs.map(async d=>{
