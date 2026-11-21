@@ -236,6 +236,7 @@ async function createEvent(preferredClub=''){
    try{const response=await fetch('/api/fan-clubs/'+encodeURIComponent(clubId),{credentials:'include'});
     if(!response.ok)return;const data=await response.json();
     for(const room of data.club?.rooms||[]){const option=document.createElement('option');option.value=room.slug;option.textContent=room.name;roomSelector.append(option);}
+    if(data.club?.defaultRoomSlug&&[...roomSelector.options].some(o=>o.value===data.club.defaultRoomSlug))roomSelector.value=data.club.defaultRoomSlug;
    }catch(_){}
   }
  const chooseSource=()=>{
