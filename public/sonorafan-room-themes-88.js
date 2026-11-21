@@ -282,13 +282,13 @@
    jpop:['/themes/festival-214/jpop.svg','/themes/festival-214/jpop.svg'],
    trap:['/themes/festival-214/trap.svg','/themes/festival-214/trap.svg'],
    lofi:['/themes/festival-214/lofi.svg','/themes/festival-214/lofi.svg'],
-   cor-preto:['/themes/colors-214/cor-preto.svg','/themes/colors-214/cor-preto.svg'],
-   cor-vermelho:['/themes/colors-214/cor-vermelho.svg','/themes/colors-214/cor-vermelho.svg'],
-   cor-azul:['/themes/colors-214/cor-azul.svg','/themes/colors-214/cor-azul.svg'],
-   cor-verde:['/themes/colors-214/cor-verde.svg','/themes/colors-214/cor-verde.svg'],
-   cor-roxo:['/themes/colors-214/cor-roxo.svg','/themes/colors-214/cor-roxo.svg'],
-   cor-rosa:['/themes/colors-214/cor-rosa.svg','/themes/colors-214/cor-rosa.svg'],
-   cor-dourado:['/themes/colors-214/cor-dourado.svg','/themes/colors-214/cor-dourado.svg']
+   'cor-preto':['/themes/colors-214/cor-preto.svg','/themes/colors-214/cor-preto.svg'],
+   'cor-vermelho':['/themes/colors-214/cor-vermelho.svg','/themes/colors-214/cor-vermelho.svg'],
+   'cor-azul':['/themes/colors-214/cor-azul.svg','/themes/colors-214/cor-azul.svg'],
+   'cor-verde':['/themes/colors-214/cor-verde.svg','/themes/colors-214/cor-verde.svg'],
+   'cor-roxo':['/themes/colors-214/cor-roxo.svg','/themes/colors-214/cor-roxo.svg'],
+   'cor-rosa':['/themes/colors-214/cor-rosa.svg','/themes/colors-214/cor-rosa.svg'],
+   'cor-dourado':['/themes/colors-214/cor-dourado.svg','/themes/colors-214/cor-dourado.svg']
  });
  const themeRevision='214';
  const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
