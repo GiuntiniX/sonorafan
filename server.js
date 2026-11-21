@@ -1114,6 +1114,7 @@ app.get('/api/admin/chat-reports', async(req,res)=>{
   try { const snap=await db.collection('chatReports53').orderBy('createdAt','desc').limit(100).get();
     const items=[];snap.forEach(d=>{
       const entry=d.data();
+      if(entry.status==='removed')return;
       // Somente administradores recebem identificadores públicos para contato;
       // nunca expor email, número de sessão ou acesso à conversa original.
       const reporterId=typeof entry.reporterId==='string'&&/^[a-f0-9]{24}$/.test(entry.reporterId)?entry.reporterId:null;
@@ -1137,6 +1138,22 @@ app.post('/api/admin/chat-reports/:id/resolve',rateLimit(40,60000),async(req,res
     audit(req.adminEmail,'chat-report',req.params.id+' '+req.body.status);
     res.json({success:true});
   }catch(e){res.status(503).json({error:'Não foi possível atualizar denúncia'});}
+});
+
+// Retirada lógica: a denúncia desaparece do painel, mas permanece auditável.
+app.post('/api/admin/chat-reports/:id/remove',rateLimit(30,60000),async(req,res)=>{
+  if(!/^[a-f0-9-]{36}$/i.test(req.params.id))return res.status(400).json({error:'Identificador inválido'});
+  try {
+    const ref=db.collection('chatReports53').doc(req.params.id);
+    const snap=await ref.get();
+    if(!snap.exists||snap.data()?.status==='removed')return res.status(404).json({error:'Denúncia não encontrada'});
+    await ref.set({status:'removed',removedAt:Date.now(),removedBy:req.adminEmail},{merge:true});
+    audit(req.adminEmail,'chat-report-remove',req.params.id);
+    res.set('Cache-Control','no-store').json({success:true});
+  } catch(e) {
+    console.error('chat report remove',e.message);
+    res.status(503).json({error:'Não foi possível remover a denúncia'});
+  }
 });
 
 // Fim das APIs sociais; nenhum dado pessoal é retornado ao cliente.
