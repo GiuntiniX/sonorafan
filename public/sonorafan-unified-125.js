@@ -19,8 +19,9 @@
   function go(action){
     const screen=$('screen-lobby');
     switch(action){
-      case 'lobby':screen?.classList.contains('active')&&qs('#sf125LobbyHero')?.scrollIntoView({block:'start',behavior:'smooth'});break;
-      case 'rooms':qs('#sf107Popular')?.scrollIntoView({block:'start',behavior:'smooth'});break;
+      case 'lobby':window.sf200CloseAgenda?.();screen?.classList.contains('active')&&qs('#sf125LobbyHero')?.scrollIntoView({block:'start',behavior:'smooth'});break;
+      case 'rooms':window.sf200CloseAgenda?.();qs('#sf107Popular')?.scrollIntoView({block:'start',behavior:'smooth'});break;
+       case 'agenda':window.sf200OpenAgenda?.();break;
       case 'profile':(typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('profile'):window.sf5OpenProfile?.());break;
       case 'library':(typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('library'):qs('[data-sf107="favorites"]')?.click());break;
       case 'community':if(typeof window.sf126OpenClubs==='function')window.sf126OpenClubs();else window.sf110OpenCommunity?.('fanclubs');break;
@@ -40,7 +41,7 @@
   }
   window.sf125Navigate=go;
   const nav=[['lobby','⌂','Início'],['rooms','♫','Salas'],
-    ['clubs','♧','Fan Clubs'],['ranking','♜','Ranking'],['profile','♙','Meu Perfil']];
+    ['clubs','♧','Fan Clubs'],['agenda','▦','Agenda Musical'],['ranking','♜','Ranking'],['profile','♙','Meu Perfil']];
   function navButton([action,icon,label],side=false){
     return '<button type="button" data-sf125-go="'+action+'"'+(action==='lobby'?' class="is-active" aria-current="page"':'')+'>'+
       '<span class="sf125-nav-icon" aria-hidden="true">'+icon+'</span><span>'+label+'</span></button>';
@@ -114,6 +115,14 @@
     if(!btn)return;
     event.preventDefault();
     go(btn.dataset.sf125Go);
+     const area=btn.dataset.sf125Go;
+     if(['lobby','rooms','agenda'].includes(area)){
+       document.querySelectorAll('#sf125Sidebar .sf125-side-nav:not(.sf125-side-secondary) [data-sf125-go]').forEach(el=>{
+         const selected=el.dataset.sf125Go===area;
+         el.classList.toggle('is-active',selected);
+         if(selected)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
+       });
+     }
   }
   function roomArt(room){
     const g=String(room.genre||room.name||'').toLowerCase();
