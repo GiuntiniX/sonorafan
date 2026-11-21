@@ -57,7 +57,8 @@ function render(){
   '<p>'+esc(featured?.description||'Descubra comunidades musicais, converse com fãs e viva experiências juntos.')+'</p>'+
   (featured?'<div class="sf235-hero-meta">♧ '+num(featured.memberCount)+' membros <span>· '+esc(featured.artist||'Música')+'</span></div>':'')+
   '<div class="sf235-hero-actions">'+(featured?'<button type="button" data-sf235-open="'+esc(featured.id)+'">Conhecer Fanclub →</button>':'<button type="button" data-sf235-create>Criar meu Fanclub →</button>')+
-  '<button type="button" class="sf235-ghost" data-sf235-scroll="discover">Explorar comunidades</button></div></div></section>'+
+  '<button type="button" class="sf235-ghost" data-sf235-scroll="discover">Explorar comunidades</button></div></div>'+ 
+  (filtered.length>1?'<div class="sf235-hero-switch"><button type="button" data-sf235-feature="prev" aria-label="Fanclub anterior">‹</button><span>'+((state.featured%filtered.length)+1)+' / '+filtered.length+'</span><button type="button" data-sf235-feature="next" aria-label="Próximo Fanclub">›</button></div>':'')+'</section>'+
   '<div class="sf235-tabs" role="group" aria-label="Áreas do Fanclub">'+
   '<button type="button" data-sf235-tab="all" aria-pressed="'+(state.tab==='all')+'">◈ Descobrir</button>'+
   '<button type="button" data-sf235-tab="mine" aria-pressed="'+(state.tab==='mine')+'">♧ Meus Fanclubs <small>'+joined.length+'</small></button>'+
@@ -119,6 +120,7 @@ function init(){
  list.before(home);
  home.addEventListener('click',event=>{
   const b=event.target.closest('button');if(!b)return;
+  if(b.hasAttribute('data-sf235-feature')){const total=getVisible().length;if(total){state.featured=(state.featured+(b.dataset.sf235Feature==='next'?1:total-1))%total;render();}return;}
   if(b.hasAttribute('data-sf235-open')){const id=b.dataset.sf235Open;if(valid(id))window.sf71OpenFanClub?.(id);return;}
   if(b.hasAttribute('data-sf235-create')){$('sf71CreateClub')?.click();return;}
   if(b.hasAttribute('data-sf235-notifications')){window.sf15OpenNotifications?.();return;}
