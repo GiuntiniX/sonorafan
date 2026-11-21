@@ -10,6 +10,19 @@ const {normalizeRoomGenre109,legacyRoomGenre109} = require('./room-genres-109');
 const ROOM_THEMES_88 = require('./public/themes/catalog-88.json');
 const ROOM_THEME_IDS_88 = new Set(ROOM_THEMES_88.map(theme => theme.id));
 const normalizeRoomTheme88 = id => ROOM_THEME_IDS_88.has(id) ? id : 'geral';
+// Preferências de enquadramento são normalizadas no servidor.
+const roomCoverFrame = (value, fallback, low, high) => {
+  const number = Number(value);
+  return Number.isFinite(number) && value !== null && value !== '' ? Math.min(high,Math.max(low,number)) : fallback;
+};
+function publicRoomCover(room) {
+  return {
+    coverUrl: normalizeRoomCover(room.coverUrl),
+    coverX: roomCoverFrame(room.coverX,50,0,100),
+    coverY: roomCoverFrame(room.coverY,50,0,100),
+    coverZoom: roomCoverFrame(room.coverZoom,1,1,2)
+  };
+}
 function normalizeRoomCover(url) {
   if (url === null || url === undefined || url === '') return null;
   if (typeof url !== 'string' || url.length > 1600) return null;
@@ -263,7 +276,7 @@ function addSanction(s) { s.id = sanId(s.email, s.type, s.scope); sanctions.set(
 function removeSanction(id) { sanctions.delete(id); sanDoc(id).delete().catch(() => {}); }
 async function loadSanctions() { try { const snap = await db.collection('sanctions').get(); snap.forEach(d => { const s = d.data(); if (!s.until || s.until > Date.now()) sanctions.set(s.id, s); }); } catch (e) {} }
 function persistRoom(r) {
-  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, roomTheme: normalizeRoomTheme88(r.roomTheme), coverUrl: r.coverUrl || null, genre: normalizeRoomGenre109(r.genre), emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null, musicMode: r.musicMode || 'all', votePriority: !!r.votePriority, radioMode: !!r.radioMode, radioGenre: r.radioGenre || 'pop' }).catch(() => {});
+  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, roomTheme: normalizeRoomTheme88(r.roomTheme), ...publicRoomCover(r), genre: normalizeRoomGenre109(r.genre), emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null, musicMode: r.musicMode || 'all', votePriority: !!r.votePriority, radioMode: !!r.radioMode, radioGenre: r.radioGenre || 'pop' }).catch(() => {});
 }
 function createRoom(slug, name, adminName = null) {
   roomLikes.set(slug, {});
@@ -278,7 +291,7 @@ function createRoom(slug, name, adminName = null) {
     lastAddTime: new Map(), isPlaying: false, lastAdvanceAt: 0,
     history: [], skipVotes: new Set(),
     radioMode: false, radioGenre: 'pop', musicMode: 'all', votePriority: false,
-    pinnedMessage: null, color: '#7c3aed', roomTheme: 'geral', coverUrl: null, genre: null,
+    pinnedMessage: null, color: '#7c3aed', roomTheme: 'geral', coverUrl: null, coverX: 50, coverY: 50, coverZoom: 1, genre: null,
     discordWebhook: null, inviteCount: 0, eventStartTime: null,
     totalSongsAdded: 0, totalVotesGiven: 0, mostVoted: [],
     allowLong: false, allowLive: false, maxDuration: settings.maxDuration,
@@ -332,6 +345,9 @@ async function loadRooms() {
       if (v.color) r.color = v.color;
        r.roomTheme = normalizeRoomTheme88(v.roomTheme);
       r.coverUrl = normalizeRoomCover(v.coverUrl);
+      r.coverX = roomCoverFrame(v.coverX,50,0,100);
+      r.coverY = roomCoverFrame(v.coverY,50,0,100);
+      r.coverZoom = roomCoverFrame(v.coverZoom,1,1,2);
       r.genre = normalizeRoomGenre109(v.genre) || legacyRoomGenre109(v.name, v.description);
       r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = v.addMode === 'owner' ? 'owner' : 'all'; r.musicMode = ['all', 'owner', 'fair'].includes(v.musicMode) ? v.musicMode : (r.addMode === 'owner' ? 'owner' : 'all'); r.radioMode = !!v.radioMode; r.votePriority = !!v.votePriority && r.musicMode !== 'fair'; r.radioGenre = typeof v.radioGenre === 'string' ? v.radioGenre.slice(0, 40) : 'pop';
       if (v.welcome) r.pinnedMessage = { author: r.admin, text: v.welcome };
@@ -406,7 +422,7 @@ function broadcastState(slug) {
     pinnedMessage: room.pinnedMessage,
     listenerCount: room.listenerCount,
     maxListeners: settings.maxListeners,
-    color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), coverUrl: room.coverUrl || null, genre: room.genre || null,
+    color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), ...publicRoomCover(room), genre: room.genre || null,
     inviteCount: room.inviteCount,
     eventStartTime: room.eventStartTime,
     maxDuration: room.maxDuration,
@@ -978,7 +994,7 @@ app.get('/api/rooms', (req, res) => {
       slug: r.slug, name: r.name, listenerCount: r.listenerCount,
       queueLength: r.queue.length, isPlaying: r.isPlaying,
       currentTrack: r.queue[r.currentIndex] || null,
-      radioMode: r.radioMode, color: r.color || '#7c3aed', roomTheme: normalizeRoomTheme88(r.roomTheme), coverUrl: r.coverUrl || null, genre: r.genre || null, emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
+      radioMode: r.radioMode, color: r.color || '#7c3aed', roomTheme: normalizeRoomTheme88(r.roomTheme), ...publicRoomCover(r), genre: r.genre || null, emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
       allowLive: !!r.allowLive, allowLong: !!r.allowLong,
       inviteCount: r.inviteCount, eventStartTime: r.eventStartTime,
     }));
@@ -1000,6 +1016,9 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   room.roomTheme = req.body.roomTheme == null ? 'geral' : normalizeRoomTheme88(req.body.roomTheme);
   if (req.body.coverUrl && !normalizeRoomCover(req.body.coverUrl)) return res.status(400).json({error:'A capa precisa usar HTTPS.'});
   room.coverUrl = normalizeRoomCover(req.body.coverUrl);
+  room.coverX = roomCoverFrame(req.body.coverX,50,0,100);
+  room.coverY = roomCoverFrame(req.body.coverY,50,0,100);
+  room.coverZoom = roomCoverFrame(req.body.coverZoom,1,1,2);
   room.genre = genre;
   const cfg = sanitize(req.body);
   // A escolha feita na criação precisa persistir e ser aplicada no servidor.
@@ -1497,7 +1516,7 @@ io.on('connection', (socket) => {
         position: getPosition(room), votes: room.votes, queue: room.queue, waitingQueue: room.waitingQueue,
         admin: room.admin, isPlaying: room.isPlaying, history: room.history.slice(-10), radioMode: room.radioMode, musicMode: room.musicMode || 'all', votePriority: !!room.votePriority, radioGenre: room.radioGenre || 'pop',
         pinnedMessage: room.pinnedMessage, listenerCount: room.listenerCount, maxListeners: settings.maxListeners,
-        color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), coverUrl: room.coverUrl || null, genre: room.genre || null, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
+        color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), ...publicRoomCover(room), genre: room.genre || null, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
         maxDuration: room.maxDuration, allowLive: room.allowLive,
         emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
         isPrivate: room.isPrivate, hasPassword: !!room.passHash,
@@ -1865,6 +1884,9 @@ io.on('connection', (socket) => {
         if (input.coverUrl && !normalizeRoomCover(input.coverUrl)) return socket.emit('error','A capa precisa usar HTTPS.');
         room.coverUrl = normalizeRoomCover(input.coverUrl);
       }
+      if (input.coverX !== undefined) room.coverX = roomCoverFrame(input.coverX,50,0,100);
+      if (input.coverY !== undefined) room.coverY = roomCoverFrame(input.coverY,50,0,100);
+      if (input.coverZoom !== undefined) room.coverZoom = roomCoverFrame(input.coverZoom,1,1,2);
       if (input.roomTheme !== undefined) {
         if (!ROOM_THEME_IDS_88.has(input.roomTheme)) return socket.emit('error', 'Tema visual inválido.');
         room.roomTheme = input.roomTheme;
