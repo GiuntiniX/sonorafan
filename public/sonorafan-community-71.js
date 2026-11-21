@@ -550,7 +550,7 @@
      '<div class="sf231-poll-footer"><span>'+total+' '+(total===1?'voto':'votos')+(p.voted?' · ✓ Você votou':'')+'</span>'+
      '<div class="sf231-poll-actions">'+
      (p.canEdit?'<button type="button" data-sf231-edit-poll="'+esc(p.id)+'">✎ Editar</button>':'')+
-     (p.canEdit&&!p.closed?'<button type="button" data-sf231-close-poll="'+esc(p.id)+'">Encerrar</button>':'')+
+     (p.canEdit?'<button type="button" data-sf231-close-poll="'+esc(p.id)+'">'+(p.closed?'Reabrir':'Encerrar')+'</button>':'')+
      (p.canDelete?'<button type="button" class="sf231-poll-delete" data-sf160-delete-poll="'+esc(p.id)+'">Excluir</button>':'')+
      '</div></div></article>';
  }
@@ -1062,12 +1062,13 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
  }
  if(t.hasAttribute('data-sf231-close-poll')){
    const poll=state.polls.find(p=>p.id===t.dataset.sf231ClosePoll);
-   if(!poll?.canEdit||poll.closed||!confirm('Encerrar esta enquete? Os resultados continuarão disponíveis.'))return;
+   if(!poll?.canEdit)return;
+   if(!confirm(poll.closed?'Reabrir esta enquete mantendo todos os votos anteriores?':'Encerrar esta enquete? Os resultados continuarão disponíveis.'))return;
    await action(async()=>{
      await api('/api/fan-clubs/'+encodeURIComponent(id)+'/polls/'+encodeURIComponent(poll.id),{
-       method:'PATCH',body:JSON.stringify({question:poll.question,duration:'close'})
+       method:'PATCH',body:JSON.stringify({question:poll.question,duration:poll.closed?'none':'close'})
      });await loadExtras(id);
-   },'Enquete encerrada.');return;
+   },poll.closed?'Enquete reaberta.':'Enquete encerrada.');return;
  }
  if(t.hasAttribute('data-sf160-vote')){
  await action(async()=>{t.disabled=true;await post('/api/fan-clubs/'+encodeURIComponent(id)+'/polls/'+encodeURIComponent(t.dataset.sf160Vote)+'/vote',{choice:Number(t.dataset.choice)});await loadExtras(id);},'Voto registrado.');return;
