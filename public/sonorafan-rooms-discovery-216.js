@@ -49,10 +49,10 @@ async function toggleFavorite(slug){if(!valid(slug))return;const want=!state.boo
 if(want)state.bookmarks.add(slug);else state.bookmarks.delete(slug);render();
 try{const res=await fetch('/api/room-bookmarks',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug,favorite:want})});const data=await res.json();if(!res.ok)throw Error(data.error||'Não foi possível salvar o favorito.');state.bookmarks=new Set((data.slugs||[]).filter(valid));render();}
 catch(e){state.bookmarks=old;render();if(typeof window.toast==='function')window.toast(e.message,'error');else alert(e.message);}}
-function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});}
+function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});window.sf207SetActive?.('lobby');}
 function open(mode='discover'){const page=$('sf216Explorer');if(!page)return;if(!$('screen-lobby')?.classList.contains('active')&&typeof window.showScreen==='function')window.showScreen('lobby');window.sf207LeavePage?.();window.sf200CloseAgenda?.();
 state.mode=['discover','mine','favorites'].includes(mode)?mode:'discover';state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
-render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
+window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
 function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view]');if(!node)return;
 if(node.hasAttribute('data-sf216-join')){const slug=node.dataset.sf216Join;if(valid(slug)){close();window.joinRoom?.(slug);}return;}
