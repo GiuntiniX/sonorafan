@@ -204,8 +204,19 @@ async function createEvent(preferredClub=''){
   '<label>Duração<select name="durationMinutes"><option value="30">30 min</option><option value="60">1 hora</option><option value="90" selected>1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label></div>'+
   '<label class="sf201-theme-label">Clima musical<select name="theme"><option value="indie">Indie</option><option value="pop">Pop</option>'+
   '<option value="rock2000">Rock 2000</option><option value="electronic">Eletrônica</option><option value="discoveries">Descobertas</option></select></label>'+
-  '<p class="sf201-create-error" id="sf201CreateError" role="alert" hidden></p>'+
-  '<div class="sf201-create-actions"><button type="button" data-sf201-dismiss>Cancelar</button><button type="submit" class="sf200-primary" id="sf201Submit">＋ Publicar evento</button></div></form></section>';
+  '<div class="sf202-event-settings">'+
+ '<label><input type="checkbox" name="notifyMembers" checked> Notificar membros do Fan Club</label>'+
+ '<label><input type="checkbox" name="sendRoomLink" checked> Enviar link da sala nos lembretes</label>'+
+ '<label><input type="checkbox" name="remindStart" checked> Avisar quando o evento estiver chegando</label></div>'+
+ '<p class="sf201-create-error" id="sf201CreateError" role="alert" hidden></p>'+
+  '<div class="sf201-create-actions"><button type="button" data-sf201-dismiss>Cancelar</button><button type="submit" class="sf200-primary" id="sf201Submit">＋ Publicar evento</button></div></form>'+
+ '<aside class="sf202-event-preview"><h3>Prévia do evento</h3><img id="sf202PreviewArt" src="/art-44/festival-crowd.webp" alt="Arte ilustrativa da comunidade">'+
+ '<span class="sf202-preview-type" id="sf202PreviewType">♧ Fan Club</span>'+
+ '<h4 id="sf202PreviewTitle">Seu próximo encontro musical</h4>'+
+ '<p id="sf202PreviewOrigin">Escolha uma comunidade ou sala</p>'+
+ '<p id="sf202PreviewDate">▦ Data e horário do evento</p>'+
+ '<p id="sf202PreviewRoom">♫ Sala ainda não selecionada</p>'+
+ '<div class="sf202-preview-button">♫ Participar do evento</div></aside></section>';
  document.body.append(layer);
  const previous=document.activeElement,form=$('sf201CreateForm'),select=form.elements.target,help=$('sf201CreateHelp');
  const closeModal=()=>{layer.remove();previous?.focus?.({preventScroll:true});};
@@ -226,17 +237,31 @@ async function createEvent(preferredClub=''){
  form.elements.startAt.min=localStamp(earliest);form.elements.startAt.max=localStamp(latest);
  const selectedDay=fromKey(state.day);selectedDay.setHours(20,0,0,0);
  form.elements.startAt.value=localStamp(selectedDay.getTime()>now()+5*60000?selectedDay:new Date(now()+86400000));
- const sources={fanclub:[],room:[]};
+ const sources={fanclub:[],room:[]};let previewClub=null;
+  function updatePreview(){
+   if(!layer.isConnected)return;
+   const type=form.elements.type.value,chosen=select.selectedOptions?.[0]?.textContent;
+   const title=form.elements.title.value.trim(),date=form.elements.startAt.value;
+   const artist=type==='fanclub'?previewClub?.artist:'';
+   const img=$('sf202PreviewArt');if(img){const candidate=type==='fanclub'&&previewClub?artFor({...previewClub,type:'fanclub',clubId:previewClub.id}):'/art-44/festival-crowd.webp';if(img.getAttribute('src')!==candidate)img.src=candidate;}
+   $('sf202PreviewType').textContent=type==='fanclub'?'♧ Fan Club':'♫ Sala';
+   $('sf202PreviewTitle').textContent=title||'Seu próximo encontro musical';
+   $('sf202PreviewOrigin').textContent=(chosen&&!chosen.startsWith('Selecione')?chosen:'Escolha '+(type==='fanclub'?'um Fan Club':'uma sala'))+(artist?' · '+artist:'');
+   $('sf202PreviewDate').textContent=date?'▦ '+new Date(date).toLocaleString('pt-BR'):'▦ Data e horário do evento';
+   $('sf202PreviewRoom').textContent=type==='fanclub'?'♫ '+(roomSelector.selectedOptions?.[0]?.textContent||'Sala não selecionada'):'♫ '+(chosen||'Sala musical');
+   const settings=form.querySelector('.sf202-event-settings');if(settings)settings.hidden=type!=='fanclub';
+  }
   const roomSelector=form.elements.clubRoom;
   async function loadClubRooms(){
-   const clubId=select.value,field=form.querySelector('.sf202-room-link');
+   const clubId=select.value,field=form.querySelector('.sf202-room-link');previewClub=null;
    field.hidden=form.elements.type.value!=='fanclub';
    roomSelector.innerHTML='<option value="">Sem sala vinculada</option>';
-   if(!clubId||field.hidden)return;
+   if(!clubId||field.hidden){updatePreview();return;}
    try{const response=await fetch('/api/fan-clubs/'+encodeURIComponent(clubId),{credentials:'include'});
-    if(!response.ok)return;const data=await response.json();
+    if(!response.ok)return;const data=await response.json();previewClub=data.club||null;
     for(const room of data.club?.rooms||[]){const option=document.createElement('option');option.value=room.slug;option.textContent=room.name;roomSelector.append(option);}
     if(data.club?.defaultRoomSlug&&[...roomSelector.options].some(o=>o.value===data.club.defaultRoomSlug))roomSelector.value=data.club.defaultRoomSlug;
+    updatePreview();
    }catch(_){}
   }
  const chooseSource=()=>{
@@ -254,7 +279,8 @@ async function createEvent(preferredClub=''){
   form.elements.title.maxLength=type==='fanclub'?90:70;
    loadClubRooms();
  };
- form.addEventListener('change',event=>{if(event.target.name==='type')chooseSource();if(event.target.name==='target')loadClubRooms();});
+ form.addEventListener('change',event=>{if(event.target.name==='type')chooseSource();if(event.target.name==='target')loadClubRooms();updatePreview();});
+  form.addEventListener('input',updatePreview);
  const submit=form.querySelector('[type="submit"]');
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(state.modalBusy)return;
@@ -272,7 +298,7 @@ async function createEvent(preferredClub=''){
   try{
    const durationMinutes=Number(form.elements.durationMinutes.value);
    if(type==='fanclub')await apiPost('/api/fan-clubs/'+encodeURIComponent(target)+'/events',
-    {title,description,startAt:start,durationMinutes,roomSlug:roomSelector.value});
+    {title,description,startAt:start,durationMinutes,roomSlug:roomSelector.value,notifyMembers:form.elements.notifyMembers.checked,sendRoomLink:form.elements.sendRoomLink.checked,remindStart:form.elements.remindStart.checked});
    else await apiPost('/api/social/events',
     {roomSlug:target,title,description,startAt:new Date(start).toISOString(),durationMinutes,theme:form.elements.theme.value});
    closeModal();state.day=key(new Date(start));state.month=new Date(new Date(start).getFullYear(),new Date(start).getMonth(),1);
