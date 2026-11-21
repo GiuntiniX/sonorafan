@@ -3,6 +3,37 @@
 // O servidor decide acesso e moderação usando a sessão; o navegador nunca define papéis.
 const crypto = require('crypto');
 const THEMES = new Set(['vinyl','stage','cassette','waves']);
+const GENRES = new Set(['kpop','pop','rock','indie','sertanejo','funk','mpb','hiphop','eletronica','pagode','samba','forro','gospel','reggae','metal','punk','jazz','blues','rnb','lofi','latina','classica','outros']);
+const GALLERY_COVERS = Object.freeze({
+  stage:'/art-129/sonorafan-stage.svg',
+  kpop:'/art-132/sonorafan-room-kpop.avif',
+  pop:'/art-33/poster-electro.webp',
+  rock:'/art-33/poster-rock.webp',
+  indie:'/art-33/poster-indie.webp',
+  brasil:'/art-33/poster-brasil.webp',
+  electronic:'/art-33/poster-electro.webp',
+  festival:'/art-40/poster-festival.svg'
+});
+const validExternalCover = value => {
+  if (typeof value !== 'string' || value.length > 500) return '';
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== 'https:' || url.username || url.password || !url.hostname || !url.hostname.includes('.')) return '';
+    if (/(^|\.)(localhost|local|internal|test|invalid)$/.test(url.hostname)) return '';
+    return url.href;
+  } catch (_) { return ''; }
+};
+const coverChoice = body => {
+  const kind = body?.coverType;
+  if (kind === undefined || kind === null || kind === 'default') return {coverType:'default',coverImageUrl:'',coverGalleryId:''};
+  if (kind === 'gallery' && Object.hasOwn(GALLERY_COVERS,body?.coverGalleryId))
+    return {coverType:'gallery',coverImageUrl:'',coverGalleryId:body.coverGalleryId};
+  if (kind === 'external') {
+    const url = validExternalCover(body?.coverImageUrl);
+    if (url) return {coverType:'external',coverImageUrl:url,coverGalleryId:''};
+  }
+  return null;
+};
 const CLUBS = 'sonorafanFanClubs71';
 const COVERS = 'sonorafanFanClubCovers73';
 const MAX_COVER_BYTES = 180 * 1024;
@@ -97,7 +128,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   };
   const record = (data, id) => ({
     id: String(id || data.id), title: data.title, artist: data.artist, description:data.description,
-    rules:data.rules, theme:data.theme, ownerId:data.ownerId, ownerName:data.ownerName,
+    rules:data.rules, theme:data.theme, genre:GENRES.has(data.genre)?data.genre:'outros', coverType:data.coverType||'legacy', coverImageUrl:data.coverType==='external'?data.coverImageUrl||'':'', coverGalleryId:data.coverType==='gallery'?data.coverGalleryId||'':'', ownerId:data.ownerId, ownerName:data.ownerName,
     memberCount:unique(data.memberIds).length, roomCount:unique(data.roomSlugs).length,
     createdAt:data.createdAt, coverVersion:Number(data.coverVersion)||0, isUnofficial:true
   });
@@ -172,6 +203,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.get('/api/fan-clubs', rateLimit(45,60000), async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const q=clean(req.query.q,60).toLocaleLowerCase('pt-BR');
+    const genre=GENRES.has(req.query.genre)?req.query.genre:'';
     try {
       // A legacy club without createdAt must still be listed. Firestore
       // orderBy excludes documents missing that field.
@@ -182,7 +214,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         ? await collection.limit(200).get()
         : await collection.orderBy('createdAt','desc').limit(200).get();
       const list=snap.docs.filter(d=>!d.data()?.deleting).map(d=>overview(d.data(),d.id,me))
-        .filter(c=>!q||`${c.artist} ${c.title} ${c.description}`.toLocaleLowerCase('pt-BR').includes(q))
+        .filter(c=>!q||`${c.artist} ${c.title} ${c.description} ${c.genre}`.toLocaleLowerCase('pt-BR').includes(q))
+        .filter(c=>!genre||c.genre===genre)
         .filter(c=>req.query.mine!=='true'||c.joined||c.owner)
         .sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)||
           String(a.title||'').localeCompare(String(b.title||''),'pt-BR'))
@@ -196,12 +229,15 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     const artist=clean(req.body?.artist,65),title=clean(req.body?.title,75),description=clean(req.body?.description,280),rules=clean(req.body?.rules,300);
     const theme=THEMES.has(req.body?.theme)?req.body.theme:'vinyl';
+    const genre=GENRES.has(req.body?.genre)?req.body.genre:'outros';
+    const cover=coverChoice(req.body);
+    if(!cover)return res.status(400).json({error:'Escolha uma capa válida da galeria ou informe um link HTTPS direto.'});
     if(artist.length<2||title.length<3) return res.status(400).json({error:'Informe artista e nome da comunidade.'});
     try{
       const owned=await db.collection(CLUBS).where('ownerId','==',me.id).limit(5).get();
       if(owned.size>=5)throwHttp(409,'Você já administra 5 Fan Clubs.');
       const id=crypto.randomUUID();
-      const data={id,artist,title,description,rules,theme,ownerId:me.id,ownerName:me.name,
+      const data={id,artist,title,description,rules,theme,genre,...cover,coverVersion:cover.coverType==='default'?0:Date.now(),ownerId:me.id,ownerName:me.name,
         memberIds:[me.id],blockedIds:[],moderatorIds:[],notificationMutedIds:[],roomSlugs:[],createdAt:Date.now(),updatedAt:Date.now()};
       await refFor(id).create(data);
       res.status(201).json({club:overview(data,id,me)});
@@ -219,6 +255,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.get('/api/fan-clubs/:id/cover',rateLimit(120,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const {data}=await readClub(req.params.id);
+      if(data.coverType==='external'||data.coverType==='gallery')throwHttp(404,'Esta capa é fornecida por URL.');
       if(!(Number(data.coverVersion)>0))throwHttp(404,'Esta comunidade ainda não tem capa.');
       const snap=await coverRef(req.params.id).get();
       if(!snap.exists)throwHttp(404,'Capa não encontrada.');
@@ -237,7 +274,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         if(!mime)throwHttp(400,'A imagem deve ser WebP, PNG ou JPG e ter no máximo 180 KB.');
         const v=Math.max(Date.now(),Number(data.coverVersion||0)+1);
         await coverRef(req.params.id).set({imageBase64:bytes.toString('base64'),mime,updatedAt:v});
-        await ref.update({coverVersion:v,updatedAt:v});publish(req.params.id,'cover');
+        await ref.update({coverVersion:v,coverType:'legacy',coverImageUrl:'',coverGalleryId:'',updatedAt:v});publish(req.params.id,'cover');
         res.json({success:true,coverVersion:v});
       }catch(e){error(res,e);}
     });
@@ -245,8 +282,23 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{const {ref,data}=await readClub(req.params.id);
       if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode remover a capa.');
-      await ref.update({coverVersion:0,updatedAt:Date.now()});
+      await ref.update({coverVersion:0,coverType:'default',coverImageUrl:'',coverGalleryId:'',updatedAt:Date.now()});
       await coverRef(req.params.id).delete();publish(req.params.id,'cover');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  // URLs e capas compartilhadas não armazenam bytes da imagem no Firestore.
+  app.post('/api/fan-clubs/:id/cover-choice',rateLimit(15,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const cover=coverChoice(req.body);
+    if(!cover)return res.status(400).json({error:'Capa inválida. Use HTTPS ou escolha uma imagem da galeria.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode alterar a capa.');
+      const version=cover.coverType==='default'?0:Math.max(Date.now(),Number(data.coverVersion||0)+1);
+      await ref.update({...cover,coverVersion:version,updatedAt:Date.now()});
+      if(data.coverType==='legacy'||(!data.coverType&&data.coverVersion))await coverRef(req.params.id).delete();
+      publish(req.params.id,'cover');
+      res.json({success:true,coverVersion:version});
     }catch(e){error(res,e);}
   });
   app.get('/api/fan-clubs/:id',rateLimit(75,60000),async(req,res)=>{
