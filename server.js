@@ -936,7 +936,7 @@ app.post('/api/social/follow',rateLimit(24,60000),async(req,res)=>{
       },{merge:true});
       res.json({success:true,following:false});
     }else res.status(400).json({error:'Informe uma ação válida.'});
-  }catch(e){res.status(503).json({error:e.message||'Não foi possível enviar solicitação.'});}
+  }catch(e){res.status(String(e.message||'').startsWith('Aguarde alguns dias')?409:503).json({error:e.message||'Não foi possível enviar solicitação.'});}
 });
 const eventClean=(v,n)=>String(v??'').replace(/[<>\u0000-\u001f]/g,' ').trim().slice(0,n);
 const publicEvent = e => ({ id:e.id,roomSlug:e.roomSlug,roomName:e.roomName,title:e.title,description:e.description,startAt:e.startAt,hostName:e.hostName,attendees:e.attendees.length,theme:e.theme||'indie',durationMinutes:e.durationMinutes||90 });
