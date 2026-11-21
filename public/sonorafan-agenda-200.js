@@ -155,7 +155,8 @@ function detail(e){
    <p>♧ ${Number(e.attendees)||0} participantes confirmados</p>
    <div class="sf200-event-actions">${actionButtons(e)}</div>
    ${e.type==='room'?`<button type="button" data-sf200-room="${esc(e.roomSlug)}">Entrar na sala musical</button>`:
-    `<button type="button" data-sf200-club="${esc(e.clubId)}">Visitar Fan Club</button>`}</div></div>`;
+    `<button type="button" data-sf200-club="${esc(e.clubId)}">Visitar Fan Club</button>`}
+   ${e.canManage?`<button type="button" class="sf201-delete" data-sf201-delete="${esc(eventKey(e))}">Cancelar evento</button>`:''}</div></div>`;
  layer.querySelector('.sf200-dialog-close')?.focus();
 }
 async function rsvp(e){
@@ -284,10 +285,24 @@ async function createEvent(){
  }catch(err){if(layer.isConnected)help.textContent='Não foi possível carregar seus espaços. Feche e tente novamente.';}
 }
 
+async function deleteEvent(e){
+ if(!e?.canManage)return;
+ if(!confirm('Cancelar "'+e.title+'"? O evento será removido da agenda de todos os participantes.'))return;
+ try{
+  const path=e.type==='fanclub'?
+   '/api/fan-clubs/'+encodeURIComponent(e.clubId)+'/events/'+encodeURIComponent(e.id):
+   '/api/social/events/'+encodeURIComponent(e.id);
+  const r=await fetch(path,{method:'DELETE',credentials:'include'});
+  const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error||'Não foi possível cancelar o evento.');
+  state.toast='Evento cancelado e removido da agenda.';state.lastLoad=0;
+  await load(true,true);
+ }catch(error){alert(error.message||'Não foi possível cancelar este evento.');}
+}
 function handle(event){
  const btn=event.target.closest('button');if(!btn)return;
  if(btn.hasAttribute('data-sf200-close')){close();return;}
  if(btn.hasAttribute('data-sf200-refresh')){load(true,true);return;}
+ if(btn.hasAttribute('data-sf201-delete')){const e=lookup(btn.dataset.sf201Delete);if(e)deleteEvent(e);return;}
  if(btn.hasAttribute('data-sf201-create')){createEvent();return;}
  if(btn.hasAttribute('data-sf201-dismiss-toast')){state.toast='';render();return;}
  if(btn.hasAttribute('data-sf201-today')){state.month=new Date(today().getFullYear(),today().getMonth(),1);state.day=key(today());render();return;}
