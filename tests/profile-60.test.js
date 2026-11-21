@@ -60,7 +60,7 @@ test('Perfil 6.0: Conquistas is unified as Minha Jornada inside Profile',()=>{
  assert(client.includes('sf600Journey'));
  assert(client.includes("'/api/ranking60/me'"));
  assert(client.includes("'/api/fan-clubs?mine=true'"));
- assert(client.includes('sf600Community'));
+ assert(!client.includes("id='sf600Community'"));
  assert(client.includes("['avatars','◉ Avatares']"));
  assert(client.includes('sf600-specializations'));
  assert(client.includes('sf600-missions'));
