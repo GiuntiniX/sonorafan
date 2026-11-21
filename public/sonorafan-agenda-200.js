@@ -126,7 +126,7 @@ function open(){
  state.open=true;content.classList.add('sf200-is-open');agenda.hidden=false;
  document.querySelectorAll('#sf125Sidebar .sf125-side-nav:not(.sf125-side-secondary) [data-sf125-go]').forEach(button=>{const isAgenda=button.dataset.sf125Go==='agenda';button.classList.toggle('is-active',isAgenda);if(isAgenda)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
  agenda.scrollIntoView({block:'nearest'});content.scrollTo({top:0});
- load(true);render();
+ render();return load(true);
 }
 function close(){
  state.open=false;const content=document.querySelector('#screen-lobby .sf28-lobby-content');
@@ -407,6 +407,7 @@ function init(){
    img.src=img.dataset.sf200Fallback;
  },true);
  window.sf200OpenAgenda=open;window.sf200CloseAgenda=close;
+ window.sf200OpenEvent=async key=>{await open();const event=lookup(key);if(event)detail(event);else{state.toast='Este evento não está disponível na agenda atual.';render();}};
  window.sf200CreateEvent=clubId=>createEvent(clubId||'');
  window.sf200EditEvent=event=>{if(event?.canManage)createEvent('',event);};
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sf200DetailLayer')?.hidden){render();}});
