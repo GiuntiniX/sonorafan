@@ -51,3 +51,11 @@
 .sf221-dismiss{border:0;background:transparent;color:#bda9c8;font-size:18px;cursor:pointer;padding:4px}
 @media(max-width:600px){.sf221-friend-toast{right:12px;bottom:80px;left:12px;max-width:none}.sf221-text strong{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.sf221-friend-toast{animation:none;transition:none}}
+
+/* Contatos que adicionaram você: separados de quem você já segue. */
+#sf202ProfileOverview .sf220-received{margin-top:19px;padding-top:18px;border-top:1px solid #594064}
+#sf202ProfileOverview .sf220-received>header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+#sf202ProfileOverview .sf220-received>header h3{font-size:15px;font-weight:850;color:#f9ecff;margin:0}
+#sf202ProfileOverview .sf220-received>header span{font-size:11px;color:#c5b5ce}
+#sf202ProfileOverview .sf220-received-empty{margin:0;padding:15px 12px;border-radius:10px;background:#26172e;color:#c6afce;font-size:11px;line-height:1.5}
+#sf202ProfileOverview .sf220-friend-card.sf220-highlight{outline:2px solid #c4ff00;outline-offset:2px}
