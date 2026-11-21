@@ -23,6 +23,19 @@ const validExternalCover = value => {
     return url.href;
   } catch (_) { return ''; }
 };
+const validPostImageUrl = value => {
+  if (value === undefined || value === null || value === '') return '';
+  if (typeof value !== 'string' || value.length > 1500) return null;
+  try {
+    const u = new URL(value.trim()), host = u.hostname.toLowerCase();
+    if (u.protocol !== 'https:' || u.username || u.password || !host.includes('.') ||
+        host === 'localhost' || host.endsWith('.localhost') ||
+        /(^|\.)(local|internal|test|invalid)$/.test(host) ||
+        /^\d+(?:\.\d+){3}$/.test(host) || host.includes(':') ||
+        /^(?:10|127|169\.254|172\.(?:1[6-9]|2\d|3[01])|192\.168)\./.test(host)) return null;
+    return u.href;
+  } catch (_) { return null; }
+};
 const coverChoice = body => {
   const kind = body?.coverType;
   if (kind === undefined || kind === null || kind === 'default') return {coverType:'default',coverImageUrl:'',coverGalleryId:''};
@@ -111,7 +124,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   const forumTitle = post => clean(post?.title,110)||clean(String(post?.text||'').split(/[.!?\n]/)[0],95)||'Discussão da comunidade';
   const forumPost = (doc,data,me,profile={}) => {
     const p=doc.data(),id=doc.id;
-    return {id,...p,title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
+    return {id,...p,imageUrl:validPostImageUrl(p.imageUrl)||'',title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
       pinned:id===data.pinnedPostId,likeCount:unique(p.likedBy).length,
       liked:unique(p.likedBy).includes(me.id),favorite:unique(profile.favorites).includes(id),
       unread:!Number(profile.readAt?.[id])||
@@ -479,22 +492,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       res.set('X-Content-Type-Options','nosniff');return res.send(blob);
     }catch(e){error(res,e);}
   });
-  app.post('/api/fan-clubs/:id/posts/:postId/image',rateLimit(6,60000),
-    rawCoverParser||((req,res,next)=>next()),async(req,res)=>{
-    const me=identity(req,res);if(!me)return;
-    try{
-      const {ref,data}=await readClub(req.params.id);
-      if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para enviar imagens.');
-      const image=req.body,mime=sniffCover(image);
-      if(!mime)throwHttp(400,'Use JPG, PNG ou WebP com no máximo 180 KB.');
-      const postRef=ref.collection('posts').doc(req.params.postId);
-      const post=await postRef.get();if(!post.exists)throwHttp(404,'Publicação não encontrada.');
-      if(post.data().authorId!==me.id&&!canModerate(data,me))throwHttp(403,'Somente o autor pode anexar uma imagem.');
-      await ref.collection('postImages').doc(req.params.postId).set({imageBase64:image.toString('base64'),mime,createdAt:Date.now()});
-      await postRef.update({hasImage:true});
-      publish(req.params.id,'post');res.json({success:true});
-    }catch(e){error(res,e);}
-  });
+  // Upload de arquivo desativado. Imagens anteriores permanecem acessíveis.
+  app.post('/api/fan-clubs/:id/posts/:postId/image',rateLimit(6,60000),(req,res)=>
+    res.status(410).json({error:'Envio de arquivos desativado. Use uma URL HTTPS na publicação.'}));
   // Busca no histórico por páginas do Firestore, sem depender de quantos posts o navegador carregou.
   // Cada resposta percorre até 800 registros; o cursor possibilita alcançar todo o arquivo.
   app.get('/api/fan-clubs/:id/forum/search',rateLimit(25,60000),async(req,res)=>{
@@ -620,11 +620,13 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.post('/api/fan-clubs/:id/posts',rateLimit(12,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const text=clean(req.body?.text,600),title=clean(req.body?.title,110),tags=forumTags(req.body?.tags);
+     const imageUrl=validPostImageUrl(req.body?.imageUrl);
+     if(imageUrl===null)return res.status(400).json({error:'Informe uma URL HTTPS pública válida para a imagem.'});
     const topic=['conversa','duvida','novidade','evento','ideia'].includes(req.body?.topic)?req.body.topic:'conversa';
     if(text.length<3)return res.status(400).json({error:'Escreva uma mensagem com pelo menos 3 caracteres.'});
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para publicar.');
       const doc=ref.collection('posts').doc();
-      const post={authorId:me.id,authorName:me.name,text,title:title||forumTitle({text}),tags,topic,createdAt:Date.now(),lastActivityAt:Date.now(),replyCount:0};
+      const post={authorId:me.id,authorName:me.name,text,title:title||forumTitle({text}),tags,topic,imageUrl,createdAt:Date.now(),lastActivityAt:Date.now(),replyCount:0};
       await doc.create(post);
       publish(req.params.id,'post');
       notifyPostMembers(req.params.id,data,me.id,me.name);
