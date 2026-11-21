@@ -489,7 +489,7 @@
       case 'community':return community('friends');
       case 'events':return typeof window.sf200OpenAgenda==='function'?window.sf200OpenAgenda():community('events');
       case 'notices':return window.sf15OpenNotifications?.();
-      case 'profile':return typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('profile'):window.sf5OpenProfile?.();
+      case 'profile':return typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('overview'):window.sf5OpenProfile?.();
       case 'account':return window.sf92OpenAccount?.();
       case 'ranking':return window.openLeaderboard?.();
       case 'journey':return document.querySelector('[data-sf63-open="passport"]')?.click();
