@@ -127,3 +127,13 @@
 .sf201-layer .sf202-event-settings input[type=checkbox]:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .sf201-layer .sf201-create-dialog .sf201-create-actions button{min-height:44px;padding:11px 18px;font-size:12px}
 @media(max-width:740px){.sf201-layer .sf201-create-dialog{display:block;max-height:95dvh}.sf201-layer .sf201-create-dialog>form{padding:18px}.sf201-layer .sf202-event-preview{position:static;margin:0 18px 18px}.sf201-layer .sf202-event-preview img{height:155px}}
+
+
+#sf71ClubDetail .sf202-club-rooms{display:grid;gap:12px;background:#1e102a;border-radius:15px;padding:19px;border:1px solid #8f58a3}
+#sf71ClubDetail .sf202-club-rooms h4{color:#fff;font-size:clamp(18px,2vw,24px);margin:0}
+#sf71ClubDetail .sf202-club-rooms>p{font-size:12px;color:#d9bce6;line-height:1.5}
+#sf71ClubDetail .sf202-club-rooms article{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#321b41;border:1px solid #9258a6;border-radius:12px;padding:13px}
+#sf71ClubDetail .sf202-club-rooms article strong{font-size:14px;color:#fff;flex:1}
+#sf71ClubDetail .sf202-club-rooms article small{color:#d5b7e0;font-size:11px}
+#sf71ClubDetail .sf202-club-rooms article button{background:#caff00!important;color:#1a1021!important;border-color:#caff00!important;border-radius:999px!important;font-weight:850;font-size:12px}
+#sf71ClubDetail .sf160-tabs [data-sf160-pane=events][aria-selected=true]{background:#caff00!important;color:#150d1e!important;border-color:#caff00!important}
