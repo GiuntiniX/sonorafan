@@ -147,6 +147,15 @@ function ensureHome(){
   home=document.createElement('div');
   home.id='sf235Home';home.className='sf235-home';
   home.setAttribute('aria-label','Página inicial dos Fanclubs');
+  home.hidden=true;
+ }
+ // A página geral precisa ser irmã do hub antigo, e não filha dele:
+ // o shell 126 alterna a visibilidade do hub ao navegar.
+ const layout=document.querySelector('.sf5-community-layer.sf126-fan-layer .sf126-club-layout');
+ const hub=$('sfSocialHub');
+ if(layout&&hub&&hub.parentElement===layout){
+  if(home.parentElement!==layout||home.nextElementSibling!==hub)layout.insertBefore(home,hub);
+ }else if(home.parentElement!==panel){
   list.before(home);
  }
  return home;
@@ -155,17 +164,24 @@ function show(){
  const home=ensureHome(),panel=$('sfFanClubsPanel');if(!home||!panel)return;
  state.detail=false;
  home.hidden=false;panel.classList.add('sf235-home-active');
+ document.querySelector('.sf5-community-layer.sf126-fan-layer .sf126-club-layout')?.classList.add('sf235-standalone-home');
  try{render()}catch(e){
   console.error('[Fanclubs home] Falha de renderização:',e);
   // Nunca deixar a página vazia: revelar a listagem tradicional.
   panel.classList.remove('sf235-home-active');
+  document.querySelector('.sf235-standalone-home')?.classList.remove('sf235-standalone-home');
   home.hidden=true;
   panel.querySelector('#sf71ClubList')?.removeAttribute('hidden');
   return;
  }
  if(!state.clubs.length||Date.now()-state.loadedAt>30000)loadIndependent();
 }
-function hide(){state.detail=true;state.fetchId++;state.request++;$('sf235Home')?.setAttribute('hidden','');$('sfFanClubsPanel')?.classList.remove('sf235-home-active');}
+function hide(){
+ state.detail=true;state.fetchId++;state.request++;
+ $('sf235Home')?.setAttribute('hidden','');
+ $('sfFanClubsPanel')?.classList.remove('sf235-home-active');
+ document.querySelector('.sf235-standalone-home')?.classList.remove('sf235-standalone-home');
+}
 function init(){
  const panel=$('sfFanClubsPanel'),list=$('sf71ClubList'),home=ensureHome();
  if(!panel||!list||!home||state.bootstrapped)return;
