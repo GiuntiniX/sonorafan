@@ -137,3 +137,24 @@
 #sf71ClubDetail .sf202-club-rooms article small{color:#d5b7e0;font-size:11px}
 #sf71ClubDetail .sf202-club-rooms article button{background:#caff00!important;color:#1a1021!important;border-color:#caff00!important;border-radius:999px!important;font-weight:850;font-size:12px}
 #sf71ClubDetail .sf160-tabs [data-sf160-pane=events][aria-selected=true]{background:#caff00!important;color:#150d1e!important;border-color:#caff00!important}
+
+
+/* Gestor de eventos — ações claras e responsivas */
+#screen-lobby .sf200-agenda .sf203-manage,#screen-lobby .sf200-agenda .sf203-edit,
+#sf71ClubDetail .sf203-edit-club{
+ display:inline-flex;align-items:center;justify-content:center;min-height:38px;
+ background:#382447;color:#fff;border:1px solid #ad78c1;border-radius:999px;
+ padding:9px 14px;font-size:12px;font-weight:850;cursor:pointer;
+}
+#screen-lobby .sf200-agenda .sf203-manage:hover,#screen-lobby .sf200-agenda .sf203-edit:hover,
+#sf71ClubDetail .sf203-edit-club:hover{background:#573567;border-color:#ce9ae0}
+#screen-lobby .sf200-agenda .sf203-danger{border-color:#a96384;color:#ffd0e0;background:#472238}
+#screen-lobby .sf200-agenda .sf203-danger:hover{background:#662b48}
+.sf201-layer .sf203-locked{background:#24142f;border-radius:12px;padding:4px;opacity:.85}
+.sf201-layer .sf203-locked label{cursor:default}
+.sf201-layer .sf203-locked input{cursor:default}
+@media(max-width:650px){
+ #screen-lobby .sf200-agenda .sf200-event-actions{gap:7px}
+ #screen-lobby .sf200-agenda .sf203-manage{min-height:40px}
+ #sf71ClubDetail .sf202-event-controls .sf203-edit-club{width:100%}
+}
