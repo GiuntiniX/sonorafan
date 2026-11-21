@@ -19,7 +19,7 @@ function mock(gamification45){
  };}
  function query(key,order,direction='asc',where=null){return {limit(n){this.max=n;return this;},startAfter(v){this.after=v;return this;},async get(){
    let entries=[...docs].filter(([k])=>k.startsWith(key+'/')&&!k.slice(key.length+1).includes('/'));
-   if(where){entries=entries.filter(([,value])=>where.op==='=='&&value[where.field]===where.value);}
+   if(where){entries=entries.filter(([,value])=>(where.op==='=='&&value[where.field]===where.value||where.op==='array-contains'&&Array.isArray(value[where.field])&&value[where.field].includes(where.value)));}
    if(order){entries.sort(([,a],[,b])=>direction==='desc'?b[order]-a[order]:a[order]-b[order]);}
     if(this.after!==undefined&&order){const index=entries.findIndex(([key])=>key===this.after.ref?.key);entries=index>=0?entries.slice(index+1):[];}
    if(this.max)entries=entries.slice(0,this.max);
@@ -33,7 +33,7 @@ function mock(gamification45){
  const room=new Map([['sala-indie',{slug:'sala-indie',name:'Sala Indie',ownerEmail:'ana@exemplo.com',isPrivate:false,listenerCount:3,isPlaying:true,queue:[{title:'Faixa indie',artist:'Banda'}],currentIndex:0}],['sala-privada',{slug:'sala-privada',ownerEmail:'ana@exemplo.com',isPrivate:true,queue:[]}]]);
  const publicUserId=email=>({ 'ana@exemplo.com':'a'.repeat(24),'leo@exemplo.com':'b'.repeat(24),'admin@sonora.com':'c'.repeat(24),'bia@exemplo.com':'d'.repeat(24),'caio@exemplo.com':'e'.repeat(24)})[email];
  const notifications=[];
- const app={};for(const method of ['get','post','delete'])app[method]=(path,...funcs)=>routes.push({method,path,handler:funcs.at(-1)});
+ const app={};for(const method of ['get','post','patch','delete'])app[method]=(path,...funcs)=>routes.push({method,path,handler:funcs.at(-1)});
  installFanClubs71({app,db,users,rooms:room,sessionEmail:req=>req.email,publicUserId,adminEmails:owners,rateLimit:()=>((req,res,next)=>next?.()),sf15Notify:async(email,data)=>{notifications.push({email,...data});},gamification45});
  async function call(method,path,body={},email='ana@exemplo.com',query={}){
    const match=routes.find(r=>r.method===method&&new RegExp('^'+r.path.replace(/:[^/]+/g,'[^/]+')+'$').test(path));assert.ok(match,method+' '+path);
