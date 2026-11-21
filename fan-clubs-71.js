@@ -924,7 +924,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
                 description:clean(e.data().description,300),startAt:Number(e.data().startAt),
                 durationMinutes:Number(e.data().durationMinutes)||60,attendees:unique(e.data().attendeeIds).length,
                 attendeeIds:unique(e.data().attendeeIds),blockedIds:unique(c.blockedIds),
-                memberIds:unique(c.memberIds),ownerId:c.ownerId}));
+                memberIds:unique(c.memberIds),moderatorIds:unique(c.moderatorIds),ownerId:c.ownerId}));
           }catch(err){console.error('agenda fanclub read:',err.message);return [];}
         }));
         const roomItems=[...(socialEvents?.values()||[])].filter(e=>
@@ -932,14 +932,17 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
           .map(e=>({id:String(e.id),type:'room',roomSlug:String(e.roomSlug),roomName:clean(e.roomName,90),
             genre:clean(rooms.get(e.roomSlug)?.genre||e.theme||'outros',32),hostName:clean(e.hostName,80),
             title:clean(e.title,90),description:clean(e.description,300),startAt:Number(e.startAt),
-            durationMinutes:Number(e.durationMinutes)||90,attendees:unique(e.attendees).length,attendeeIds:unique(e.attendees)}));
+            durationMinutes:Number(e.durationMinutes)||90,attendees:unique(e.attendees).length,attendeeIds:unique(e.attendees),hostId:e.hostId}));
         items=[...clubItems.flat(),...roomItems].sort((a,b)=>a.startAt-b.startAt).slice(0,180);
         agendaCache.items=items;agendaCache.expires=Date.now()+30000;
       }
       res.set('Cache-Control','private, no-store');
       res.json({events:items.map(e=>{
-        const {attendeeIds,memberIds,blockedIds,ownerId,...publicData}=e;
-        return {...publicData,going:attendeeIds.includes(me.id),
+        const {attendeeIds,memberIds,blockedIds,moderatorIds,ownerId,hostId,...publicData}=e;
+        const canManage=e.type==='fanclub'?
+          ownerId===me.id||(moderatorIds||[]).includes(me.id)&&(memberIds||[]).includes(me.id)&&!(blockedIds||[]).includes(me.id)||adminEmails.has(me.email):
+          hostId===me.id||rooms.get(e.roomSlug)?.ownerEmail===me.email||adminEmails.has(me.email);
+        return {...publicData,going:attendeeIds.includes(me.id),canManage:!!canManage,
           ...(e.type==='fanclub'?{joined:memberIds.includes(me.id)||ownerId===me.id,
             blocked:blockedIds.includes(me.id)}:{})};
       })});
