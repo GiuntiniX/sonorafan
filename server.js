@@ -772,6 +772,21 @@ app.get('/api/social/following', async(req,res)=>{
     }).filter(Boolean));
   }catch(e){res.status(503).json({error:'Serviço social indisponível'});}
 });
+// Pessoas que adicionaram a conta atual. Consulta os relacionamentos armazenados,
+ // sem expor endereços de e-mail ou salas privadas.
+app.get('/api/social/followers',rateLimit(25,60000),async(req,res)=>{
+ const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+ try{
+  const mine=publicUserId(me);
+  const snap=await db.collection('socialFollowing').where('ids','array-contains',mine).limit(100).get();
+  const followers=snap.docs.map(doc=>{
+   const found=findSocialUser(doc.id);
+   if(!found||found[0]===me||found[1].banned)return null;
+   return {...profileSafe(found),online:socialOnline(found[0]),activity:publicActivity(found[0])};
+  }).filter(Boolean);
+  res.set('Cache-Control','no-store').json(followers);
+ }catch(e){console.error('Erro ao carregar seguidores:',e.message);res.status(503).json({error:'Não foi possível consultar quem adicionou você.'});}
+});
 app.post('/api/social/follow',rateLimit(24,60000),async(req,res)=>{
   const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
   const id=String(req.body?.id||'');const found=findSocialUser(id);
@@ -779,7 +794,7 @@ app.post('/api/social/follow',rateLimit(24,60000),async(req,res)=>{
   try {let ids=await getFollowing(me);const follow=req.body?.follow===true;
     if(follow&&!ids.includes(id)){if(ids.length>=100)return res.status(400).json({error:'Limite de 100 pessoas'});ids=[...ids,id];}
     if(!follow)ids=ids.filter(x=>x!==id);
-    await saveFollowing(me,ids);if(follow)sf15Notify(found[0],{type:'follow',title:'Novo seguidor',message:(users.get(me)?.nome||'Um usuário')+' começou a seguir você.'}).catch(err=>console.error('follow notification:',err.message));res.json({success:true,following:ids.includes(id)});
+    await saveFollowing(me,ids);if(follow)sf15Notify(found[0],{type:'follow',title:'Novo amigo',message:(users.get(me)?.nome||'Um usuário')+' adicionou você no SonoraFan.',peerId:publicUserId(me)}).catch(err=>console.error('follow notification:',err.message));res.json({success:true,following:ids.includes(id)});
   }catch(e){res.status(503).json({error:'Não foi possível salvar'});}
 });
 const eventClean=(v,n)=>String(v??'').replace(/[<>\u0000-\u001f]/g,' ').trim().slice(0,n);
