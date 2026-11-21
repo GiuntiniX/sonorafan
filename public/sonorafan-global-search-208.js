@@ -20,27 +20,30 @@ async function search(q){
  fetchJSON('/api/rooms',signal),
  fetchJSON('/api/fan-clubs?q='+encodeURIComponent(q),signal),
  fetchJSON('/api/music-agenda',signal),
- fetchJSON('/api/social/search?q='+encodeURIComponent(q),signal)
+ fetchJSON('/api/social/search?q='+encodeURIComponent(q),signal),
+ fetchJSON('/api/favorites',signal)
  ];
  const a=await Promise.allSettled(calls);if(id!==serial||signal.aborted)return;
  const rooms=a[0].status==='fulfilled'&&Array.isArray(a[0].value)?a[0].value.filter(r=>!r.isPrivate&&contains([r.name,r.genre,r.description,r.currentTrack?.title,r.currentTrack?.artist].join(' '),q)).slice(0,8):[];
  const clubs=a[1].status==='fulfilled'?a[1].value?.clubs?.slice(0,8)||[]:[];
  const events=a[2].status==='fulfilled'?a[2].value?.events?.filter(e=>contains([e.title,e.description,e.artist,e.clubName,e.roomName,e.genre].join(' '),q)).slice(0,8)||[]:[];
  const people=a[3].status==='fulfilled'&&Array.isArray(a[3].value)?a[3].value.slice(0,8):[];
+ const favorites=a[4].status==='fulfilled'&&Array.isArray(a[4].value)?a[4].value.filter(track=>contains([track.title,track.artist].join(' '),q)).slice(0,6):[];
  results=[...rooms.map(r=>({type:'room',id:r.slug,title:r.name,desc:'Sala musical · '+(r.genre||'Geral'),icon:'♫'})),
  ...clubs.map(c=>({type:'club',id:c.id,title:c.title,desc:(c.artist||'Fan Club')+' · '+(c.memberCount||0)+' membros',icon:'♧'})),
  ...events.map(e=>({type:'event',id:e.type+':'+(e.clubId||e.roomSlug)+':'+e.id,title:e.title,desc:(e.type==='fanclub'?'Fan Club':'Sala')+' · '+new Date(Number(e.startAt)).toLocaleDateString('pt-BR'),icon:'▦'})),
- ...people.map(u=>({type:'person',id:u.id,title:u.name,desc:u.bio||'Perfil SonoraFan',icon:'◉'}))];
+ ...people.map(u=>({type:'person',id:u.id,title:u.name,desc:u.bio||'Perfil SonoraFan',icon:'◉'})),
+ ...favorites.map(f=>({type:'favorite',id:f.id,title:f.title||'Música favorita',desc:f.artist||'Minha biblioteca',icon:'♫'}))];
  current=0;
- const labels={room:'Salas',club:'Fan Clubs',event:'Eventos',person:'Pessoas'};
- const sections=['room','club','event','person'].map(type=>{
+ const labels={room:'Salas',club:'Fan Clubs',event:'Eventos',person:'Pessoas',favorite:'Minhas músicas favoritas'};
+ const sections=['room','club','event','person','favorite'].map(type=>{
   const items=results.map((v,i)=>({...v,i})).filter(v=>v.type===type);
   return items.length?'<section class="sf208-search-group"><h3>'+labels[type]+'</h3>'+items.map(x=>
    '<button type="button" role="option" aria-selected="'+(x.i===current)+'" data-sf208-index="'+x.i+'"><span class="sf208-search-icon">'+x.icon+'</span><span><strong>'+html(x.title)+'</strong><small>'+html(x.desc)+'</small></span><b>›</b></button>').join('')+'</section>':'';
  }).join('');
  const failed=a.filter(v=>v.status==='rejected').length;
  target.innerHTML=results.length?sections+'<footer>↑ ↓ navegar · Enter abrir · Esc fechar'+(failed?' · Algumas fontes indisponíveis':'')+'</footer>':
- '<p class="sf208-search-state">'+(failed===4?'Não foi possível consultar a busca. Tente novamente.':'Nenhum resultado. Tente outro termo ou artista.')+'</p>';
+ '<p class="sf208-search-state">'+(failed===5?'Não foi possível consultar a busca. Tente novamente.':'Nenhum resultado. Tente outro termo ou artista.')+'</p>';
 }
 function activate(item){
  if(!item)return;close();
@@ -52,7 +55,8 @@ function activate(item){
  if(item.type==='event'){
   window.sf125Navigate?.('agenda');window.sf200OpenEvent?.(item.id);return;
  }
- if(item.type==='person')window.sf53OpenInbox?.(item.id,item.title);
+ if(item.type==='person'){window.sf53OpenInbox?.(item.id,item.title);return;}
+ if(item.type==='favorite')window.sf125Navigate?.('library');
 }
 function init(){
  const input=$('sf107Search'),parent=select();if(!input||!parent)return;
