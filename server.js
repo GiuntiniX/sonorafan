@@ -6,6 +6,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const { sanitize } = require('./room-settings');
+const { MAX_ROOMS, MAX_PEOPLE_PER_ROOM, canCreateRoom, activeRoomCount, canJoinRoom } = require('./room-limits-230');
 const {normalizeRoomGenre109,legacyRoomGenre109} = require('./room-genres-109');
 const ROOM_THEMES_88 = require('./public/themes/catalog-88.json');
 const ROOM_THEME_IDS_88 = new Set(ROOM_THEMES_88.map(theme => theme.id));
@@ -149,7 +150,7 @@ app.use('/api/room/:slug', (req, res, next) => {
 const colors = ['#f59e0b', '#3b82f6', '#ef4444', '#22c55e', '#a855f7', '#ec4899', '#06b6d4', '#f97316', '#8b5cf6', '#14b8a6'];
 // Painel global exclusivo: permissões validadas no servidor, nunca por botão ou variável ambiente.
 const adminEmails = new Set(['admin@sonora.com']);
-const settings = { maxQueue: 10000, cooldown: 30, maxDuration: 600, maxListeners: 20 };
+const settings = { maxQueue: 10000, cooldown: 30, maxDuration: 600, maxListeners: MAX_PEOPLE_PER_ROOM };
 const DISLIKE_THRESHOLD = 10;
 const MAX_SONGS_PER_USER = 10000;
 const SKIP_VOTE_THRESHOLD = 0.5;
@@ -216,6 +217,17 @@ const rooms = new Map();
 const roomLikes = new Map();
 const roomVotes = new Map();
 const waitingRooms = new Map();
+let roomCatalogReady = false;
+// Socket.IO adapter é a fonte da capacidade, não um contador histórico.
+function syncRoomOccupancy(slug) {
+  const room=rooms.get(slug);
+  if (!room) return 0;
+  room.listenerCount=activeRoomCount(io,slug);
+  return room.listenerCount;
+}
+function clearWaitingSocket(socket) {
+  for (const [slug,queue] of waitingRooms) waitingRooms.set(slug,queue.filter(s=>s!==socket&&s.connected));
+}
 
 // 45.0 — mesma coleção `points`, com progressão transacional e ranking persistente.
 const gamification45 = createGamification45({ db, app, sessionEmail, users, userPoints, io });
@@ -357,8 +369,10 @@ async function loadRooms() {
       if (v.maxDuration) r.maxDuration = v.maxDuration;
       rooms.set(v.slug, r);
     });
+    roomCatalogReady = true;
     console.log(`✅ ${rooms.size} salas carregadas.`);
-  } catch (e) {}
+    if (rooms.size > MAX_ROOMS) console.warn(`⚠️ Existem ${rooms.size} salas antigas (limite atual: ${MAX_ROOMS}); nenhuma sala será removida automaticamente.`);
+  } catch (e) { console.error('Falha ao carregar salas; criação temporariamente bloqueada:',e.message); }
 }
 loadRooms();
 
@@ -1179,7 +1193,7 @@ app.get('/api/rooms', (req, res) => {
   try {
     const me = sessionEmail(req), adm = !!me && adminEmails.has(me);
     const list = Array.from(rooms.values()).filter(r => !r.isPrivate || adm || (!!me && r.ownerEmail === me)).map(r => ({
-      slug: r.slug, name: r.name, isMine: !!me && r.ownerEmail === me, listenerCount: r.listenerCount,
+      slug: r.slug, name: r.name, isMine: !!me && r.ownerEmail === me, listenerCount: syncRoomOccupancy(r.slug), maxListeners: MAX_PEOPLE_PER_ROOM,
       queueLength: r.queue.length, isPlaying: r.isPlaying,
       currentTrack: r.queue[r.currentIndex] || null,
       radioMode: r.radioMode, color: r.color || '#7c3aed', roomTheme: normalizeRoomTheme88(r.roomTheme), ...publicRoomCover(r), genre: r.genre || null, emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
@@ -1190,10 +1204,17 @@ app.get('/api/rooms', (req, res) => {
   } catch (e) { console.error('Erro na rota /api/rooms:', e.message); res.status(500).json({ error: 'Erro interno ao listar salas' }); }
 });
 
+app.get('/api/rooms/limits', (req,res)=>{
+  res.set('Cache-Control','no-store');
+  res.json({maxRooms:MAX_ROOMS,currentRooms:rooms.size,maxPeoplePerRoom:MAX_PEOPLE_PER_ROOM,ready:roomCatalogReady});
+});
+
 app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   const { name, adminName, color, allowLong, allowLive } = req.body;
   const email = sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'Faça login para criar uma sala' });
+  if (!roomCatalogReady) return res.status(503).json({error:'As salas estão sendo carregadas. Tente novamente em instantes.'});
+  if (!canCreateRoom(rooms)) return res.status(409).json({error:`Limite de ${MAX_ROOMS} salas atingido. Exclua uma sala antiga antes de criar outra.`,maxRooms:MAX_ROOMS,currentRooms:rooms.size});
   if (!name || name.trim().length < 2 || name.trim().length > 40) return res.status(400).json({ error: 'Nome inválido' });
   const genre=normalizeRoomGenre109(req.body?.genre);
   if (!genre) return res.status(400).json({error:'Selecione o gênero musical da sala.'});
