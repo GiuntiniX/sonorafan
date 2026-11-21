@@ -292,3 +292,10 @@
  #sf71ClubDetail .sf231-poll-options .sf231-poll-choice,
  #sf71ClubDetail .sf231-poll-options .sf231-poll-bar{transition:none}
 }
+
+#sf71ClubDetail .sf231-filters{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 15px}
+#sf71ClubDetail .sf231-filters button{min-height:38px;padding:8px 12px;border-radius:999px;background:#35213f;border:1px solid #764a80;color:#e7d6ef;font:750 12px Inter,system-ui,sans-serif;cursor:pointer}
+#sf71ClubDetail .sf231-filters button[aria-pressed="true"]{color:#141a0d;background:#caff19;border-color:#caff19}
+#sf71ClubDetail .sf231-filters button span{margin-left:5px;opacity:.85;font-variant-numeric:tabular-nums}
+#sf71ClubDetail .sf231-filters button:focus-visible{outline:2px solid #caff19;outline-offset:2px}
+@media(max-width:500px){#sf71ClubDetail .sf231-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}#sf71ClubDetail .sf231-filters button{min-width:0;font-size:11px;padding:7px 5px}}
