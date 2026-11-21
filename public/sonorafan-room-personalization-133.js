@@ -20,10 +20,13 @@
     // A mesma escolha visual recebe uma sobreposição ilustrada no painel
     // global de músicas. A identidade continua vindo do sistema sf88.
     const id=enabled?String(screen.dataset.roomTheme||''):'';
-    const safe=/^(?:indie|metal|emo|mpb|eletronica|rock|pop|rap|funk|pagode|sertanejo|reggae|jazz|forro)$/.test(id);
-    if(safe){
+    const legacy=/^(?:indie|metal|emo|mpb|eletronica|rock|pop|rap|funk|pagode|sertanejo|reggae|jazz|forro)$/.test(id);
+    const extra=/^(?:bts|kpop|jpop|trap|lofi|cor-preto|cor-vermelho|cor-azul|cor-verde|cor-roxo|cor-rosa|cor-dourado)$/.test(id);
+    if(legacy||extra){
       root.dataset.sf143Theme=id;
-      root.style.setProperty('--sf143-body-scene','url("/themes/atmospheres/'+id+'.svg")');
+      const art=extra?screen.style.getPropertyValue('--sf88-art').trim():'url("/themes/atmospheres/'+id+'.svg")';
+      if(art)root.style.setProperty('--sf143-body-scene',art);
+      else root.style.removeProperty('--sf143-body-scene');
     }else{
       delete root.dataset.sf143Theme;
       root.style.removeProperty('--sf143-body-scene');
