@@ -991,7 +991,7 @@ app.get('/api/rooms', (req, res) => {
   try {
     const me = sessionEmail(req), adm = !!me && adminEmails.has(me);
     const list = Array.from(rooms.values()).filter(r => !r.isPrivate || adm || (!!me && r.ownerEmail === me)).map(r => ({
-      slug: r.slug, name: r.name, listenerCount: r.listenerCount,
+      slug: r.slug, name: r.name, isMine: !!me && r.ownerEmail === me, listenerCount: r.listenerCount,
       queueLength: r.queue.length, isPlaying: r.isPlaying,
       currentTrack: r.queue[r.currentIndex] || null,
       radioMode: r.radioMode, color: r.color || '#7c3aed', roomTheme: normalizeRoomTheme88(r.roomTheme), ...publicRoomCover(r), genre: r.genre || null, emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
@@ -1073,6 +1073,41 @@ app.post('/api/room/:slug/event', requireAdmin, (req, res) => {
   room.eventStartTime = req.body.startTime || null;
   broadcastState(req.params.slug);
   res.json({ success: true });
+});
+
+// Favoritos de salas: persistidos por conta, separados das músicas favoritas.
+app.get('/api/room-bookmarks', async(req,res)=>{
+  const email=sessionEmail(req);
+  if(!email)return res.status(401).json({error:'Faça login para acessar suas salas favoritas.'});
+  try{
+    const doc=await db.collection('roomBookmarks').doc(email).get();
+    const saved=Array.isArray(doc.data()?.slugs)?doc.data().slugs:[];
+    const visible=saved.filter(slug=>{
+      const room=rooms.get(slug);
+      return room && (!room.isPrivate || room.ownerEmail===email || adminEmails.has(email));
+    });
+    res.set('Cache-Control','no-store').json({slugs:visible});
+  }catch(e){console.error('Falha ao ler salas favoritas:',e.message);res.status(503).json({error:'Não foi possível carregar suas salas favoritas.'});}
+});
+app.post('/api/room-bookmarks',rateLimit(40,60000),async(req,res)=>{
+  const email=sessionEmail(req);
+  if(!email)return res.status(401).json({error:'Faça login para favoritar salas.'});
+  const slug=req.body?.slug;
+  if(typeof slug!=='string'||slug.length>120||!/^[a-z0-9_-]+$/.test(slug))return res.status(400).json({error:'Sala inválida.'});
+  const room=rooms.get(slug);
+  if(!room||room.isPrivate&&room.ownerEmail!==email&&!adminEmails.has(email))return res.status(404).json({error:'Sala não encontrada.'});
+  const favorite=req.body?.favorite;
+  if(typeof favorite!=='boolean')return res.status(400).json({error:'Escolha favoritar ou desfavoritar.'});
+  try{
+    const ref=db.collection('roomBookmarks').doc(email);
+    const slugs=await db.runTransaction(async tx=>{
+      const doc=await tx.get(ref),old=Array.isArray(doc.data()?.slugs)?doc.data().slugs.filter(s=>typeof s==='string'):[];
+      const next=favorite?[...new Set([...old,slug])].slice(-200):old.filter(s=>s!==slug);
+      tx.set(ref,{slugs:next,updatedAt:Date.now()},{merge:true});
+      return next;
+    });
+    res.json({slugs});
+  }catch(e){console.error('Falha ao salvar sala favorita:',e.message);res.status(503).json({error:'Não foi possível salvar o favorito.'});}
 });
 
 // ========== FAVORITOS ==========
@@ -1900,7 +1935,7 @@ io.on('connection', (socket) => {
       }
       if (room.isPrivate && input.password !== undefined) setPassword(room, String(input.password).slice(0, 30));
       persistRoom(room); broadcastState(room.slug); socket.emit('roomInvite', inviteInfo(room));
-      addSystemMsg(currentRoom, `⚙️ ${socket.userName} atualizou as configurações da sala`);
+      // Alterações administrativas são refletidas no estado da sala, sem mensagens repetitivas no chat.
     } catch (e) {}
   });
 
