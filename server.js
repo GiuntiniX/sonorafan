@@ -971,7 +971,22 @@ installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUse
 // Administração de denúncias 53.0 — protegida por requireAdmin já aplicado em /api/admin.
 app.get('/api/admin/chat-reports', async(req,res)=>{
   try { const snap=await db.collection('chatReports53').orderBy('createdAt','desc').limit(100).get();
-    const items=[];snap.forEach(d=>items.push({id:d.id,...d.data()}));res.json(items);
+    const items=[];snap.forEach(d=>{
+      const entry=d.data();
+      // Somente administradores recebem identificadores públicos para contato;
+      // nunca expor email, número de sessão ou acesso à conversa original.
+      const reporterId=typeof entry.reporterId==='string'&&/^[a-f0-9]{24}$/.test(entry.reporterId)?entry.reporterId:null;
+      const reportedId=typeof entry.reportedId==='string'&&/^[a-f0-9]{24}$/.test(entry.reportedId)?entry.reportedId:
+        entry.type==='dm'&&typeof entry.otherId==='string'&&/^[a-f0-9]{24}$/.test(entry.otherId)?entry.otherId:null;
+      const reporter=reporterId?findSocialUser(reporterId):null;
+      const reported=reportedId?findSocialUser(reportedId):null;
+      items.push({
+        ...entry,id:d.id,reporterId,reportedId,
+        reporterName:reporter?String(reporter[1].nome||'Participante').slice(0,40):null,
+        reportedName:reported?String(reported[1].nome||'Participante').slice(0,40):null
+      });
+    });
+    res.set('Cache-Control','no-store').json(items);
   } catch(e) { console.error('chat reports admin',e.message);res.status(503).json({error:'Denúncias indisponíveis'}); }
 });
 app.post('/api/admin/chat-reports/:id/resolve',rateLimit(40,60000),async(req,res)=>{
