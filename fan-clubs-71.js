@@ -949,6 +949,32 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       })});
     }catch(e){error(res,e);}
   });
+  // Lembretes sob demanda, sem disparos repetidos e sem processo em segundo plano.
+  if(app.locals){
+    const reminderCache=new Map();
+    app.locals.sf202ClubEventReminders=async(email)=>{
+      const id=publicUserId(email),now=Date.now(),saved=reminderCache.get(id);
+      if(saved&&now-saved.at<60000)return saved.items;
+      const snap=await db.collection(CLUBS).limit(100).get();
+      const clubs=snap.docs.filter(d=>!d.data()?.deleting&&(
+        unique(d.data()?.memberIds).includes(id)||d.data()?.ownerId===id));
+      const matches=await Promise.all(clubs.slice(0,35).map(async d=>{
+        try{
+          const snap=await d.ref.collection('events').orderBy('startAt','asc').limit(40).get();
+          return snap.docs.filter(e=>Number(e.data()?.startAt)>=now&&Number(e.data()?.startAt)<now+24*3600000
+            &&unique(e.data()?.attendeeIds).includes(id)).map(e=>{
+              const slug=e.data()?.roomSlug,room=rooms.get(slug);
+              return {id:'fanclub-event-'+d.id+'-'+e.id,type:'event',title:'Evento do Fan Club chegando',
+                message:clean(e.data().title,70)+' · '+new Date(e.data().startAt).toLocaleString('pt-BR')+
+                  (room&&!room.isPrivate?' · Sala: '+clean(room.name,60):''),
+                roomSlug:room&&!room.isPrivate?slug:null,fanClubId:d.id,createdAt:Number(e.data().startAt),read:false};
+            });
+        }catch(err){console.warn('fan club reminders:',err.message);return [];}
+      }));
+      const items=matches.flat().sort((a,b)=>a.createdAt-b.createdAt).slice(0,25);
+      reminderCache.set(id,{at:now,items});return items;
+    };
+  }
   // Encontros independentes de salas: Fan Club é comunidade, não player.
   app.get('/api/fan-clubs/:id/events',rateLimit(40,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
