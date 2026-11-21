@@ -41,7 +41,7 @@ const eligible=e=>Number(e.startAt)>now()-3600000;
 const origin=e=>e.type==='fanclub'?'Fan Club: '+(e.clubName||'Comunidade')+' · '+(e.artist||'Música')+(e.roomSlug?' · Sala: '+(e.roomName||e.roomSlug):''):'Sala: '+(e.roomName||'Sala musical')+' · por '+(e.hostName||'Organizador');
 const tag=e=>`<span class="sf200-tag sf200-tag-${e.type}">${e.type==='fanclub'?'♧ Fan Club':'♫ Sala'}</span>`;
 const userStatus=e=>e.going?'✓ Confirmado':e.type==='fanclub'&&!e.joined?'Entrar no Fan Club':'Participar';
-const actionButtons=(e,compact=false)=>`<button class="sf200-primary" type="button" data-sf200-rsvp="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">${userStatus(e)}</button><button type="button" data-sf200-details="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">Ver evento</button>${compact?'':`<button type="button" data-sf200-calendar="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">▦ Adicionar à agenda</button>`}`;
+const actionButtons=(e,compact=false)=>`<button class="sf200-primary" type="button" data-sf200-rsvp="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">${userStatus(e)}</button><button type="button" data-sf200-details="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">Ver evento</button>${compact?'':`<button type="button" data-sf200-calendar="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">▦ Adicionar à agenda</button>`}${e.canManage?`<button type="button" class="sf203-manage" data-sf203-edit="${esc(eventKey(e))}">✎ Editar</button><button type="button" class="sf203-manage sf203-danger" data-sf201-delete="${esc(eventKey(e))}">Excluir</button>`:''}`;
 const eventKey=e=>e.type+':'+(e.clubId||e.roomSlug)+':'+e.id;
 const choose=()=>state.events.filter(e=>(state.type==='all'||e.type===state.type)
  &&(state.genre==='all'||String(e.genre||'outros')===state.genre)
@@ -202,7 +202,7 @@ async function createEvent(preferredClub='',editing=null){
    '<label>Título do evento<input name="title" maxlength="90" minlength="5" required placeholder="Ex.: Noite dos maiores hits do BTS"></label>'+
   '<label>Descrição<textarea name="description" rows="3" maxlength="240" placeholder="Conte aos fãs o que vai acontecer..."></textarea></label>'+
   '<div class="sf201-create-two"><label>Data e horário<input name="startAt" type="datetime-local" required></label>'+
-  '<label>Duração<select name="durationMinutes"><option value="30">30 min</option><option value="60">1 hora</option><option value="90" selected>1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label></div>'+
+  '<label>Duração<select name="durationMinutes"><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 hora</option><option value="90" selected>1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label></div>'+
   '<label class="sf201-theme-label">Clima musical<select name="theme"><option value="indie">Indie</option><option value="pop">Pop</option>'+
   '<option value="rock2000">Rock 2000</option><option value="electronic">Eletrônica</option><option value="discoveries">Descobertas</option></select></label>'+
   '<div class="sf202-event-settings">'+
@@ -290,7 +290,9 @@ async function createEvent(preferredClub='',editing=null){
    newSpace.textContent=type==='fanclub'?'＋ Criar Fan Club':'＋ Criar sala pública';help.append(document.createTextNode(' '),newSpace);}
   form.querySelector('.sf201-theme-label').hidden=type!=='room';
   [...form.elements.durationMinutes.options].forEach(o=>o.disabled=type==='fanclub'&&!['30','60','90','120'].includes(o.value));
-  if(type==='fanclub'&&form.elements.durationMinutes.value==='180')form.elements.durationMinutes.value='90';
+  if(type==='fanclub'&&['45','180'].includes(form.elements.durationMinutes.value))form.elements.durationMinutes.value='90';
+   if(type==='room'&&form.elements.durationMinutes.value==='30')form.elements.durationMinutes.value='45';
+   [...form.elements.durationMinutes.options].forEach(o=>o.disabled=type==='fanclub'?o.value==='45'||o.value==='180':o.value==='30');
   form.elements.title.maxLength=type==='fanclub'?90:70;
    if(editing){
     const targetId=editing.type==='fanclub'?editing.clubId:editing.roomSlug;
@@ -326,6 +328,7 @@ async function createEvent(preferredClub='',editing=null){
    closeModal();state.day=key(new Date(start));state.month=new Date(new Date(start).getFullYear(),new Date(start).getMonth(),1);
    state.type='all';state.genre='all';state.q='';state.onlyMine=false;state.lastLoad=0;
    state.toast=editing?'Evento atualizado com sucesso. Presenças mantidas.':'Evento criado com sucesso! Ele já aparece no calendário.';
+   if(editing?.type==='fanclub')document.dispatchEvent(new CustomEvent('sf203:event-updated',{detail:{clubId:editing.clubId,eventId:editing.id}}));
    await load(true,true);
   }catch(err){error.textContent=err.message||'Não foi possível publicar.';error.hidden=false;}
   finally{state.modalBusy=false;submit.disabled=false;submit.textContent=editing?'Salvar alterações':'＋ Publicar evento';}
