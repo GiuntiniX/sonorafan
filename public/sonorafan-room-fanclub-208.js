@@ -100,6 +100,7 @@ function init(){
   }
  }
  document.addEventListener('sf71:rooms-updated',refresh);
+ window.addEventListener('pageshow',refresh);
  window.addEventListener('focus',refresh);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
  // Sincroniza vínculos criados em outras abas ou por outros moderadores.
