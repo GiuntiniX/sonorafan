@@ -287,3 +287,15 @@
 @media(prefers-reduced-motion:reduce){
  #sf43ProfileModal.sf112-ready *{scroll-behavior:auto!important}
 }
+
+
+/* Deixar a ação de fechar fora da área clicável das abas. */
+#sf43ProfileModal.sf112-ready .sf112-tabs{padding-right:64px!important}
+#sf43ProfileModal.sf112-ready .sf43-profile-close{
+ position:absolute!important;top:17px!important;right:20px!important;
+ width:40px!important;height:40px!important;z-index:60!important;
+}
+@media(max-width:680px){
+ #sf43ProfileModal.sf112-ready .sf112-tabs{padding-right:58px!important}
+ #sf43ProfileModal.sf112-ready .sf43-profile-close{top:14px!important;right:13px!important}
+}
