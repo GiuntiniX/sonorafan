@@ -104,7 +104,7 @@
     person('Pessoa denunciada',x.reportedName,x.reportedId)+
     '<p>'+esc(x.evidenceText||description)+'</p><small>Motivo: '+esc(x.reason||'Não informado')+'</small>'+
     '<div class="sf13-inline-meta"><span>Registro: '+esc(id)+'</span><span>'+esc(fmt(created))+'</span></div>'+
-    (canResolve?'<button data-sf13-report="'+esc(id)+'" data-status="'+(status==='resolved'?'open':'resolved')+'">'+(status==='resolved'?'Reabrir denúncia':'Marcar como resolvida')+'</button>':'')+'</article>';
+    (canResolve?'<div class="sf225-report-actions"><button type="button" data-sf13-report="'+esc(id)+'" data-status="'+(status==='resolved'?'open':'resolved')+'">'+(status==='resolved'?'Reabrir denúncia':'Marcar como resolvida')+'</button><button type="button" class="sf225-remove-report" data-sf13-remove="'+esc(id)+'" aria-label="Remover denúncia '+esc(id)+'">Remover</button></div>':'')+'</article>';
   }).join('')||'<div class="sf13-skeleton-empty">Nenhuma denúncia neste filtro.</div>');
  }
  async function loadMusic(){
@@ -164,6 +164,21 @@
    if(!/^[a-f0-9]{24}$/.test(id))return;
    window.closeAdmin?.();
    await window.sf53OpenInbox?.(id,contact.dataset.sf13ContactName||'Participante');
+   return;
+  }
+  const removal=e.target.closest('[data-sf13-remove]');
+  if(removal){
+   const id=removal.dataset.sf13Remove;
+   if(!/^[a-f0-9-]{36}$/i.test(id))return;
+   if(!confirm('Remover esta denúncia da central? Ela deixará de aparecer nos filtros, mas a ação ficará registrada para auditoria.'))return;
+   removal.disabled=true;
+   try{
+    await fetchJSON('/api/admin/chat-reports/'+encodeURIComponent(id)+'/remove',{method:'POST'});
+    await loadReports();
+    note('sf13ReportsNotice','Denúncia removida da central.');
+    const pending=$('sf13PendingReports');
+    if(pending)pending.textContent=number(state.reports.filter(r=>(r.status||'open')==='open').length);
+   }catch(error){note('sf13ReportsNotice',errMsg(error));removal.disabled=false;}
    return;
   }
   const report=e.target.closest('[data-sf13-report]');
