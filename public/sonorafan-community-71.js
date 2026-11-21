@@ -322,6 +322,28 @@
    ideia:{icon:'💡',title:'Ideia',description:'Compartilhe propostas com a comunidade.',css:'ideia'}
  };
  const topicFor=topic=>forumTypes[topic]||forumTypes.conversa;
+ const validVideoId=id=>/^[A-Za-z0-9_-]{11}$/.test(String(id||''));
+ const videoEmbed=p=>validVideoId(p.youtubeId)?`<div class="sf252-video-wrap"><iframe
+  src="https://www.youtube-nocookie.com/embed/${esc(p.youtubeId)}"
+  title="Vídeo do YouTube na publicação de ${esc(p.authorName||'um fã')}"
+  loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  allowfullscreen></iframe></div>`:'';
+ const youtubeLinkId=value=>{
+  if(!value)return '';
+  try{
+   const url=new URL(value);
+   if(url.protocol!=='https:'||url.username||url.password||url.port)return '';
+   const host=url.hostname.toLowerCase(),path=url.pathname.split('/').filter(Boolean);
+   const youtube=['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(host);
+   const short=['youtu.be','www.youtu.be'].includes(host);
+   let id='';
+   if(short&&path.length===1)id=path[0];
+   else if(youtube&&path.length===1&&path[0]==='watch')id=url.searchParams.get('v')||'';
+   else if(youtube&&path.length===2&&['shorts','live','embed','v'].includes(path[0]))id=path[1];
+   return validVideoId(id)?id:'';
+  }catch(_){return '';}
+ };
  function postHtml(p){
    const type=topicFor(p.topic),question=(p.topic==='duvida');
    return `<article class="sf71-post sf180-post sf180-type-${type.css} ${p.pinned?'sf151-pinned':''} ${p.resolved?'sf180-resolved':''}" data-sf71-post="${esc(p.id)}">
@@ -330,7 +352,7 @@
      ${p.pinned?'<span class="sf151-pin-label">📌 Destaque da comunidade</span>':''}
      <button type="button" class="sf600-topic-title" data-sf600-open="${esc(p.id)}">${esc(p.title||String(p.text||'').slice(0,95)||'Discussão da comunidade')}</button>
      <div class="sf600-tags">${(p.tags||[]).map(tag=>`<button type="button" data-sf600-tag="${esc(tag)}">#${esc(tag)}</button>`).join('')}</div>
-     <p>${esc(p.text)}</p>${safeUrl(p.imageUrl)?`<img class="sf170-post-image" loading="lazy" referrerpolicy="no-referrer" alt="Imagem da publicação" src="${esc(safeUrl(p.imageUrl))}">`:p.hasImage?`<img class="sf170-post-image" loading="lazy" alt="Imagem antiga" src="/api/fan-clubs/${encodeURIComponent(state.activeId)}/posts/${encodeURIComponent(p.id)}/image">`:''}
+     <p>${esc(p.text)}</p>${safeUrl(p.imageUrl)?`<img class="sf170-post-image" loading="lazy" referrerpolicy="no-referrer" alt="Imagem da publicação" src="${esc(safeUrl(p.imageUrl))}">`:p.hasImage?`<img class="sf170-post-image" loading="lazy" alt="Imagem antiga" src="/api/fan-clubs/${encodeURIComponent(state.activeId)}/posts/${encodeURIComponent(p.id)}/image">`:''}${videoEmbed(p)}
      ${p.editedAt?'<small class="sf180-edited">✎ Publicação editada</small>':''}
      ${question?`<div class="sf180-question-status" role="status">${p.resolved?'✓ Dúvida respondida':'⌛ Aguardando respostas'}</div>`:''}
      <div class="sf151-post-actions">
@@ -810,7 +832,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
          ${c.joined?`<div class="sf227-composer-bar"><span class="sf227-composer-icon">♫</span><button type="button" data-sf227-compose>Compartilhar algo com a comunidade...</button><button type="button" aria-label="Publicar foto" data-sf227-photo>▧</button><button type="button" aria-label="Agenda" data-sf160-pane="events">▦</button><button type="button" aria-label="Enquetes" data-sf160-pane="polls">▤</button><button type="button" class="sf227-compose-main" data-sf227-compose>Publicar</button></div>`:''}
          ${c.joined?`<form id="sf71PostForm" class="sf227-composer-collapsed"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf600Title">Título da discussão<input id="sf600Title" name="title" maxlength="110" minlength="6" required placeholder="Resuma sua discussão em um título"></label>
          <label for="sf600Tags">Tags (separadas por vírgula, até cinco)<input id="sf600Tags" name="tags" maxlength="140" placeholder="show, ingressos, turnê"></label>
-         <label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImageUrl">📷 URL HTTPS da imagem (opcional)</label><input id="sf170PostImageUrl" name="imageUrl" type="url" maxlength="1500" placeholder="https://exemplo.com/imagem.webp" aria-label="Endereço HTTPS da imagem"><small>Use um link direto para uma imagem pública.</small><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option><option value="active">Recentemente ativos</option><option value="unanswered">Dúvidas sem resposta</option><option value="saved">Meus favoritos</option><option value="unread">Não lidos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button>
+         <label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImageUrl">📷 URL HTTPS da imagem (opcional)</label><input id="sf170PostImageUrl" name="imageUrl" type="url" maxlength="1500" placeholder="https://exemplo.com/imagem.webp" aria-label="Endereço HTTPS da imagem"><small>Use um link direto para uma imagem pública.</small><label class="sf252-video-label" for="sf252PostYoutubeUrl">▶ Vídeo do YouTube (opcional)</label><input id="sf252PostYoutubeUrl" name="youtubeUrl" type="url" maxlength="1000" inputmode="url" placeholder="https://www.youtube.com/watch?v=..." aria-label="Link de vídeo do YouTube"><small>Cole o link do vídeo, Shorts ou transmissão ao vivo. O player aparecerá na publicação.</small><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option><option value="active">Recentemente ativos</option><option value="unanswered">Dúvidas sem resposta</option><option value="saved">Meus favoritos</option><option value="unread">Não lidos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button>
          <button type="button" data-sf600-search>🔎 Buscar no histórico completo</button></div><div id="sf180ForumCounts" class="sf180-forum-counts" aria-label="Filtrar por categorias"></div><div id="sf180FeedSummary" class="sf180-feed-summary" aria-live="polite"></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </div><div id="sf160Extras" aria-live="polite"></div></section><div class="sf227-side sf227-right"><aside id="sf227Right" aria-label="Novidades e assuntos em destaque"></aside><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div></div>`;
      rendered=true;
@@ -1355,11 +1377,14 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
         const imageInput=String($('sf170PostImageUrl')?.value||'').trim();
          const imageUrl=imageInput?safeUrl(imageInput):'';
          if(imageInput&&!imageUrl)throw Error('A imagem precisa ter uma URL HTTPS pública válida.');
+         const youtubeUrl=String($('sf252PostYoutubeUrl')?.value||'').trim();
+         if(youtubeUrl&&!youtubeLinkId(youtubeUrl))throw Error('Informe um link HTTPS válido de um vídeo do YouTube.');
         const title=String($('sf600Title')?.value||'').trim();
          const tags=String($('sf600Tags')?.value||'').split(',').map(t=>t.trim()).filter(Boolean);
-         const result=await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts',{text,title,tags,topic:$('sf170Topic')?.value||'conversa',imageUrl});
+         const result=await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts',{text,title,tags,topic:$('sf170Topic')?.value||'conversa',imageUrl,youtubeUrl});
         $('sf71PostText').value='';if($('sf600Title'))$('sf600Title').value='';if($('sf600Tags'))$('sf600Tags').value='';
          if($('sf170PostImageUrl'))$('sf170PostImageUrl').value='';
+         if($('sf252PostYoutubeUrl'))$('sf252PostYoutubeUrl').value='';
           $('sf71PostForm')?.classList.add('sf227-composer-collapsed');
         await loadPosts(id);
       }
