@@ -280,7 +280,7 @@
     const key=typeof currentUser!=='undefined'&&currentUser?.email?'sf43_profile_'+currentUser.email:null;
     if(key)localStorage.setItem(key,JSON.stringify({displayName:p.nome,bio:p.bio,styles:p.musicGenres}));
    }catch(_){}
-   message('Perfil salvo na sua conta!');window.sf43CloseProfile?.();
+   message('Perfil salvo na sua conta!');if(window.sf207ProfileIsPage?.())window.sf112SwitchProfileTab?.('overview');else window.sf43CloseProfile?.();
    if(typeof toast==='function')toast('Perfil salvo na sua conta.','success');
   }catch(e){message(e.message,true);}
   finally{state.busy=false;if(button)button.disabled=false;}
