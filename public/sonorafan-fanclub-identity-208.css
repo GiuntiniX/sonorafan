@@ -1,0 +1,72 @@
+/* SonoraFan 208 — identidade visual de verdade, preservando 100% da capa escolhida. */
+#sf71ClubDetail:has(.sf71-theme-vinyl){--sf208-club-accent:#f8c17d;--sf208-club-shade:#6c345e}
+#sf71ClubDetail:has(.sf71-theme-stage){--sf208-club-accent:#caff00;--sf208-club-shade:#4b1f6c}
+#sf71ClubDetail:has(.sf71-theme-cassette){--sf208-club-accent:#ff9768;--sf208-club-shade:#613052}
+#sf71ClubDetail:has(.sf71-theme-waves){--sf208-club-accent:#65e3ed;--sf208-club-shade:#213c72}
+#sf71ClubDetail .sf71-detail-hero.sf73-with-cover{
+ border:2px solid var(--sf208-club-accent,#b965d7)!important;
+ box-shadow:0 0 0 2px #ffffff09,0 12px 35px #0005!important;
+}
+#sf71ClubDetail .sf71-detail-hero.sf73-with-cover .sf73-cover-img{object-fit:cover!important;filter:none!important}
+#sf71ClubDetail .sf71-detail-hero.sf73-with-cover .sf73-hero-info>span{
+ color:var(--sf208-club-accent,#caff00)!important;letter-spacing:.13em!important;
+}
+#sf71ClubDetail .sf71-detail-hero.sf73-with-cover .sf73-hero-info h3{
+ text-shadow:0 2px 12px #000c!important;
+}
+#sf71ClubDetail .sf160-tabs [aria-selected=true]{
+ border-bottom-color:var(--sf208-club-accent,#caff00)!important;color:var(--sf208-club-accent,#caff00)!important;
+}
+#sf71ClubDetail .sf71-detail-actions button:hover,#sf71ClubDetail .sf208-theme-picker:hover{
+ border-color:var(--sf208-club-accent,#caff00)!important;
+}
+#sf71ClubDetail .sf170-community-aside,#sf71ClubDetail .sf160-extra-panel{
+ border-top:2px solid var(--sf208-club-accent,#caff00)!important;
+}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-vinyl{background-color:#452a45!important}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-stage{background-color:#25133c!important}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-cassette{background-color:#543046!important}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-waves{background-color:#1c3155!important}
+/* Nos cards do lobby o tema aparece como borda e etiqueta, sem esconder a capa. */
+.sf71-club-art.sf73-with-cover.sf71-theme-vinyl{outline:2px solid #f8c17d}
+.sf71-club-art.sf73-with-cover.sf71-theme-stage{outline:2px solid #caff00}
+.sf71-club-art.sf73-with-cover.sf71-theme-cassette{outline:2px solid #ff9768}
+.sf71-club-art.sf73-with-cover.sf71-theme-waves{outline:2px solid #65e3ed}
+#sf71Modal .sf208-theme-preview{
+ display:grid;gap:8px;min-height:126px;margin:10px 0;padding:18px;border-radius:16px;
+ border:2px solid var(--sf208-preview-accent,#caff00);
+ background:linear-gradient(135deg,var(--sf208-preview-shade,#2b1b42),#1c1029);
+ box-shadow:inset 0 0 25px #0004;color:#fff;
+}
+#sf71Modal .sf208-theme-preview span{font-size:11px;letter-spacing:.11em;color:var(--sf208-preview-accent,#caff00);font-weight:950}
+#sf71Modal .sf208-theme-preview strong{font-size:22px;line-height:1.2}
+#sf71Modal .sf208-theme-preview small{font-size:11px;line-height:1.45;color:#eadbf1}
+#sf71Modal .sf208-theme-preview.sf71-theme-vinyl{--sf208-preview-accent:#f8c17d;--sf208-preview-shade:#643b5f}
+#sf71Modal .sf208-theme-preview.sf71-theme-stage{--sf208-preview-accent:#caff00;--sf208-preview-shade:#46206d}
+#sf71Modal .sf208-theme-preview.sf71-theme-cassette{--sf208-preview-accent:#ff9768;--sf208-preview-shade:#703448}
+#sf71Modal .sf208-theme-preview.sf71-theme-waves{--sf208-preview-accent:#65e3ed;--sf208-preview-shade:#253e75}
+#sf71ClubDetail [data-sf208-invite],#sf71ClubDetail [data-sf208-share]{
+ min-height:40px;border:1px solid var(--sf208-club-accent,#caff00);border-radius:999px;
+ padding:10px 14px;background:#2a1935;color:#fff;font-size:12px;font-weight:850;cursor:pointer;
+}
+.sf208-invite-results{display:grid;gap:7px;max-height:210px;overflow-y:auto;margin:7px 0}
+.sf208-invite-results button{min-height:43px;text-align:left;background:#2b183b;color:#fff;border:1px solid #86509b;border-radius:11px;padding:9px 13px}
+.sf208-invite-results button.selected{border-color:#caff00;background:#3c274b}
+.sf208-invite-choice{color:#caff00;font-size:12px}
+.sf208-room-clubs{
+ display:grid;gap:5px;background:linear-gradient(115deg,#2d143e,#21162f);
+ border:1px solid #a56fbd;border-radius:12px;margin:8px 10px;padding:9px;flex:none;
+}
+.sf208-room-clubs[hidden]{display:none!important}
+.sf208-room-affiliation-label{color:#caff00;font-size:10px;font-weight:900;letter-spacing:.03em}
+.sf208-room-club{
+ display:flex;align-items:center;gap:8px;min-height:44px;padding:7px 9px;border-radius:10px;
+ border:1px solid #875399;background:#391e4a;color:#fff;text-align:left;cursor:pointer;
+}
+.sf208-room-club:hover{border-color:#caff00;background:#4b2b5e}
+.sf208-room-club-icon{display:grid;place-items:center;background:#caff001a;color:#caff00;border-radius:9px;width:32px;height:32px;flex:none}
+.sf208-room-club>span:nth-child(2){display:grid;gap:3px;min-width:0;flex:1}
+.sf208-room-club strong{font-size:11px;overflow-wrap:anywhere}
+.sf208-room-club small{color:#e4d5ec;font-size:10px}
+.sf208-room-club-cta{color:#caff00;font-size:10px;font-weight:850;white-space:nowrap}
+@media(max-width:600px){.sf208-room-clubs{margin:7px 6px;padding:7px}.sf208-room-club{min-height:39px}.sf208-room-club-cta{font-size:10px}}
