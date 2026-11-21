@@ -177,7 +177,7 @@
     // Club themes are not always music genres. Do not infer genres from artwork or people's names.
     const value=norm(String(c?.genre||c?.theme||'')).replace(/[\s_/-]+/g,'');
     const aliases={
-      pop:'pop',kpop:'pop',rock:'rock',metal:'rock',punk:'rock',
+      pop:'pop',kpop:'kpop',rock:'rock',metal:'rock',punk:'rock',
       indie:'indie',alternativo:'indie',alternative:'indie',
       sertanejo:'sertanejo',funk:'funk',
       mpb:'mpb',brasil:'mpb',brasileira:'mpb',
@@ -188,7 +188,7 @@
     return aliases[value]||'outros';
   }
   function clubGenreLabel(key){
-    return ({todos:'Todos os gêneros',pop:'Pop',rock:'Rock',indie:'Indie',sertanejo:'Sertanejo',
+    return ({todos:'Todos os gêneros',kpop:'K-Pop',pop:'Pop',rock:'Rock',indie:'Indie',sertanejo:'Sertanejo',
       funk:'Funk',mpb:'MPB',hiphop:'Hip-Hop',eletronica:'Eletrônica',
       pagode:'Pagode / Samba',forro:'Forró',gospel:'Gospel',reggae:'Reggae',outros:'Outros'})[key]||'Outros';
   }
@@ -271,10 +271,12 @@
     host.innerHTML=items.slice(0,limit).map((c,i)=>{
       const id=/^[a-f0-9-]{36}$/i.test(String(c.id||''))?c.id:'';
       const genre=clubGenre(c);
-      const fallback=({pop:art.pop,rock:art.rock,indie:art.indie,mpb:art.brasil,
+      const fallback=({kpop:'/art-132/sonorafan-room-kpop.avif',pop:art.pop,rock:art.rock,indie:art.indie,mpb:art.brasil,
         hiphop:art.brasil,funk:art.brasil,sertanejo:art.brasil,pagode:art.brasil,
         eletronica:art.electro,forro:art.brasil,gospel:art.crowd,reggae:art.festival})[genre]||[art.indie,art.rock,art.crowd,art.record][i%4];
-      const cover=c.coverVersion&&id?`/api/fan-clubs/${id}/cover?v=${encodeURIComponent(c.coverVersion)}`:fallback;
+      const gallery={stage:'/art-129/sonorafan-stage.svg',kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',brasil:'/art-33/poster-brasil.webp',electronic:'/art-33/poster-electro.webp',festival:'/art-40/poster-festival.svg'};
+       let external='';try{const u=new URL(String(c.coverImageUrl||''));if(u.protocol==='https:'&&!u.username&&!u.password&&u.hostname.includes('.'))external=u.href;}catch(_){}
+       const cover=c.coverType==='gallery'?(gallery[c.coverGalleryId]||fallback):c.coverType==='external'?(external||fallback):c.coverVersion&&id?`/api/fan-clubs/${id}/cover?v=${encodeURIComponent(c.coverVersion)}`:fallback;
       const name=esc(c.title||c.artist||'Fan Club');
       const description=esc(c.description||`Comunidade de fãs de ${c.artist||'música'}. Compartilhe descobertas e participe.`);
       return `<article class="sf191-club-card">
