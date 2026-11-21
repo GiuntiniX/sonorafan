@@ -26,7 +26,7 @@ test('Overview does not clone the legacy avatar and preserves original editor',(
 test('Club participation matches overview totals even for clubs you administer',()=>{
  const overview=file('public/sonorafan-profile-dashboard-202.js');
  assert.match(overview,/const member=\(\)=>state\.clubs\.filter\(c=>c\.joined\|\|c\.owner\)/);
- assert.match(overview,/Fan Clubs de que faço parte/);
+ assert.match(overview,/Fan Clubs que participo/);
  assert.match(overview,/Fan Clubs que administro/);
 });
 test('Unified profile CSS isolates the overview and supports mobile',()=>{
