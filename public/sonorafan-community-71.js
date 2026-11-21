@@ -232,6 +232,15 @@
    wireCover(overlay);
  }
 
+ document.addEventListener('error',event=>{
+   const img=event.target;
+   if(!img?.matches?.('#sf71ClubDetail .sf226-member-avatar img'))return;
+   const box=img.parentElement;if(!box)return;
+   img.remove();
+   const fallback=document.createElement('span');
+   fallback.textContent='🎧';fallback.setAttribute('aria-hidden','true');
+   box.appendChild(fallback);
+ },true);
  const memberId=id=>typeof id==='string'&&/^[a-f0-9]{24}$/.test(id);
  function memberTile(m,club){
    const id=memberId(m.id)?m.id:'',name=String(m.name||'Participante'),src=String(m.avatarUrl||'');
