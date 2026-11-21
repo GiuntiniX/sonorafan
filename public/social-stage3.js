@@ -187,8 +187,11 @@ async function navigate(a){
    return;
  }
  if(a.type==='follow'){
-   if(typeof window.sf110OpenCommunity==='function')window.sf110OpenCommunity('friends');
-   else window.sf5OpenCommunity?.();
+   // Notificações sobre pessoas devem abrir Amigos no Meu Perfil, nunca Fanclub.
+   if(typeof window.sf207OpenProfile==='function')window.sf207OpenProfile('overview');
+   else if(typeof window.sf125Navigate==='function')window.sf125Navigate('profile');
+   else window.sf112OpenProfile?.('overview');
+   window.sf202OpenFriends?.(a.peerId||null);
    return;
  }
  if(a.type==='event'){
@@ -245,7 +248,7 @@ function paint(){
   const actions=el('div','sf15-actions sf111-item-actions');
   const label=a.type==='message'?'Abrir conversa':a.type==='mention'?'Ver na sala':
               a.roomSlug?'Entrar na sala':a.fanClubId?'Abrir Fan Club':
-              a.type==='follow'?'Ver comunidade':'Ver detalhes';
+              a.type==='follow'?'Ver amigos':'Ver detalhes';
   const go=el('button','sf111-primary',label);go.type='button';go.addEventListener('click',()=>navigate(a));actions.append(go);
   if(!a.read){
    const mark=el('button','sf111-mark','Marcar lida');mark.type='button';
