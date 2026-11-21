@@ -9,7 +9,7 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 test('library is mounted inside the existing Profile rather than a second overlay',()=>{
   const code=read('public/sonorafan-profile-library-112.js');
   assert.match(code,/panel\(\)\?\.querySelector\('\.sf43-profile-body\.sf108-ready'\)/);
-  assert.match(code,/hero\.after\(nav,overview,lib,dna,achievements,community\)/);
+  assert.match(code,/hero\.after\(nav,overview,lib,dna,achievements\)/);
   assert.match(code,/window\.sf112OpenProfile=open/);
   assert.doesNotMatch(code,/document\.body\.append\(lib\)/);
 });
