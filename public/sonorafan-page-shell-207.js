@@ -39,7 +39,10 @@ function endSecondary(){
 function startSecondary(type){
  const screen=$('screen-lobby'),content=screen?.querySelector('.sf28-lobby-content');
  if(!screen||!content)return;
- if(!screen.classList.contains('active'))window.showScreen?.('lobby');
+ if(!screen.classList.contains('active')){
+  if(typeof window.leaveRoom==='function')window.leaveRoom();
+  else window.showScreen?.('lobby');
+ }
  if(isPage)window.sf43CloseProfile?.();
  if(secondaryPage&&secondaryPage!==type)endSecondary();
  window.sf200CloseAgenda?.();
@@ -96,6 +99,14 @@ function init(){
  }
  if(typeof originalClose==='function'){
   window.sf43CloseProfile=(...args)=>{originalClose(...args);restore();};
+ }
+ if(typeof window.sf126OpenClubs==='function'){
+  const openClubs=window.sf126OpenClubs;
+  window.sf126OpenClubs=(...args)=>{const value=openClubs(...args);startSecondary('clubs');return value;};
+ }
+ if(window.sf60Ranking&&typeof window.sf60Ranking.open==='function'){
+  const openRanking=window.sf60Ranking.open;
+  window.sf60Ranking.open=(...args)=>{const value=openRanking(...args);startSecondary('ranking');return value;};
  }
  window.sf207OpenProfile=openProfile;
  window.sf207SetActive=menu;
