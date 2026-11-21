@@ -295,13 +295,13 @@
    const validImage=/^\/api\/profile108\/photo\/[a-f0-9]{24}\?v=\d+$/.test(src)||/^\/avatars-108\/[a-z0-9-]{1,60}\.svg$/.test(src);
    const avatar=validImage?'<img src="'+esc(src)+'" alt="Foto de '+esc(name)+'" loading="lazy" decoding="async">':'<span aria-hidden="true">'+esc(m.avatar||'🎧')+'</span>';
    const moderator=(club.moderators||[]).some(mod=>mod.id===m.id);
-   const role=m.id===club.ownerId?'Criador':moderator?'Coadministrador':m.isSelf?'Você':'Membro';
+   const role=m.id===club.ownerId?'Criador':moderator?'Administrador do Fanclub':m.isSelf?'Você':'Membro';
    const actions=m.isSelf?'<span class="sf226-myself">Seu perfil</span>':
      '<button type="button" data-sf226-dm="'+esc(id)+'" data-sf226-name="'+esc(name)+'">✉ Conversar</button>'+
      '<button type="button" data-sf226-add="'+esc(id)+'">♡ Amizade</button>';
-   const moderate=club.owner&&id&&m.id!==club.ownerId?
-     '<button type="button" class="sf226-manage" data-sf170-moderator="'+esc(id)+'" data-enabled="'+(!moderator)+'">'+
-     (moderator?'Retirar administração':'Tornar administrador')+'</button>':'';
+   const moderate=club.canManageAdmins&&id&&m.id!==club.ownerId?
+     '<button type="button" class="sf226-manage" data-sf170-moderator="'+esc(id)+'" data-enabled="'+(!moderator)+'" '+(!moderator&&(club.moderators||[]).length>=2?'disabled title="Retire um administrador antes de nomear outro"':'')+'>'+
+     (moderator?'Retirar administração':(club.moderators||[]).length>=2?'Limite de 2 atingido':'Tornar administrador')+'</button>':'';
    return '<article class="sf226-member-card"><div class="sf226-member-avatar">'+avatar+'</div>'+
      '<strong title="'+esc(name)+'">'+esc(name)+'</strong>'+
      '<small class="sf226-member-role">'+role+'</small>'+
@@ -777,7 +777,7 @@
  el.innerHTML=`<section class="sf160-extra-panel"><h4>🏆 Destaques do Fan Club</h4><p>Atividade real recente, não XP ou pontuação global.</p>
  ${rank.length?rank.map((v,i)=>`<div class="sf160-rank"><strong>#${i+1} ${esc(v.name)}</strong><small>${v.posts} posts · ${v.comments} respostas · ${v.likesReceived} curtidas recebidas</small></div>`).join(''):'<p>A comunidade ainda não tem contribuições suficientes.</p>'}
  <h4>👥 Participantes (${c?.memberCount||0})</h4>
- ${c?.owner?`<p class="sf180-coadmin-count">Administração compartilhada: ${(c.moderators||[]).length} de 2 vagas utilizadas. Somente o criador concede ou remove permissões.</p>`:''}
+ ${c?.canManageAdmins?`<p class="sf180-coadmin-count">Administradores adicionais: ${(c.moderators||[]).length} de 2 vagas utilizadas. O dono e o administrador global podem conceder ou remover o acesso.</p>`:''}
  ${c?.canModerate&&state.insights?`<div class="sf170-insights"><h4>📊 Indicadores da comunidade</h4><div><span>${state.insights.members} membros</span><span>${state.insights.recent.posts} posts recentes</span><span>${state.insights.recent.comments} respostas recentes</span><span>${state.insights.recent.ideas} ideias recentes</span><span>${state.insights.openReports} denúncias abertas</span></div><small>Amostra de até ${state.insights.sampleLimit} registros por categoria. Visível apenas à moderação.</small></div>`:''}
  <div class="sf226-members-intro"><p>Conheça outros fãs, converse no privado ou envie um convite de amizade.</p><span>${Math.min((c?.members||[]).length,50)} perfis exibidos</span></div>
  <div class="sf226-member-grid">${(c?.members||[]).map(m=>memberTile(m,c)).join('')}</div>
@@ -805,7 +805,7 @@
        <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} sf73-with-cover sf227-hero ${!['gallery','external','legacy'].includes(c.coverType)&&!c.coverVersion?'sf228-reference-art':''}">${imageCover(c)}<div class="sf227-hero-mark" aria-label="Imagem do Fanclub">${badgeMark(c)}</div><div class="sf73-hero-info"><span>SONORAFAN · COMUNIDADE DE FÃS</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${esc(genres[c.genre]||'Outros')}</p><div class="sf227-hero-meta"><b>♧ ${Math.max(0,Number(c.memberCount)||0)} membros</b><span>${c.joined||c.owner?'✓ Você faz parte':'♡ Participe da comunidade'}</span></div></div><div class="sf228-hero-actions">
 ${c.joined||c.owner?'<span class="sf228-following">✓ Membro</span>':'<button type="button" data-sf71-join class="sf228-join">♡ Participar</button>'}
 <button type="button" class="sf228-hero-share" data-sf208-share aria-label="Compartilhar Fanclub">Compartilhar</button>
- ${c.owner?'<button type="button" class="sf228-join" data-sf204-edit-identity>✎ Editar Fanclub</button>':''}
+ ${c.canEditProfile?'<button type="button" class="sf228-join" data-sf204-edit-identity>✎ Editar Fanclub</button>':''}
 ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join" data-sf141-club-room="'+esc(c.rooms.find(r=>r.slug===c.defaultRoomSlug)?.slug||c.rooms[0].slug)+'">♫ Entrar na sala</button>':''}
 </div></div>
        <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['mural','▣ Mural'],['members','♧ Membros'],['rooms','♫ Salas'],['events','▦ Agenda'],['polls','▤ Enquetes']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='mural'}">${label}</button>`).join('')}</nav>
@@ -819,12 +819,12 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
 
 
         <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
-         ${c.owner?'<button type="button" data-sf160-pane="members">👑 Administradores do Fan Club</button>':''}
+         ${c.canManageAdmins?'<button type="button" data-sf160-pane="members">👑 Administradores do Fan Club</button>':''}
           ${c.canModerate?'<button type="button" data-sf160-pane="rooms">♫ Gerenciar salas</button>':''}
           ${c.canModerate?'<button type="button" data-sf208-invite>✉ Convidar usuários</button>':''}
           <button type="button" data-sf208-share>⌁ Compartilhar Fan Club</button>
          <button type="button" class="sf202-club-agenda-link" data-sf170-show-events>▦ Agenda do Fan Club</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
-         ${c.owner?`<button type="button" data-sf73-change-cover>🖼 Alterar capa</button><button type="button" data-sf73-remove-cover>Usar capa padrão</button>`:''}
+         ${c.canEditProfile?`<button type="button" data-sf73-change-cover>🖼 Alterar capa</button><button type="button" data-sf73-remove-cover>Usar capa padrão</button>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
 
        </div></details>
@@ -1035,7 +1035,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
   return;
  }
  if(t.hasAttribute('data-sf204-edit-identity')){
-   const club=state.detail?.club;if(!club?.owner)return;
+   const club=state.detail?.club;if(!club?.canEditProfile)return;
    const genreOpts=Object.entries(genres).map(([key,label])=>'<option value="'+esc(key)+'" '+(key===club.genre?'selected':'')+'>'+esc(label)+'</option>').join('');
    const themeOpts=themeOptions(club.theme);
    const themePreview='<div class="sf208-theme-preview sf71-theme-'+esc(club.theme)+'" id="sf208ThemePreview"><span>♫ Estilo do Fan Club</span><strong>'+esc(club.title)+'</strong><small>Cores e detalhes do visual mudam, mantendo a foto de capa visível.</small></div>';
@@ -1156,7 +1156,8 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
  }
  if(t.hasAttribute('data-sf170-moderator')){
    const userId=t.dataset.sf170Moderator,enabled=t.dataset.enabled==='true';
-   if(!confirm(enabled?'Dar permissão de moderação a este participante?':'Retirar a permissão de moderação?'))return;
+   if(enabled&&(state.detail?.club?.moderators||[]).length>=2){status('Limite de 2 administradores adicionais. Remova um administrador antes de adicionar outro.',true);return;}
+    if(!confirm(enabled?'Conceder administração deste Fanclub a este membro? Ele poderá editar e moderar a comunidade.':'Remover a permissão de administrador deste membro?'))return;
    await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/moderators',{userId,enabled});await openDetail(id);switchPane('members');},'Permissão atualizada.');return;
  }
  if(t.hasAttribute('data-sf170-new-idea')){
