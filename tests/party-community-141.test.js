@@ -52,7 +52,7 @@ test('existing studio hosts party and admin-only conflict diagnostic',()=>{
  assert.match(studio,/function inspectConflicts\(\)[\s\S]*?duplicate-id/);
  assert.match(html,/sonorafan-studio-100\.js\?v=161\.0/);
  assert.match(html,/sonorafan-community-71\.js\?v=208\.2/);
- assert.match(html,/sonorafan-community-110\.js\?v=150\.1/);
+ assert.match(html,/sonorafan-community-110\.js\?v=207\.1/);
  assert.doesNotMatch(html,/Interface mobile v137\.1/);
 });
 test('community retains fresh data while returning to dashboard',()=>{
