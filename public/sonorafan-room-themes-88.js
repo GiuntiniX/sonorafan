@@ -289,20 +289,20 @@
    'cor-roxo':['/themes/colors-214/cor-roxo.svg','/themes/colors-214/cor-roxo.svg'],
    'cor-rosa':['/themes/colors-214/cor-rosa.svg','/themes/colors-214/cor-rosa.svg'],
    'cor-dourado':['/themes/colors-214/cor-dourado.svg','/themes/colors-214/cor-dourado.svg'],
-   'kpop-sakura-arena':['/themes/inspired-217/kpop-sakura-arena.svg','/themes/inspired-217/kpop-sakura-arena.svg'],
-   'bts-purple-monument':['/themes/inspired-217/bts-purple-monument.svg','/themes/inspired-217/bts-purple-monument.svg'],
-   'jpop-tokyo-night':['/themes/inspired-217/jpop-tokyo-night.svg','/themes/inspired-217/jpop-tokyo-night.svg'],
-   'trap-crown-stage':['/themes/inspired-217/trap-crown-stage.svg','/themes/inspired-217/trap-crown-stage.svg'],
-   'lofi-golden-listening':['/themes/inspired-217/lofi-golden-listening.svg','/themes/inspired-217/lofi-golden-listening.svg'],
-   'lofi-moonlight-live':['/themes/inspired-217/lofi-moonlight-live.svg','/themes/inspired-217/lofi-moonlight-live.svg'],
-   'kpop-cherry-city':['/themes/inspired-217/kpop-cherry-city.svg','/themes/inspired-217/kpop-cherry-city.svg'],
-   'bts-lights-festival':['/themes/inspired-217/bts-lights-festival.svg','/themes/inspired-217/bts-lights-festival.svg'],
-   'jpop-fuji-stage':['/themes/inspired-217/jpop-fuji-stage.svg','/themes/inspired-217/jpop-fuji-stage.svg'],
-   'trap-street-crown':['/themes/inspired-217/trap-street-crown.svg','/themes/inspired-217/trap-street-crown.svg'],
-   'lofi-riverside':['/themes/inspired-217/lofi-riverside.svg','/themes/inspired-217/lofi-riverside.svg'],
-   'lofi-acoustic-garden':['/themes/inspired-217/lofi-acoustic-garden.svg','/themes/inspired-217/lofi-acoustic-garden.svg']
+   'kpop-sakura-arena':['/themes/renovados-219/kpop-sakura-arena.webp','/themes/renovados-219/kpop-sakura-arena.webp'],
+   'bts-purple-monument':['/themes/renovados-219/bts-purple-monument.webp','/themes/renovados-219/bts-purple-monument.webp'],
+   'jpop-tokyo-night':['/themes/renovados-219/jpop-tokyo-night.webp','/themes/renovados-219/jpop-tokyo-night.webp'],
+   'trap-crown-stage':['/themes/renovados-219/trap-crown-stage.webp','/themes/renovados-219/trap-crown-stage.webp'],
+   'lofi-golden-listening':['/themes/renovados-219/lofi-golden-listening.webp','/themes/renovados-219/lofi-golden-listening.webp'],
+   'lofi-moonlight-live':['/themes/renovados-219/lofi-moonlight-live.webp','/themes/renovados-219/lofi-moonlight-live.webp'],
+   'kpop-cherry-city':['/themes/renovados-219/kpop-cherry-city.webp','/themes/renovados-219/kpop-cherry-city.webp'],
+   'bts-lights-festival':['/themes/renovados-219/bts-lights-festival.webp','/themes/renovados-219/bts-lights-festival.webp'],
+   'jpop-fuji-stage':['/themes/renovados-219/jpop-fuji-stage.webp','/themes/renovados-219/jpop-fuji-stage.webp'],
+   'trap-street-crown':['/themes/renovados-219/trap-street-crown.webp','/themes/renovados-219/trap-street-crown.webp'],
+   'lofi-riverside':['/themes/renovados-219/lofi-riverside.webp','/themes/renovados-219/lofi-riverside.webp'],
+   'lofi-acoustic-garden':['/themes/renovados-219/lofi-acoustic-garden.webp','/themes/renovados-219/lofi-acoustic-garden.webp']
  });
- const themeRevision='218';
+ const themeRevision='219';
  const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
  fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'no-store'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
