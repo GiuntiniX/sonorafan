@@ -34,6 +34,6 @@ test('Unified profile CSS isolates the overview and supports mobile',()=>{
  assert.match(css,/sf112-tab-overview/);
  assert.match(css,/overflow:hidden!important;isolation:isolate/);
  assert.match(css,/@media\(max-width:680px\)/);
- assert.match(html,/sonorafan-community-profile-202\.css\?v=205\.0/);
- assert.match(html,/sonorafan-profile-dashboard-202\.js\?v=205\.0/);
+ assert.match(html,/sonorafan-community-profile-202\.css\?v=205\.1/);
+ assert.match(html,/sonorafan-profile-dashboard-202\.js\?v=205\.1/);
 });
