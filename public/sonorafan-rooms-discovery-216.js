@@ -80,18 +80,7 @@ state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discove
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
 function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage],[data-sf216-community]');if(!node)return;
-if(node.hasAttribute('data-sf216-manage')){const slug=node.dataset.sf216Manage;if(valid(slug)){enterRoom(slug,true);
-  // Aguardar a confirmação da entrada; não abrir um editor vazio.
-  let tries=0;const check=()=>{
-    if(window.sf216ManageRoomAfterJoin!==slug)return;
-    const room=document.getElementById('screen-room'),title=document.getElementById('roomTitle');
-    const matching=state.rooms.find(r=>r.slug===slug);
-    if(room?.classList.contains('active')&&matching&&title?.textContent?.includes(matching.name)){
-      window.sf216ManageRoomAfterJoin=null;
-      window.openRoomCfg?.();
-    }else if(++tries<35)setTimeout(check,350);
-    else window.sf216ManageRoomAfterJoin=null;
-  };setTimeout(check,350);}return;}
+if(node.hasAttribute('data-sf216-manage')){enterRoom(node.dataset.sf216Manage,true);return;}
 if(node.hasAttribute('data-sf216-join')){enterRoom(node.dataset.sf216Join);return;}
 if(node.hasAttribute('data-sf216-fav'))return void toggleFavorite(node.dataset.sf216Fav);
 if(node.hasAttribute('data-sf216-mode')){state.mode=node.dataset.sf216Mode;state.limit=12;render();return;}
@@ -126,14 +115,11 @@ const orig=window.sf125Navigate;
 window.sf125Navigate=function(area){if(area==='rooms'){open();return;}if(area==='lobby'){close();if(typeof orig==='function')return orig.apply(this,arguments);return;}if(typeof orig==='function'){close();return orig.apply(this,arguments);}};
 document.addEventListener('click',e=>{const el=e.target.closest('[data-sf107="scroll"],[data-sf107="more"]');if(el&&$('screen-lobby')?.classList.contains('active')){e.preventDefault();e.stopImmediatePropagation();open();}},true);
 window.sf216OpenRooms=open;window.sf216CloseRooms=close;
-const client=typeof window.socket!=='undefined'?window.socket:null;
-client?.on?.('roomState',data=>{
-  if(window.sf216ManageRoomAfterJoin&&data?.slug===window.sf216ManageRoomAfterJoin){
-    window.sf216ManageRoomAfterJoin=null;
-    setTimeout(()=>{if($('screen-room')?.classList.contains('active'))window.openRoomCfg?.();},350);
-  }
-});
-client?.on?.('roomsUpdate',list=>{if(Array.isArray(list)&&$('sf216Explorer')&&!$('sf216Explorer').hidden){state.rooms=list;render();}});
+window.sf216OnRoomJoined=function(data){
+  if(!data?.slug||window.sf216ManageRoomAfterJoin!==data.slug)return;
+  window.sf216ManageRoomAfterJoin=null;
+  if($('screen-room')?.classList.contains('active'))window.openRoomCfg?.();
+};
 setInterval(()=>{if(!$('sf216Explorer')?.hidden&&$('screen-lobby')?.classList.contains('active')&&!document.hidden)fetchRooms();},15000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
