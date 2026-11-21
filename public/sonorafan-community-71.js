@@ -553,7 +553,10 @@
          <input name="text" aria-label="Nova resposta" maxlength="350" minlength="2" required placeholder="Escreva uma resposta…">
          <button type="submit">Responder</button>
        </form>`;
-   }catch(e){box.textContent=e.message;}
+   }catch(e){
+      if(state.activeId!==id)return;
+      box.innerHTML='<p role="alert">'+esc(e.message)+'</p><button type="button" data-sf160-retry-comments="'+esc(postId)+'">↻ Tentar carregar respostas</button>';
+    }
  }
  async function loadExtras(id){
  try{
@@ -1147,7 +1150,10 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
     else {state.commentsOpen=t.dataset.sf160Comments;renderFocusedPost();}
     return;
   }
- if(t.hasAttribute('data-sf160-delete-comment')){
+ if(t.hasAttribute('data-sf160-retry-comments')){
+    await loadComments(id,t.dataset.sf160RetryComments);return;
+  }
+  if(t.hasAttribute('data-sf160-delete-comment')){
  if(!confirm('Remover comentário?'))return;
  const cid=t.dataset.sf160DeleteComment;await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/comments/'+encodeURIComponent(cid),{method:'DELETE'});await loadComments(id,state.commentsOpen);},'Comentário removido.');return;
  }
@@ -1331,8 +1337,10 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
        text,parentId:state.replyTo||null,quoteId:state.quoteTo||null
      });
      state.replyTo=null;state.quoteTo=null;
-     await loadComments(id,postId);
-     if(state.focusPost?.id===postId){await openTopic(id,postId,false);}
+      const field=e.target.querySelector('input[name="text"]');if(field)field.value='';
+      if(state.focusPost?.id===postId)await refreshFocusedPost(id);
+      else await loadPosts(id);
+      await loadComments(id,postId);
 }
  catch(err){status(err.message,true);if(btn)btn.disabled=false;}return;
  }
