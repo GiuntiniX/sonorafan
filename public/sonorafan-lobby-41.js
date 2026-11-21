@@ -149,7 +149,12 @@
     if(!eligible.length){section.hidden=true;return}
     for(const room of eligible){
       const btn=node('button','sf41-live-track');btn.type='button';btn.title='Entrar na sala '+String(room.name||'');
-      const img=node('img');img.src=`https://img.youtube.com/vi/${room.currentTrack.id}/mqdefault.jpg`;img.alt='';img.loading='lazy';
+      const img=node('img');
+      const videoCover=`https://img.youtube.com/vi/${room.currentTrack.id}/mqdefault.jpg`;
+      const custom=typeof room.coverUrl==='string' && /^https:\/\//i.test(room.coverUrl) ? room.coverUrl : '';
+      img.src=custom||videoCover;img.alt='';img.loading='lazy';
+      if(custom)img.addEventListener('error',()=>{if(img.dataset.fallback!=='1'){img.dataset.fallback='1';img.src=videoCover;}});
+      img.style.objectPosition=Math.min(100,Math.max(0,Number(room.coverX??50)||0))+'% '+Math.min(100,Math.max(0,Number(room.coverY??50)||0))+'%';
       const info=node('span','sf41-live-track-body');
       info.append(node('strong','',room.currentTrack.title||'Música selecionada'),node('small','',room.name||'Sala musical'),node('em','',room.isPlaying?'● Ao vivo': 'Pronta para tocar'));
       btn.append(img,info);btn.addEventListener('click',()=>window.joinRoom?.(room.slug));box.append(btn);
