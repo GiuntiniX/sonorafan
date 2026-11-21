@@ -534,8 +534,8 @@
  <h4>👥 Participantes (${c?.memberCount||0})</h4>
  ${c?.owner?`<p class="sf180-coadmin-count">Administração compartilhada: ${(c.moderators||[]).length} de 2 vagas utilizadas. Somente o criador concede ou remove permissões.</p>`:''}
  ${c?.canModerate&&state.insights?`<div class="sf170-insights"><h4>📊 Indicadores da comunidade</h4><div><span>${state.insights.members} membros</span><span>${state.insights.recent.posts} posts recentes</span><span>${state.insights.recent.comments} respostas recentes</span><span>${state.insights.recent.ideas} ideias recentes</span><span>${state.insights.openReports} denúncias abertas</span></div><small>Amostra de até ${state.insights.sampleLimit} registros por categoria. Visível apenas à moderação.</small></div>`:''}
- <div class="sf226-members-intro"><p>Conheça outros fãs, converse no privado ou envie um convite de amizade.</p><span>0 perfis exibidos</span></div>
- <div class="sf226-member-grid"></div>
+ <div class="sf226-members-intro"><p>Conheça outros fãs, converse no privado ou envie um convite de amizade.</p><span>${Math.min((c?.members||[]).length,50)} perfis exibidos</span></div>
+ <div class="sf226-member-grid">${(c?.members||[]).map(m=>memberTile(m,c)).join('')}</div>
  ${c?.canModerate?`<div class="sf160-moderation"><h4>⚑ Moderação</h4><p>Denúncias recebidas (somente administradores)</p>${state.reports.length?state.reports.map(r=>`<div class="sf160-report"><strong>${esc(r.reason)}</strong><small>${esc(r.status)}</small>${r.status==='open'?`<button type="button" data-sf160-resolve="${esc(r.id)}">Marcar como resolvida</button>`:''}</div>`).join(''):'<p>Nenhuma denúncia recebida.</p>'}</div>`:''}
  ${c?.canModerate&&c?.blockedMembers?.length?`<div class="sf170-blocked"><h4>Membros bloqueados</h4>${c.blockedMembers.map(m=>`<div class="sf160-member"><strong>${esc(m.name)}</strong><button type="button" data-sf71-unblock="${esc(m.id)}">Desbloquear</button></div>`).join('')}</div>`:''}
  </section>`;
