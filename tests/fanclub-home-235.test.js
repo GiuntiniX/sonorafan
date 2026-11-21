@@ -38,5 +38,5 @@ test('home has independent responsive CSS and versioned browser assets',()=>{
  assert.match(css,/@media\(max-width:780px\)/);
  assert.match(css,/@media\(max-width:470px\)/);
  assert.match(css,/#sfFanClubsPanel\.sf235-home-active/);
- assert.match(css,/#sf71ClubDetail/);
+ assert.match(read('public/sonorafan-community-71.js'),/\$\('sf71ClubDetail'\)/);
 });
