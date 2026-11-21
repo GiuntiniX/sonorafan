@@ -7,8 +7,8 @@ const file=p=>fs.readFileSync(path.resolve(__dirname,'..',p),'utf8');
 
 test('profile dashboard and Fan Club agenda are included in main platform',()=>{
  const html=file('public/index.html');
- assert.match(html,/sonorafan-community-profile-202\.css\?v=204\.0/);
- assert.match(html,/sonorafan-profile-dashboard-202\.js\?v=202\.0/);
+ assert.match(html,/sonorafan-community-profile-202\.css\?v=205\.0/);
+ assert.match(html,/sonorafan-profile-dashboard-202\.js\?v=205\.0/);
  for(const p of ['public/sonorafan-profile-dashboard-202.js','public/sonorafan-community-71.js',
   'public/sonorafan-agenda-200.js','public/sonorafan-profile-library-112.js'])new Function(file(p));
 });
