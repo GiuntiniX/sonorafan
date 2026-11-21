@@ -228,13 +228,39 @@
       const r=await fetch('/api/admin/chat-reports',{credentials:'include'});
       if(!r.ok)throw new Error('Acesso indisponível');
       const items=await r.json();
-      holder.innerHTML=items.length?items.map(item=>`<article class="sf53-report-admin"><div><strong>${clean(item.type==='dm'?'Mensagem privada':'Mensagem pública')}</strong> <small>${item.status==='resolved'?'Resolvida':'Pendente'} · ${shortDate(item.createdAt)}</small></div><p>${clean(item.evidenceText||'')}</p><small>Motivo: ${clean(item.reason)}</small><button data-sf53-resolve="${clean(item.id)}" data-status="${item.status==='resolved'?'open':'resolved'}">${item.status==='resolved'?'Reabrir':'Marcar como resolvida'}</button></article>`).join(''):'<p class="sf53-empty-small">Nenhuma denúncia registrada.</p>';
+      const validUser=id=>typeof id==='string'&&/^[a-f0-9]{24}$/i.test(id);
+      const person=(label,name,id)=>{
+        return '<div class="sf53-admin-person"><span>'+label+': <strong>'+clean(name||'Identificação indisponível')+'</strong></span>'+
+        (validUser(id)?' <button type="button" data-sf53-contact="'+clean(id)+'" data-sf53-contact-name="'+clean(name||'Participante')+'">✉ Conversar no privado</button>':'')+'</div>';
+      };
+      holder.innerHTML=items.length?items.map(item=>`
+        <article class="sf53-report-admin">
+          <div><strong>${item.type==='dm'?'Mensagem privada':'Mensagem pública'}</strong>
+          <small>${item.status==='resolved'?'Resolvida':'Pendente'} · ${shortDate(item.createdAt)}</small></div>
+          <div class="sf53-admin-people">
+            ${person('Quem denunciou',item.reporterName,item.reporterId)}
+            ${person('Pessoa denunciada',item.reportedName,item.reportedId)}
+          </div>
+          <p class="sf53-admin-evidence">${clean(item.evidenceText||'')}</p>
+          <small>Motivo: ${clean(item.reason||'Não informado')}</small>
+          <div class="sf53-admin-actions"><button data-sf53-resolve="${clean(item.id)}" data-status="${item.status==='resolved'?'open':'resolved'}">${item.status==='resolved'?'Reabrir':'Marcar como resolvida'}</button></div>
+        </article>`).join(''):'<p class="sf53-empty-small">Nenhuma denúncia registrada.</p>';
     }catch(e){holder.textContent='Denúncias indisponíveis.';}
   }
   function setupEvents(){
     document.addEventListener('keydown',e=>{if(e.key==='Escape')closeReactionPickers();});
     $('sf53RefreshReports')?.addEventListener('click',refreshReports);
     document.addEventListener('click',async e=>{
+      const contact=e.target.closest('[data-sf53-contact]');
+      if(contact){
+        const id=contact.dataset.sf53Contact;
+        if(!validId(id))return;
+        // O contato abre o chat privado existente. Não cria acesso administrativo
+        // oculto à conversa e respeita as preferências da conta.
+        if(typeof window.closeAdmin==='function')window.closeAdmin();
+        await window.sf53OpenInbox?.(id,contact.dataset.sf53ContactName||'Participante');
+        return;
+      }
       const b=e.target.closest('[data-sf53-resolve]');if(b){
         try{const r=await fetch('/api/admin/chat-reports/'+encodeURIComponent(b.dataset.sf53Resolve)+'/resolve',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:b.dataset.status})});if(!r.ok)throw new Error('Erro ao atualizar');await refreshReports();}
         catch(err){tell(err.message,true);}
