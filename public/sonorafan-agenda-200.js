@@ -33,7 +33,7 @@ const artFor=e=>{
 };
 const fallback=e=>gallery[String(e.genre||'').toLowerCase()]||gallery.festival;
 const state={events:[],type:'all',genre:'all',q:'',month:new Date(today().getFullYear(),today().getMonth(),1),
- day:key(today()),loading:false,error:'',open:false,request:0,lastLoad:0,onlyMine:false,toast:'',modalBusy:false};
+ day:key(today()),loading:false,error:'',open:false,request:0,lastLoad:0,onlyMine:false,toast:'',modalBusy:false,pendingOpenKey:''};
 const localeDate=v=>fmt(v,{day:'2-digit',month:'short',year:'numeric'});
 const img=(e,extra='')=>`<img class="sf200-photo" src="${esc(artFor(e))}" data-sf200-fallback="${esc(fallback(e))}" referrerpolicy="no-referrer" loading="lazy" decoding="async" alt="" ${extra}>`;
 const isLive=e=>e.type==='room'&&Number(e.startAt)<=now()&&now()<Number(e.startAt)+(Number(e.durationMinutes)||90)*60000;
@@ -75,7 +75,7 @@ async function load(force=false,refreshServer=false){
   state.events=(Array.isArray(data.events)?data.events:[]).filter(e=>Number.isFinite(Number(e.startAt))).sort((a,b)=>a.startAt-b.startAt);
   state.lastLoad=now();
  }catch(e){state.error=e.message||'Não foi possível carregar os eventos.';}
- finally{state.loading=false;render();}
+ finally{state.loading=false;render();if(state.pendingOpenKey){const key=state.pendingOpenKey;state.pendingOpenKey='';const wanted=lookup(key);if(wanted)detail(wanted);else{state.toast='O evento selecionado não está mais disponível.';render();}}}
 }
 function render(){
  const host=$('sf200Agenda');if(!host)return;
@@ -407,7 +407,7 @@ function init(){
    img.src=img.dataset.sf200Fallback;
  },true);
  window.sf200OpenAgenda=open;window.sf200CloseAgenda=close;
- window.sf200OpenEvent=async key=>{await open();const event=lookup(key);if(event)detail(event);else{state.toast='Este evento não está disponível na agenda atual.';render();}};
+ window.sf200OpenEvent=key=>{state.pendingOpenKey=String(key||'');open();if(!state.loading&&state.pendingOpenKey){const wanted=lookup(state.pendingOpenKey);state.pendingOpenKey='';if(wanted)detail(wanted);}};
  window.sf200CreateEvent=clubId=>createEvent(clubId||'');
  window.sf200EditEvent=event=>{if(event?.canManage)createEvent('',event);};
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sf200DetailLayer')?.hidden){render();}});
