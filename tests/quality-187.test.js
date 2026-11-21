@@ -18,7 +18,7 @@ test('mobile signup remains scrollable and has accessible zoom',()=>{
  assert.match(css,/height:max-content!important/);
  assert.match(css,/max-height:none!important/);
  assert.match(html,/<a class="sf123-back-home" href="\/"/);
- assert.match(html,/sonorafan-mobile-186\.css\?v=186\.3/);
+ assert.match(html,/sonorafan-mobile-186\.css\?v=186\.4/);
 });
 test('session expiry checked on access and restored after restart',()=>{
  const server=src('server.js');
