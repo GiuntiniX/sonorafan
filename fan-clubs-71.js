@@ -901,6 +901,50 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await target.update({status,updatedAt:Date.now()});publish(req.params.id,'ideas');res.json({success:true});
     }catch(e){error(res,e);}
   });
+  // Agenda musical pública: metadados dos encontros dos clubes e das salas.
+  // Armazena somente referências às capas; nunca duplica o conteúdo binário.
+  const agendaCache={expires:0,items:[]};
+  app.get('/api/music-agenda',rateLimit(35,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    try{
+      const now=Date.now();
+      let items=agendaCache.items;
+      if(now>=agendaCache.expires){
+        const snap=await db.collection(CLUBS).limit(100).get();
+        const clubs=snap.docs.filter(d=>!d.data()?.deleting);
+        const clubItems=await Promise.all(clubs.map(async d=>{
+          try{
+            const c=d.data(),ev=await d.ref.collection('events').orderBy('startAt','asc').limit(30).get();
+            return ev.docs.filter(e=>Number(e.data()?.startAt)>=now-3600000&&Number(e.data()?.startAt)<=now+90*86400000)
+              .map(e=>({id:e.id,type:'fanclub',clubId:d.id,clubName:clean(c.title,75),
+                artist:clean(c.artist,65),genre:clean(c.genre||'outros',32),theme:clean(c.theme||'vinyl',20),
+                coverType:clean(c.coverType||'legacy',15),coverImageUrl:c.coverType==='external'?validExternalCover(c.coverImageUrl):'',
+                coverGalleryId:c.coverType==='gallery'&&Object.hasOwn(GALLERY_COVERS,c.coverGalleryId)?c.coverGalleryId:'',
+                coverVersion:Number(c.coverVersion)||0,title:clean(e.data().title,90),
+                description:clean(e.data().description,300),startAt:Number(e.data().startAt),
+                durationMinutes:Number(e.data().durationMinutes)||60,attendees:unique(e.data().attendeeIds).length,
+                attendeeIds:unique(e.data().attendeeIds),blockedIds:unique(c.blockedIds),
+                memberIds:unique(c.memberIds),ownerId:c.ownerId}));
+          }catch(err){console.error('agenda fanclub read:',err.message);return [];}
+        }));
+        const roomItems=[...(socialEvents?.values()||[])].filter(e=>
+          Number(e.startAt)>=now-3600000&&Number(e.startAt)<=now+90*86400000&&rooms.has(e.roomSlug)&&!rooms.get(e.roomSlug).isPrivate)
+          .map(e=>({id:String(e.id),type:'room',roomSlug:String(e.roomSlug),roomName:clean(e.roomName,90),
+            genre:clean(rooms.get(e.roomSlug)?.genre||e.theme||'outros',32),hostName:clean(e.hostName,80),
+            title:clean(e.title,90),description:clean(e.description,300),startAt:Number(e.startAt),
+            durationMinutes:Number(e.durationMinutes)||90,attendees:unique(e.attendees).length,attendeeIds:unique(e.attendees)}));
+        items=[...clubItems.flat(),...roomItems].sort((a,b)=>a.startAt-b.startAt).slice(0,180);
+        agendaCache.items=items;agendaCache.expires=Date.now()+30000;
+      }
+      res.set('Cache-Control','private, no-store');
+      res.json({events:items.map(e=>{
+        const {attendeeIds,memberIds,blockedIds,ownerId,...publicData}=e;
+        return {...publicData,going:attendeeIds.includes(me.id),
+          ...(e.type==='fanclub'?{joined:memberIds.includes(me.id)||ownerId===me.id,
+            blocked:blockedIds.includes(me.id)}:{})};
+      })});
+    }catch(e){error(res,e);}
+  });
   // Encontros independentes de salas: Fan Club é comunidade, não player.
   app.get('/api/fan-clubs/:id/events',rateLimit(40,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
