@@ -891,7 +891,7 @@ app.post('/api/social/friend-requests',rateLimit(24,60000),async(req,res)=>{
         sf15Notify(target[0],{type:'follow',title:'Solicitação aceita',
           message:(users.get(me)?.nome||'Um participante')+' aceitou sua amizade.',peerId:mine})
           .catch(e=>console.error('friend accepted notification',e.message));
-      }else if(outgoing||accepted)await sfFriendDisconnect(me,otherId);
+      }else if(outgoing||accepted||state.incoming.some(x=>x.id===otherId&&x.legacy))await sfFriendDisconnect(me,otherId);
     }else if(action==='cancel'){
       if(!outgoing)return res.status(409).json({error:'Não há pedido enviado para cancelar.'});
       await sfFriendRequests.doc(sfFriendKey(mine,otherId)).set({
