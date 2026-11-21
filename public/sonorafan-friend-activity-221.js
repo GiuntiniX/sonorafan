@@ -31,6 +31,39 @@ function show({name,roomSlug,roomName}={}){
  hideTimer=setTimeout(()=>{card.remove();if(active===card)active=null;},9500);
 }
 window.sf220FriendJoined=show;
+// Monitoramento leve enquanto o app estiver aberto. A primeira leitura estabelece
+// a referência sem alertas, e o backend só expõe salas públicas permitidas.
+let previous=null,busy=false,lastCheck=0;
+const appVisible=()=>!!(document.querySelector('#screen-lobby.active,#screen-room.active'));
+async function poll() {
+ if(busy||document.hidden||!appVisible()||Date.now()-lastCheck<45000)return;
+ busy=true;lastCheck=Date.now();
+ try{
+  const response=await fetch('/api/social/following',{credentials:'include',cache:'no-store'});
+  if(response.status===401){previous=null;return;}
+  if(!response.ok)return;
+  const list=await response.json();
+  if(!Array.isArray(list))return;
+  const next=new Map(list.filter(p=>typeof p.id==='string')
+     .map(p=>[p.id,{room:p.activity&&validSlug(p.activity.roomSlug)?p.activity.roomSlug:null,name:p.name,roomName:p.activity?.roomName}]));
+  if(previous){
+   for(const [id,item] of next){
+    const old=previous.get(id);
+    if(old&&!old.room&&item.room){show({name:item.name,roomSlug:item.room,roomName:item.roomName});break;}
+    if(old&&old.room&&item.room!==old.room&&item.room){show({name:item.name,roomSlug:item.room,roomName:item.roomName});break;}
+   }
+  }
+  previous=next;
+ }catch(_){/* rede temporariamente indisponível: sem mensagem de erro intrusiva */}
+ finally{busy=false;}
+}
+function start(){
+ poll();
+ setInterval(poll,55000);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+else start();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastCheck=0;poll();}});
 document.addEventListener('visibilitychange',()=>{
  if(document.hidden){active?.remove();active=null;clearTimeout(hideTimer);}
 });
