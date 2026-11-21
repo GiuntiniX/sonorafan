@@ -299,3 +299,43 @@
 #sf71ClubDetail .sf231-filters button span{margin-left:5px;opacity:.85;font-variant-numeric:tabular-nums}
 #sf71ClubDetail .sf231-filters button:focus-visible{outline:2px solid #caff19;outline-offset:2px}
 @media(max-width:500px){#sf71ClubDetail .sf231-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}#sf71ClubDetail .sf231-filters button{min-width:0;font-size:11px;padding:7px 5px}}
+
+
+/* v232 — enquete em destaque no painel direito do mural. */
+#sf71ClubDetail #sf227Right .sf232-poll-intro{
+  margin:0 0 10px;font-size:11px;line-height:1.5;color:#c8b4d0;
+}
+#sf71ClubDetail #sf227Right .sf231-poll{
+  border-radius:11px;box-shadow:none;border-color:#6d4078;
+  background:linear-gradient(145deg,#321b40,#25132f);min-width:0;
+}
+#sf71ClubDetail #sf227Right .sf231-poll .sf231-poll-footer{
+  align-items:flex-start;
+}
+#sf71ClubDetail #sf227Right .sf231-poll .sf231-poll-actions{
+  justify-content:flex-start;max-width:100%;width:100%;
+}
+#sf71ClubDetail #sf227Right .sf231-poll .sf231-poll-actions button{
+  flex:1 1 auto;min-height:36px;
+}
+#sf71ClubDetail #sf227Right .sf231-poll .sf231-poll-heading strong{
+  font-size:12px;
+}
+#sf71ClubDetail #sf227Right .sf231-poll .sf231-poll-choice{
+  font-size:11px;min-height:40px;overflow-wrap:anywhere;
+}
+#sf71ClubDetail #sf227Right .sf232-poll-empty{
+  display:grid;gap:10px;
+}
+#sf71ClubDetail #sf227Right .sf232-poll-empty p{
+  font-size:11px;color:#d3bddb;line-height:1.5;margin:0;
+}
+#sf71ClubDetail #sf227Right .sf232-poll-empty button{
+  border:1px solid #a16cab;border-radius:9px;background:#422550;
+  color:#f9e4ff;min-height:41px;padding:10px;cursor:pointer;
+}
+#sf71ClubDetail #sf227Right .sf232-poll-empty button:hover{border-color:#d0ff4f}
+@media(max-width:800px){
+  #sf71ClubDetail #sf227Right .sf231-poll{padding:13px}
+  #sf71ClubDetail #sf227Right .sf231-poll .sf231-poll-choice{min-height:44px}
+}
