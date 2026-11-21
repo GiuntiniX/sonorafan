@@ -6,7 +6,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const n=v=>Math.max(0,Number(v)||0),num=v=>n(v).toLocaleString('pt-BR');
 const date=v=>{const d=new Date(Number(v));return Number.isFinite(d.getTime())?d.toLocaleString('pt-BR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Data não disponível';};
 const art={kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',mpb:'/art-33/poster-brasil.webp',festival:'/art-41/festival-noite.webp',stage:'/art-129/sonorafan-stage.svg'};
-const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],followers:[],followersLoading:false,followersLoaded:0,friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0,inviteRooms:[],inviteRoom:'',invitingId:null};
+const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],followers:[],outgoing:[],followersLoading:false,followersLoaded:0,friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0,inviteRooms:[],inviteRoom:'',invitingId:null};
 const isManager=c=>!!(c?.owner||c?.canModerate);
 const joined=()=>state.clubs.filter(c=>c.joined||c.owner);
 const managed=()=>state.clubs.filter(isManager);
@@ -140,12 +140,15 @@ async function fetchFriends(force=false) {
  finally{state.friendsLoading=false;if(state.section==='friends')render();}
 }
 async function fetchFollowers(force=false){
- if(state.followersLoading||(!force&&Date.now()-state.followersLoaded<30000))return;
+ if(state.followersLoading||(!force&&Date.now()-state.followersLoaded<20000))return;
  state.followersLoading=true;if(state.section==='friends')render();
  try{
-  const data=await friendRequest('/api/social/followers');
-  state.followers=Array.isArray(data)?data.filter(x=>validFriendId(x.id)):[];
-  state.followersLoaded=Date.now();
+  const data=await friendRequest('/api/social/friend-requests');
+  state.followers=Array.isArray(data?.incoming)?data.incoming.filter(x=>validFriendId(x.id)):[];
+  state.outgoing=Array.isArray(data?.outgoing)?data.outgoing.filter(x=>validFriendId(x.id)):[];
+  state.friends=Array.isArray(data?.accepted)?data.accepted.filter(x=>validFriendId(x.id)):[];
+  state.friendsLoaded=Date.now();state.followersLoaded=Date.now();
+  state.friendsError='';
  }catch(err){state.friendsError=err.message;}
  finally{state.followersLoading=false;if(state.section==='friends')render();}
 }
@@ -154,75 +157,59 @@ function friendAvatar(person) {
  // Avatares do serviço social são emojis, não URLs verificadas.
  return '<span class="sf220-friend-avatar" aria-hidden="true">'+esc(value.slice(0,8)||'🎧')+'</span>';
 }
-function roomChoices(){
- return state.inviteRooms.filter(r=>validRoomSlug(r.slug)).sort((a,b)=>Number(!!b.isMine)-Number(!!a.isMine)||String(a.name).localeCompare(String(b.name),'pt-BR'));
-}
-async function loadInviteRooms(){
- try{
-  const rooms=await friendRequest('/api/rooms');
-  state.inviteRooms=Array.isArray(rooms)?rooms.filter(r=>validRoomSlug(r.slug)&&!r.isPrivate):[];
-  if(!state.inviteRooms.some(r=>r.slug===state.inviteRoom))state.inviteRoom=roomChoices()[0]?.slug||'';
-  if(state.section==='friends')render();
- }catch(err){state.inviteRooms=[];if(state.section==='friends')render();}
-}
-async function inviteFriend(id){
- if(!validFriendId(id)||!validRoomSlug(state.inviteRoom)||state.invitingId)return;
- const friend=state.friends.find(x=>x.id===id);
- const room=state.inviteRooms.find(x=>x.slug===state.inviteRoom);
- if(!friend||!room)return;
- state.invitingId=id;render();
- try{
-  await friendRequest('/api/social/invite-friend',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userId:id,roomSlug:room.slug})});
-  if(typeof window.toast==='function')window.toast('Convite enviado para '+friend.name+'!', 'success');
- }catch(err){state.friendsError=err.message;}
- finally{state.invitingId=null;render();}
-}
-function friendCard(person,added=true,received=false){
- const room=person.activity&&validRoomSlug(person.activity.roomSlug)?person.activity:null;
- const online=!!person.online,joined=room?.roomName||'';
- return '<article class="sf220-friend-card" data-sf220-user="'+esc(person.id)+'">'+friendAvatar(person)+
+function friendCard(person,mode='friend'){
+ const room=mode==='friend'&&person.activity&&validRoomSlug(person.activity.roomSlug)?person.activity:null;
+ const online=!!person.online;
+ const pending=mode==='incoming',outgoing=mode==='outgoing',added=mode==='friend';
+ const action=(kind,title,extra='')=>'<button type="button" '+extra+' data-sf220-action="'+kind+'" data-sf220-user-id="'+esc(person.id)+'">'+title+'</button>';
+ return '<article class="sf220-friend-card'+(pending?' sf220-pending-card':'')+'" data-sf220-user="'+esc(person.id)+'">'+friendAvatar(person)+
  '<div class="sf220-friend-info"><strong>'+esc(person.name||'Participante')+'</strong>'+
- '<small class="sf220-friend-status"><i class="'+(online?'is-online':'')+'"></i> '+(online?'Online':'Offline')+
- (room?' · '+esc(joined):'')+'</small>'+
+ '<small class="sf220-friend-status">'+(pending?'♡ Quer adicionar você':outgoing?'◷ Aguardando resposta':
+ '<i class="'+(online?'is-online':'')+'"></i> '+(online?'Online':'Offline'))+
+ (room?' · '+esc(room.roomName||'Em uma sala'):'')+'</small>'+
  (person.bio?'<p>'+esc(person.bio)+'</p>':'')+'</div>'+
  '<div class="sf220-friend-actions">'+
- (added||received?'<button type="button" data-sf220-dm="'+esc(person.id)+'" data-sf220-name="'+esc(person.name||'Participante')+'">✉ Conversar</button>':'')+
- (added&&room?'<button class="sf220-join" type="button" data-sf220-room="'+esc(room.roomSlug)+'">▶ Entrar na sala</button>':'')+
- (added&&state.inviteRoom?'<button type="button" data-sf220-invite="'+esc(person.id)+'"'+(state.invitingId===person.id?' disabled':'')+'>♬ '+(state.invitingId===person.id?'Enviando…':'Convidar')+'</button>':'')+
- '<button class="sf220-manage" type="button" data-sf220-follow="'+esc(person.id)+'" data-sf220-value="'+(added?'remove':'add')+'">'+(added?'Remover':'＋ Adicionar amigo')+'</button>'+
+ (pending?action('accept','✓ Aceitar','class="sf220-accept"')+action('decline','Recusar','class="sf220-decline"'):
+  outgoing?action('cancel','Cancelar solicitação','class="sf220-manage"'):
+  added?action('dm','✉ Conversar','data-sf220-name="'+esc(person.name||'Participante')+'"')+
+        (room?action('room','▶ Entrar na sala','class="sf220-join" data-sf220-room="'+esc(room.roomSlug)+'"'):'')+
+        action('remove','Remover','class="sf220-manage"'):
+  action('send','♡ Solicitar amizade','class="sf220-accept"'))+
  '</div></article>';
 }
 function friendsPanel(){
  let friends=state.friends.slice();
  if(state.friendsFilter==='online')friends=friends.filter(x=>x.online);
  if(state.friendsFilter==='inroom')friends=friends.filter(x=>x.activity&&validRoomSlug(x.activity.roomSlug));
- const online=state.friends.filter(x=>x.online).length;
  const incoming=state.followers.filter(x=>!state.friends.some(f=>f.id===x.id));
+ const online=state.friends.filter(x=>x.online).length;
  return '<section class="sf202-panel sf206-panel sf220-friends">'+
- '<header><div><h2>♡ Meus amigos</h2><p>Converse em particular ou encontre quem está ouvindo música agora.</p></div>'+
- '<span class="sf220-counter">'+state.friends.length+' adicionados · '+online+' online</span></header>'+
+ '<header><div><h2>♡ Amigos</h2><p>Solicitações são aceitas somente por você. Converse e veja quem está online.</p></div>'+
+ '<span class="sf220-counter">'+state.friends.length+' amigos · '+online+' online</span></header>'+
+ (state.friendsError?'<p class="sf220-error" role="alert">'+esc(state.friendsError)+'</p>':'')+
+ '<section class="sf220-received sf220-request-section"><header><h3>Solicitações recebidas <span class="sf220-request-badge">'+incoming.length+'</span></h3><span>Você decide quem adicionar</span></header>'+
+ (state.followersLoading?'<p class="sf206-muted">Atualizando solicitações…</p>':'')+
+ '<div class="sf220-friend-list">'+
+ (incoming.length?incoming.map(x=>friendCard(x,'incoming')).join(''):
+ '<p class="sf220-received-empty">Nenhuma solicitação pendente. Quando alguém adicionar você, aparecerá aqui automaticamente.</p>')+
+ '</div></section>'+
  '<div class="sf220-friend-controls"><div class="sf220-chips" role="group" aria-label="Filtrar amigos">'+
  [['all','Todos'],['online','Online'],['inroom','Em uma sala']].map(([id,label])=>
  '<button type="button" data-sf220-filter="'+id+'" aria-pressed="'+(state.friendsFilter===id)+'">'+label+'</button>').join('')+
  '</div><button type="button" data-sf220-refresh>↻ Atualizar</button></div>'+
- '<div class="sf220-invite-select"><label for="sf220InviteRoom">Convidar para ouvir junto em</label><select id="sf220InviteRoom" aria-label="Selecionar sala pública para convidar amigo">'+
- (roomChoices().length?roomChoices().map(r=>'<option value="'+esc(r.slug)+'"'+(state.inviteRoom===r.slug?' selected':'')+'>'+esc(r.name||r.slug)+'</option>').join(''):'<option value="">Não há salas públicas disponíveis</option>')+
- '</select></div>'+
- (state.friendsError?'<p class="sf220-error" role="alert">'+esc(state.friendsError)+'</p>':'')+
- (state.friendsLoading?'<p class="sf206-muted">Atualizando seus amigos…</p>':'')+
- '<div class="sf220-friend-list">'+(friends.length?friends.map(x=>friendCard(x)).join(''):
- '<div class="sf220-empty"><strong>Nenhum amigo nesta visualização</strong><p>Adicione pessoas pelo chat ou encontre alguém abaixo.</p></div>')+'</div>'+
- '<section class="sf220-received"><header><h3>Quem me adicionou</h3><span>'+incoming.length+' pessoas</span></header>'+
- (state.followersLoading?'<p class="sf206-muted">Consultando novos contatos…</p>':'')+
- '<div class="sf220-friend-list">'+
- (incoming.length?incoming.map(x=>friendCard(x,false,true)).join(''):'<p class="sf220-received-empty">Quem adicionar você aparecerá aqui. Se adicionar de volta, ficará em Meus amigos.</p>')+
- '</div></section>'+
+ '<h3 class="sf220-section-title">Seus amigos</h3>'+
+ (state.friendsLoading?'<p class="sf206-muted">Atualizando amigos…</p>':'')+
+ '<div class="sf220-friend-list">'+(friends.length?friends.map(x=>friendCard(x,'friend')).join(''):
+ '<div class="sf220-empty"><strong>Nenhum amigo nesta visualização</strong><p>Aceite solicitações ou encontre pessoas abaixo.</p></div>')+'</div>'+
+ (state.outgoing.length?'<section class="sf220-received"><header><h3>Solicitações enviadas</h3><span>'+state.outgoing.length+' aguardando</span></header>'+
+ '<div class="sf220-friend-list">'+state.outgoing.map(x=>friendCard(x,'outgoing')).join('')+'</div></section>':'')+
  '<form class="sf220-find-form" id="sf220FriendSearchForm"><label for="sf220FriendSearch">Encontrar pessoas</label>'+
  '<div><input id="sf220FriendSearch" maxlength="40" minlength="2" placeholder="Digite um nome ou nickname" value="'+esc(state.friendQuery)+'" autocomplete="off">'+
  '<button type="submit"'+(state.friendsSearchLoading?' disabled':'')+'>Buscar</button></div></form>'+
  '<div class="sf220-friend-search-results" aria-live="polite">'+
- state.friendResults.filter(x=>!state.friends.some(f=>f.id===x.id)).map(x=>friendCard(x,false)).join('')+'</div>'+
- '<p class="sf220-privacy">A localização em salas aparece apenas quando a pessoa permite compartilhar sua atividade e está em uma sala pública.</p>'+
+ state.friendResults.filter(x=>!state.friends.some(f=>f.id===x.id)).map(x=>
+ friendCard(x,state.followers.some(f=>f.id===x.id)?'incoming':state.outgoing.some(f=>f.id===x.id)?'outgoing':'search')).join('')+'</div>'+
+ '<p class="sf220-privacy">A entrada na sala só aparece quando o amigo compartilha sua atividade em uma sala pública. Solicitações recusadas não criam amizades.</p>'+
  '</section>';
 }
 async function searchFriends(query){
@@ -233,13 +220,19 @@ async function searchFriends(query){
  catch(err){state.friendsError=err.message;}
  finally{state.friendsSearchLoading=false;render();}
 }
-async function changeFriend(id,add) {
+async function changeFriend(id,action){
  if(!validFriendId(id))return;
+ if(action==='remove'&&!confirm('Remover esta pessoa dos seus amigos?'))return;
+ state.friendsError='';
  try{
-  await friendRequest('/api/social/follow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,follow:add})});
+  const url=action==='send'?'/api/social/follow':'/api/social/friend-requests';
+  const body=action==='send'?{id,follow:true}:{id,action};
+  const data=await friendRequest(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(data?.status==='incoming')state.friendsError='Esta pessoa já solicitou amizade. Aceite ou recuse em Solicitações recebidas.';
+  else if(data?.status==='pending'&&action==='send'&&typeof window.toast==='function')window.toast('Solicitação enviada. Aguarde a resposta.','success');
   state.friendsLoaded=0;state.followersLoaded=0;
-  await Promise.all([fetchFriends(true),fetchFollowers(true)]);
-  state.friendResults=state.friendResults.filter(x=>add?x.id!==id:true);
+  await fetchFollowers(true);
+  state.friendResults=state.friendResults.filter(x=>x.id!==id);
   render();
  }catch(err){state.friendsError=err.message;render();}
 }
@@ -308,13 +301,15 @@ function init(){
  host.addEventListener('click',e=>{
   const btn=e.target.closest('button');if(!btn)return;
   const d=btn.dataset;
-  if(d.sf206Section){state.section=d.sf206Section;render();if(state.section==='friends'){fetchFriends();fetchFollowers();loadInviteRooms();}return;}
+  if(d.sf206Section){state.section=d.sf206Section;render();if(state.section==='friends'){fetchFollowers(true);}return;}
   if(d.sf220Filter){state.friendsFilter=d.sf220Filter;render();return;}
-  if('sf220Refresh'in d){fetchFriends(true);return;}
-  if(d.sf220Invite&&validFriendId(d.sf220Invite)){inviteFriend(d.sf220Invite);return;}
-  if(d.sf220Dm&&validFriendId(d.sf220Dm)){window.sf43CloseProfile?.();window.sf53OpenInbox?.(d.sf220Dm,d.sf220Name||'Participante');return;}
-  if(d.sf220Room&&validRoomSlug(d.sf220Room)){window.sf43CloseProfile?.();window.joinRoom?.(d.sf220Room);return;}
-  if(d.sf220Follow&&validFriendId(d.sf220Follow)){changeFriend(d.sf220Follow,d.sf220Value==='add');return;}
+  if('sf220Refresh'in d){fetchFollowers(true);return;}
+  if(d.sf220Action&&validFriendId(d.sf220UserId)){
+    if(d.sf220Action==='dm'){window.sf43CloseProfile?.();window.sf53OpenInbox?.(d.sf220UserId,d.sf220Name||'Participante');return;}
+    if(d.sf220Action==='room'&&validRoomSlug(d.sf220Room)){window.sf43CloseProfile?.();window.joinRoom?.(d.sf220Room);return;}
+    if(['accept','decline','cancel','remove','send'].includes(d.sf220Action))changeFriend(d.sf220UserId,d.sf220Action);
+    return;
+  }
   if('sf206Edit'in d){move('profile');return;}
   if('sf206Manage'in d){state.section='clubs';render();return;}
   if('sf206Clubs'in d){window.sf43CloseProfile?.();window.sf125Navigate?.('clubs');return;}
@@ -329,7 +324,6 @@ function init(){
   if(d.sf206Suggest){const routes={edit:'profile',library:'library',journey:'achievements',dna:'dna'};move(routes[d.sf206Suggest]||'profile');return;}
   if('sf206Reload'in d){load(true);}
  });
- host.addEventListener('change',e=>{if(e.target?.id==='sf220InviteRoom')state.inviteRoom=e.target.value;});
  host.addEventListener('submit',e=>{if(e.target?.id==='sf220FriendSearchForm'){e.preventDefault();searchFriends($('sf220FriendSearch')?.value||'');}});
  host.addEventListener('error',e=>{
   const img=e.target;
@@ -341,7 +335,7 @@ function init(){
  window.sf202OpenFriends=async(peerId=null)=>{
   state.section='friends';state.friendsFilter='all';state.friendsError='';
   render();
-  await Promise.allSettled([fetchFriends(true),fetchFollowers(true),loadInviteRooms()]);
+  await fetchFollowers(true);
   if(validFriendId(peerId)){
    const row=[...host.querySelectorAll('[data-sf220-user]')].find(el=>el.dataset.sf220User===peerId);
    if(row){row.classList.add('sf220-highlight');row.scrollIntoView({block:'nearest',behavior:'auto'});}
@@ -350,7 +344,10 @@ function init(){
  window.sf202RefreshProfile=(force=false)=>{if(force)state.lastLoad=0;load(force);};
  const modal=$('sf43ProfileModal');
  if(modal)new MutationObserver(()=>{
-  if(modal.classList.contains('active')&&modal.classList.contains('sf112-tab-overview'))load();
+  if(modal.classList.contains('active')&&modal.classList.contains('sf112-tab-overview')){
+    load();
+    if(state.section==='friends')fetchFollowers(true);
+  }
  }).observe(modal,{attributes:true,attributeFilter:['class']});
  render();
  if(modal?.classList.contains('active'))load();
