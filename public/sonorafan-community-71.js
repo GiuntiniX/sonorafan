@@ -367,7 +367,7 @@
    const topicOptions=['conversa','duvida','novidade','evento','ideia'];
    const countEl=$('sf180ForumCounts');
    if(countEl){
-     countEl.innerHTML=topicOptions.map(key=>`<button type="button" data-sf180-filter="${key}" aria-pressed="${state.feedFilter===key}">${topicFor(key).icon} ${topicFor(key).title} <strong>${all.filter(p=>(p.topic||'conversa')===key).length}</strong></button>`).join('');
+     countEl.innerHTML=`<button type="button" data-sf180-filter="all" aria-pressed="${state.feedFilter==='all'}">Todas</button>`+topicOptions.map(key=>`<button type="button" data-sf180-filter="${key}" aria-pressed="${state.feedFilter===key}">${topicFor(key).icon} ${topicFor(key).title} <strong>${all.filter(p=>(p.topic||'conversa')===key).length}</strong></button>`).join('');
    }
    const queryMatch=p=>!q||[p.text,p.authorName,topicFor(p.topic).title].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q));
    let posts=state.forumSearch?all:all.filter(p=>queryMatch(p));
@@ -606,7 +606,7 @@
        <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} sf73-with-cover sf227-hero">${imageCover(c)}<div class="sf227-hero-mark" aria-hidden="true">♫</div><div class="sf73-hero-info"><span>SONORAFAN · COMUNIDADE DE FÃS</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${esc(genres[c.genre]||'Outros')}</p><div class="sf227-hero-meta"><b>♧ ${Math.max(0,Number(c.memberCount)||0)} membros</b><span>${c.joined||c.owner?'✓ Você faz parte':'♡ Participe da comunidade'}</span></div></div><div class="sf228-hero-actions">
 ${c.joined||c.owner?'<span class="sf228-following">✓ Membro</span>':'<button type="button" data-sf71-join class="sf228-join">♡ Participar</button>'}
 <button type="button" class="sf228-hero-share" data-sf208-share aria-label="Compartilhar Fanclub">Compartilhar</button>
-${c.joined||c.owner?'<button type="button" class="sf228-join" data-sf160-pane="rooms">♫ Entrar na sala</button>':''}
+${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join" data-sf141-club-room="'+esc(c.rooms.find(r=>r.slug===c.defaultRoomSlug)?.slug||c.rooms[0].slug)+'">♫ Entrar na sala</button>':''}
 </div></div>
        <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['mural','▣ Mural'],['members','♧ Membros'],['rooms','♫ Salas'],['events','▦ Agenda'],['polls','▤ Enquetes']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='mural'}">${label}</button>`).join('')}</nav>
        <details class="sf228-settings"><summary>⚙ Opções, regras e administração do Fanclub</summary><div class="sf228-settings-content">
