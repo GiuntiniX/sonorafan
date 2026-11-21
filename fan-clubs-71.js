@@ -924,9 +924,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
                 coverGalleryId:c.coverType==='gallery'&&Object.hasOwn(GALLERY_COVERS,c.coverGalleryId)?c.coverGalleryId:'',
                 coverVersion:Number(c.coverVersion)||0,title:clean(e.data().title,90),roomSlug:clean(e.data().roomSlug||'',100),roomName:clean(rooms.get(e.data().roomSlug)?.name||'',90),
                 description:clean(e.data().description,300),startAt:Number(e.data().startAt),
-                durationMinutes:Number(e.data().durationMinutes)||60,attendees:unique(e.data().attendeeIds).length,
+                durationMinutes:Number(e.data().durationMinutes)||60,notifyMembers:e.data().notifyMembers!==false,sendRoomLink:e.data().sendRoomLink!==false,remindStart:e.data().remindStart!==false,
+                 attendees:unique(e.data().attendeeIds).length,
                 attendeeIds:unique(e.data().attendeeIds),blockedIds:unique(c.blockedIds),
-                memberIds:unique(c.memberIds),moderatorIds:unique(c.moderatorIds),ownerId:c.ownerId}));
+                memberIds:unique(c.memberIds),moderatorIds:unique(c.moderatorIds),ownerId:c.ownerId,creatorId:e.data().creatorId}));
           }catch(err){console.error('agenda fanclub read:',err.message);return [];}
         }));
         const roomItems=[...(socialEvents?.values()||[])].filter(e=>
@@ -940,9 +941,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       }
       res.set('Cache-Control','private, no-store');
       res.json({events:items.map(e=>{
-        const {attendeeIds,memberIds,blockedIds,moderatorIds,ownerId,hostId,...publicData}=e;
+        const {attendeeIds,memberIds,blockedIds,moderatorIds,ownerId,hostId,creatorId,...publicData}=e;
         const canManage=e.type==='fanclub'?
-          ownerId===me.id||(moderatorIds||[]).includes(me.id)&&(memberIds||[]).includes(me.id)&&!(blockedIds||[]).includes(me.id)||adminEmails.has(me.email):
+          creatorId===me.id||ownerId===me.id||(moderatorIds||[]).includes(me.id)&&(memberIds||[]).includes(me.id)&&!(blockedIds||[]).includes(me.id)||adminEmails.has(me.email):
           hostId===me.id||rooms.get(e.roomSlug)?.ownerEmail===me.email||adminEmails.has(me.email);
         return {...publicData,going:attendeeIds.includes(me.id),canManage:!!canManage,
           ...(e.type==='fanclub'?{joined:memberIds.includes(me.id)||ownerId===me.id,
@@ -987,7 +988,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
        .slice(0,20).map(d=>({id:d.id,title:d.data().title,description:d.data().description,
         startAt:d.data().startAt,durationMinutes:d.data().durationMinutes,roomSlug:clean(d.data().roomSlug||'',100),roomName:clean(rooms.get(d.data().roomSlug)?.name||'',90),
         attendees:unique(d.data().attendeeIds).length,going:unique(d.data().attendeeIds).includes(me.id),
-        canDelete:canModerate(data,me)}));
+        canDelete:canModerate(data,me)||d.data().creatorId===me.id,canEdit:canModerate(data,me)||d.data().creatorId===me.id,
+         notifyMembers:d.data().notifyMembers!==false,sendRoomLink:d.data().sendRoomLink!==false,remindStart:d.data().remindStart!==false}));
       res.json({events});
     }catch(e){error(res,e);}
   });
@@ -1006,8 +1008,36 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         throwHttp(400,'Escolha uma sala pública vinculada a este Fan Club.');
       const doc=ref.collection('events').doc();
       await doc.create({title,description,startAt,durationMinutes,roomSlug,notifyMembers,sendRoomLink,remindStart,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
-      publish(req.params.id,'events');res.status(201).json({id:doc.id});
+      agendaCache.expires=0;publish(req.params.id,'events');res.status(201).json({id:doc.id});
       if(notifyMembers)notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title+(sendRoomLink&&roomSlug?' · Sala: '+clean(rooms.get(roomSlug)?.name,80):'')+'. Confirme presença na Agenda Musical.',roomSlug:sendRoomLink?roomSlug:''});
+    }catch(e){error(res,e);}
+  });
+  // Atualização protegida: criador ou moderação ativa, com os mesmos limites da criação.
+  app.patch('/api/fan-clubs/:id/events/:eventId',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const title=clean(req.body?.title,90),description=clean(req.body?.description,300),
+      startAt=Number(req.body?.startAt),durationMinutes=Number(req.body?.durationMinutes),
+      roomSlug=clean(req.body?.roomSlug,100);
+    if(title.length<5||!Number.isSafeInteger(startAt)||startAt<Date.now()+300000||startAt>Date.now()+90*86400000||
+       ![30,60,90,120].includes(durationMinutes))
+      return res.status(400).json({error:'Informe título, data futura (5 minutos a 90 dias) e duração válida.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(roomSlug&&(!unique(data.roomSlugs).includes(roomSlug)||!rooms.has(roomSlug)||rooms.get(roomSlug).isPrivate))
+        throwHttp(400,'Selecione uma sala pública vinculada ao Fan Club.');
+      const eventRef=ref.collection('events').doc(req.params.eventId);
+      await db.runTransaction(async tx=>{
+        const event=await tx.get(eventRef);
+        if(!event.exists)throwHttp(404,'Evento não encontrado.');
+        if(event.data().creatorId!==me.id&&!canModerate(data,me))throwHttp(403,'Somente quem criou ou administra este evento pode editar.');
+        if(Number(event.data().startAt)<Date.now()-3600000)throwHttp(409,'Eventos encerrados não podem ser editados.');
+        tx.update(eventRef,{title,description,startAt,durationMinutes,roomSlug,
+          notifyMembers:req.body?.notifyMembers!==false,sendRoomLink:req.body?.sendRoomLink!==false,
+          remindStart:req.body?.remindStart!==false,updatedAt:Date.now(),updatedBy:me.id});
+      });
+      agendaCache.expires=0;
+      publish(req.params.id,'events');
+      res.json({success:true,id:eventRef.id});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/events/:eventId/rsvp',rateLimit(20,60000),async(req,res)=>{
@@ -1036,8 +1066,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode cancelar encontros.');
-      await ref.collection('events').doc(req.params.eventId).delete();
+      const target=ref.collection('events').doc(req.params.eventId);
+      const snap=await target.get();if(!snap.exists)throwHttp(404,'Evento não encontrado.');
+      if(!canModerate(data,me)&&snap.data().creatorId!==me.id)throwHttp(403,'Somente quem criou ou administra pode cancelar.');
+      await target.delete();agendaCache.expires=0;
       publish(req.params.id,'events');res.json({success:true});
     }catch(e){error(res,e);}
   });
