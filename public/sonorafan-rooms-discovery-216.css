@@ -146,3 +146,12 @@
 @media(max-width:1220px){#screen-lobby .sf216-shell{grid-template-columns:205px minmax(0,1fr)!important}#screen-lobby .sf216-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){#screen-lobby .sf216-shell{grid-template-columns:1fr!important}#screen-lobby .sf216-hero{min-height:175px}#screen-lobby .sf216-hero-art{min-height:175px}}
 @media(max-width:580px){#screen-lobby .sf216-head{min-height:132px;padding:18px 13px;background-position:67% center!important}#screen-lobby .sf216-hero{grid-template-columns:1fr}#screen-lobby .sf216-hero-art{height:160px;min-height:160px}#screen-lobby .sf216-hero-content{padding:15px}#screen-lobby .sf216-cards{grid-template-columns:1fr}#screen-lobby .sf216-card{min-height:147px;max-height:175px;grid-template-columns:34% minmax(0,1fr)}#screen-lobby .sf216-card .sf216-cover{min-height:147px}#screen-lobby .sf216-card-body{padding:10px}#screen-lobby .sf216-search-row{grid-template-columns:1fr 1fr}}
+
+/* Cabeçalho de navegação da página, com o logotipo oficial sem duplicar o lobby. */
+#screen-lobby .sf216-topbar{display:flex;align-items:center;justify-content:space-between;gap:24px;max-width:1530px;margin:0 auto 21px;padding:0 0 16px;border-bottom:1px solid var(--sf-brand-border,#503559)}
+#screen-lobby .sf216-topbar>img{display:block;width:170px;max-height:58px;height:auto;object-fit:contain}
+#screen-lobby .sf216-topbar nav{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+#screen-lobby .sf216-topbar nav button{padding:9px 13px;border:1px solid transparent;border-radius:10px;color:#ead6f3;background:transparent;font:750 12px Inter,system-ui,sans-serif;cursor:pointer}
+#screen-lobby .sf216-topbar nav button:hover{background:#322039;border-color:#74517f}
+#screen-lobby .sf216-topbar nav button.is-current{background:#50235e;border-color:#b065cc;color:#fff}
+@media(max-width:600px){#screen-lobby .sf216-topbar{gap:8px;margin-bottom:14px;padding-bottom:10px}#screen-lobby .sf216-topbar>img{width:108px}#screen-lobby .sf216-topbar nav{gap:0}#screen-lobby .sf216-topbar nav button{font-size:10px;padding:7px}#screen-lobby .sf216-topbar nav button[data-sf216-community]{display:none}}
