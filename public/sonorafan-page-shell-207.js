@@ -3,6 +3,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 let isPage=false,lastSection='lobby';
+let secondaryPage='';
 function menu(section){
  lastSection=section;
  document.querySelectorAll('#sf125Sidebar .sf125-side-nav:not(.sf125-side-secondary) [data-sf125-go],#sf125MobileBar [data-sf125-go]').forEach(button=>{
@@ -22,6 +23,35 @@ function restore(){
  content.querySelector('#sf43ProfileModal')?.classList.remove('sf207-in-page');
  document.body.classList.remove('sf43-modal-open');
  if(lastSection==='profile')menu(content.classList.contains('sf200-is-open')?'agenda':'lobby');
+}
+
+function endSecondary(){
+ const content=$('screen-lobby')?.querySelector('.sf28-lobby-content');
+ if(!content)return;
+ const old=secondaryPage;
+ secondaryPage='';
+ content.classList.remove('sf207-clubs-content','sf207-ranking-content');
+ $('screen-lobby')?.classList.remove('sf207-clubs-page','sf207-ranking-page');
+ if(old==='clubs')content.querySelector('.sf5-community-layer .sf5-close')?.click();
+ if(old==='ranking'&&$('lbModal')?.classList.contains('active'))window.sf60Ranking?.close?.();
+ if(old)menu('lobby');
+}
+function startSecondary(type){
+ const screen=$('screen-lobby'),content=screen?.querySelector('.sf28-lobby-content');
+ if(!screen||!content)return;
+ if(!screen.classList.contains('active'))window.showScreen?.('lobby');
+ if(isPage)window.sf43CloseProfile?.();
+ if(secondaryPage&&secondaryPage!==type)endSecondary();
+ window.sf200CloseAgenda?.();
+ const node=type==='clubs'?document.querySelector('.sf5-community-layer'):$('lbModal');
+ if(!node)return;
+ if(node.parentElement!==content)content.appendChild(node);
+ content.classList.add(type==='clubs'?'sf207-clubs-content':'sf207-ranking-content');
+ screen.classList.add(type==='clubs'?'sf207-clubs-page':'sf207-ranking-page');
+ node.classList.add('sf207-in-page');
+ secondaryPage=type;
+ menu(type);
+ content.scrollTo({top:0,behavior:'instant'});
 }
 function openProfile(tab='overview'){
  const modal=$('sf43ProfileModal');
@@ -75,9 +105,11 @@ function init(){
    if(area==='library'){openProfile('library');return;}
    if(area==='favorites'){openProfile('library');return;}
    if(isPage&&area!=='profile')window.sf43CloseProfile?.();
+   if(secondaryPage&&secondaryPage!==area)endSecondary();
    if(area==='community')area='clubs';
    const result=originalNavigate(area);
-   if(['lobby','rooms','agenda','clubs','ranking'].includes(area))menu(area);
+   if(area==='clubs'||area==='ranking')startSecondary(area);
+   else if(['lobby','rooms','agenda'].includes(area))menu(area);
    return result;
   };
  }
@@ -87,7 +119,20 @@ function init(){
   if(isPage&&!modal.classList.contains('active'))restore();
  });
  obs.observe(modal,{attributes:true,attributeFilter:['class']});
- const oldEvents=['sf125:home','sf125:lobby'];
+ const bodyContent=$('screen-lobby')?.querySelector('.sf28-lobby-content');
+ if(bodyContent){
+  new MutationObserver(()=>{
+   if(secondaryPage==='clubs'&&!bodyContent.querySelector('.sf5-community-layer'))endSecondary();
+   if(secondaryPage==='ranking'&&!$('lbModal')?.classList.contains('active'))endSecondary();
+  }).observe(bodyContent,{childList:true,subtree:false});
+ }
+ $('lbModal')&&new MutationObserver(()=>{
+  if(secondaryPage==='ranking'&&!$('lbModal')?.classList.contains('active'))endSecondary();
+ }).observe($('lbModal'),{attributes:true,attributeFilter:['class']});
+ document.addEventListener('click',event=>{
+  if(secondaryPage==='clubs'&&event.target.closest('.sf5-close')){secondaryPage='';menu('lobby');}
+ },true);
+
  document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&isPage&&modal.classList.contains('active')){
    window.sf43CloseProfile?.();
