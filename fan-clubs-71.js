@@ -417,12 +417,19 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const genre=String(req.body?.genre||''),theme=String(req.body?.theme||'');
     if(title.length<3||artist.length<2||!GENRES.has(genre)||!THEMES.has(theme))
       return res.status(400).json({error:'Nome, artista, gênero musical ou identidade visual inválidos.'});
+    const includesBadge=Object.prototype.hasOwnProperty.call(req.body||{},'badgeImageUrl');
+    if(includesBadge&&typeof req.body.badgeImageUrl!=='string')return res.status(400).json({error:'URL HTTPS da imagem inválida.'});
+    const raw=includesBadge?req.body.badgeImageUrl.trim():'';
+    const badgeImageUrl=includesBadge?(raw?validExternalCover(raw):''):undefined;
+    if(includesBadge&&raw&&!badgeImageUrl)return res.status(400).json({error:'Informe uma URL HTTPS pública de até 500 caracteres para a segunda imagem.'});
     try{
       const {ref,data}=await readClub(req.params.id);
       if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o fundador pode editar a identidade da comunidade.');
-      await ref.update({title,artist,genre,theme,profileUpdatedAt:Date.now(),profileUpdatedBy:me.id,updatedAt:Date.now()});
+      const now=Date.now();
+      await ref.update({title,artist,genre,theme,...(includesBadge?{badgeImageUrl}:{}),profileUpdatedAt:now,profileUpdatedBy:me.id,updatedAt:now});
       publish(req.params.id,'members');
-      res.json({success:true,title,artist,genre,theme});
+      if(includesBadge)publish(req.params.id,'cover');
+      res.json({success:true,title,artist,genre,theme,...(includesBadge?{badgeImageUrl}:{})});
     }catch(e){error(res,e);}
   });
   // Segundo ícone quadrado HTTPS, separado da imagem de capa.
