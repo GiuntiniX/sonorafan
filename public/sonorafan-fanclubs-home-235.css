@@ -137,3 +137,23 @@
 .sf5-community-layer.sf126-fan-layer .sf126-club-layout.sf235-standalone-home > #sfSocialHub,
 .sf5-community-layer.sf126-fan-layer .sf126-club-layout.sf235-standalone-home > .sf126-club-side{display:none!important}
 .sf5-community-layer.sf126-fan-layer .sf126-club-layout > #sf235Home[hidden]{display:none!important}
+
+/* Fanclubs 255: a home independente permanece na camada de interação. */
+.sf5-community-layer.sf126-fan-layer .sf126-club-layout.sf235-standalone-home{position:relative!important;isolation:isolate;z-index:2}
+.sf5-community-layer.sf126-fan-layer .sf126-club-layout.sf235-standalone-home > #sf235Home:not([hidden]){position:relative!important;z-index:5!important;pointer-events:auto!important}
+#sf235Home .sf235-layout,#sf235Home .sf235-tabs,#sf235Home .sf235-hero-content,#sf235Home .sf235-section{position:relative;pointer-events:auto}
+#sf235Home .sf235-hero-art,#sf235Home .sf235-hero::before,#sf235Home .sf235-club-art::after{pointer-events:none!important}
+#sf235Home button,#sf235Home input{pointer-events:auto!important;position:relative}
+#sf235Home[data-sf235-view="posts"] .sf235-hero,
+#sf235Home[data-sf235-view="posts"] #sf235Discover,
+#sf235Home[data-sf235-view="posts"] .sf235-bottom,
+#sf235Home[data-sf235-view="events"] .sf235-hero,
+#sf235Home[data-sf235-view="events"] #sf235Discover,
+#sf235Home[data-sf235-view="events"] .sf235-bottom{display:none!important}
+#sf235Home[data-sf235-view="posts"] .sf235-layout{display:block}
+#sf235Home[data-sf235-view="posts"] .sf235-right{display:none}
+#sf235Home[data-sf235-view="events"] .sf235-layout{grid-template-columns:1fr}
+#sf235Home[data-sf235-view="events"] .sf235-main{display:none}
+#sf235Home[data-sf235-view="events"] .sf235-right{display:block}
+#sf235Home[data-sf235-view="events"] .sf235-right>.sf235-side-card:not(#sf235Events){display:none}
+#sf235Home[data-sf235-view="mine"] .sf235-section-head h2{color:#dfff55}
