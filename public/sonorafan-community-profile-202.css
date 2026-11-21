@@ -89,3 +89,18 @@
 .sf201-create-dialog .sf202-room-link small{font-size:11px;color:#d7c9e1;line-height:1.45;font-weight:500}
 @media(max-width:990px){.sf202-profile-columns{grid-template-columns:1fr}.sf202-profile-aside{grid-template-columns:repeat(2,minmax(0,1fr))}#sf71ClubDetail .sf202-event-card{grid-template-columns:120px minmax(0,1fr)}#sf71ClubDetail .sf202-event-controls{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}}
 @media(max-width:650px){.sf202-profile-hero{grid-template-columns:1fr;padding:16px}.sf202-profile-hero>button{justify-self:start}.sf202-profile-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.sf202-profile-columns,.sf202-club-columns,.sf202-profile-aside{grid-template-columns:1fr}.sf202-profile-avatar{width:66px;height:66px}.sf202-personal-event{flex-wrap:wrap}.sf202-personal-event>img{width:95px;height:95px}.sf202-personal-actions{max-width:none;width:100%;justify-content:stretch}.sf202-personal-actions button{flex:1}#sf71ClubDetail .sf202-event-card{grid-template-columns:1fr}#sf71ClubDetail .sf202-event-art{height:145px}#sf71ClubDetail .sf202-event-controls{grid-column:auto}}
+
+
+#sf71ClubDetail .sf202-event-aside{display:grid;gap:13px}
+#sf71ClubDetail .sf202-side-panel{background:linear-gradient(155deg,#2b1638,#1b1126);border:1px solid #8f56a3;border-radius:15px;padding:16px;display:grid;gap:12px}
+#sf71ClubDetail .sf202-side-panel h4{font-size:clamp(15px,1.4vw,19px);font-weight:950;color:white;margin:0;line-height:1.35}
+#sf71ClubDetail .sf202-side-panel>header{display:flex;gap:9px;justify-content:space-between;align-items:center}
+#sf71ClubDetail .sf202-side-panel label{display:grid;gap:9px;color:#e2d0ee;font-size:12px;font-weight:850}
+#sf71ClubDetail .sf202-side-panel select{min-height:41px;width:100%;background:#211329;color:white;border:1px solid #9460a5;border-radius:11px;padding:9px 12px;font-size:12px}
+#sf71ClubDetail .sf202-side-panel>button{min-height:41px;background:#caff001c;color:#e6ffab;border-color:#caff00;border-radius:12px;font-size:12px}
+#sf71ClubDetail .sf202-side-panel p{color:#dfcaeb;font-size:12px;line-height:1.55;margin:0}
+#sf71ClubDetail .sf202-side-panel header button{color:#caff00;background:transparent;border:none;padding:6px;font-size:11px}
+#sf71ClubDetail .sf202-joined-event{display:flex;flex-wrap:wrap;gap:7px;align-items:center;border:1px solid #77518d;border-radius:12px;padding:10px;background:#342040}
+#sf71ClubDetail .sf202-joined-event strong{display:block;flex:1 1 100%;font-size:12px}
+#sf71ClubDetail .sf202-joined-event small{font-size:11px;color:#d8bedf}
+#sf71ClubDetail .sf202-joined-event button{margin-left:auto;background:#caff00;color:#150d1d;border-color:#caff00;border-radius:999px;font-size:11px}
