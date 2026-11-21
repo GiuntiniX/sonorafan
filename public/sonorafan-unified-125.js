@@ -119,15 +119,7 @@
     const btn=event.target.closest('[data-sf125-go]');
     if(!btn)return;
     event.preventDefault();
-    go(btn.dataset.sf125Go);
-     const area=btn.dataset.sf125Go;
-     if(['lobby','rooms','agenda'].includes(area)){
-       document.querySelectorAll('#sf125Sidebar .sf125-side-nav:not(.sf125-side-secondary) [data-sf125-go]').forEach(el=>{
-         const selected=el.dataset.sf125Go===area;
-         el.classList.toggle('is-active',selected);
-         if(selected)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');
-       });
-     }
+    (window.sf125Navigate||go)(btn.dataset.sf125Go);
   }
   function roomArt(room){
     const g=String(room.genre||room.name||'').toLowerCase();
