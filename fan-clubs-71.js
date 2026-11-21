@@ -920,7 +920,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
                 artist:clean(c.artist,65),genre:clean(c.genre||'outros',32),theme:clean(c.theme||'vinyl',20),
                 coverType:clean(c.coverType||'legacy',15),coverImageUrl:c.coverType==='external'?validExternalCover(c.coverImageUrl):'',
                 coverGalleryId:c.coverType==='gallery'&&Object.hasOwn(GALLERY_COVERS,c.coverGalleryId)?c.coverGalleryId:'',
-                coverVersion:Number(c.coverVersion)||0,title:clean(e.data().title,90),
+                coverVersion:Number(c.coverVersion)||0,title:clean(e.data().title,90),roomSlug:clean(e.data().roomSlug||'',100),roomName:clean(rooms.get(e.data().roomSlug)?.name||'',90),
                 description:clean(e.data().description,300),startAt:Number(e.data().startAt),
                 durationMinutes:Number(e.data().durationMinutes)||60,attendees:unique(e.data().attendeeIds).length,
                 attendeeIds:unique(e.data().attendeeIds),blockedIds:unique(c.blockedIds),
@@ -957,7 +957,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const snap=await ref.collection('events').orderBy('startAt','asc').limit(40).get();
       const events=snap.docs.filter(d=>Number(d.data().startAt)>Date.now()-3600000)
        .slice(0,20).map(d=>({id:d.id,title:d.data().title,description:d.data().description,
-        startAt:d.data().startAt,durationMinutes:d.data().durationMinutes,
+        startAt:d.data().startAt,durationMinutes:d.data().durationMinutes,roomSlug:clean(d.data().roomSlug||'',100),roomName:clean(rooms.get(d.data().roomSlug)?.name||'',90),
         attendees:unique(d.data().attendeeIds).length,going:unique(d.data().attendeeIds).includes(me.id),
         canDelete:canModerate(data,me)}));
       res.json({events});
@@ -967,15 +967,18 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     const title=clean(req.body?.title,90),description=clean(req.body?.description,300),startAt=Number(req.body?.startAt);
     const durationMinutes=[30,60,90,120].includes(Number(req.body?.durationMinutes))?Number(req.body.durationMinutes):60;
+    const roomSlug=clean(req.body?.roomSlug,100);
     if(title.length<5||!Number.isSafeInteger(startAt)||startAt<Date.now()+300000||startAt>Date.now()+90*86400000)
       return res.status(400).json({error:'Informe título e data entre 5 minutos e 90 dias no futuro.'});
     try{
       const {ref,data}=await readClub(req.params.id);
       if(!canModerate(data,me))throwHttp(403,'Somente a moderação organiza encontros.');
+      if(roomSlug&&(!unique(data.roomSlugs).includes(roomSlug)||!rooms.has(roomSlug)||rooms.get(roomSlug).isPrivate))
+        throwHttp(400,'Escolha uma sala pública vinculada a este Fan Club.');
       const doc=ref.collection('events').doc();
-      await doc.create({title,description,startAt,durationMinutes,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
+      await doc.create({title,description,startAt,durationMinutes,roomSlug,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
       publish(req.params.id,'events');res.status(201).json({id:doc.id});
-      notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title});
+      notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title+(roomSlug?' · Sala: '+clean(rooms.get(roomSlug)?.name,80):'')+'. Confirme presença na Agenda Musical.'});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/events/:eventId/rsvp',rateLimit(20,60000),async(req,res)=>{
@@ -994,6 +997,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         return {going,attendees:attendees.length};
       });
       publish(req.params.id,'events');res.json(result);
+      if(result.going&&typeof sf15Notify==='function'){
+        const eventSnap=await target.get(),ev=eventSnap.data()||{};
+        Promise.resolve(sf15Notify(me.email,{type:'fanclub',title:'Presença confirmada',message:'Você confirmou presença em '+clean(ev.title,90)+(ev.roomSlug?' · Sala: '+clean(rooms.get(ev.roomSlug)?.name,80):'')+'. Consulte a Agenda Musical para acessar.',fanClubId:req.params.id})).catch(()=>{});
+      }
     }catch(e){error(res,e);}
   });
   app.delete('/api/fan-clubs/:id/events/:eventId',rateLimit(10,60000),async(req,res)=>{
