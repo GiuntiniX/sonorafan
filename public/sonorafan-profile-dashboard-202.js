@@ -6,7 +6,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const n=v=>Math.max(0,Number(v)||0),num=v=>n(v).toLocaleString('pt-BR');
 const date=v=>{const d=new Date(Number(v));return Number.isFinite(d.getTime())?d.toLocaleString('pt-BR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Data não disponível';};
 const art={kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',mpb:'/art-33/poster-brasil.webp',festival:'/art-41/festival-noite.webp',stage:'/art-129/sonorafan-stage.svg'};
-const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0,inviteRooms:[],inviteRoom:'',invitingId:null,presenceReady:false,presenceSeen:new Map(),presenceLastCheck:0};
+const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0,inviteRooms:[],inviteRoom:'',invitingId:null};
 const isManager=c=>!!(c?.owner||c?.canModerate);
 const joined=()=>state.clubs.filter(c=>c.joined||c.owner);
 const managed=()=>state.clubs.filter(isManager);
@@ -135,7 +135,6 @@ async function fetchFriends(force=false) {
  try{
   const data=await friendRequest('/api/social/following');
   state.friends=Array.isArray(data)?data.filter(x=>validFriendId(x.id)):[];
-  noticeFriendActivity(state.friends);
   state.friendsLoaded=Date.now();
  }catch(err){state.friendsError=err.message;}
  finally{state.friendsLoading=false;if(state.section==='friends')render();}
@@ -167,20 +166,6 @@ async function inviteFriend(id){
   if(typeof window.toast==='function')window.toast('Convite enviado para '+friend.name+'!', 'success');
  }catch(err){state.friendsError=err.message;}
  finally{state.invitingId=null;render();}
-}
-function noticeFriendActivity(friends){
- // Só detectar novas transições, nunca notificar a lista inicial.
- const next=new Map(friends.filter(x=>validFriendId(x.id)).map(x=>[x.id,x.activity&&validRoomSlug(x.activity.roomSlug)?x.activity.roomSlug:null]));
- if(state.presenceReady&&!document.hidden){
-  let sent=0;
-  for(const person of friends){
-   const room=next.get(person.id),previous=state.presenceSeen.get(person.id);
-   if(!room||room===previous||!state.presenceSeen.has(person.id)||sent>=1)continue;
-   if(typeof window.sf220FriendJoined==='function')window.sf220FriendJoined({name:person.name,roomSlug:room,roomName:person.activity?.roomName||'uma sala'});
-   sent++;
-  }
- }
- state.presenceSeen=next;state.presenceReady=true;
 }
 function friendCard(person,added=true){
  const room=person.activity&&validRoomSlug(person.activity.roomSlug)?person.activity:null;
@@ -337,8 +322,6 @@ function init(){
  },true);
  const photo=$('sf43ProfileAvatar');
  if(photo)new MutationObserver(()=>{if($('sf202ProfileOverview')&&!host.hidden)syncPhoto();}).observe(photo,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state.presenceReady)fetchFriends(true);});
- setInterval(()=>{if(!document.hidden&&state.presenceReady&&!state.friendsLoading&&Date.now()-state.friendsLoaded>=60000)fetchFriends(true);},60000);
  window.sf202RefreshProfile=(force=false)=>{if(force)state.lastLoad=0;load(force);};
  const modal=$('sf43ProfileModal');
  if(modal)new MutationObserver(()=>{
