@@ -13,3 +13,13 @@
 #sf53AdminReports .sf53-admin-actions{margin-top:12px}
 #sf13ReportItems .sf13-report-person{margin:7px 0}
 @media(max-width:580px){#sf53AdminReports .sf53-admin-person button,#sf13ReportItems .sf13-report-person button{width:100%}}
+
+/* Controles de resolução/remoção — acessíveis também no celular. */
+#sf13ReportItems .sf225-report-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:12px}
+#sf13ReportItems .sf225-report-actions button{min-height:42px;padding:10px 13px;border-radius:9px;cursor:pointer;font-weight:750}
+#sf13ReportItems .sf225-report-actions .sf225-remove-report{border:1px solid #cc6679;background:#43202e;color:#ffd6dc}
+#sf13ReportItems .sf225-report-actions .sf225-remove-report:hover{border-color:#ff97a9;background:#582736}
+#sf13ReportItems .sf225-report-actions button:disabled{opacity:.55;cursor:wait}
+#sf13ReportItems .sf225-report-actions button:focus-visible{outline:2px solid #caff00;outline-offset:2px}
+@media(max-width:580px){#sf13ReportItems .sf225-report-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}#sf13ReportItems .sf225-report-actions button{min-width:0;white-space:normal}}
+@media(max-width:350px){#sf13ReportItems .sf225-report-actions{grid-template-columns:1fr}}
