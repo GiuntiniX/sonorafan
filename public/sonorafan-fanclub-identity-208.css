@@ -218,3 +218,111 @@
 #sf71ClubDetail .sf227-hero-mark{overflow:hidden}
 #sf71ClubDetail .sf227-hero-mark img{display:block;width:100%;height:100%;object-fit:cover;border-radius:14px;min-width:0;min-height:0}
 #sf71ClubDetail .sf228-hero-actions [data-sf204-edit-identity]{background:#301a40;color:#fff;border:1px solid #caff19;cursor:pointer}
+
+/* Fanclub 244 — os temas das salas aplicam cor e superfície a toda a comunidade.
+   Escopo deliberadamente restrito ao detalhe, sem alterar outros ambientes. */
+#sf71ClubDetail:has(.sf71-detail-hero[class*="sf71-theme-"]){
+ --sf227-lime:var(--sf208-club-accent,#caff19);
+ --sf227-pink:var(--sf208-club-accent,#e454ce);
+ --sf227-line:color-mix(in srgb,var(--sf208-club-accent) 65%,transparent);
+ --sf227-bg:var(--sf208-club-shade,#170a20);
+ --sf227-muted:#d6cddd;
+ --sf244-accent:var(--sf208-club-accent,#caff19);
+ --sf244-dark:var(--sf208-club-shade,#170a20);
+ --sf244-panel:color-mix(in srgb,var(--sf244-dark) 76%,#30233f 24%);
+ --sf244-panel-light:color-mix(in srgb,var(--sf244-dark) 64%,#43304c 36%);
+ --sf244-stroke:color-mix(in srgb,var(--sf244-accent) 58%,#5c5265 42%);
+ --sf244-action:color-mix(in srgb,var(--sf244-accent) 66%,#ffffff 34%);
+ --sf244-action-text:#14131a;
+ color:#f8f5fa;
+}
+#sf71ClubDetail .sf227-hero.sf71-detail-hero{border-color:var(--sf244-stroke)!important}
+#sf71ClubDetail .sf227-hero-mark{border-color:var(--sf244-stroke)!important;background:var(--sf244-panel-light)!important;color:var(--sf244-accent)!important}
+#sf71ClubDetail .sf160-tabs{
+ border-color:var(--sf244-stroke)!important;
+ background:var(--sf244-panel)!important;
+}
+#sf71ClubDetail .sf160-tabs button[aria-selected="true"],
+#sf71ClubDetail #sf180ForumCounts button[aria-pressed="true"],
+#sf71ClubDetail #sf180ForumCounts [data-sf180-filter="all"][aria-pressed="true"]{
+ background:var(--sf244-action)!important;border-color:var(--sf244-accent)!important;
+ color:var(--sf244-action-text)!important;box-shadow:none!important;
+}
+#sf71ClubDetail .sf228-settings,
+#sf71ClubDetail .sf71-detail-desc,
+#sf71ClubDetail .sf227-widget,
+#sf71ClubDetail #sf160FeedArea>.sf71-rooms-head,
+#sf71ClubDetail .sf227-composer-bar,
+#sf71ClubDetail #sf71PostForm,
+#sf71ClubDetail .sf160-feed-tools,
+#sf71ClubDetail #sf71Posts .sf71-post,
+#sf71ClubDetail #sf71Posts .sf180-post,
+#sf71ClubDetail .sf227-right>.sf170-community-aside,
+#sf71ClubDetail .sf160-extra-panel,
+#sf71ClubDetail .sf170-community-aside,
+#sf71ClubDetail .sf202-club-rooms,
+#sf71ClubDetail .sf204-room-manager{
+ border-color:var(--sf244-stroke)!important;
+ background:var(--sf244-panel)!important;
+}
+#sf71ClubDetail .sf227-widget,
+#sf71ClubDetail #sf71Posts .sf71-post,
+#sf71ClubDetail #sf71Posts .sf180-post,
+#sf71ClubDetail .sf227-right>.sf170-community-aside,
+#sf71ClubDetail .sf227-composer-bar,
+#sf71ClubDetail #sf71PostForm{
+ background:linear-gradient(145deg,var(--sf244-panel-light),var(--sf244-panel))!important;
+}
+#sf71ClubDetail .sf227-feed.sf71-feed{background:transparent!important;border:0!important}
+#sf71ClubDetail .sf227-widget>header button,
+#sf71ClubDetail .sf227-trending li>span,
+#sf71ClubDetail .sf228-settings>summary::after,
+#sf71ClubDetail .sf227-room-disc,
+#sf71ClubDetail .sf227-activity>span:first-child,
+#sf71ClubDetail .sf227-composer-icon,
+#sf71ClubDetail .sf227-hero .sf73-hero-info>span{
+ color:var(--sf244-accent)!important;
+}
+#sf71ClubDetail .sf227-room-disc,
+#sf71ClubDetail .sf227-composer-icon,
+#sf71ClubDetail .sf227-activity>span:first-child,
+#sf71ClubDetail .sf227-event-date,
+#sf71ClubDetail #sf71Posts .sf228-author-avatar,
+#sf71ClubDetail .sf227-mini-photo,
+#sf71ClubDetail .sf227-online-strip>button{
+ background:var(--sf244-panel-light)!important;
+ border-color:var(--sf244-stroke)!important;
+}
+#sf71ClubDetail .sf228-hero-actions>.sf228-join,
+#sf71ClubDetail .sf227-room-item>button,
+#sf71ClubDetail .sf227-composer-bar .sf227-compose-main,
+#sf71ClubDetail #sf71PostForm .sf71-action-primary,
+#sf71ClubDetail .sf71-detail-actions>.sf71-action-primary,
+#sf71ClubDetail .sf204-primary,
+#sf71ClubDetail .sf228-join,
+#sf71ClubDetail [data-sf71-addroom]{
+ background:var(--sf244-action)!important;
+ color:var(--sf244-action-text)!important;
+ border-color:var(--sf244-stroke)!important;
+}
+#sf71ClubDetail .sf228-hero-share,
+#sf71ClubDetail .sf228-following,
+#sf71ClubDetail .sf228-settings-content>.sf180-edit-profile,
+#sf71ClubDetail .sf228-settings-content>.sf204-identity-button,
+#sf71ClubDetail .sf71-detail-actions button:not(.sf71-action-primary),
+#sf71ClubDetail .sf160-feed-tools :is(button,input,select),
+#sf71ClubDetail #sf180ForumCounts button:not([aria-pressed="true"]),
+#sf71ClubDetail #sf71PostForm :is(input,textarea,select),
+#sf71ClubDetail .sf227-composer-bar button[data-sf227-compose]:first-of-type{
+ background:var(--sf244-panel-light)!important;
+ color:#f8f5fa!important;
+ border-color:var(--sf244-stroke)!important;
+}
+#sf71ClubDetail .sf227-mini-photo,
+#sf71ClubDetail .sf227-online-strip>button,
+#sf71ClubDetail #sf71Posts .sf228-author-avatar{border-color:var(--sf244-stroke)!important}
+#sf71ClubDetail .sf151-post-actions button:focus-visible,
+#sf71ClubDetail button:focus-visible,
+#sf71ClubDetail a:focus-visible{
+ outline:2px solid var(--sf244-accent)!important;outline-offset:2px;
+}
