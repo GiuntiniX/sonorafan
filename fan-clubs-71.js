@@ -848,29 +848,30 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       res.json({polls:snap.docs.map(d=>({id:d.id,question:d.data().question,options:d.data().options,
         counts:(d.data().options||[]).map((_,i)=>Object.values(d.data().votes||{}).filter(v=>v===i).length),
         voted:Object.hasOwn(d.data().votes||{},me.id),myVote:d.data().votes?.[me.id]??null,
-        createdAt:d.data().createdAt,closed:!!(d.data().closesAt&&d.data().closesAt<=Date.now()),closesAt:d.data().closesAt||null,canDelete:canModerate(data,me)}))});
+        createdAt:d.data().createdAt,closed:!!(d.data().closesAt&&d.data().closesAt<=Date.now()),closesAt:d.data().closesAt||null,
+        totalVotes:Object.keys(d.data().votes||{}).length,canEdit:canModerate(data,me),canDelete:canModerate(data,me)}))});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/polls',rateLimit(8,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const question=clean(req.body?.question,140);
-    const options=Array.isArray(req.body?.options)?req.body.options.slice(0,4).map(v=>clean(v,80)).filter(Boolean):[];
-    if(question.length<8||options.length<2||new Set(options.map(v=>v.toLowerCase())).size!==options.length)
-      return res.status(400).json({error:'Informe uma pergunta e 2 a 4 opções diferentes.'});
+    const options=Array.isArray(req.body?.options)?req.body.options.slice(0,9).map(v=>clean(v,80)).filter(Boolean):[];
+    if(question.length<8||options.length<2||options.length>8||new Set(options.map(v=>v.toLocaleLowerCase('pt-BR'))).size!==options.length)
+      return res.status(400).json({error:'Informe uma pergunta e de 2 a 8 opções diferentes.'});
     try{
       const {ref,data}=await readClub(req.params.id);
       if(!canModerate(data,me))throwHttp(403,'Somente moderadores podem criar enquetes.');
       const doc=ref.collection('polls').doc();
       const days=Number(req.body?.durationDays);
       const closesAt=[1,3,7,14].includes(days)?Date.now()+days*86400000:null;
-      await doc.create({question,options,votes:{},createdAt:Date.now(),closesAt});
+      await doc.create({question,options,votes:{},authorId:me.id,createdAt:Date.now(),closesAt});
       publish(req.params.id,'polls');res.status(201).json({id:doc.id});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/polls/:pollId/vote',rateLimit(20,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const choice=req.body?.choice;
-    if(!Number.isInteger(choice)||choice<0||choice>3)return res.status(400).json({error:'Opção inválida.'});
+    if(!Number.isInteger(choice)||choice<0||choice>=8)return res.status(400).json({error:'Opção inválida.'});
     try{
       const {ref,data}=await readClub(req.params.id);
       if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para votar.');
@@ -884,6 +885,40 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         const votes={...(poll.votes||{}),[me.id]:choice};
         if(Object.keys(votes).length>300)throwHttp(409,'Limite de votos atingido.');
         tx.update(target,{votes});
+      });
+      publish(req.params.id,'polls');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  // Edição segura: nunca deslocar alternativas depois de votos registrados.
+  app.patch('/api/fan-clubs/:id/polls/:pollId',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const question=clean(req.body?.question,140);
+    const editOptions=req.body?.options;
+    const duration=String(req.body?.duration||'keep');
+    if(question.length<8)return res.status(400).json({error:'A pergunta precisa ter pelo menos 8 caracteres.'});
+    if(!['keep','none','1','3','7','14','close'].includes(duration))
+      return res.status(400).json({error:'Prazo inválido.'});
+    if(editOptions!==undefined && (!Array.isArray(editOptions)||editOptions.length<2||editOptions.length>8))
+      return res.status(400).json({error:'Use de 2 a 8 alternativas.'});
+    const options=Array.isArray(editOptions)?editOptions.map(v=>clean(v,80)):[];
+    if(editOptions!==undefined&&(options.some(v=>!v)||new Set(options.map(v=>v.toLocaleLowerCase('pt-BR'))).size!==options.length))
+      return res.status(400).json({error:'Preencha alternativas diferentes, sem campos vazios.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!canModerate(data,me))throwHttp(403,'Somente a moderação pode editar enquetes.');
+      const target=ref.collection('polls').doc(req.params.pollId);
+      await db.runTransaction(async tx=>{
+        const snap=await tx.get(target);if(!snap.exists)throwHttp(404,'Enquete não encontrada.');
+        const current=snap.data(),hasVotes=Object.keys(current.votes||{}).length>0;
+        const sameOptions=options.length===current.options.length&&options.every((v,i)=>v===current.options[i]);
+        if(hasVotes&&editOptions!==undefined&&!sameOptions)
+          throwHttp(409,'Esta enquete já recebeu votos. Para preservar os resultados, não é possível alterar as alternativas; edite apenas a pergunta ou o prazo.');
+        const update={question,updatedAt:Date.now(),updatedBy:me.id};
+        if(editOptions!==undefined&&!hasVotes)update.options=options;
+        if(duration==='none')update.closesAt=null;
+        else if(duration==='close')update.closesAt=Date.now();
+        else if(duration!=='keep')update.closesAt=Date.now()+Number(duration)*86400000;
+        tx.update(target,update);
       });
       publish(req.params.id,'polls');res.json({success:true});
     }catch(e){error(res,e);}
