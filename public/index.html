@@ -4754,6 +4754,7 @@ function openRoomCfg() {
       if(!data.slug||data.slug!==currentRoom||data.slug!==_joinedSlug)return;
       sf233ClearJoinTimer();
       $('connBanner')?.classList.remove('show');
+      window.sf216OnRoomJoined?.(data);
     });
     socket.on('joinError', ({slug,message}={})=>{
       if(!slug||slug!==currentRoom||slug!==_joinedSlug)return;
@@ -5195,7 +5196,7 @@ function openRoomCfg() {
 <script defer src="/sonorafan-room-redesign-113.js?v=163.0"></script>
   <script defer src="/sonorafan-unified-125.js?v=207.5"></script>
   <script defer src="/sonorafan-page-shell-207.js?v=207.4"></script>
-  <script defer src="/sonorafan-rooms-discovery-216.js?v=218.2"></script>
+  <script defer src="/sonorafan-rooms-discovery-216.js?v=234.0"></script>
   <script defer src="/sonorafan-global-search-208.js?v=208.2"></script>
   <script defer src="/sonorafan-room-fanclub-208.js?v=208.2"></script>
   <script defer src="/sonorafan-experience-126.js?v=126.1"></script>
