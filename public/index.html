@@ -1374,6 +1374,17 @@
       .room-card, .queue-item, .msg, .action-btn, .theme-opt { transition: none !important; }
     }
 
+    /* Capas de salas: editor nativo responsivo, preservando o backstage. */
+    .sf-cover-editor{margin:16px 0;padding:16px;border:1px solid var(--border);border-radius:16px;background:rgba(124,58,237,.055)}
+    .sf-cover-editor p{font-size:12px;color:var(--text-secondary);margin:5px 0 12px;line-height:1.5}
+    .sf-cover-editor>label{display:block;font-size:12px;color:var(--text-secondary);margin:10px 0 5px}
+    .sf-cover-preview{width:100%;aspect-ratio:16/7;max-height:175px;border:1px dashed var(--border-hover);border-radius:12px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#1b1242,#080914);color:var(--text-secondary);font-size:14px}
+    .sf-cover-preview img{width:100%;height:100%;object-fit:cover}
+    .sf-cover-controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+    .sf-cover-controls button,.sf-cover-upload{font:inherit;font-size:12px;border-radius:10px;padding:9px 12px;background:var(--bg-hover);border:1px solid var(--border-hover);color:var(--text);cursor:pointer}
+    .sf-cover-upload input{display:none}
+    .sf-cover-editor small{display:block;color:var(--text-secondary);font-size:11px;line-height:1.5}
+    @media(max-width:600px){.sf-cover-editor{padding:12px}.sf-cover-controls>*{flex:1;text-align:center}}
   </style>
   <link rel="stylesheet" href="/player-premium.css">
   <link rel="stylesheet" href="/premium-3.css">
@@ -3665,6 +3676,7 @@
           // YouTube images are only ever built using a validated 11-character video ID.
           const videoId = typeof track?.id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(track.id) ? track.id : null;
           const trackThumb = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+          const customCover = typeof r.coverUrl==='string' && /^https:\/\//i.test(r.coverUrl) ? r.coverUrl : '';
           card.dataset.hasTrack = trackThumb ? '1' : '0';
           card.setAttribute('role', 'button');
           card.setAttribute('tabindex', '0');
@@ -3677,7 +3689,7 @@
           });
           const live = r.isPlaying ? '<div class="room-live-badge"><span class="live-dot"></span> AO VIVO</div>' : '';
           const playingIndicator = r.isPlaying ? `<div class="playing-indicator" aria-hidden="true"><span></span><span></span><span></span><span></span></div>` : '';
-          const visual = trackThumb ? `<div class="sf36-room-visual sf37-room-media"><img src="${trackThumb}" alt="Capa da música atual na sala ${escapeHtml(r.name || '')}" loading="lazy" decoding="async"></div>` : '';
+          const visual = (customCover||trackThumb) ? `<div class="sf36-room-visual sf37-room-media"><img src="${escapeHtml(customCover||trackThumb)}" alt="${customCover?'Capa personalizada':'Capa da música atual'} da sala ${escapeHtml(r.name||'')}" loading="lazy" decoding="async"></div>` : '';
           const nowPlaying = track ? `<div class="sf36-room-now sf37-room-now"><div class="sf36-room-now-copy"><small>${r.isPlaying ? '♫ Tocando agora' : '♫ Música selecionada'}</small><strong>${escapeHtml(sf74SongText(track.title || 'Música'))}</strong><span>${escapeHtml(sf74SongText(track.artist || 'Escolha da comunidade'))}</span></div></div>` : `<div class="sf36-room-idle sf37-room-idle">♫ Sala pronta para receber músicas</div>`;
           card.innerHTML = `${live}<div class="room-listeners-badge">🎧 ${Math.max(0,Number(r.listenerCount)||0)}</div>${playingIndicator}${visual}
             <div class="room-card-body">
@@ -3696,9 +3708,13 @@
           const shareBtn = card.querySelector('.sf41-room-share');
           if (shareBtn) shareBtn.addEventListener('click', event => { event.preventDefault(); event.stopPropagation(); window.sf41ShareRoom?.(r.slug); });
           const img = card.querySelector('.sf37-room-media img');
-          if (img && videoId) {
+          if (img && (videoId || customCover)) {
             img.addEventListener('error', () => {
-              if (img.dataset.fallback !== '1') {
+              if (customCover && img.dataset.coverFallback!=='1') {
+                img.dataset.coverFallback='1';
+                if(trackThumb){img.src=trackThumb;return;}
+              }
+              if (img.dataset.fallback !== '1' && videoId) {
                 img.dataset.fallback = '1';
                 img.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
               } else {
@@ -3723,6 +3739,7 @@
       $('sf109GenrePicker')?.querySelectorAll('input[name="sf109RoomGenre"]').forEach(r=>r.checked=false);
       const genreError=$('sf109GenreError');if(genreError)genreError.hidden=true;
       window.sf88ResetCreateTheme?.();
+      sfCoverReset('c');
     }
     function closeCreateRoom() { $('createRoomModal').classList.remove('active'); }
 
@@ -3731,11 +3748,23 @@
     const cfgState = {};
     let _joinExtra = {}, _pwSlug = null;
     function renderCfg(boxId, k, v) {
-      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', isPrivate: false, allowLong: false, allowLive: false }, v || {});
+      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', coverUrl: '', isPrivate: false, allowLong: false, allowLive: false }, v || {});
       const pick = (key, val) => `cfgPick('${boxId}','${k}','${key}','${val}')`;
       $(boxId).innerHTML = `
         <div class="cfg-lbl">Ícone da sala</div><div class="cfg-row">${CFG_EMOJIS.map(e => `<button type="button" class="cfg-e ${s.emoji === e ? 'on' : ''}" onclick="${pick('emoji', e)}">${e}</button>`).join('')}</div>
         <div class="cfg-lbl">Cor da sala</div><div class="cfg-row">${CFG_COLORS.map(c => `<button type="button" class="cfg-c ${s.color === c ? 'on' : ''}" style="background:${c}" onclick="${pick('color', c)}"></button>`).join('')}</div>
+        <div class="sf-cover-editor">
+          <div class="cfg-lbl">📸 Capa da sala na busca</div>
+          <p>Escolha uma imagem. Sem capa, a miniatura da música atual aparece automaticamente.</p>
+          <div class="sf-cover-preview" id="${k}CoverPreview" aria-label="Prévia da capa"><span>♫ Capa dinâmica</span></div>
+          <label for="${k}CoverUrl">URL de imagem HTTPS</label>
+          <input class="cfg-in" id="${k}CoverUrl" type="url" inputmode="url" maxlength="1600" placeholder="https://exemplo.com/capa.webp" value="${escapeHtml(s.coverUrl || '')}" oninput="sfCoverPreview('${k}')">
+          <div class="sf-cover-controls">
+            <label class="sf-cover-upload">⬆ Enviar imagem <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="sfCoverUpload(event,'${k}')"></label>
+            <button type="button" onclick="sfCoverReset('${k}')">Usar capa automática</button>
+          </div>
+          <small id="${k}CoverStatus" aria-live="polite">Imagens JPG, PNG, WebP ou GIF, até 2 MB.</small>
+        </div>
         <input class="cfg-in" id="${k}Desc" maxlength="80" placeholder="Descrição curta (opcional)" value="${escapeHtml(s.description || '')}">
         <input class="cfg-in" id="${k}Welcome" maxlength="200" placeholder="Boas-vindas ou regras" value="${escapeHtml(s.welcome || '')}">
         <div class="sf129-mode-intro"><span aria-hidden="true">${s.addMode === 'owner' ? '🔒' : '🎧'}</span><div><strong>${s.addMode === 'owner' ? 'Playlist do anfitrião' : 'Todo mundo é DJ!'}</strong><small>${s.addMode === 'owner' ? 'Só quem criou a sala adiciona músicas e controla os pulos. Os convidados podem ouvir e conversar.' : 'Os participantes escolhem músicas e constroem a fila juntos.'}</small></div></div>
@@ -3763,8 +3792,49 @@
           <span>${s.allowLive ? 'Aceita lives e vídeos longos.' : (s.allowLong ? 'Aceita vídeos longos.' : 'Aceita músicas e vídeos comuns.')}</span>
         </div>`;
     }
-function readCfg(k) {
+function sfCoverPreview(k) {
+      const box=$(k+'CoverPreview'), input=$(k+'CoverUrl');
+      if (!box || !input) return;
+      const url=input.value.trim();
+      let safe=false; try {const u=new URL(url);safe=u.protocol==='https:' && !u.username && !u.password;}catch(_){}
+      box.replaceChildren();
+      if (safe) {
+        const img=document.createElement('img');img.src=url;img.alt='Prévia da capa da sala';img.loading='lazy';
+        img.onerror=()=>{box.replaceChildren();box.textContent='Não foi possível mostrar a imagem';};
+        box.appendChild(img);
+      } else {box.textContent=url?'Use uma URL HTTPS válida':'♫ Capa dinâmica';}
+    }
+    function sfCoverReset(k) {
+      const el=$(k+'CoverUrl');if(el)el.value='';
+      sfCoverPreview(k);const status=$(k+'CoverStatus');if(status)status.textContent='A miniatura do vídeo será usada automaticamente.';
+    }
+    const sfCoverBusy={c:false,e:false};
+    async function sfCoverUpload(event,k) {
+      const file=event.target.files?.[0],status=$(k+'CoverStatus');
+      if (!file) return;
+      if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type) || file.size>2097152 || file.size<100) {
+        if(status)status.textContent='Selecione uma imagem válida de até 2 MB.';
+        event.target.value='';return;
+      }
+      sfCoverBusy[k]=true;if(status)status.textContent='Enviando capa…';
+      try {
+        const response=await fetch('/api/room-cover-upload',{method:'POST',headers:{'Content-Type':file.type},credentials:'same-origin',body:file});
+        const data=await response.json();
+        if(!response.ok || !data.url)throw Error(data.error||'Falha no upload');
+        $(k+'CoverUrl').value=data.url;sfCoverPreview(k);
+        if(status)status.textContent='✓ Imagem enviada. Salve para aplicar à sala.';
+      }catch(e){if(status)status.textContent=e.message||'Erro ao enviar imagem';toast(e.message||'Erro ao enviar capa','error');}
+      finally{sfCoverBusy[k]=false;event.target.value='';}
+    }
+    function sfCoverValue(k) {
+      const value=$(k+'CoverUrl')?.value.trim()||'';
+      if (!value)return '';
+      try {const u=new URL(value);if(u.protocol==='https:' && !u.username && !u.password)return u.href;}catch(_){}
+      throw Error('A capa precisa ter uma URL HTTPS válida.');
+    }
+    function readCfg(k) {
       const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: s.addMode === 'owner' ? 'owner' : 'all', isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value, allowLong: !!s.allowLong, allowLive: !!s.allowLive };
+      out.coverUrl = $(k+'CoverUrl')?.value.trim()||'';
       const pw = $(k + 'Pw'); if (pw && pw.value) out.password = pw.value;
       return out;
     }
@@ -3772,10 +3842,15 @@ function cfgPick(boxId, k, key, val) { const boolKeys = ['isPrivate', 'allowLong
 function openRoomCfg() {
       const d = currentRoomData || {};
       window.sf88OpenEditor?.(d.roomTheme);
-      renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
+      renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, coverUrl: d.coverUrl || '', welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
       $('roomCfgModal').classList.add('active');
     }
-    function saveRoomCfg() { const cfg=readCfg('e'); cfg.roomTheme=window.sf88GetEditTheme?.()||currentRoomData?.roomTheme||'indie'; socket.emit('updateRoomSettings', cfg); $('roomCfgModal').classList.remove('active'); toast('Sala atualizada!', 'success'); }
+    function saveRoomCfg() {
+      if(sfCoverBusy.e)return toast('Aguarde o envio da capa terminar','error');
+      let coverUrl;try{coverUrl=sfCoverValue('e');}catch(e){return toast(e.message,'error');}
+      const cfg=readCfg('e');cfg.coverUrl=coverUrl;cfg.roomTheme=window.sf88GetEditTheme?.()||currentRoomData?.roomTheme||'indie';
+      socket.emit('updateRoomSettings',cfg);$('roomCfgModal').classList.remove('active');toast('Sala atualizada!','success');
+    }
     async function emitJoin(slug) {
       let token;
       try { const r = await fetch('/api/socket-token', { credentials: 'include' }); if (r.ok) token = (await r.json()).token; } catch (e) {}
@@ -3798,6 +3873,8 @@ function openRoomCfg() {
       try { const i = JSON.parse(v); joinRoom(i.slug, { invite: i.code }); } catch (e) {}
     }
     async function createRoom() {
+      if(sfCoverBusy.c)return toast('Aguarde o envio da capa terminar','error');
+      let coverUrl;try{coverUrl=sfCoverValue('c');}catch(e){return toast(e.message,'error');}
       const name = $('newRoomName').value.trim();
       if (!name) return toast('Digite um nome', 'error');
       const genre = document.querySelector('#sf109GenrePicker input[name="sf109RoomGenre"]:checked')?.value;
@@ -3810,7 +3887,7 @@ function openRoomCfg() {
       }
       if(genreError)genreError.hidden=true;
       try {
-        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, genre, adminName: myName, ...readCfg('c'), roomTheme: window.sf88GetCreateTheme?.()||'indie' }) });
+        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, genre, adminName: myName, ...readCfg('c'), coverUrl, roomTheme: window.sf88GetCreateTheme?.()||'indie' }) });
         const d = await r.json();
         if (d.slug) { closeCreateRoom(); joinRoom(d.slug); } else toast(d.error || 'Erro', 'error');
       } catch(e) { toast('Erro ao criar sala', 'error'); }
