@@ -7,7 +7,7 @@
   const norm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   const count=x=>Math.max(0,Number(x)||0);
   const fmt=x=>count(x).toLocaleString('pt-BR');
-  const valid=x=>typeof x==='string'&&/^[a-z0-9][a-z0-9_-]{0,100}$/i.test(x);
+  const valid=x=>typeof x==='string'&&x.length>0&&x.length<=140&&!/[\/\\\u0000-\u001f\u007f]/.test(x); // aceita slugs antigos com acentos
   const yt=x=>typeof x==='string'&&/^[a-zA-Z0-9_-]{11}$/.test(x);
   const art={crowd:'/art-44/festival-crowd.webp',stage:'/art-44/festival-stage.webp',
     festival:'/art-41/festival-noite.webp',vinyl:'/art-44/vinyl-room.webp',
