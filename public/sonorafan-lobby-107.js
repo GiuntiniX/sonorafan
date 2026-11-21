@@ -281,7 +281,7 @@
       const description=esc(c.description||`Comunidade de fãs de ${c.artist||'música'}. Compartilhe descobertas e participe.`);
       return `<article class="sf191-club-card">
         <div class="sf191-club-visual">
-          <img src="${cover}" alt="" loading="lazy" decoding="async" data-sf107-fallback="${fallback}">
+          <img src="${esc(cover)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-sf107-fallback="${fallback}">
           <span class="sf191-club-tag">♫ ${esc(clubGenreLabel(genre))}</span>
         </div>
         <div class="sf191-club-copy">
