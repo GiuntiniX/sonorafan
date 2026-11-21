@@ -155,7 +155,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   const canEditProfile=(data,me)=>data.ownerId===me.id||activeCoAdmin(data,me);
   const member=(data,me)=>unique(data.memberIds).includes(me.id) || ownerOrAdmin(data,me);
   function cleanRooms(data){
-    return unique(data.roomSlugs).map(slug=>rooms.get(slug)).filter(r=>r&&!r.isPrivate)
+    return unique(data.roomSlugs).map(slug=>rooms.get(slug)).filter(r=>r&&!r.isPrivate&&r.slug.toLowerCase()!=='lobby')
       .map(r=>({slug:r.slug,name:r.name,listenerCount:Number(r.listenerCount)||0,
         isPlaying:!!r.isPlaying,track:r.queue?.[r.currentIndex] ? {title:clean(r.queue[r.currentIndex].title,150),artist:clean(r.queue[r.currentIndex].artist,90),
          videoId:/^[A-Za-z0-9_-]{11}$/.test(String(r.queue[r.currentIndex].id||''))?r.queue[r.currentIndex].id:null} : null}));
@@ -186,7 +186,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.get('/api/fan-clubs/room/:slug',rateLimit(50,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const room=rooms.get(clean(req.params.slug,100));
-    if(!room||room.isPrivate)return res.json({clubs:[]});
+    if(!room||room.isPrivate||room.slug.toLowerCase()==='lobby')return res.json({clubs:[]});
     try{
       const snap=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).limit(6).get();
       const clubs=snap.docs.filter(d=>!d.data()?.deleting)
@@ -1248,7 +1248,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{
       const {ref,data}=await readClub(req.params.id);
       if(!canModerate(data,me))throwHttp(403,'Somente administradores definem a sala padrão.');
-      if(slug&&(!unique(data.roomSlugs).includes(slug)||!rooms.get(slug)||rooms.get(slug).isPrivate))
+      if(slug&&(slug.toLowerCase()==='lobby'||!unique(data.roomSlugs).includes(slug)||!rooms.get(slug)||rooms.get(slug).isPrivate))
         throwHttp(400,'Selecione uma sala pública vinculada ao Fan Club.');
       await ref.update({defaultRoomSlug:slug,updatedAt:Date.now()});
       publish(req.params.id,'rooms');res.json({success:true,roomSlug:slug});
@@ -1257,8 +1257,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.post('/api/fan-clubs/:id/rooms',rateLimit(15,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const slug=String(req.body?.slug||'');const room=rooms.get(slug);
-    if(!room||room.isPrivate)return res.status(404).json({error:'Escolha uma sala pública existente.'});
-    if(room.ownerEmail!==me.email&&!adminEmails.has(me.email))return res.status(403).json({error:'Você precisa administrar a sala para vinculá-la.'});
+    if(!room||room.isPrivate||slug.toLowerCase()==='lobby')return res.status(404).json({error:'Escolha uma sala pública criada por você. O Lobby não pode ser vinculado.'});
+    if(room.ownerEmail!==me.email)return res.status(403).json({error:'Somente salas criadas por você podem ser vinculadas.'});
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
         const snap=await tx.get(ref);if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
@@ -1273,8 +1273,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.patch('/api/fan-clubs/:id/rooms/:slug',rateLimit(12,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const oldSlug=String(req.params.slug||''),slug=clean(req.body?.slug,100),room=rooms.get(slug);
-    if(!room||room.isPrivate)return res.status(400).json({error:'Selecione uma sala pública existente.'});
-    if(room.ownerEmail!==me.email&&!adminEmails.has(me.email))
+    if(!room||room.isPrivate||slug.toLowerCase()==='lobby')return res.status(400).json({error:'Selecione uma sala pública criada por você. O Lobby não pode ser vinculado.'});
+    if(room.ownerEmail!==me.email)
       return res.status(403).json({error:'Você precisa administrar a nova sala.'});
     try{
       const {ref,data}=await readClub(req.params.id);
