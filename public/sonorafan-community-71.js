@@ -432,11 +432,23 @@
  el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>🗳 Enquetes</h4>${c?.canModerate?'<button type="button" data-sf160-create-poll>＋ Criar</button>':''}</div>${state.polls.length?state.polls.map(p=>`<article class="sf160-poll"><strong>${esc(p.question)}</strong><div class="sf160-poll-options">${p.options.map((v,i)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${i}" ${p.voted||p.closed?'disabled':''}>${esc(v)} <small>${p.counts[i]||0} votos</small></button>`).join('')}</div>${p.voted?'<small>Voto registrado</small>':''}${p.closed?'<small> · Enquete encerrada</small>':''}${p.closesAt?`<small> · Termina ${new Date(p.closesAt).toLocaleDateString('pt-BR')}</small>`:''}${p.canDelete?`<button type="button" data-sf160-delete-poll="${esc(p.id)}">Excluir enquete</button>`:''}</article>`).join(''):'<p>Sem enquetes por enquanto.</p>'}</section>`;
  }else if(state.activePane==='events'){
  const events=state.clubEvents,linked=c?.events||[];
- el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>📅 Programação do Fan Club</h4>${c?.canModerate?'<button type="button" data-sf170-create-event>＋ Organizar encontro</button>':''}</div><p>Encontros da comunidade, sem precisar criar uma sala musical.</p>
- ${events.length?events.map(ev=>`<article class="sf71-club-event"><strong>${esc(ev.title)}</strong><p>${esc(ev.description||'')}</p><small>${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${ev.attendees} participantes</small><div class="sf141-event-actions"><button type="button" data-sf170-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf170-calendar="${esc(ev.id)}">Adicionar ao calendário</button>${ev.canDelete?`<button type="button" data-sf170-delete-event="${esc(ev.id)}">Cancelar</button>`:''}</div></article>`).join(''):'<p>Ainda não há encontros próprios agendados.</p>'}
- ${linked.length?'<h4>Encontros em salas públicas</h4>':''}
- ${linked.map(ev=>`<article class="sf71-club-event"><strong>${esc(ev.title)}</strong><small>${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)} · ${Number(ev.attendees)||0} participantes</small><div class="sf141-event-actions"><button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf142-club-calendar="${esc(ev.id)}">Adicionar ao calendário</button><button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Ir para a sala</button></div></article>`).join('')}
- <button type="button" data-sf170-global-events>Ver agenda geral</button></section>`;
+ el.innerHTML=`<section class="sf160-extra-panel sf202-club-agenda">
+ <div class="sf160-extra-head sf202-agenda-head"><div><span class="sf202-eyebrow">SONORAFAN · COMUNIDADE</span><h4>▦ Agenda do Fan Club</h4><p>Encontros da comunidade com salas integradas.</p></div>${c?.canModerate?'<button type="button" class="sf202-create-event" data-sf170-create-event>＋ Criar evento</button>':''}</div>
+ <div class="sf202-agenda-pills"><button type="button" data-sf170-global-events>Todos os eventos da plataforma ↗</button><span>${events.length} encontros do Fan Club</span></div>
+ ${events.length?events.map(ev=>`<article class="sf71-club-event sf202-event-card">
+ <div class="sf202-event-art"><img src="${esc(coverUrl(c))}" alt="" loading="lazy" referrerpolicy="no-referrer"></div>
+ <div class="sf202-event-main"><span class="sf202-event-kicker">♧ Fan Club · ${esc(c.title)}</span><strong>${esc(ev.title)}</strong>
+ <p>${esc(ev.description||'Encontro especial para nossa comunidade.')}</p>
+ <small>▦ ${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${ev.attendees} confirmados</small>
+ <span class="sf202-room-pill">♫ Sala vinculada: ${esc(ev.roomName||'Nenhuma sala vinculada')}</span>
+ </div><div class="sf202-event-controls"><button type="button" class="sf202-confirm" data-sf170-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Presença confirmada':'Confirmar presença'}</button>
+ ${ev.roomSlug?`<button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">♫ Entrar na sala</button>`:''}
+ <button type="button" data-sf170-calendar="${esc(ev.id)}">▦ Adicionar à agenda</button>
+ ${ev.canDelete?`<button type="button" data-sf170-delete-event="${esc(ev.id)}">Cancelar evento</button>`:''}</div>
+ </article>`).join(''):'<div class="sf202-agenda-empty"><strong>O primeiro encontro começa aqui</strong><p>Organize uma sessão para os fãs, vincule uma sala e convide a comunidade.</p>'+ (c?.canModerate?'<button type="button" data-sf170-create-event>＋ Criar primeiro evento</button>':'<button type="button" data-sf170-global-events>Explorar agenda musical</button>')+'</div>'}
+ ${linked.length?'<h4 class="sf202-linked-title">♫ Sessões em salas vinculadas</h4>':''}
+ ${linked.map(ev=>`<article class="sf71-club-event sf202-linked-event"><strong>${esc(ev.title)}</strong><small>▦ ${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)} · ${Number(ev.attendees)||0} participantes</small><div class="sf141-event-actions"><button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf142-club-calendar="${esc(ev.id)}">Adicionar à agenda</button><button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Entrar na sala</button></div></article>`).join('')}
+ </section>`;
  }
  else if(state.activePane==='members'){
  const rank=state.contributors;
@@ -471,7 +483,7 @@
        <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['mural','Mural'],['polls','Enquetes'],['events','Eventos'],['members','Membros']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='mural'}">${label}</button>`).join('')}</nav>
         <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
          ${c.owner?'<button type="button" data-sf160-pane="members">👑 Administradores do Fan Club</button>':''}
-         <button type="button" data-sf170-show-events>📅 Ver eventos</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
+         <button type="button" class="sf202-club-agenda-link" data-sf170-show-events>▦ Agenda do Fan Club</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 Alterar capa</button><button type="button" data-sf73-remove-cover>Usar capa padrão</button>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Fórum da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
@@ -610,11 +622,10 @@
    },'Resposta escolhida e dúvida resolvida.');return;
  }
  if(t.hasAttribute('data-sf170-create-event')){
-   modal('Organizar encontro da comunidade','<label>Título<input name="title" minlength="5" maxlength="90" required></label><label>Descrição<textarea name="description" maxlength="300"></textarea></label><label>Data e horário<input type="datetime-local" name="startAt" required></label><label>Duração<select name="durationMinutes"><option value="30">30 min</option><option value="60" selected>1 hora</option><option value="90">1h30</option><option value="120">2 horas</option></select></label>',async fd=>{
-     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/events',{title:fd.get('title'),description:fd.get('description'),startAt:new Date(fd.get('startAt')).getTime(),durationMinutes:Number(fd.get('durationMinutes'))});return true;
-   },async()=>{await loadExtras(id);switchPane('events');status('Encontro agendado.');});return;
- }
- if(t.hasAttribute('data-sf170-rsvp')){
+   if(typeof window.sf200CreateEvent==='function'){window.sf200CreateEvent(id);return;}
+   window.sf200OpenAgenda?.();return;
+  }
+  if(t.hasAttribute('data-sf170-rsvp')){
    await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/events/'+encodeURIComponent(t.dataset.sf170Rsvp)+'/rsvp',{going:t.dataset.going==='true'});await loadExtras(id);},'Presença atualizada.');return;
  }
  if(t.hasAttribute('data-sf170-delete-event')){
