@@ -202,8 +202,11 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(!room||room.isPrivate||room.slug.toLowerCase()==='lobby')return res.json({clubs:[]});
     try{
       // Consultar por array; em documentos legados, reconciliar pelo registro persistido.
-      const direct=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).limit(100).get();
-      let docs=direct.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug));
+      let docs=[];
+      try{
+        const direct=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).limit(100).get();
+        docs=direct.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug));
+      }catch(e){console.warn('[Fanclubs] room lookup using collection fallback:',e.message);}
       if(!docs.length){
         const all=await db.collection(CLUBS).limit(500).get();
         docs=all.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug));
