@@ -963,8 +963,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         try{
           const snap=await d.ref.collection('events').orderBy('startAt','asc').limit(40).get();
           return snap.docs.filter(e=>Number(e.data()?.startAt)>=now&&Number(e.data()?.startAt)<now+24*3600000
-            &&unique(e.data()?.attendeeIds).includes(id)).map(e=>{
-              const slug=e.data()?.roomSlug,room=rooms.get(slug);
+            &&unique(e.data()?.attendeeIds).includes(id)&&e.data()?.remindStart!==false).map(e=>{
+              const slug=e.data()?.roomSlug,room=e.data()?.sendRoomLink===false?null:rooms.get(slug);
               return {id:'fanclub-event-'+d.id+'-'+e.id,type:'event',title:'Evento do Fan Club chegando',
                 message:clean(e.data().title,70)+' · '+new Date(e.data().startAt).toLocaleString('pt-BR')+
                   (room&&!room.isPrivate?' · Sala: '+clean(room.name,60):''),
@@ -996,6 +996,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const title=clean(req.body?.title,90),description=clean(req.body?.description,300),startAt=Number(req.body?.startAt);
     const durationMinutes=[30,60,90,120].includes(Number(req.body?.durationMinutes))?Number(req.body.durationMinutes):60;
     const roomSlug=clean(req.body?.roomSlug,100);
+    const notifyMembers=req.body?.notifyMembers!==false,sendRoomLink=req.body?.sendRoomLink!==false,remindStart=req.body?.remindStart!==false;
     if(title.length<5||!Number.isSafeInteger(startAt)||startAt<Date.now()+300000||startAt>Date.now()+90*86400000)
       return res.status(400).json({error:'Informe título e data entre 5 minutos e 90 dias no futuro.'});
     try{
@@ -1004,9 +1005,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(roomSlug&&(!unique(data.roomSlugs).includes(roomSlug)||!rooms.has(roomSlug)||rooms.get(roomSlug).isPrivate))
         throwHttp(400,'Escolha uma sala pública vinculada a este Fan Club.');
       const doc=ref.collection('events').doc();
-      await doc.create({title,description,startAt,durationMinutes,roomSlug,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
+      await doc.create({title,description,startAt,durationMinutes,roomSlug,notifyMembers,sendRoomLink,remindStart,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
       publish(req.params.id,'events');res.status(201).json({id:doc.id});
-      notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title+(roomSlug?' · Sala: '+clean(rooms.get(roomSlug)?.name,80):'')+'. Confirme presença na Agenda Musical.',roomSlug});
+      if(notifyMembers)notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title+(sendRoomLink&&roomSlug?' · Sala: '+clean(rooms.get(roomSlug)?.name,80):'')+'. Confirme presença na Agenda Musical.',roomSlug:sendRoomLink?roomSlug:''});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/events/:eventId/rsvp',rateLimit(20,60000),async(req,res)=>{
