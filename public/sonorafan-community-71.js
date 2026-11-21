@@ -744,7 +744,7 @@
      return;
    }
    if(t.hasAttribute('data-sf170-show-events')){switchPane('events');return;}
-    if(t.hasAttribute('data-sf170-global-events')){window.sfSocialSwitchTab?.('events');return;}
+    if(t.hasAttribute('data-sf170-global-events')){if(typeof window.sf200OpenAgenda==='function'){document.querySelector('.sf5-community-layer .sf5-close')?.click();window.sf200OpenAgenda();}else window.sfSocialSwitchTab?.('events');return;}
    if(t.hasAttribute('data-sf151-like')){
      const postId=t.dataset.sf151Like;
      await action(async()=>{
