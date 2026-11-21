@@ -181,9 +181,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const room=rooms.get(clean(req.params.slug,100));
     if(!room||room.isPrivate)return res.json({clubs:[]});
     try{
-      const snap=await db.collection(CLUBS).limit(200).get();
-      const clubs=snap.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug))
-        .slice(0,6).map(d=>({...record(d.data(),d.id),primary:d.data().defaultRoomSlug===room.slug}));
+      const snap=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).limit(6).get();
+      const clubs=snap.docs.filter(d=>!d.data()?.deleting)
+        .map(d=>({...record(d.data(),d.id),primary:d.data().defaultRoomSlug===room.slug}));
       res.json({clubs});
     }catch(e){error(res,e);}
   });
