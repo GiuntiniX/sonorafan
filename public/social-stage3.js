@@ -9,7 +9,7 @@ const peer=id=>typeof id==='string'&&/^[a-f0-9]{24}$/i.test(id);
 const room=id=>typeof id==='string'&&id.length>1&&id.length<150;
 const club=id=>typeof id==='string'&&/^[a-f0-9-]{36}$/i.test(id);
 const types={message:['✉','Mensagem privada'],mention:['@','Menção ou resposta'],
- invite:['♧','Convite'],follow:['♡','Seguidor'],event:['▦','Evento'],fanclub:['♧','Fan Club']};
+ invite:['♧','Convite'],follow:['♡','Solicitação de amizade'],event:['▦','Evento'],fanclub:['♧','Fan Club']};
 const state={alerts:[],drawer:null,filter:'all',busy:false,inInvite:false,loading:false,
  lastFetch:0,pending:false,previousFocus:null};
 const navButton=el('button','sf15-bell','🔔 Notificações');
@@ -248,7 +248,7 @@ function paint(){
   const actions=el('div','sf15-actions sf111-item-actions');
   const label=a.type==='message'?'Abrir conversa':a.type==='mention'?'Ver na sala':
               a.roomSlug?'Entrar na sala':a.fanClubId?'Abrir Fan Club':
-              a.type==='follow'?'Ver amigos':'Ver detalhes';
+              a.type==='follow'?'Ver solicitações':'Ver detalhes';
   const go=el('button','sf111-primary',label);go.type='button';go.addEventListener('click',()=>navigate(a));actions.append(go);
   if(!a.read){
    const mark=el('button','sf111-mark','Marcar lida');mark.type='button';
