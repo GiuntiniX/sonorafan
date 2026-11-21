@@ -283,7 +283,7 @@
      ${p.pinned?'<span class="sf151-pin-label">📌 Destaque da comunidade</span>':''}
      <button type="button" class="sf600-topic-title" data-sf600-open="${esc(p.id)}">${esc(p.title||String(p.text||'').slice(0,95)||'Discussão da comunidade')}</button>
      <div class="sf600-tags">${(p.tags||[]).map(tag=>`<button type="button" data-sf600-tag="${esc(tag)}">#${esc(tag)}</button>`).join('')}</div>
-     <p>${esc(p.text)}</p>${p.hasImage?`<img class="sf170-post-image" loading="lazy" alt="Foto anexada à publicação" src="/api/fan-clubs/${encodeURIComponent(state.activeId)}/posts/${encodeURIComponent(p.id)}/image">`:''}
+     <p>${esc(p.text)}</p>${safeUrl(p.imageUrl)?`<img class="sf170-post-image" loading="lazy" referrerpolicy="no-referrer" alt="Imagem da publicação" src="${esc(safeUrl(p.imageUrl))}">`:p.hasImage?`<img class="sf170-post-image" loading="lazy" alt="Imagem antiga" src="/api/fan-clubs/${encodeURIComponent(state.activeId)}/posts/${encodeURIComponent(p.id)}/image">`:''}
      ${p.editedAt?'<small class="sf180-edited">✎ Publicação editada</small>':''}
      ${question?`<div class="sf180-question-status" role="status">${p.resolved?'✓ Dúvida respondida':'⌛ Aguardando respostas'}</div>`:''}
      <div class="sf151-post-actions">
@@ -740,7 +740,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
          ${c.joined?`<div class="sf227-composer-bar"><span class="sf227-composer-icon">♫</span><button type="button" data-sf227-compose>Compartilhar algo com a comunidade...</button><button type="button" aria-label="Publicar foto" data-sf227-photo>▧</button><button type="button" aria-label="Agenda" data-sf160-pane="events">▦</button><button type="button" aria-label="Enquetes" data-sf160-pane="polls">▤</button><button type="button" class="sf227-compose-main" data-sf227-compose>Publicar</button></div>`:''}
          ${c.joined?`<form id="sf71PostForm" class="sf227-composer-collapsed"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf600Title">Título da discussão<input id="sf600Title" name="title" maxlength="110" minlength="6" required placeholder="Resuma sua discussão em um título"></label>
          <label for="sf600Tags">Tags (separadas por vírgula, até cinco)<input id="sf600Tags" name="tags" maxlength="140" placeholder="show, ingressos, turnê"></label>
-         <label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImage">📷 Foto opcional (JPG, PNG ou WebP)</label><input id="sf170PostImage" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Foto da publicação"><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option><option value="active">Recentemente ativos</option><option value="unanswered">Dúvidas sem resposta</option><option value="saved">Meus favoritos</option><option value="unread">Não lidos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button>
+         <label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImageUrl">📷 URL HTTPS da imagem (opcional)</label><input id="sf170PostImageUrl" name="imageUrl" type="url" maxlength="1500" placeholder="https://exemplo.com/imagem.webp" aria-label="Endereço HTTPS da imagem"><small>Use um link direto para uma imagem pública.</small><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option><option value="active">Recentemente ativos</option><option value="unanswered">Dúvidas sem resposta</option><option value="saved">Meus favoritos</option><option value="unread">Não lidos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button>
          <button type="button" data-sf600-search>🔎 Buscar no histórico completo</button></div><div id="sf180ForumCounts" class="sf180-forum-counts" aria-label="Filtrar por categorias"></div><div id="sf180FeedSummary" class="sf180-feed-summary" aria-live="polite"></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </div><div id="sf160Extras" aria-live="polite"></div></section><div class="sf227-side sf227-right"><aside id="sf227Right" aria-label="Novidades e assuntos em destaque"></aside><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div></div>`;
      renderSocialWidgets();
@@ -793,7 +793,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
   if(t.hasAttribute('data-sf227-compose')||t.hasAttribute('data-sf227-photo')){
     const form=$('sf71PostForm');if(!form)return;
     form.classList.remove('sf227-composer-collapsed');
-    if(t.hasAttribute('data-sf227-photo'))$('sf170PostImage')?.click();
+    if(t.hasAttribute('data-sf227-photo'))$('sf170PostImageUrl')?.focus({preventScroll:true});
     else $('sf600Title')?.focus({preventScroll:true});
     form.scrollIntoView({behavior:'smooth',block:'nearest'});
     return;
@@ -1240,14 +1240,14 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
  if(e.target.id!=='sf71PostForm')return;e.preventDefault();const id=state.activeId,text=$('sf71PostText').value.trim();if(text.length<3)return;
      const submit=e.target.querySelector('[type="submit"]');submit.disabled=true;
      try{
-        const file=$('sf170PostImage')?.files?.[0];
-        const blob=file?await compressPostPhoto(file):null;
+        const imageInput=String($('sf170PostImageUrl')?.value||'').trim();
+         const imageUrl=imageInput?safeUrl(imageInput):'';
+         if(imageInput&&!imageUrl)throw Error('A imagem precisa ter uma URL HTTPS pública válida.');
         const title=String($('sf600Title')?.value||'').trim();
          const tags=String($('sf600Tags')?.value||'').split(',').map(t=>t.trim()).filter(Boolean);
-         const result=await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts',{text,title,tags,topic:$('sf170Topic')?.value||'conversa'});
-        if(blob&&result.post?.id)await uploadPostPhoto(id,result.post.id,blob);
+         const result=await post('/api/fan-clubs/'+encodeURIComponent(id)+'/posts',{text,title,tags,topic:$('sf170Topic')?.value||'conversa',imageUrl});
         $('sf71PostText').value='';if($('sf600Title'))$('sf600Title').value='';if($('sf600Tags'))$('sf600Tags').value='';
-         if($('sf170PostImage'))$('sf170PostImage').value='';
+         if($('sf170PostImageUrl'))$('sf170PostImageUrl').value='';
           $('sf71PostForm')?.classList.add('sf227-composer-collapsed');
         await loadPosts(id);
       }
