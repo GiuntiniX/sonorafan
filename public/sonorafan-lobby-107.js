@@ -177,7 +177,7 @@
     const media=coverImage(r),video=media.src;
     const frame=coverFrame(r);
     host.innerHTML=`<section class="sf107-feature${top?' sf107-top':''}">
-      <div class="sf107-feature-image"></div><div class="sf107-feature-content">
+      <div class="sf107-feature-image"><img data-sf107-cover src="${esc(media.src)}" data-fallback="${esc(media.fallback)}" data-art="${esc(media.art)}" style="object-position:${frame.x}% ${frame.y}%;transform-origin:${frame.x}% ${frame.y}%;--sf107-cover-zoom:${media.custom?frame.zoom:1}" alt="" loading="lazy" decoding="async"></div><div class="sf107-feature-content">
         <div class="sf107-feature-badges"><span class="sf107-status">${r.isPlaying?'◉ AO VIVO':'♫ SALA DISPONÍVEL'}</span>
           ${top?'<span class="sf107-top-label">♛ Maior audiência agora</span>':''}</div>
         <h2>${esc(r.name||'Sala SonoraFan')}</h2><p>Sala pública · ${esc(genreFor(r))}</p>
@@ -196,6 +196,7 @@
       feature.style.setProperty('--sf107-feature-position',frame.x+'% '+frame.y+'%');
       feature.style.setProperty('--sf107-feature-zoom',String(media.custom?frame.zoom:1));
     }
+    imageFallback(host);
   }
   function renderRecent(){
     const host=$('sf107Recent');if(!host)return;
