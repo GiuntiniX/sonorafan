@@ -95,10 +95,15 @@
    const type=x.type||x.scope||'Mensagem';
    const description=x.reason||x.description||x.message||x.content||'Detalhes disponíveis no registro original';
    const created=x.createdAt||x.t;
-   const user=x.reporterName||x.reporter||x.userName||'Identificação restrita';
    const canResolve=/^[a-f0-9-]{36}$/i.test(id);
-   return '<article class="sf13-item"><h4>'+esc(type)+' · '+esc(status==='resolved'?'Resolvida':'Pendente')+'</h4>'+
-    '<p>'+esc(description)+'</p><div class="sf13-inline-meta"><span>Registro: '+esc(id)+'</span><span>'+esc(user)+'</span><span>'+esc(fmt(created))+'</span></div>'+
+   const validPerson=pid=>typeof pid==='string'&&/^[a-f0-9]{24}$/i.test(pid);
+   const person=(label,name,pid)=>'<div class="sf13-report-person"><span>'+label+': <strong>'+esc(name||'Identificação indisponível')+'</strong></span>'+
+      (validPerson(pid)?'<button type="button" data-sf13-contact="'+esc(pid)+'" data-sf13-contact-name="'+esc(name||'Participante')+'">✉ Conversar no privado</button>':'')+'</div>';
+   return '<article class="sf13-item"><h4>'+esc(type==='dm'?'Mensagem privada':type==='room'?'Mensagem pública':type)+' · '+esc(status==='resolved'?'Resolvida':'Pendente')+'</h4>'+
+    person('Quem denunciou',x.reporterName,x.reporterId)+
+    person('Pessoa denunciada',x.reportedName,x.reportedId)+
+    '<p>'+esc(x.evidenceText||description)+'</p><small>Motivo: '+esc(x.reason||'Não informado')+'</small>'+
+    '<div class="sf13-inline-meta"><span>Registro: '+esc(id)+'</span><span>'+esc(fmt(created))+'</span></div>'+
     (canResolve?'<button data-sf13-report="'+esc(id)+'" data-status="'+(status==='resolved'?'open':'resolved')+'">'+(status==='resolved'?'Reabrir denúncia':'Marcar como resolvida')+'</button>':'')+'</article>';
   }).join('')||'<div class="sf13-skeleton-empty">Nenhuma denúncia neste filtro.</div>');
  }
@@ -153,6 +158,14 @@
  };
  window.sf13Overview=overview;
  panel.addEventListener('click',async e=>{
+  const contact=e.target.closest('[data-sf13-contact]');
+  if(contact){
+   const id=contact.dataset.sf13Contact;
+   if(!/^[a-f0-9]{24}$/.test(id))return;
+   window.closeAdmin?.();
+   await window.sf53OpenInbox?.(id,contact.dataset.sf13ContactName||'Participante');
+   return;
+  }
   const report=e.target.closest('[data-sf13-report]');
   if(report){
    const id=report.dataset.sf13Report, status=report.dataset.status;
