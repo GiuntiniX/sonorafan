@@ -21,7 +21,7 @@
     // global de músicas. A identidade continua vindo do sistema sf88.
     const id=enabled?String(screen.dataset.roomTheme||''):'';
     const legacy=/^(?:indie|metal|emo|mpb|eletronica|rock|pop|rap|funk|pagode|sertanejo|reggae|jazz|forro)$/.test(id);
-    const extra=/^(?:bts|kpop|jpop|trap|lofi|cor-preto|cor-vermelho|cor-azul|cor-verde|cor-roxo|cor-rosa|cor-dourado)$/.test(id);
+    const extra=/^(?:bts|kpop|jpop|trap|lofi|cor-preto|cor-vermelho|cor-azul|cor-verde|cor-roxo|cor-rosa|cor-dourado|kpop-sakura-arena|bts-purple-monument|jpop-tokyo-night|trap-crown-stage|lofi-golden-listening|lofi-moonlight-live|kpop-cherry-city|bts-lights-festival|jpop-fuji-stage|trap-street-crown|lofi-riverside|lofi-acoustic-garden)$/.test(id);
     if(legacy||extra){
       root.dataset.sf143Theme=id;
       const art=extra?screen.style.getPropertyValue('--sf88-art').trim():'url("/themes/atmospheres/'+id+'.svg")';
