@@ -277,9 +277,9 @@
  function postHtml(p){
    const type=topicFor(p.topic),question=(p.topic==='duvida');
    return `<article class="sf71-post sf180-post sf180-type-${type.css} ${p.pinned?'sf151-pinned':''} ${p.resolved?'sf180-resolved':''}" data-sf71-post="${esc(p.id)}">
-     <div class="sf180-post-meta"><span class="sf180-topic-label">${type.icon} ${type.title}</span><small>${type.description}</small></div>
-     ${p.pinned?'<span class="sf151-pin-label">📌 Destaque da comunidade</span>':''}
      <div class="sf71-post-head"><span class="sf228-author-avatar">${socialAvatar((state.detail?.club?.members||[]).find(m=>m.id===p.authorId)||{avatar:"🎧",name:p.authorName})}</span><span class="sf228-author-meta"><strong>${esc(p.authorName)}</strong><time>${new Date(Number(p.createdAt)||Date.now()).toLocaleString('pt-BR')}</time></span></div>
+     <div class="sf180-post-meta"><span class="sf180-topic-label">${type.icon} ${type.title}</span></div>
+     ${p.pinned?'<span class="sf151-pin-label">📌 Destaque da comunidade</span>':''}
      <button type="button" class="sf600-topic-title" data-sf600-open="${esc(p.id)}">${esc(p.title||String(p.text||'').slice(0,95)||'Discussão da comunidade')}</button>
      <div class="sf600-tags">${(p.tags||[]).map(tag=>`<button type="button" data-sf600-tag="${esc(tag)}">#${esc(tag)}</button>`).join('')}</div>
      <p>${esc(p.text)}</p>${p.hasImage?`<img class="sf170-post-image" loading="lazy" alt="Foto anexada à publicação" src="/api/fan-clubs/${encodeURIComponent(state.activeId)}/posts/${encodeURIComponent(p.id)}/image">`:''}
