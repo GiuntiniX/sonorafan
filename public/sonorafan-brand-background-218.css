@@ -1,0 +1,68 @@
+/* SonoraFan · Brand background guide 218
+   Cor-base compartilhada por todas as superfícies e rotas.
+   As ilustrações temáticas, capas e artes continuam intactas.
+*/
+:root{
+ --sf-brand-bg:#100b16;
+ --sf-brand-bg-rgb:16,11,22;
+ --sf-brand-surface:#1c1325;
+ --sf-brand-surface-raised:#291b32;
+ --sf-brand-border:#503559;
+ color-scheme:dark;
+}
+html,body{background-color:var(--sf-brand-bg)!important}
+body>.screen,
+#landingScreen,
+#loginScreen,
+#screen-lobby,
+#screen-room{background-color:var(--sf-brand-bg)!important}
+#screen-lobby .sf28-lobby-app,
+#screen-lobby .sf28-lobby-main,
+#screen-lobby.sf125-platform .sf28-lobby-app.sf125-app,
+#screen-lobby.sf125-platform .sf125-main,
+#screen-lobby.sf125-platform .sf125-sidebar,
+#screen-lobby .sf107-dashboard,
+#screen-lobby .sf107-content,
+#screen-lobby #sf216Explorer,
+#screen-lobby .sf216-page,
+#screen-room .app,
+#screen-room .room-layout,
+#screen-room .room-main,
+#screen-room .room-content,
+#screen-room .room-container,
+#screen-room .room-shell {
+ background-color:var(--sf-brand-bg)!important;
+}
+#screen-room .header,
+#screen-lobby .header,
+#screen-lobby .sf125-toolbar.sf107-top{
+ background-color:var(--sf-brand-bg)!important;
+}
+/* Páginas montadas sobre o lobby: perfil, comunidade, ranking e agenda. */
+#screen-lobby .sf207-profile-page,
+#screen-lobby .sf207-secondary-page,
+#screen-lobby .sf43-profile-page,
+#screen-lobby .sf202-profile-overview,
+#screen-lobby .sf112-library,
+#screen-lobby .sf200-agenda-page,
+#screen-lobby .sf126-clubs-page,
+#screen-lobby .sf110-community-page {
+ background-color:var(--sf-brand-bg)!important;
+}
+/* Superfícies de leitura usam o mesmo tom-base, mantendo cartões
+   e elementos interativos com elevação sutil em vez de cores aleatórias. */
+#screen-room .chat-messages,
+#screen-room .chat-messages-inner,
+#screen-room .sf113-chat-body,
+#screen-room .sf113-player-shell,
+#screen-room .sf113-queue-shell{background-color:var(--sf-brand-bg)}
+/* Temas escolhidos pelo usuário seguem aplicando suas cores e capas
+   dentro de elementos temáticos — somente o canvas da aplicação é fixo. */
+#screen-room[data-room-theme] .sf88-scene,
+#screen-room[data-room-theme] [style*="--sf88-art"],
+#screen-room[data-room-theme] .sf143-room-scene{
+ background-color:transparent;
+}
+@media(prefers-color-scheme:light){
+ html,body,#screen-lobby,#screen-room{background-color:var(--sf-brand-bg)!important}
+}
