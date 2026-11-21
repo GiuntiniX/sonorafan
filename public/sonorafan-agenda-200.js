@@ -299,7 +299,7 @@ async function createEvent(preferredClub='',editing=null){
     if(![...select.options].some(o=>o.value===targetId)){
      const option=document.createElement('option');option.value=targetId;option.textContent=editing.clubName||editing.roomName||'Evento existente';select.append(option);
     }
-    select.value=targetId;select.disabled=true;
+    select.value=targetId;select.disabled=editing.type==='fanclub';
    }
    loadClubRooms();
  };
