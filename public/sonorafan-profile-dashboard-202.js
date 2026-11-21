@@ -64,6 +64,8 @@
      '<section class="sf202-panel sf202-profile-shortcuts"><header><h2>✦ Acesso rápido</h2></header><button type="button" data-sf202-agenda>▦ Abrir Agenda Musical</button>'+
      '<button type="button" data-sf202-discover>♧ Descobrir Fan Clubs</button><button type="button" data-sf202-create-club>＋ Criar Fan Club</button></section>'+
      '</aside></div>';
+   const actual=$('sf43ProfileAvatar');const target=host.querySelector('.sf202-profile-avatar');
+   if(actual&&target){const picture=actual.querySelector('img');if(picture){const clone=picture.cloneNode(true);clone.alt='';target.replaceChildren(clone);}else if(actual.style.backgroundImage&&actual.style.backgroundImage!=='none'){target.style.backgroundImage=actual.style.backgroundImage;target.textContent='';}}
  }
  async function load(){
    const current=++state.request,host=$('sf202ProfileOverview');if(!host)return;
