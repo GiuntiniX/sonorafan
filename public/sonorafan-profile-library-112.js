@@ -48,11 +48,12 @@
     nav.className='sf112-tabs';nav.id='sf112Tabs';
     nav.setAttribute('aria-label','Áreas do perfil musical');
     nav.innerHTML=[
-      ['profile','◉ Meu Perfil'],['achievements','✦ Minha Jornada'],
+      ['overview','▦ Visão geral'],['profile','◉ Editar perfil'],['achievements','✦ Minha Jornada'],
       ['library','▣ Minha Biblioteca'],['dna','◈ Meu DNA'],
       ['community','♧ Comunidade'],['avatars','◉ Avatares']
     ].map(([id,label])=>'<button type="button" data-sf112-tab="'+id+'" aria-pressed="false">'+label+'</button>').join('');
-    const lib=document.createElement('section');lib.id='sf112Library';lib.className='sf112-library';lib.hidden=true;
+    const overview=document.createElement('section');overview.id='sf202ProfileOverview';overview.className='sf202-profile-overview';overview.hidden=true;
+     const lib=document.createElement('section');lib.id='sf112Library';lib.className='sf112-library';lib.hidden=true;
     lib.setAttribute('aria-label','Minha biblioteca musical');
     lib.innerHTML=`<div class="sf112-heading">
        <div><span>SONORAFAN · BIBLIOTECA</span><h2>Seu acervo musical</h2>
@@ -102,8 +103,8 @@
     community.id='sf600Community';community.className='sf600-community';community.hidden=true;
     community.innerHTML='<header><span>SONORAFAN · FÓRUM 6.0</span><h2>♧ Minhas comunidades</h2><p>Seus Fan Clubs, sua reputação e sua participação no Fórum.</p></header><div id="sf600CommunityBody" aria-live="polite"></div>';
     const hero=root.querySelector('.sf43-profile-hero');
-    if(hero)hero.after(nav,lib,dna,achievements,community);
-    else root.prepend(nav,lib,dna,achievements,community);
+    if(hero)hero.after(nav,overview,lib,dna,achievements,community);
+    else root.prepend(nav,overview,lib,dna,achievements,community);
     nav.addEventListener('click',e=>{const b=e.target.closest('[data-sf112-tab]');if(b)select(b.dataset.sf112Tab);});
     lib.addEventListener('click',onClick);
     achievements.addEventListener('click',onJourneyClick);
@@ -119,15 +120,15 @@
       }
     },true);
     panel().classList.add('sf112-ready');
-    select('profile',false);
+    select('overview',false);
   }
   function select(tab,fetchData=true){
-    if(!['profile','library','dna','achievements','community','avatars'].includes(tab))tab='profile';
+    if(!['overview','profile','library','dna','achievements','community','avatars'].includes(tab))tab='overview';
     state.tab=tab;
     const m=panel();if(!m)return;
-    m.classList.remove('sf112-tab-profile','sf112-tab-library','sf112-tab-dna','sf112-tab-achievements','sf112-tab-community','sf112-tab-avatars');
+    m.classList.remove('sf112-tab-overview','sf112-tab-profile','sf112-tab-library','sf112-tab-dna','sf112-tab-achievements','sf112-tab-community','sf112-tab-avatars');
     m.classList.add('sf112-tab-'+tab);
-    for(const [id,selected] of [['sf112Library',tab==='library'],['sf112DNA',tab==='dna'],
+    for(const [id,selected] of [['sf202ProfileOverview',tab==='overview'],['sf112Library',tab==='library'],['sf112DNA',tab==='dna'],
                                ['sf112AchievementsHeader',tab==='achievements'],['sf600Community',tab==='community']]){
       if($(id))$(id).hidden=!selected;
     }
@@ -144,12 +145,13 @@
       renderJourney();
       if(fetchData&&(!state.journey||Date.now()-(state.journeyFetched||0)>25000))loadJourney();
     }
+    if(tab==='overview')window.sf202RefreshProfile?.();
     if(tab==='avatars'){
       window.sf108AvatarRefresh?.();
       document.getElementById('sf600AvatarSearch')?.focus({preventScroll:true});
     }
   }
-  function open(tab='profile'){
+  function open(tab='overview'){
     build();
     state.opening=tab;
     if(!profileOpen()) {
