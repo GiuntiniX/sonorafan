@@ -250,3 +250,13 @@
 .sf201-create-dialog .sf201-create-space:hover{border-color:#caff00;color:#dfff8a}
 #screen-lobby .sf200-agenda .sf200-dialog .sf201-delete{background:#4c2033;border:1px solid #c06e91;color:#ffd7e6;padding:10px 15px;min-height:42px;border-radius:999px;justify-self:start;font-size:12px;font-weight:850;cursor:pointer}
 #screen-lobby .sf200-agenda .sf200-dialog .sf201-delete:hover{background:#652a43}
+
+
+#screen-lobby .sf200-agenda .sf201-calendar-dots{display:flex;align-items:center;justify-content:center;gap:4px;min-height:11px;padding:0}
+#screen-lobby .sf200-agenda .sf201-calendar-dots i{display:block;width:7px;height:7px;border-radius:50%;background:#e970f6}
+#screen-lobby .sf200-agenda .sf201-calendar-dots i.sf201-dot-room{background:#caff00}
+#screen-lobby .sf200-agenda .sf200-calendar-grid button.selected .sf201-calendar-dots i.sf201-dot-room{background:#213012}
+#screen-lobby .sf200-agenda .sf200-calendar-grid button.selected .sf201-calendar-dots i.sf201-dot-club{background:#8c249d}
+#screen-lobby .sf200-agenda .sf200-legend span:nth-child(1){color:#e970f6}
+#screen-lobby .sf200-agenda .sf200-legend span:nth-child(2){color:#caff00}
+#screen-lobby .sf200-agenda .sf200-legend span:nth-child(3){color:#d3bddd}
