@@ -144,7 +144,8 @@
 #sf71ClubDetail .sf160-tabs{margin-bottom:9px!important}
 #sf71ClubDetail .sf227-composer-bar{margin-bottom:10px}
 #sf71ClubDetail #sf180ForumCounts{margin:3px 0}
-#sf71ClubDetail #sf180ForumCounts::before{content:'Todas';display:inline-grid;place-items:center;min-height:34px;padding:0 12px;border-radius:999px;color:#1b1715;background:#caff19;font-weight:850;font-size:11px;white-space:nowrap}
+#sf71ClubDetail #sf180ForumCounts::before{display:none!important}
+#sf71ClubDetail #sf180ForumCounts [data-sf180-filter="all"][aria-pressed="true"]{background:#caff19!important;color:#171619!important;border-color:#caff19!important}
 #sf71ClubDetail #sf71Posts .sf180-post{
   background:linear-gradient(125deg,#321b3d,#1d1027 88%)!important;
   border:1px solid #6e467b!important;border-left:1px solid #6e467b!important;
