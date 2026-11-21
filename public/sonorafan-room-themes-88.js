@@ -7,7 +7,7 @@
  let themes=[FALLBACK], byId=new Map([[FALLBACK.id,FALLBACK]]);
  let roomSlug='',sharedTheme='geral',personalOverride=null,mayEdit=false;
  let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null;
- const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro','bts','kpop','jpop','trap','lofi']);
+ const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro','bts','kpop','jpop','trap','lofi','cor-preto','cor-vermelho','cor-azul','cor-verde','cor-roxo','cor-rosa','cor-dourado']);
  const safe=id=>KNOWN_THEMES.has(id)?id:'geral';
  const find=id=>byId.get(safe(id))||FALLBACK;
  const storageKey=slug=>'sf88:theme:'+slug;
@@ -120,7 +120,19 @@
  function drawModal(){
    const grid=$('sf88ThemeCards');
    if(!grid)return;
-   grid.replaceChildren(...themes.map(t=>card(t,modalMode)));
+   const illustrated=themes.filter(t=>t.type!=='color'),colors=themes.filter(t=>t.type==='color');
+   const heading=(name,caption)=>{
+     const h=document.createElement('div');h.className='sf88-group-heading';h.setAttribute('role','presentation');
+     const title=document.createElement('strong');title.textContent=name;
+     const small=document.createElement('small');small.textContent=caption;
+     h.append(title,small);return h;
+   };
+   grid.replaceChildren(
+     heading('🎪 Atmosferas ilustradas','Cenários musicais e festivais com arte própria'),
+     ...illustrated.map(t=>card(t,modalMode)),
+     heading('🎨 Temas por cor','Escolha uma paleta para chat, fila e player'),
+     ...colors.map(t=>card(t,modalMode))
+   );
    updateSelection();
    const title=$('sf88ThemeModalTitle');
    if(title)title.textContent=modalMode==='create'?'Tema da nova sala':modalMode==='edit'?'Personalizar o tema da sala':'Escolha sua atmosfera';
@@ -265,13 +277,20 @@
    reggae:['/themes/final-170/reggae.webp','/themes/final-170/reggae-thumb.webp'],
    jazz:['/themes/final-170/jazz.webp','/themes/final-170/jazz-thumb.webp'],
    forro:['/themes/final-170/forro.webp','/themes/final-170/forro-thumb.webp'],
-   bts:['/themes/new-190/bts.svg','/themes/new-190/bts.svg'],
-   kpop:['/themes/new-190/kpop.svg','/themes/new-190/kpop.svg'],
-   jpop:['/themes/new-190/jpop.svg','/themes/new-190/jpop.svg'],
-   trap:['/themes/new-190/trap.svg','/themes/new-190/trap.svg'],
-   lofi:['/themes/new-190/lofi.svg','/themes/new-190/lofi.svg']
+   bts:['/themes/festival-214/bts.svg','/themes/festival-214/bts.svg'],
+   kpop:['/themes/festival-214/kpop.svg','/themes/festival-214/kpop.svg'],
+   jpop:['/themes/festival-214/jpop.svg','/themes/festival-214/jpop.svg'],
+   trap:['/themes/festival-214/trap.svg','/themes/festival-214/trap.svg'],
+   lofi:['/themes/festival-214/lofi.svg','/themes/festival-214/lofi.svg'],
+   cor-preto:['/themes/colors-214/cor-preto.svg','/themes/colors-214/cor-preto.svg'],
+   cor-vermelho:['/themes/colors-214/cor-vermelho.svg','/themes/colors-214/cor-vermelho.svg'],
+   cor-azul:['/themes/colors-214/cor-azul.svg','/themes/colors-214/cor-azul.svg'],
+   cor-verde:['/themes/colors-214/cor-verde.svg','/themes/colors-214/cor-verde.svg'],
+   cor-roxo:['/themes/colors-214/cor-roxo.svg','/themes/colors-214/cor-roxo.svg'],
+   cor-rosa:['/themes/colors-214/cor-rosa.svg','/themes/colors-214/cor-rosa.svg'],
+   cor-dourado:['/themes/colors-214/cor-dourado.svg','/themes/colors-214/cor-dourado.svg']
  });
- const themeRevision='190';
+ const themeRevision='214';
  const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
  fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'no-store'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
