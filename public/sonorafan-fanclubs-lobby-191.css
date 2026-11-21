@@ -21,7 +21,7 @@
 #screen-lobby .sf191-club-search:focus-within{border-color:#da78c1;box-shadow:0 0 0 2px #e56caa30}
 #screen-lobby .sf191-club-search input{
   width:100%;min-width:0;background:none!important;border:none!important;box-shadow:none!important;
-  color:#fff!important;font:500 12px/1.3 inherit;outline:none!important;
+  color:#fff!important;font-family:inherit;font-size:12px;font-weight:500;line-height:1.3;outline:none!important;
 }
 #screen-lobby .sf191-club-search input::placeholder{color:#bca5b6}
 #screen-lobby .sf191-sort-label{display:flex;align-items:center;gap:8px;color:#d3c2d2;font-size:11px;white-space:nowrap}
@@ -43,7 +43,7 @@
 #screen-lobby .sf191-genre{
   display:flex;align-items:center;justify-content:space-between;gap:6px;
   padding:9px 10px;border:1px solid transparent;background:#221b29;
-  border-radius:9px;text-align:left;color:#e9dce9;font:700 11px/1.3 inherit;
+  border-radius:9px;text-align:left;color:#e9dce9;font-family:inherit;font-size:11px;font-weight:700;line-height:1.3;
   cursor:pointer;min-width:0;min-height:36px;
 }
 #screen-lobby .sf191-genre span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
