@@ -115,3 +115,8 @@
 .sf5-community-layer.sf126-fan-layer:has(#sfFanClubsPanel.sf235-home-active) .sf5-community-scroll{width:100%!important;max-width:100%!important;min-width:0!important}
 #sf235Home [data-sf235-scroll]{scroll-margin-top:22px}
 #sf235Home #sf235Discover,#sf235Home #sf235Feed,#sf235Home #sf235Events{scroll-margin-top:72px}
+
+#sf235Home .sf235-hero-switch{position:absolute;right:15px;bottom:15px;display:flex;align-items:center;gap:7px;z-index:2;background:#130a1fbb;border:1px solid #b265b8;border-radius:999px;padding:3px 5px}
+#sf235Home .sf235-hero-switch button{display:grid;place-items:center;width:31px;height:31px;border:0;border-radius:50%;background:#5d3168;color:#fff;font-size:23px;cursor:pointer;line-height:1}
+#sf235Home .sf235-hero-switch span{font-size:10px;font-weight:800;color:#f7ddfb}
+@media(max-width:600px){#sf235Home .sf235-hero-switch{right:10px;bottom:10px}#sf235Home .sf235-hero-actions{padding-bottom:29px}}
