@@ -131,7 +131,8 @@
    state.refreshTimer=setTimeout(async()=>{
      state.refreshTimer=null;
      if(state.activeId!==id)return;
-     if(document.hidden||state.busy){scheduleRefresh(id,kind);return;}
+     if(document.hidden)return;
+     if(state.busy){scheduleRefresh(id,kind);return;}
      const editing=$('sf71PostForm');
      const reply=document.querySelector('#sf71Posts [data-sf160-comment-form] input[name="text"]');
      if((reply&&reply.value.trim())||(editing&&!editing.classList.contains('sf227-composer-collapsed')&&editing.contains(document.activeElement))){
@@ -421,7 +422,7 @@
    if(countEl){
      countEl.innerHTML=`<button type="button" data-sf180-filter="all" aria-pressed="${state.feedFilter==='all'}">Todas</button>`+topicOptions.map(key=>`<button type="button" data-sf180-filter="${key}" aria-pressed="${state.feedFilter===key}">${topicFor(key).icon} ${topicFor(key).title} <strong>${all.filter(p=>(p.topic||'conversa')===key).length}</strong></button>`).join('');
    }
-   const queryMatch=p=>!q||[p.text,p.authorName,topicFor(p.topic).title].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q));
+   const queryMatch=p=>!q||[p.title,p.text,p.authorName,topicFor(p.topic).title,...(p.tags||[])].some(v=>String(v||'').toLocaleLowerCase('pt-BR').includes(q));
    let posts=state.forumSearch?all:all.filter(p=>queryMatch(p));
    if(!state.forumSearch&&topicOptions.includes(state.feedFilter))posts=posts.filter(p=>(p.topic||'conversa')===state.feedFilter);
    if(state.feedFilter==='pinned')posts=posts.filter(p=>p.pinned);
@@ -562,7 +563,7 @@
    if(reports)state.reports=Array.isArray(reports.reports)?reports.reports:[];
    renderExtras();renderCommunityAside();renderSocialWidgets();
    if(jobs.some(x=>x.status==='rejected'))status('Alguns módulos não carregaram; o mural continua disponível.',true);
- }catch(e){if(state.activeId===id&&$('sf160Extras'))$('sf160Extras').textContent='Não foi possível carregar as informações da comunidade.';}
+ }catch(e){if(state.activeId===id)status('Falha ao atualizar módulos adicionais: '+e.message,true);}
  }
  function renderCommunityAside(){
  const aside=$('sf170CommunityAside');if(!aside)return;
@@ -1134,10 +1135,10 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
  }
  if(t.hasAttribute('data-sf160-pane')){switchPane(t.dataset.sf160Pane);return;}
  if(t.hasAttribute('data-sf160-comments')){
-   if(state.focusPost?.id!==t.dataset.sf160Comments){await openTopic(id,t.dataset.sf160Comments);}
-   else{state.commentsOpen=state.commentsOpen===t.dataset.sf160Comments?null:t.dataset.sf160Comments;renderFocusedPost();}
-   return;
- }
+    if(state.focusPost?.id!==t.dataset.sf160Comments)await openTopic(id,t.dataset.sf160Comments);
+    else {state.commentsOpen=t.dataset.sf160Comments;renderFocusedPost();}
+    return;
+  }
  if(t.hasAttribute('data-sf160-delete-comment')){
  if(!confirm('Remover comentário?'))return;
  const cid=t.dataset.sf160DeleteComment;await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/comments/'+encodeURIComponent(cid),{method:'DELETE'});await loadComments(id,state.commentsOpen);},'Comentário removido.');return;
@@ -1285,7 +1286,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
    },'Participação atualizada.');return;}
    const del=t.dataset.sf71DeletePost;
    if(del){if(!confirm('Excluir esta publicação?'))return;
-     await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(del),{method:'DELETE'});await loadPosts(id);},'Publicação excluída.');return;}
+     await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(del),{method:'DELETE'});if(state.focusPost?.id===del)closeTopic();await loadPosts(id);},'Publicação excluída.');return;}
    const unlink=t.dataset.sf71Unlink;
    if(unlink){await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/rooms/'+encodeURIComponent(unlink),{method:'DELETE'});await openDetail(id);},'Sala desvinculada.');return;}
    const block=t.dataset.sf71Block,unblock=t.dataset.sf71Unblock;
@@ -1299,6 +1300,10 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
    $('sf71ClubList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-sf71-open]');if(b)await openDetail(b.dataset.sf71Open);});
    $('sf71ClubDetail')?.addEventListener('click',onDetailClick);
     document.addEventListener('sf203:event-updated',e=>{if(e.detail?.clubId===state.activeId&&state.activeId)loadExtras(state.activeId).catch(()=>{});});
+   document.addEventListener('visibilitychange',()=>{
+     if(document.hidden||!state.activeId||!state.detail?.club?.joined)return;
+     scheduleRefresh(state.activeId,'post');loadExtras(state.activeId).catch(()=>{});
+   });
    $('sf71ClubDetail')?.addEventListener('change',async e=>{
      if(e.target?.id!=='sf73DetailCover')return;
      const file=e.target.files?.[0],id=state.activeId;if(!file||!id)return;
