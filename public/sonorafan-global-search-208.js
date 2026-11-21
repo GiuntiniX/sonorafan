@@ -59,10 +59,12 @@ function init(){
  input.placeholder='Buscar salas, Fan Clubs, eventos e pessoas…';
  input.setAttribute('aria-label','Buscar em toda a plataforma SonoraFan');
  input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-controls','sf208SearchResults');
- const layer=document.createElement('div');layer.id='sf208SearchResults';layer.className='sf208-search-results';layer.setAttribute('role','listbox');layer.hidden=true;parent.append(layer);
+ const layer=document.createElement('div');layer.id='sf208SearchResults';layer.className='sf208-search-results';layer.setAttribute('role','listbox');layer.hidden=true;parent.after(layer);
+ const align=()=>{layer.style.left=parent.offsetLeft+'px';layer.style.width=parent.offsetWidth+'px';};
+ align();window.addEventListener('resize',align,{passive:true});
  // Não interrompe o filtro de salas já existente no lobby.
  input.addEventListener('input',()=>{const q=input.value.trim().slice(0,70);clearTimeout(timer);if(q.length<2){serial++;aborter?.abort();close();return;}timer=setTimeout(()=>search(q),240);});
- input.addEventListener('focus',()=>{if(input.value.trim().length>1)search(input.value.trim());});
+ input.addEventListener('focus',()=>{align();if(input.value.trim().length>1)search(input.value.trim());});
  input.addEventListener('keydown',e=>{
   if(e.key==='Escape'){close();return;}
   if(!open||!results.length)return;
@@ -70,7 +72,7 @@ function init(){
   if(e.key==='Enter'){e.preventDefault();activate(results[current]);}
  });
  layer.addEventListener('click',e=>{const b=e.target.closest('[data-sf208-index]');if(b)activate(results[Number(b.dataset.sf208Index)]);});
- document.addEventListener('pointerdown',e=>{if(!parent.contains(e.target))close();},true);
+ document.addEventListener('pointerdown',e=>{if(!parent.contains(e.target)&&!layer.contains(e.target))close();},true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
