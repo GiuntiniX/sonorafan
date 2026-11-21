@@ -210,16 +210,16 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(!room||room.isPrivate||room.slug.toLowerCase()==='lobby')return res.json({clubs:[]});
     try{
       // Primeiro o índice reverso; consultas antigas continuam funcionando.
-      const index=await roomClubRef(room.slug).get();
       const byId=new Map();
-      const indexed=unique(index.exists?index.data()?.clubIds:[]).filter(validateId);
-      if(indexed.length){
-        const snap=await db.getAll(...indexed.map(refFor));
-        for(const doc of snap){
+      try{
+        const index=await roomClubRef(room.slug).get();
+        const indexed=unique(index.exists?index.data()?.clubIds:[]).filter(validateId);
+        const snapshots=await Promise.all(indexed.map(id=>refFor(id).get()));
+        for(const doc of snapshots){
           if(doc.exists&&!doc.data()?.deleting&&unique(doc.data()?.roomSlugs).includes(room.slug))
             byId.set(doc.id,doc);
         }
-      }
+      }catch(e){console.warn('[Fanclubs] Índice reverso indisponível:',e.message);}
       // Busca também nas relações anteriores à criação do índice e reconcilia
       // novas associações sem depender da tela do Fanclub.
       try{
