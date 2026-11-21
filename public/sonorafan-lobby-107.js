@@ -177,20 +177,20 @@
     // Club themes are not always music genres. Do not infer genres from artwork or people's names.
     const value=norm(String(c?.genre||c?.theme||'')).replace(/[\s_/-]+/g,'');
     const aliases={
-      pop:'pop',kpop:'kpop',rock:'rock',metal:'rock',punk:'rock',
+      pop:'pop',kpop:'kpop',rock:'rock',metal:'metal',punk:'punk',
       indie:'indie',alternativo:'indie',alternative:'indie',
       sertanejo:'sertanejo',funk:'funk',
       mpb:'mpb',brasil:'mpb',brasileira:'mpb',
       rap:'hiphop',hiphop:'hiphop',trap:'hiphop',
       eletrônica:'eletronica',eletronica:'eletronica',electro:'eletronica',house:'eletronica',techno:'eletronica',
-      pagode:'pagode',samba:'pagode',forro:'forro',gospel:'gospel',reggae:'reggae'
+      pagode:'pagode',samba:'samba',forro:'forro',gospel:'gospel',reggae:'reggae',jazz:'jazz',blues:'blues',rnb:'rnb',lofi:'lofi',latina:'latina',classica:'classica'
     };
     return aliases[value]||'outros';
   }
   function clubGenreLabel(key){
-    return ({todos:'Todos os gêneros',kpop:'K-Pop',pop:'Pop',rock:'Rock',indie:'Indie',sertanejo:'Sertanejo',
+    return ({todos:'Todos os gêneros',kpop:'K-Pop',pop:'Pop',rock:'Rock',indie:'Indie',metal:'Metal',punk:'Punk',sertanejo:'Sertanejo',
       funk:'Funk',mpb:'MPB',hiphop:'Hip-Hop',eletronica:'Eletrônica',
-      pagode:'Pagode / Samba',forro:'Forró',gospel:'Gospel',reggae:'Reggae',outros:'Outros'})[key]||'Outros';
+      pagode:'Pagode',samba:'Samba',forro:'Forró',gospel:'Gospel',reggae:'Reggae',jazz:'Jazz',blues:'Blues',rnb:'R&B',lofi:'Lo-fi',latina:'Música Latina',classica:'Clássica',outros:'Outros'})[key]||'Outros';
   }
   function renderClubFilters(){
     const sidebar=$('sf191ClubFilters'),chips=$('sf191ClubChips'),search=$('sf191ClubSearch'),sort=$('sf191ClubSort');
@@ -200,7 +200,7 @@
       const genre=clubGenre(club);
       counts.set(genre,(counts.get(genre)||0)+1);
     }
-    const order=['pop','rock','indie','sertanejo','funk','mpb','hiphop','eletronica','pagode','forro','gospel','reggae','outros'];
+    const order=['kpop','pop','rock','indie','metal','punk','sertanejo','funk','mpb','hiphop','eletronica','pagode','samba','forro','gospel','reggae','jazz','blues','rnb','lofi','latina','classica','outros'];
     const categories=['todos',...order.filter(key=>counts.has(key))];
     if(state.clubGenre!=='todos'&&!counts.has(state.clubGenre))state.clubGenre='todos';
     const choice=(key,withCount=false)=>{
