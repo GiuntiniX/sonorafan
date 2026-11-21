@@ -1,4 +1,5 @@
 
+#screen-lobby.sf125-platform .sf125-toolbar .sf107-top-actions{position:relative!important}
 #screen-lobby.sf125-platform .sf107-search{position:relative!important;z-index:65!important}
 #sf208SearchResults{position:absolute;left:0;right:0;top:calc(100% + 9px);max-height:min(70dvh,540px);overflow-y:auto;overscroll-behavior:contain;border:1px solid #a365b7;border-radius:16px;background:#1b1027;box-shadow:0 22px 65px #000c;padding:9px;z-index:150;min-width:min(390px,calc(100vw - 25px))}
 #sf208SearchResults[hidden]{display:none!important}
