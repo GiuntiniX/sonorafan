@@ -83,7 +83,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       for(let offset=0;offset<recipients.length;offset+=8){
         await Promise.allSettled(recipients.slice(offset,offset+8).map(email=>sf15Notify(email,{
           type:'fanclub',title:clean(details.title||'Nova publicação no Fan Club',90),
-          message:clean(details.message||clean(authorName,40)+' publicou em '+clean(club.title,75),200),fanClubId:clubId
+          message:clean(details.message||clean(authorName,40)+' publicou em '+clean(club.title,75),200),fanClubId:clubId,
+           roomSlug:details.roomSlug&&rooms.has(details.roomSlug)&&!rooms.get(details.roomSlug).isPrivate?details.roomSlug:null
         })));
       }
     }).catch(e=>console.warn('[Fan Clubs] notification delivery:',e?.message));
@@ -978,7 +979,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const doc=ref.collection('events').doc();
       await doc.create({title,description,startAt,durationMinutes,roomSlug,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
       publish(req.params.id,'events');res.status(201).json({id:doc.id});
-      notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title+(roomSlug?' · Sala: '+clean(rooms.get(roomSlug)?.name,80):'')+'. Confirme presença na Agenda Musical.'});
+      notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title+(roomSlug?' · Sala: '+clean(rooms.get(roomSlug)?.name,80):'')+'. Confirme presença na Agenda Musical.',roomSlug});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/events/:eventId/rsvp',rateLimit(20,60000),async(req,res)=>{
@@ -999,7 +1000,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       publish(req.params.id,'events');res.json(result);
       if(result.going&&typeof sf15Notify==='function'){
         const eventSnap=await target.get(),ev=eventSnap.data()||{};
-        Promise.resolve(sf15Notify(me.email,{type:'fanclub',title:'Presença confirmada',message:'Você confirmou presença em '+clean(ev.title,90)+(ev.roomSlug?' · Sala: '+clean(rooms.get(ev.roomSlug)?.name,80):'')+'. Consulte a Agenda Musical para acessar.',fanClubId:req.params.id})).catch(()=>{});
+        Promise.resolve(sf15Notify(me.email,{type:'fanclub',title:'Presença confirmada',message:'Você confirmou presença em '+clean(ev.title,90)+(ev.roomSlug?' · Sala: '+clean(rooms.get(ev.roomSlug)?.name,80):'')+'. Consulte a Agenda Musical para acessar.',fanClubId:req.params.id,roomSlug:ev.roomSlug&&rooms.has(ev.roomSlug)?ev.roomSlug:null})).catch(()=>{});
       }
     }catch(e){error(res,e);}
   });
