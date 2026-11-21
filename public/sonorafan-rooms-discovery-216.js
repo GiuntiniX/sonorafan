@@ -54,12 +54,13 @@ function open(mode='discover'){const page=$('sf216Explorer');if(!page)return;if(
 state.mode=['discover','mine','favorites'].includes(mode)?mode:'discover';state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
-function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view]');if(!node)return;
+function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile]');if(!node)return;
 if(node.hasAttribute('data-sf216-join')){const slug=node.dataset.sf216Join;if(valid(slug)){close();window.joinRoom?.(slug);}return;}
 if(node.hasAttribute('data-sf216-fav'))return void toggleFavorite(node.dataset.sf216Fav);
 if(node.hasAttribute('data-sf216-mode')){state.mode=node.dataset.sf216Mode;state.limit=12;render();return;}
 if(node.hasAttribute('data-sf216-style')){state.style=node.dataset.sf216Style;state.limit=12;render();return;}
 if(node.hasAttribute('data-sf216-create'))return window.showCreateRoom?.();
+if(node.hasAttribute('data-sf216-profile')){close();return window.sf125Navigate?.('profile');}
 if(node.hasAttribute('data-sf216-close'))return close();
 if(node.hasAttribute('data-sf216-clear'))return clear();
 if(node.hasAttribute('data-sf216-more')){state.limit+=12;render();return;}
@@ -68,7 +69,7 @@ function build(){if($('sf216Explorer'))return;const main=document.querySelector(
 const page=document.createElement('section');page.id='sf216Explorer';page.className='sf216-page';page.hidden=true;page.setAttribute('aria-label','Explorar salas');
 page.innerHTML='<div class="sf216-shell"><aside class="sf216-aside" aria-label="Minha área de salas">'+
 '<div class="sf216-profile"><div class="sf216-avatar" id="sf216Avatar">♫</div><strong id="sf216ProfileName">Sua experiência</strong><small>Minha comunidade SonoraFan</small><div class="sf216-stats"><span><b id="sf216CountMine">0</b>salas criadas</span><span><b id="sf216CountFavorites">0</b>favoritas</span></div></div>'+
-'<div class="sf216-side-nav"><button type="button" data-sf216-mode="discover">◈ Descobrir salas</button><button type="button" data-sf216-mode="mine">♬ Minhas salas</button><button type="button" data-sf216-mode="favorites">♡ Favoritas</button><button type="button" data-sf216-create>＋ Criar sala</button><button type="button" data-sf216-close>← Voltar ao início</button></div></aside>'+
+'<div class="sf216-side-nav"><button type="button" data-sf216-mode="discover">◈ Descobrir salas</button><button type="button" data-sf216-mode="mine">♬ Minhas salas</button><button type="button" data-sf216-mode="favorites">♡ Favoritas</button><button type="button" data-sf216-profile>◉ Meu perfil</button><button type="button" data-sf216-create>＋ Criar sala</button><button type="button" data-sf216-close>← Voltar ao início</button></div></aside>'+
 '<main class="sf216-content"><div class="sf216-head"><div class="sf216-heading"><span class="sf216-kicker">SONORAFAN · COMUNIDADE</span><h1>▷ Minhas salas e descoberta</h1><p>Encontre uma sala, conheça novas músicas e compartilhe sua vibe.</p></div><button class="sf216-create" type="button" data-sf216-create>＋ Criar sala</button></div>'+
 '<div class="sf216-tabs" role="group" aria-label="Área de salas"><button type="button" data-sf216-mode="discover">◉ Descobrir salas</button><button type="button" data-sf216-mode="mine">▤ Minhas salas</button><button type="button" data-sf216-mode="favorites">♡ Favoritas</button></div>'+
 '<div class="sf216-search-row"><label class="sf216-search">⌕ <input id="sf216Search" type="search" maxlength="90" autocomplete="off" placeholder="Buscar por nome da sala, estilo, música ou artista…" aria-label="Buscar salas"></label><select id="sf216Activity" aria-label="Filtrar atividade"><option value="all">Qualquer atividade</option><option value="live">Tocando agora</option><option value="ready">Salas abertas</option></select><select id="sf216Sort" aria-label="Ordenação"><option value="popular">Mais populares</option><option value="live">Ao vivo primeiro</option><option value="recent">Mais recentes</option><option value="az">Nome (A–Z)</option></select></div>'+
