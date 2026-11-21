@@ -282,6 +282,7 @@ async function createEvent(){
   if(responses[1].status==='fulfilled'&&responses[1].value.ok){
    const data=await responses[1].value.json();sources.room=Array.isArray(data)?data:[];
   }
+  if(!sources.fanclub.length&&sources.room.length){const onlyRoom=form.querySelector('[name="type"][value="room"]');if(onlyRoom)onlyRoom.checked=true;}
   chooseSource();
  }catch(err){if(layer.isConnected)help.textContent='Não foi possível carregar seus espaços. Feche e tente novamente.';}
 }
