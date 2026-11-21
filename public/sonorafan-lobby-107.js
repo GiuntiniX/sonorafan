@@ -46,7 +46,7 @@
   const state={rooms:null,events:[],clubs:[],notices:[],pinned:[],recent:[],search:'',genre:'',
     all:false,stylesExpanded:false,styleQuery:'',sort:'popular',signature:'',lastRooms:0,lastExtras:0,
     clubState:'loading',clubError:'',clubsExpanded:false,clubGenre:'todos',clubQuery:'',clubSort:'members',lastClubs:0,clubFetching:false,clubNeedsRefresh:false};
-  const allRooms=()=>Array.isArray(state.rooms)?state.rooms.filter(r=>r&&!r.isPrivate&&valid(r.slug)):[];
+  const allRooms=()=>Array.isArray(state.rooms)?state.rooms.filter(r=>r&&valid(r.slug)&&(!r.isPrivate||r.isMine)):[];
   const ranked=()=>allRooms().slice().sort((a,b)=>count(b.listenerCount)-count(a.listenerCount)||Number(!!b.isPlaying)-Number(!!a.isPlaying));
   const lead=()=>ranked()[0]||null;
   function imageFor(r,i=0){
@@ -149,7 +149,7 @@
       <img data-sf107-cover src="${esc(media.src)}" data-fallback="${esc(media.fallback)}" data-art="${esc(media.art)}" style="object-position:${frame.x}% ${frame.y}%;transform-origin:${frame.x}% ${frame.y}%;--sf107-cover-zoom:${media.custom?frame.zoom:1}" alt="" loading="lazy" decoding="async">
       <span class="sf107-card-shade"></span>
       ${special?'<span class="sf107-pop-badge">♛ Mais popular</span>':''}
-      ${r.isPlaying?'<span class="sf107-live-badge">● AO VIVO</span>':''}
+      ${r.isPlaying?'<span class="sf107-live-badge">● AO VIVO</span>':''}${r.isPrivate?'<span class="sf107-private-badge">🔒 Minha sala privada</span>':''}
       <span class="sf107-card-copy"><strong>${esc(r.name||'Sala musical')}</strong>
         <small>♧ ${fmt(r.listenerCount)} ${count(r.listenerCount)===1?'ouvinte':'ouvintes'} · ${esc(genreFor(r))}</small>
         ${r.currentTrack?.title?'<small class="sf150-room-nowplaying">♫ '+esc(String(r.currentTrack.title).slice(0,60))+'</small>':''}
