@@ -10,11 +10,18 @@ const {normalizeRoomGenre109,legacyRoomGenre109} = require('./room-genres-109');
 const ROOM_THEMES_88 = require('./public/themes/catalog-88.json');
 const ROOM_THEME_IDS_88 = new Set(ROOM_THEMES_88.map(theme => theme.id));
 const normalizeRoomTheme88 = id => ROOM_THEME_IDS_88.has(id) ? id : 'geral';
+function normalizeRoomCover(url) {
+  if (url === null || url === undefined || url === '') return null;
+  if (typeof url !== 'string' || url.length > 1600) return null;
+  try { const u = new URL(url); return u.protocol === 'https:' && u.hostname && !u.username && !u.password ? u.href : null; }
+  catch (_) { return null; }
+}
 const { decodeYouTubeEntities } = require('./youtube-utils-81');
 const crypto = require('crypto');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
+const { getStorage } = require('firebase-admin/storage');
 const { createGamification45 } = require('./gamification-45');
 const { createRanking60 } = require('./ranking-60');
 const { installChat53 } = require('./chat-social-53');
@@ -38,6 +45,7 @@ try {
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
   initializeApp({
     credential: cert(serviceAccount),
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'sonorafan-777.firebasestorage.app',
   });
   console.log('🔥 Firebase conectado!');
 } catch (e) {
@@ -255,7 +263,7 @@ function addSanction(s) { s.id = sanId(s.email, s.type, s.scope); sanctions.set(
 function removeSanction(id) { sanctions.delete(id); sanDoc(id).delete().catch(() => {}); }
 async function loadSanctions() { try { const snap = await db.collection('sanctions').get(); snap.forEach(d => { const s = d.data(); if (!s.until || s.until > Date.now()) sanctions.set(s.id, s); }); } catch (e) {} }
 function persistRoom(r) {
-  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, roomTheme: normalizeRoomTheme88(r.roomTheme), genre: normalizeRoomGenre109(r.genre), emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null, musicMode: r.musicMode || 'all', votePriority: !!r.votePriority, radioMode: !!r.radioMode, radioGenre: r.radioGenre || 'pop' }).catch(() => {});
+  db.collection('rooms').doc(r.slug).set({ slug: r.slug, name: r.name, admin: r.admin, ownerEmail: r.ownerEmail || null, color: r.color || null, roomTheme: normalizeRoomTheme88(r.roomTheme), coverUrl: r.coverUrl || null, genre: normalizeRoomGenre109(r.genre), emoji: r.emoji, description: r.description, slowMode: r.slowMode, addMode: r.addMode, isPrivate: !!r.isPrivate, invite: r.invite || null, passHash: r.passHash || null, passSalt: r.passSalt || null, welcome: r.pinnedMessage ? r.pinnedMessage.text : '', allowLong: !!r.allowLong, allowLive: !!r.allowLive, maxDuration: r.maxDuration || null, musicMode: r.musicMode || 'all', votePriority: !!r.votePriority, radioMode: !!r.radioMode, radioGenre: r.radioGenre || 'pop' }).catch(() => {});
 }
 function createRoom(slug, name, adminName = null) {
   roomLikes.set(slug, {});
@@ -270,7 +278,7 @@ function createRoom(slug, name, adminName = null) {
     lastAddTime: new Map(), isPlaying: false, lastAdvanceAt: 0,
     history: [], skipVotes: new Set(),
     radioMode: false, radioGenre: 'pop', musicMode: 'all', votePriority: false,
-    pinnedMessage: null, color: '#7c3aed', roomTheme: 'geral', genre: null,
+    pinnedMessage: null, color: '#7c3aed', roomTheme: 'geral', coverUrl: null, genre: null,
     discordWebhook: null, inviteCount: 0, eventStartTime: null,
     totalSongsAdded: 0, totalVotesGiven: 0, mostVoted: [],
     allowLong: false, allowLive: false, maxDuration: settings.maxDuration,
@@ -323,6 +331,7 @@ async function loadRooms() {
       const r = createRoom(v.slug, v.name, v.admin || 'Anônimo');
       if (v.color) r.color = v.color;
        r.roomTheme = normalizeRoomTheme88(v.roomTheme);
+      r.coverUrl = normalizeRoomCover(v.coverUrl);
       r.genre = normalizeRoomGenre109(v.genre) || legacyRoomGenre109(v.name, v.description);
       r.ownerEmail = v.ownerEmail || null; if (v.emoji) r.emoji = v.emoji; r.description = v.description || ''; r.slowMode = v.slowMode || 0; r.addMode = v.addMode === 'owner' ? 'owner' : 'all'; r.musicMode = ['all', 'owner', 'fair'].includes(v.musicMode) ? v.musicMode : (r.addMode === 'owner' ? 'owner' : 'all'); r.radioMode = !!v.radioMode; r.votePriority = !!v.votePriority && r.musicMode !== 'fair'; r.radioGenre = typeof v.radioGenre === 'string' ? v.radioGenre.slice(0, 40) : 'pop';
       if (v.welcome) r.pinnedMessage = { author: r.admin, text: v.welcome };
@@ -397,7 +406,7 @@ function broadcastState(slug) {
     pinnedMessage: room.pinnedMessage,
     listenerCount: room.listenerCount,
     maxListeners: settings.maxListeners,
-    color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), genre: room.genre || null,
+    color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), coverUrl: room.coverUrl || null, genre: room.genre || null,
     inviteCount: room.inviteCount,
     eventStartTime: room.eventStartTime,
     maxDuration: room.maxDuration,
@@ -945,6 +954,22 @@ app.post('/api/admin/chat-reports/:id/resolve',rateLimit(40,60000),async(req,res
 
 // Fim das APIs sociais; nenhum dado pessoal é retornado ao cliente.
 
+// Upload persistente: arquivos não dependem do filesystem temporário do Render.
+app.post('/api/room-cover-upload', rateLimit(12, 60000), express.raw({type:['image/jpeg','image/png','image/webp','image/gif'],limit:'2mb'}), async (req,res) => {
+  if (!sessionEmail(req)) return res.status(401).json({error:'Faça login para enviar uma capa.'});
+  const mime=String(req.headers['content-type']||'').split(';')[0].trim().toLowerCase();
+  const types={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'};
+  if (!types[mime] || !Buffer.isBuffer(req.body) || req.body.length<100 || req.body.length>2097152) return res.status(400).json({error:'Envie JPEG, PNG, WebP ou GIF de até 2 MB.'});
+  const b=req.body;
+  const valid=mime==='image/jpeg' ? b[0]===255&&b[1]===216&&b[2]===255 : mime==='image/png' ? b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) : mime==='image/webp' ? b.toString('ascii',0,4)==='RIFF'&&b.toString('ascii',8,12)==='WEBP' : ['GIF87a','GIF89a'].includes(b.toString('ascii',0,6));
+  if (!valid) return res.status(400).json({error:'Formato de imagem inválido.'});
+  try {
+    const bucket=getStorage().bucket(),name='room-covers/'+crypto.randomUUID()+'.'+types[mime],token=crypto.randomUUID();
+    await bucket.file(name).save(b,{resumable:false,contentType:mime,metadata:{metadata:{firebaseStorageDownloadTokens:token},cacheControl:'public,max-age=31536000,immutable'}});
+    res.json({url:'https://firebasestorage.googleapis.com/v0/b/'+encodeURIComponent(bucket.name)+'/o/'+encodeURIComponent(name)+'?alt=media&token='+token});
+  }catch(e){console.error('Erro upload de capa:',e.message);res.status(503).json({error:'Falha no upload. Verifique o Firebase Storage.'});}
+});
+
 // ========== SALAS ==========
 app.get('/api/rooms', (req, res) => {
   try {
@@ -953,7 +978,7 @@ app.get('/api/rooms', (req, res) => {
       slug: r.slug, name: r.name, listenerCount: r.listenerCount,
       queueLength: r.queue.length, isPlaying: r.isPlaying,
       currentTrack: r.queue[r.currentIndex] || null,
-      radioMode: r.radioMode, color: r.color || '#7c3aed', roomTheme: normalizeRoomTheme88(r.roomTheme), genre: r.genre || null, emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
+      radioMode: r.radioMode, color: r.color || '#7c3aed', roomTheme: normalizeRoomTheme88(r.roomTheme), coverUrl: r.coverUrl || null, genre: r.genre || null, emoji: r.emoji, description: r.description, addMode: r.addMode, slowMode: r.slowMode, isPrivate: !!r.isPrivate,
       allowLive: !!r.allowLive, allowLong: !!r.allowLong,
       inviteCount: r.inviteCount, eventStartTime: r.eventStartTime,
     }));
@@ -973,6 +998,8 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   const room = createRoom(slug, name.trim(), String(adminName || 'Anônimo').slice(0, 40));
   room.ownerEmail = email;
   room.roomTheme = req.body.roomTheme == null ? 'geral' : normalizeRoomTheme88(req.body.roomTheme);
+  if (req.body.coverUrl && !normalizeRoomCover(req.body.coverUrl)) return res.status(400).json({error:'A capa precisa usar HTTPS.'});
+  room.coverUrl = normalizeRoomCover(req.body.coverUrl);
   room.genre = genre;
   const cfg = sanitize(req.body);
   // A escolha feita na criação precisa persistir e ser aplicada no servidor.
@@ -1470,7 +1497,7 @@ io.on('connection', (socket) => {
         position: getPosition(room), votes: room.votes, queue: room.queue, waitingQueue: room.waitingQueue,
         admin: room.admin, isPlaying: room.isPlaying, history: room.history.slice(-10), radioMode: room.radioMode, musicMode: room.musicMode || 'all', votePriority: !!room.votePriority, radioGenre: room.radioGenre || 'pop',
         pinnedMessage: room.pinnedMessage, listenerCount: room.listenerCount, maxListeners: settings.maxListeners,
-        color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), genre: room.genre || null, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
+        color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), coverUrl: room.coverUrl || null, genre: room.genre || null, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
         maxDuration: room.maxDuration, allowLive: room.allowLive,
         emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
         isPrivate: room.isPrivate, hasPassword: !!room.passHash,
@@ -1833,6 +1860,10 @@ io.on('connection', (socket) => {
       if (input.addMode !== undefined) {
         room.musicMode = cfg.addMode === 'owner' ? 'owner' : 'fair';
         if (cfg.addMode === 'owner') { room.votePriority = false; room.radioMode = false; }
+      }
+      if (input.coverUrl !== undefined) {
+        if (input.coverUrl && !normalizeRoomCover(input.coverUrl)) return socket.emit('error','A capa precisa usar HTTPS.');
+        room.coverUrl = normalizeRoomCover(input.coverUrl);
       }
       if (input.roomTheme !== undefined) {
         if (!ROOM_THEME_IDS_88.has(input.roomTheme)) return socket.emit('error', 'Tema visual inválido.');
