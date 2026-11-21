@@ -6,6 +6,26 @@
  const FALLBACK={id:'geral',name:'Padrão · Festival',description:'Festival Terra SonoraFan com bandeiras Terra e Vivo, palco e pôr do sol',primary:'#7c3aed',secondary:'#ff6b35',bg:'#180f25',text:'#f0f0f8',emoji:'🎪',art:'/themes/final-172/indie.webp',thumbnail:'/themes/final-172/indie-thumb.webp'};
  let themes=[FALLBACK], byId=new Map([[FALLBACK.id,FALLBACK]]);
  let roomSlug='',sharedTheme='geral',personalOverride=null,mayEdit=false;
+ // O catálogo inicial já está disponível antes do primeiro frame da sala.
+ // A atualização remota continua validada abaixo, sem bloquear o primeiro tema.
+ const initial=Array.isArray(window.sf88BootstrapCatalog)?window.sf88BootstrapCatalog:[];
+ if(initial.length){
+   themes=initial.map(t=>({...t,art:t.art+(t.art.includes('?')?'&':'?')+'v=221',thumbnail:t.thumbnail+(t.thumbnail.includes('?')?'&':'?')+'v=221'}));
+   byId=new Map(themes.map(t=>[t.id,t]));
+ }
+ const roomHints=new Map();
+ const warmed=new Set();
+ function warm(id){
+   const theme=find(id);
+   if(!theme.art||warmed.has(theme.art))return;
+   warmed.add(theme.art);
+   const img=new Image();img.decoding='async';img.src=theme.art;
+ }
+ function rememberRooms(rooms){
+   if(!Array.isArray(rooms))return;
+   rooms.forEach(r=>{if(r&&typeof r.slug==='string'&&KNOWN_THEMES.has(r.roomTheme))roomHints.set(r.slug,r.roomTheme);});
+ }
+
  let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null;
  const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro','bts','kpop','jpop','trap','lofi','cor-preto','cor-vermelho','cor-azul','cor-verde','cor-roxo','cor-rosa','cor-dourado','kpop-sakura-arena','bts-purple-monument','jpop-tokyo-night','trap-crown-stage','lofi-golden-listening','lofi-moonlight-live','kpop-cherry-city','bts-lights-festival','jpop-fuji-stage','trap-street-crown','lofi-riverside','lofi-acoustic-garden']);
  const safe=id=>KNOWN_THEMES.has(id)?id:'geral';
@@ -68,9 +88,11 @@
      personalOverride=getLocal(roomSlug);
    }
    sharedTheme=safe(state.roomTheme);
+   roomHints.set(roomSlug,sharedTheme);
+   warm(personalOverride||sharedTheme);
    skin();
  }
- function begin(slug){roomSlug=String(slug||'');sharedTheme='geral';personalOverride=getLocal(roomSlug);skin();}
+ function begin(slug){roomSlug=String(slug||'');sharedTheme=roomHints.get(roomSlug)||'geral';personalOverride=getLocal(roomSlug);warm(personalOverride||sharedTheme);skin();}
  function exit(){
    roomSlug='';sharedTheme='geral';personalOverride=null;mayEdit=false;
    const screen=$('screen-room');
@@ -250,6 +272,8 @@
  }
  window.sf88GetCreateTheme=()=>createChoice;
  window.sf88GetEditTheme=()=>editChoice;
+ window.sf88RememberRooms=rememberRooms;
+ window.sf88WarmTheme=warm;
  window.sf88BeginRoom=begin;
  window.sf88LeaveRoom=exit;
  window.sf88RoomState=roomState;
@@ -304,7 +328,7 @@
  });
  const themeRevision='221';
  const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
- fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'no-store'})
+ fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'force-cache'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
    .then(items=>{
      if(!Array.isArray(items))throw new Error('Catálogo inválido');
