@@ -1,0 +1,91 @@
+
+/* SonoraFan 202 — profile overview and Fan Club Agenda, matching the festival mockups. */
+#sf43ProfileModal.sf112-ready.sf112-tab-overview .sf43-profile-body.sf108-ready > :not(#sf112Tabs):not(#sf202ProfileOverview){display:none!important}
+#sf43ProfileModal.sf112-ready #sf202ProfileOverview[hidden]{display:none!important}
+#sf43ProfileModal.sf112-ready.sf112-tab-overview .sf43-profile-modal{width:min(1440px,calc(100vw - 22px))!important;max-width:1440px!important}
+#sf43ProfileModal.sf112-ready.sf112-tab-overview .sf43-profile-body.sf108-ready{background:#100b18!important;padding:13px 17px 25px!important;gap:12px!important}
+#sf43ProfileModal.sf112-ready .sf112-tabs{border-color:#73388a;background:#1a0d27}
+#sf43ProfileModal.sf112-ready .sf112-tabs button.active{background:#caff00!important;border-color:#caff00!important;color:#160e1b!important;box-shadow:0 5px 17px #caff0040}
+#sf43ProfileModal.sf112-ready .sf202-profile-overview{display:grid;gap:14px;color:white;font-family:Inter,system-ui,sans-serif}
+#sf43ProfileModal.sf112-ready .sf202-profile-overview button{font-family:inherit;cursor:pointer;font-weight:800}
+#sf43ProfileModal.sf112-ready .sf202-profile-overview button:focus-visible{outline:2px solid #caff00;outline-offset:3px}
+.sf202-profile-hero{min-height:228px;position:relative;overflow:hidden;border:1px solid #8c3eb0;border-radius:17px;background:
+ linear-gradient(90deg,#210e31f5 0%,#331342d4 48%,#250b3959 100%),url('/art-44/festival-crowd.webp') center 45%/cover no-repeat;
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:space-between;align-items:start;gap:20px;padding:25px 28px}
+.sf202-profile-identity{display:flex;align-items:center;gap:18px}
+.sf202-profile-avatar{height:84px;width:84px;display:grid;place-items:center;flex:none;border-radius:50%;background:linear-gradient(125deg,#431d61,#7a2d8d);border:4px solid #caff00;font-size:35px;box-shadow:0 0 24px #caff0030}
+.sf202-profile-hero .sf202-kicker{font-size:11px;color:#caff00;letter-spacing:.07em;font-weight:900}
+.sf202-profile-hero h1{font-size:clamp(26px,3vw,41px);line-height:1.1;margin:6px 0;color:white;font-weight:950}
+.sf202-profile-hero p{color:#eee1f6;font-size:12px;margin:4px 0;line-height:1.45}
+.sf202-profile-hero>button{border:1px solid #bc89cc;background:#1d1028de;border-radius:999px;padding:12px 16px;color:#fff;font-size:12px}
+.sf202-profile-stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.sf202-profile-stats>div{display:flex;flex-direction:column;gap:5px;padding:14px 18px;background:#251333c9;border:1px solid #815097;border-radius:13px;backdrop-filter:blur(5px)}
+.sf202-profile-stats b{font-size:21px;line-height:1;font-weight:950;color:#caff00}
+.sf202-profile-stats span{font-size:11px;color:#e7d8ef}
+.sf202-profile-nav{display:flex;gap:8px;flex-wrap:wrap}
+.sf202-profile-nav button{min-height:44px;background:#251631;border:1px solid #74438e;border-radius:12px;padding:10px 17px;font-size:12px;color:#ead6f2}
+.sf202-profile-nav button.active{background:#caff00;color:#140d19;border-color:#caff00}
+.sf202-profile-columns{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(235px,.75fr);gap:14px;align-items:start}
+.sf202-profile-main,.sf202-profile-aside{min-width:0;display:grid;gap:14px}
+.sf202-panel{min-width:0;background:linear-gradient(133deg,#241331,#160e21);border:1px solid #76438e;border-radius:16px;padding:15px;display:grid;gap:12px;box-shadow:0 5px 20px #0003}
+.sf202-panel>header{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.sf202-panel>header h2{font-size:clamp(15px,1.5vw,19px);font-weight:900;margin:0;color:#fff;line-height:1.25}
+.sf202-panel>header>button{color:#caff00;border:0;background:none;padding:7px;font-size:11px}
+.sf202-panel>header>span{font-size:11px;color:#d1b8dc}
+.sf202-personal-event{display:flex;gap:12px;align-items:center;padding:8px;background:linear-gradient(100deg,#3b1a46,#25152f);border:1px solid #8b479b;border-radius:13px;min-width:0}
+.sf202-personal-event>img{height:88px;width:27%;max-width:150px;object-fit:cover;border-radius:9px;flex:none;background:#34123c}
+.sf202-personal-info{min-width:0;flex:1}
+.sf202-mini-badge{display:inline-flex;align-items:center;color:#1b0923;background:#d775db;border-radius:99px;font-size:10px;font-weight:850;padding:4px 8px}
+.sf202-personal-info h3{font-size:15px;margin:6px 0;color:white;line-height:1.24;font-weight:900}
+.sf202-personal-info p{font-size:11px;color:#e5caee;margin:4px 0;line-height:1.4;overflow-wrap:anywhere}
+.sf202-personal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:210px}
+.sf202-personal-actions button,.sf202-profile-shortcuts button,.sf202-profile-empty button{min-height:39px;border-radius:999px;border:1px solid #a56ab8;color:#fff;background:#281431;padding:9px 12px;font-size:11px;white-space:normal}
+.sf202-personal-actions button.sf202-bright,.sf202-profile-empty button{background:#caff00;border-color:#caff00;color:#150e19}
+.sf202-club-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.sf202-club-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px}
+.sf202-club-tile{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-width:0;min-height:170px;background:#32193d;border:1px solid #75468d;border-radius:12px;padding:12px 9px;color:white}
+.sf202-club-tile img{height:65px;width:75px;border-radius:10px;object-fit:cover}
+.sf202-club-tile strong{font-size:12px;line-height:1.25;overflow-wrap:anywhere}
+.sf202-club-tile small{font-size:10px;color:#d4c0df}
+.sf202-club-tile span{margin-top:auto;border:1px solid #9b6bac;border-radius:99px;font-size:10px;padding:6px 8px}
+.sf202-profile-empty{padding:18px;text-align:center;min-height:100px;grid-column:1/-1;border-radius:12px;background:#2a1737;border:1px dashed #805394;display:grid;justify-items:center;align-content:center;gap:9px;color:#d7c4e2;font-size:12px}
+.sf202-profile-empty strong{font-size:14px;color:white}
+.sf202-profile-empty p{margin:0;line-height:1.5}
+.sf202-profile-aside .sf202-reminder>button{display:grid;grid-template-columns:31px minmax(0,1fr);gap:3px 9px;align-items:center;text-align:left;min-height:58px;background:#381d48;border:1px solid #75458e;border-radius:11px;padding:9px;color:white}
+.sf202-profile-aside .sf202-reminder>button span{grid-row:1/3;font-size:23px;color:#caff00}
+.sf202-profile-aside .sf202-reminder>button strong{font-size:12px;min-width:0}
+.sf202-profile-aside .sf202-reminder>button small{font-size:10px;color:#d6bce3}
+.sf202-profile-aside .sf202-reminder p{font-size:12px;color:#d6c4df;line-height:1.5;margin:0}
+.sf202-profile-shortcuts button{text-align:left;border-radius:12px}
+.sf202-profile-error{color:#ffd3e5;border:1px solid #bd638c;border-radius:11px;background:#492336;padding:12px}
+.sf202-profile-loading{font-size:12px;color:#caff00;margin:0}
+#sf71ClubDetail .sf202-club-agenda{background:#190f24;border:1px solid #75428c;border-radius:18px;padding:clamp(14px,2vw,23px);display:grid;gap:13px}
+#sf71ClubDetail .sf202-agenda-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+#sf71ClubDetail .sf202-agenda-head h4{font-size:clamp(21px,2vw,26px);color:white;margin:5px 0;font-weight:950}
+#sf71ClubDetail .sf202-agenda-head p{font-size:12px;color:#dbc8e6;margin:0}
+#sf71ClubDetail .sf202-eyebrow{color:#caff00;font-size:10px;letter-spacing:.08em;font-weight:900}
+#sf71ClubDetail .sf202-create-event,#sf71ClubDetail .sf202-confirm,
+#sf71ClubDetail .sf202-agenda-empty button{background:#caff00!important;border:1px solid #caff00!important;color:#130d18!important;border-radius:999px!important;padding:11px 17px!important;min-height:42px;font-weight:900!important;font-size:12px!important;cursor:pointer}
+#sf71ClubDetail .sf202-agenda-pills{display:flex;justify-content:space-between;gap:12px;align-items:center;color:#cbb7d6;font-size:11px}
+#sf71ClubDetail .sf202-agenda-pills button{border-radius:99px;color:#e8d4f3;background:#382143;border:1px solid #9865aa}
+#sf71ClubDetail .sf202-event-card{background:linear-gradient(110deg,#32173e,#21132d);border:1px solid #8c559d;border-radius:16px;display:grid;grid-template-columns:minmax(120px,24%) minmax(0,1fr) auto;gap:14px;padding:11px;align-items:stretch}
+#sf71ClubDetail .sf202-event-art{overflow:hidden;border-radius:11px;min-height:140px}
+#sf71ClubDetail .sf202-event-art img{height:100%;width:100%;object-fit:cover;display:block}
+#sf71ClubDetail .sf202-event-main{min-width:0;display:flex;align-items:flex-start;flex-direction:column;gap:7px}
+#sf71ClubDetail .sf202-event-kicker{background:#cc76dd;color:#210b2a;padding:5px 9px;border-radius:99px;font-size:10px;font-weight:900}
+#sf71ClubDetail .sf202-event-main strong{font-size:clamp(17px,1.8vw,23px);color:#fff;font-weight:950;line-height:1.23}
+#sf71ClubDetail .sf202-event-main p{font-size:12px;line-height:1.5;color:#e4d2ee;margin:0}
+#sf71ClubDetail .sf202-event-main small{font-size:11px;color:#e5d2f4}
+#sf71ClubDetail .sf202-room-pill{border:1px solid #8b5aa1;border-radius:99px;padding:7px 11px;font-size:11px;background:#3a2245;color:#f1d5f7}
+#sf71ClubDetail .sf202-event-controls{display:flex;flex-direction:column;justify-content:center;gap:9px;min-width:135px}
+#sf71ClubDetail .sf202-event-controls button{min-height:39px;padding:9px 12px;border-radius:999px;font-size:11px;background:#351f42;border:1px solid #9e66b0;color:#fff}
+#sf71ClubDetail .sf202-agenda-empty{padding:27px 20px;background:linear-gradient(105deg,#311746,#20112c);border:1px dashed #9561ad;border-radius:15px;display:grid;justify-items:center;gap:9px;text-align:center}
+#sf71ClubDetail .sf202-agenda-empty strong{font-size:19px;color:#fff}
+#sf71ClubDetail .sf202-agenda-empty p{font-size:12px;color:#dbc6e6;line-height:1.5;margin:0}
+#sf71ClubDetail .sf202-linked-title{margin:8px 0 0;font-size:16px}
+#sf71ClubDetail .sf202-linked-event{background:#24162c}
+.sf201-create-dialog .sf202-room-link[hidden]{display:none!important}
+.sf201-create-dialog .sf202-room-link{border:1px solid #caff00!important;background:#caff000b!important;padding:13px;border-radius:12px}
+.sf201-create-dialog .sf202-room-link small{font-size:11px;color:#d7c9e1;line-height:1.45;font-weight:500}
+@media(max-width:990px){.sf202-profile-columns{grid-template-columns:1fr}.sf202-profile-aside{grid-template-columns:repeat(2,minmax(0,1fr))}#sf71ClubDetail .sf202-event-card{grid-template-columns:120px minmax(0,1fr)}#sf71ClubDetail .sf202-event-controls{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}}
+@media(max-width:650px){.sf202-profile-hero{grid-template-columns:1fr;padding:16px}.sf202-profile-hero>button{justify-self:start}.sf202-profile-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.sf202-profile-columns,.sf202-club-columns,.sf202-profile-aside{grid-template-columns:1fr}.sf202-profile-avatar{width:66px;height:66px}.sf202-personal-event{flex-wrap:wrap}.sf202-personal-event>img{width:95px;height:95px}.sf202-personal-actions{max-width:none;width:100%;justify-content:stretch}.sf202-personal-actions button{flex:1}#sf71ClubDetail .sf202-event-card{grid-template-columns:1fr}#sf71ClubDetail .sf202-event-art{height:145px}#sf71ClubDetail .sf202-event-controls{grid-column:auto}}
