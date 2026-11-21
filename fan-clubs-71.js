@@ -844,7 +844,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{
       const {ref,data}=await readClub(req.params.id);
       if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ver enquetes.');
-      const snap=await ref.collection('polls').orderBy('createdAt','desc').limit(12).get();
+      const snap=await ref.collection('polls').orderBy('createdAt','desc').limit(40).get();
       res.json({polls:snap.docs.map(d=>({id:d.id,question:d.data().question,options:d.data().options,
         counts:(d.data().options||[]).map((_,i)=>Object.values(d.data().votes||{}).filter(v=>v===i).length),
         voted:Object.hasOwn(d.data().votes||{},me.id),myVote:d.data().votes?.[me.id]??null,
