@@ -7,7 +7,7 @@
  let themes=[FALLBACK], byId=new Map([[FALLBACK.id,FALLBACK]]);
  let roomSlug='',sharedTheme='geral',personalOverride=null,mayEdit=false;
  let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null;
- const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro','bts','kpop','jpop','trap','lofi','cor-preto','cor-vermelho','cor-azul','cor-verde','cor-roxo','cor-rosa','cor-dourado']);
+ const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro','bts','kpop','jpop','trap','lofi','cor-preto','cor-vermelho','cor-azul','cor-verde','cor-roxo','cor-rosa','cor-dourado','kpop-sakura-arena','bts-purple-monument','jpop-tokyo-night','trap-crown-stage','lofi-golden-listening','lofi-moonlight-live','kpop-cherry-city','bts-lights-festival','jpop-fuji-stage','trap-street-crown','lofi-riverside','lofi-acoustic-garden']);
  const safe=id=>KNOWN_THEMES.has(id)?id:'geral';
  const find=id=>byId.get(safe(id))||FALLBACK;
  const storageKey=slug=>'sf88:theme:'+slug;
@@ -288,9 +288,21 @@
    'cor-verde':['/themes/colors-214/cor-verde.svg','/themes/colors-214/cor-verde.svg'],
    'cor-roxo':['/themes/colors-214/cor-roxo.svg','/themes/colors-214/cor-roxo.svg'],
    'cor-rosa':['/themes/colors-214/cor-rosa.svg','/themes/colors-214/cor-rosa.svg'],
-   'cor-dourado':['/themes/colors-214/cor-dourado.svg','/themes/colors-214/cor-dourado.svg']
+   'cor-dourado':['/themes/colors-214/cor-dourado.svg','/themes/colors-214/cor-dourado.svg'],
+   'kpop-sakura-arena':['/themes/inspired-217/kpop-sakura-arena.svg','/themes/inspired-217/kpop-sakura-arena.svg'],
+   'bts-purple-monument':['/themes/inspired-217/bts-purple-monument.svg','/themes/inspired-217/bts-purple-monument.svg'],
+   'jpop-tokyo-night':['/themes/inspired-217/jpop-tokyo-night.svg','/themes/inspired-217/jpop-tokyo-night.svg'],
+   'trap-crown-stage':['/themes/inspired-217/trap-crown-stage.svg','/themes/inspired-217/trap-crown-stage.svg'],
+   'lofi-golden-listening':['/themes/inspired-217/lofi-golden-listening.svg','/themes/inspired-217/lofi-golden-listening.svg'],
+   'lofi-moonlight-live':['/themes/inspired-217/lofi-moonlight-live.svg','/themes/inspired-217/lofi-moonlight-live.svg'],
+   'kpop-cherry-city':['/themes/inspired-217/kpop-cherry-city.svg','/themes/inspired-217/kpop-cherry-city.svg'],
+   'bts-lights-festival':['/themes/inspired-217/bts-lights-festival.svg','/themes/inspired-217/bts-lights-festival.svg'],
+   'jpop-fuji-stage':['/themes/inspired-217/jpop-fuji-stage.svg','/themes/inspired-217/jpop-fuji-stage.svg'],
+   'trap-street-crown':['/themes/inspired-217/trap-street-crown.svg','/themes/inspired-217/trap-street-crown.svg'],
+   'lofi-riverside':['/themes/inspired-217/lofi-riverside.svg','/themes/inspired-217/lofi-riverside.svg'],
+   'lofi-acoustic-garden':['/themes/inspired-217/lofi-acoustic-garden.svg','/themes/inspired-217/lofi-acoustic-garden.svg']
  });
- const themeRevision='214';
+ const themeRevision='218';
  const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
  fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'no-store'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
