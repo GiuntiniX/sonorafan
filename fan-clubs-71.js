@@ -56,7 +56,7 @@ const clean = (value, max) => typeof value === 'string'
   : '';
 const unique = values => Array.from(new Set(Array.isArray(values) ? values.filter(x=>typeof x==='string') : []));
 
-function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser, gamification45, ranking60 }) {
+function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser, gamification45, ranking60, io }) {
   const coverRef = id => db.collection(COVERS).doc(id);
   const refFor = id => db.collection(CLUBS).doc(id);
   // Índice reverso persistente: a sala conhece seus Fanclubs vinculados.
@@ -203,38 +203,58 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       avatar:user?clean(user.avatar||'🎧',8):'🎧',avatarUrl:photo||character};
   }
 
-  // Vinculação pública da sala, sem expor ambientes privados.
-  app.get('/api/fan-clubs/room/:slug',rateLimit(50,60000),async(req,res)=>{
-    const me=identity(req,res);if(!me)return;
-    const room=rooms.get(clean(req.params.slug,100));
-    if(!room||room.isPrivate||room.slug.toLowerCase()==='lobby')return res.json({clubs:[]});
+  // Fonte de verdade: vínculos persistidos nos documentos dos Fanclubs.
+  // O índice por sala é uma otimização, nunca a única origem do selo.
+  async function findRoomFanclubs(slug){
+    const room=rooms.get(String(slug||''));
+    if(!room||room.isPrivate||room.slug.toLowerCase()==='lobby')return [];
+    const byId=new Map();
+    let queryFailed=false;
     try{
-      // Primeiro o índice reverso; consultas antigas continuam funcionando.
-      const byId=new Map();
-      try{
-        const index=await roomClubRef(room.slug).get();
-        const indexed=unique(index.exists?index.data()?.clubIds:[]).filter(validateId);
-        const snapshots=await Promise.all(indexed.map(id=>refFor(id).get()));
-        for(const doc of snapshots){
-          if(doc.exists&&!doc.data()?.deleting&&unique(doc.data()?.roomSlugs).includes(room.slug))
-            byId.set(doc.id,doc);
-        }
-      }catch(e){console.warn('[Fanclubs] Índice reverso indisponível:',e.message);}
-      // Busca também nas relações anteriores à criação do índice e reconcilia
-      // novas associações sem depender da tela do Fanclub.
-      try{
-        const direct=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).limit(100).get();
-        for(const doc of direct.docs)if(!doc.data()?.deleting&&unique(doc.data()?.roomSlugs).includes(room.slug))byId.set(doc.id,doc);
-      }catch(e){console.warn('[Fanclubs] fallback de índice:',e.message);}
-      if(!byId.size){
-        const all=await db.collection(CLUBS).limit(500).get();
-        for(const doc of all.docs)if(!doc.data()?.deleting&&unique(doc.data()?.roomSlugs).includes(room.slug))byId.set(doc.id,doc);
+      const idx=await roomClubRef(room.slug).get();
+      const ids=unique(idx.exists?idx.data()?.clubIds:[]).filter(validateId);
+      const snaps=await Promise.all(ids.map(id=>refFor(id).get()));
+      for(const snap of snaps){
+        if(snap.exists&&!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).includes(room.slug))
+          byId.set(snap.id,snap);
       }
-      const clubs=[...byId.values()].map(d=>({...record(d.data(),d.id),primary:d.data().defaultRoomSlug===room.slug}))
-        .sort((a,b)=>Number(b.primary)-Number(a.primary)||String(a.title||'').localeCompare(String(b.title||''),'pt-BR'));
-      res.set('Cache-Control','private, no-store');
-      res.json({clubs});
-    }catch(e){error(res,e);}
+    }catch(e){queryFailed=true;console.warn('[Fanclubs] Índice de sala indisponível:',e.message);}
+    try{
+      const direct=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).get();
+      for(const snap of direct.docs){
+        if(!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).includes(room.slug))
+          byId.set(snap.id,snap);
+      }
+    }catch(e){queryFailed=true;console.warn('[Fanclubs] Consulta por sala indisponível:',e.message);}
+    // Fallback para vínculos antigos e instalações com índices incompletos.
+    // Não usar limit(500): isso descartava Fanclubs mais recentes silenciosamente.
+    if(queryFailed||!byId.size){
+      const all=await db.collection(CLUBS).get();
+      for(const snap of all.docs){
+        if(!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).includes(room.slug))
+          byId.set(snap.id,snap);
+      }
+    }
+    return [...byId.values()].map(doc=>({
+      ...record(doc.data(),doc.id),primary:doc.data().defaultRoomSlug===room.slug
+    })).sort((a,b)=>Number(b.primary)-Number(a.primary)||
+      String(a.title||'').localeCompare(String(b.title||''),'pt-BR'));
+  }
+  async function notifyRoomFanclubs(slugs){
+    if(!io)return;
+    await Promise.allSettled(unique(slugs).filter(slug=>slug&&slug.toLowerCase()!=='lobby')
+      .map(async slug=>{
+        const clubs=await findRoomFanclubs(slug);
+        io.to(slug).emit('sf208RoomFanclubs',{slug,clubs,updatedAt:Date.now()});
+      }));
+  }
+  // O selo fica disponível para qualquer participante da sala, independentemente
+  // de fazer parte do Fanclub. Acesso a publicações segue protegido pela sessão.
+  app.get('/api/fan-clubs/room/:slug',rateLimit(60,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    res.set('Cache-Control','private, no-store');
+    try{res.json({clubs:await findRoomFanclubs(clean(req.params.slug,100))});}
+    catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/invite',rateLimit(10,3600000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
@@ -1302,7 +1322,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(slug&&(slug.toLowerCase()==='lobby'||!unique(data.roomSlugs).includes(slug)||!rooms.get(slug)||rooms.get(slug).isPrivate))
         throwHttp(400,'Selecione uma sala pública vinculada ao Fan Club.');
       await ref.update({defaultRoomSlug:slug,updatedAt:Date.now()});
-      publish(req.params.id,'rooms');res.json({success:true,roomSlug:slug});
+      publish(req.params.id,'rooms');
+      await notifyRoomFanclubs(unique(data.roomSlugs));
+      res.json({success:true,roomSlug:slug});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/rooms',rateLimit(15,60000),async(req,res)=>{
@@ -1320,7 +1342,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         if(!slugs.includes(slug)&&slugs.length>=3)throwHttp(409,'Limite de três salas por Fan Club.');
         if(!slugs.includes(slug))tx.update(ref,{roomSlugs:[...slugs,slug],updatedAt:Date.now()});
         updateRoomIndex(tx,linkRef,linkSnap,req.params.id,true);
-      });publish(req.params.id,'rooms');res.json({success:true});
+      });publish(req.params.id,'rooms');
+      await notifyRoomFanclubs([slug]);
+      res.json({success:true});
     }catch(e){error(res,e);}
   });
   // Troca atômica: sem janela em que a comunidade fique com quatro salas.
@@ -1350,6 +1374,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const slugs=unique((await refFor(req.params.id).get()).data()?.roomSlugs);
       const defaultRoomSlug=(await refFor(req.params.id).get()).data()?.defaultRoomSlug||'';
       publish(req.params.id,'rooms');
+      await notifyRoomFanclubs([oldSlug,slug]);
       res.json({success:true,roomSlugs:slugs,defaultRoomSlug});
     }catch(e){error(res,e);}
   });
@@ -1364,7 +1389,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         const slugs=unique(snap.data().roomSlugs).filter(x=>x!==req.params.slug);
         tx.update(ref,{roomSlugs:slugs,defaultRoomSlug:snap.data().defaultRoomSlug===req.params.slug?'':snap.data().defaultRoomSlug||'',updatedAt:Date.now()});
         updateRoomIndex(tx,linkRef,linkSnap,req.params.id,false);
-      });publish(req.params.id,'rooms');res.json({success:true});
+      });publish(req.params.id,'rooms');
+      await notifyRoomFanclubs([req.params.slug]);
+      res.json({success:true});
     }catch(e){error(res,e);}
   });
   // Exclusão irreversível: só o criador ou um admin global pode iniciar.
@@ -1407,11 +1434,13 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         }
       }
       await coverRef(id).delete();
+      const oldSlugs=unique((await ref.get()).data()?.roomSlugs);
       await ref.delete();
+      await notifyRoomFanclubs(oldSlugs);
       publish(id,'deleted');closeClubStreams(id);
       res.json({success:true,deletedId:id,roomsPreserved:true});
     }catch(e){error(res,e);}
   });
-  return {CLUBS,clean,record};
+  return {CLUBS,clean,record,findRoomFanclubs};
 }
 module.exports={installFanClubs71,clean};
