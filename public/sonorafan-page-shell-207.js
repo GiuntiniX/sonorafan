@@ -122,6 +122,7 @@ function init(){
  if(typeof window.sf5OpenCommunity==='function'){
   window.sf5OpenCommunity=()=>window.sf125Navigate?.('clubs');
  }
+ window.sf207LeavePage=()=>{if(isPage)window.sf43CloseProfile?.();if(secondaryPage)endSecondary();};
  window.sf207OpenProfile=openProfile;
  window.sf207SetActive=menu;
  window.sf207ProfileIsPage=()=>isPage;
