@@ -50,7 +50,7 @@
     nav.innerHTML=[
       ['overview','▦ Visão geral'],['profile','◉ Editar perfil'],['achievements','✦ Minha Jornada'],
       ['library','▣ Minha Biblioteca'],['dna','◈ Meu DNA'],
-      ['community','♧ Comunidade'],['avatars','◉ Avatares']
+      ['avatars','◉ Avatares']
     ].map(([id,label])=>'<button type="button" data-sf112-tab="'+id+'" aria-pressed="false">'+label+'</button>').join('');
     const overview=document.createElement('section');overview.id='sf202ProfileOverview';overview.className='sf202-profile-overview';overview.hidden=true;
      const lib=document.createElement('section');lib.id='sf112Library';lib.className='sf112-library';lib.hidden=true;
@@ -99,16 +99,12 @@
     const achievements=document.createElement('section');achievements.id='sf112AchievementsHeader';achievements.hidden=true;
     achievements.className='sf112-achievements-intro';
     achievements.innerHTML='<span>SONORAFAN · CONQUISTAS</span><h2>✦ Minha Jornada</h2><p>XP, medalhas, missões, especializações, reputação e histórico — tudo em uma só aba.</p><div id="sf600Journey" aria-live="polite"></div>';
-    const community=document.createElement('section');
-    community.id='sf600Community';community.className='sf600-community';community.hidden=true;
-    community.innerHTML='<header><span>SONORAFAN · FÓRUM 6.0</span><h2>♧ Minhas comunidades</h2><p>Seus Fan Clubs, sua reputação e sua participação no Fórum.</p></header><div id="sf600CommunityBody" aria-live="polite"></div>';
     const hero=root.querySelector('.sf43-profile-hero');
-    if(hero)hero.after(nav,overview,lib,dna,achievements,community);
-    else root.prepend(nav,overview,lib,dna,achievements,community);
+    if(hero)hero.after(nav,overview,lib,dna,achievements);
+    else root.prepend(nav,overview,lib,dna,achievements);
     nav.addEventListener('click',e=>{const b=e.target.closest('[data-sf112-tab]');if(b)select(b.dataset.sf112Tab);});
     lib.addEventListener('click',onClick);
     achievements.addEventListener('click',onJourneyClick);
-    community.addEventListener('click',onJourneyClick);
     $('sf112Search').addEventListener('input',e=>{
       state.query=String(e.target.value||'').trim().slice(0,100);render();
     });
@@ -123,13 +119,14 @@
     select('overview',false);
   }
   function select(tab,fetchData=true){
-    if(!['overview','profile','library','dna','achievements','community','avatars'].includes(tab))tab='overview';
+    if(tab==='community')tab='overview';
+    if(!['overview','profile','library','dna','achievements','avatars'].includes(tab))tab='overview';
     state.tab=tab;
     const m=panel();if(!m)return;
-    m.classList.remove('sf112-tab-overview','sf112-tab-profile','sf112-tab-library','sf112-tab-dna','sf112-tab-achievements','sf112-tab-community','sf112-tab-avatars');
+    m.classList.remove('sf112-tab-overview','sf112-tab-profile','sf112-tab-library','sf112-tab-dna','sf112-tab-achievements','sf112-tab-avatars');
     m.classList.add('sf112-tab-'+tab);
     for(const [id,selected] of [['sf202ProfileOverview',tab==='overview'],['sf112Library',tab==='library'],['sf112DNA',tab==='dna'],
-                               ['sf112AchievementsHeader',tab==='achievements'],['sf600Community',tab==='community']]){
+                               ['sf112AchievementsHeader',tab==='achievements']]){
       if($(id))$(id).hidden=!selected;
     }
     m.querySelectorAll('#sf112Tabs [data-sf112-tab]').forEach(b=>{
@@ -141,7 +138,7 @@
       render();
       if(fetchData&&(!state.loaded||Date.now()-(state.lastFetch||0)>30000))load();
     }
-    if(tab==='achievements'||tab==='community'){
+    if(tab==='achievements'){
       renderJourney();
       if(fetchData&&(!state.journey||Date.now()-(state.journeyFetched||0)>25000))loadJourney();
     }
@@ -172,7 +169,7 @@
       <p>${esc(m.description||'')}</p><div class="sf600-bar"><span style="width:${Math.round(progress/target*100)}%"></span></div></article>`;
   }
   function renderJourney(){
-    const host=$('sf600Journey'),community=$('sf600CommunityBody');
+    const host=$('sf600Journey');
     const data=state.journey;
     if(host&&state.tab==='achievements'){
       if(!data){host.innerHTML='<div class="sf112-empty"><strong>Carregando Minha Jornada…</strong><p>'+esc(state.journeyError||'Consultando XP, medalhas e missões oficiais.')+'</p><button type="button" data-sf600="refresh">Tentar novamente</button></div>';return;}
@@ -219,19 +216,7 @@
           ${recent.length?recent.slice(0,12).map(x=>`<div class="sf600-recent"><strong>${esc(x.name)}</strong><span>+${journeyFmt(x.xp)} XP · ${journeyDate(x.time)}</span></div>`).join(''):'<p>Suas próximas conquistas registradas aparecerão aqui.</p>'}
           <div class="sf600-milestones">${(data.milestones||[]).map(m=>`<span>${m.unlocked?'✓':'🔒'} ${journeyFmt(m.days)} dias</span>`).join('')}</div></section>`;
     }
-    if(community&&state.tab==='community'){
-      if(!data){community.innerHTML='<p class="sf112-empty">Carregando comunidades e reputação…</p>';return;}
-      const rep=data.reputation||{},clubs=state.forumClubs||[];
-      community.innerHTML=`<div class="sf600-community-stats"><div><strong>${journeyFmt(rep.score)}</strong><span>Reputação</span></div>
-         <div><strong>${journeyFmt(rep.acceptedAnswers)}</strong><span>Respostas reconhecidas</span></div>
-         <div><strong>${journeyFmt(clubs.length)}</strong><span>Fan Clubs</span></div></div>
-         <section class="sf600-j-section"><h3>♧ Meus Fan Clubs</h3>
-         ${clubs.length?clubs.slice(0,30).map(c=>`<button type="button" data-sf600="club" data-id="${esc(c.id)}">
-           <strong>${esc(c.title)}</strong><small>${esc(c.artist||'Comunidade musical')} · ${journeyFmt(c.memberCount)} participantes</small></button>`).join(''):'<p>Entre em um Fan Club pelo Fórum para começar a participar.</p>'}</section>
-         <section class="sf600-j-section"><h3>✦ Contribuições validadas</h3>
-           <p>Reputação do Fórum é contabilizada separadamente do XP musical. Ações repetitivas ou não validadas não concedem recompensas.</p>
-           <button type="button" data-sf600="ranking">🏆 Ver o Ranking de reputação</button></section>`;
-    }
+
   }
   async function loadJourney(force=false){
     if(state.journeyBusy&&!force)return;
@@ -519,7 +504,7 @@
         state.errors=[];state.query='';state.genre='';
         state.journey=null;state.journeyFetched=0;state.forumClubs=[];state.journeyRequest++;
         if($('sf112Search'))$('sf112Search').value='';
-        const target=state.opening||'profile';state.opening=null;
+        const target=state.opening||'overview';state.opening=null;
         select(target);
       }
       if(!now&&wasOpen)state.request++;
@@ -528,7 +513,7 @@
     window.sf112OpenProfile=open;
     window.sf112SwitchProfileTab=select;
     document.addEventListener('sf112:refresh-library',()=>{if(profileOpen()&&state.tab==='library')load();});
-    if(profileOpen())select('profile',false);
+    if(profileOpen())select('overview',false);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
