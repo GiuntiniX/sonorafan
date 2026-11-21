@@ -164,9 +164,7 @@
 #sf235Home .sf235-hero-progress{display:block;position:relative;width:52px;height:4px;overflow:hidden;border-radius:999px;background:#ffffff48}
 #sf235Home .sf235-hero-progress>span{display:block;height:100%;width:100%;background:#cbff22;transform-origin:left;animation:sf235Cycle 7s linear infinite}
 #sf235Home .sf235-hero-switch button[data-sf235-autoplay]{display:grid;place-items:center;width:25px;height:25px;font-size:13px;line-height:1;border-radius:50%;background:#5d3168;color:#fff}
-#sf235Home .sf235-hero:has([data-sf235-autoplay][aria-pressed="true"]) .sf235-hero-progress>span,
-#sf235Home .sf235-hero:hover .sf235-hero-progress>span,
-#sf235Home .sf235-hero:focus-within .sf235-hero-progress>span{animation-play-state:paused}
+#sf235Home .sf235-hero:has([data-sf235-autoplay][aria-pressed="true"]) .sf235-hero-progress>span{animation-play-state:paused}
 #sf235Home .sf235-hero-art img{animation:sf235Appear .45s ease both}
 #sf235Home .sf235-post-footer a{color:#cfff32;text-decoration:none;font-weight:800;font-size:11px;border-radius:4px}
 #sf235Home .sf235-post-footer a:hover{text-decoration:underline}
