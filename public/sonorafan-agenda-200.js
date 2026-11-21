@@ -38,7 +38,7 @@ const localeDate=v=>fmt(v,{day:'2-digit',month:'short',year:'numeric'});
 const img=(e,extra='')=>`<img class="sf200-photo" src="${esc(artFor(e))}" data-sf200-fallback="${esc(fallback(e))}" referrerpolicy="no-referrer" loading="lazy" decoding="async" alt="" ${extra}>`;
 const isLive=e=>e.type==='room'&&Number(e.startAt)<=now()&&now()<Number(e.startAt)+(Number(e.durationMinutes)||90)*60000;
 const eligible=e=>Number(e.startAt)>now()-3600000;
-const origin=e=>e.type==='fanclub'?'Fan Club: '+(e.clubName||'Comunidade')+' · '+(e.artist||'Música'):'Sala: '+(e.roomName||'Sala musical')+' · por '+(e.hostName||'Organizador');
+const origin=e=>e.type==='fanclub'?'Fan Club: '+(e.clubName||'Comunidade')+' · '+(e.artist||'Música')+(e.roomSlug?' · Sala: '+(e.roomName||e.roomSlug):''):'Sala: '+(e.roomName||'Sala musical')+' · por '+(e.hostName||'Organizador');
 const tag=e=>`<span class="sf200-tag sf200-tag-${e.type}">${e.type==='fanclub'?'♧ Fan Club':'♫ Sala'}</span>`;
 const userStatus=e=>e.going?'✓ Confirmado':e.type==='fanclub'&&!e.joined?'Entrar no Fan Club':'Participar';
 const actionButtons=(e,compact=false)=>`<button class="sf200-primary" type="button" data-sf200-rsvp="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">${userStatus(e)}</button><button type="button" data-sf200-details="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">Ver evento</button>${compact?'':`<button type="button" data-sf200-calendar="${esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)}">▦ Adicionar à agenda</button>`}`;
@@ -155,8 +155,8 @@ function detail(e){
    <p>${esc(e.description||'Encontro musical criado pela comunidade SonoraFan.')}</p>
    <p>♧ ${Number(e.attendees)||0} participantes confirmados</p>
    <div class="sf200-event-actions">${actionButtons(e)}</div>
-   ${e.type==='room'?`<button type="button" data-sf200-room="${esc(e.roomSlug)}">Entrar na sala musical</button>`:
-    `<button type="button" data-sf200-club="${esc(e.clubId)}">Visitar Fan Club</button>`}
+   ${e.roomSlug?`<button type="button" class="sf200-primary" data-sf200-room="${esc(e.roomSlug)}">♫ Entrar na sala</button>`:''}
+   ${e.type==='fanclub'?`<button type="button" data-sf200-club="${esc(e.clubId)}">Visitar Fan Club</button>`:''}
    ${e.canManage?`<button type="button" class="sf201-delete" data-sf201-delete="${esc(eventKey(e))}">Cancelar evento</button>`:''}</div></div>`;
  layer.querySelector('.sf200-dialog-close')?.focus();
 }
