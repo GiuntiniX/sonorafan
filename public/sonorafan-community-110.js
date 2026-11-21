@@ -179,7 +179,8 @@
      else window.sf15OpenNotifications?.();
      return;
    }
-   if(act==='fanclubs'||act==='friends'||act==='events'){showDetails(act);return;}
+   if(act==='events'&&typeof window.sf200OpenAgenda==='function'){closeLayer();window.sf200OpenAgenda();return;}
+    if(act==='fanclubs'||act==='friends'||act==='events'){showDetails(act);return;}
    if(act==='create'){showDetails('fanclubs');$('sf71CreateClub')?.click();return;}
    if(act==='back'){back();}
  }
