@@ -32,8 +32,8 @@ test('overview shows recommendation, my communities, events, posts and actual no
 
 test('home has independent responsive CSS and versioned browser assets',()=>{
  const html=read('public/index.html'),css=read('public/sonorafan-fanclubs-home-235.css');
- assert.match(html,/sonorafan-fanclubs-home-235\.js\?v=235\.0/);
- assert.match(html,/sonorafan-fanclubs-home-235\.css\?v=235\.0/);
+ assert.match(html,/sonorafan-fanclubs-home-235\.js\?v=235\.1/);
+ assert.match(html,/sonorafan-fanclubs-home-235\.css\?v=235\.1/);
  assert.match(css,/#sf235Home \.sf235-layout/);
  assert.match(css,/@media\(max-width:780px\)/);
  assert.match(css,/@media\(max-width:470px\)/);
