@@ -668,3 +668,8 @@
 }
 @media(max-width:370px){#screen-lobby .sf107-style-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){#screen-lobby .sf107-style{transition:none;transform:none!important}}
+
+/* Cada thumbnail recente mostra a mesma capa, posição e zoom dos cards principais. */
+#screen-lobby .sf107-recent .sf107-thumb{display:block;flex:0 0 64px;width:64px;height:62px;overflow:hidden;border-radius:9px}
+#screen-lobby .sf107-recent .sf107-thumb img{display:block;width:100%;height:100%;max-width:none;flex:none;object-fit:cover;border-radius:0;transform:scale(var(--sf107-cover-zoom,1));transition:transform .25s ease}
+@media(max-width:600px){#screen-lobby .sf107-recent .sf107-thumb{flex-basis:52px;width:52px;height:55px}#screen-lobby .sf107-recent .sf107-thumb img{width:100%;height:100%;flex:none}}
