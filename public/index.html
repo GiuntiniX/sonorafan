@@ -3838,11 +3838,12 @@ function sfCoverPreview(k) {
       const pw = $(k + 'Pw'); if (pw && pw.value) out.password = pw.value;
       return out;
     }
-function cfgPick(boxId, k, key, val) { const boolKeys = ['isPrivate', 'allowLong', 'allowLive']; renderCfg(boxId, k, Object.assign({}, cfgState[k], readCfg(k), { [key]: boolKeys.includes(key) ? !!val : val })); }
+function cfgPick(boxId, k, key, val) { const boolKeys = ['isPrivate', 'allowLong', 'allowLive']; renderCfg(boxId, k, Object.assign({}, cfgState[k], readCfg(k), { [key]: boolKeys.includes(key) ? !!val : val })); sfCoverPreview(k); }
 function openRoomCfg() {
       const d = currentRoomData || {};
       window.sf88OpenEditor?.(d.roomTheme);
       renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, coverUrl: d.coverUrl || '', welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
+      sfCoverPreview('e');
       $('roomCfgModal').classList.add('active');
     }
     function saveRoomCfg() {
@@ -5025,7 +5026,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-queue-discovery-82.js?v=82"></script>
   
   <script defer src="/sonorafan-pwa-83.js?v=142.0"></script>
-  <script defer src="/sonorafan-room-themes-88.js?v=177.0"></script>
+  <script defer src="/sonorafan-room-themes-88.js?v=190.0"></script>
   <script defer src="/sonorafan-room-menu-167.js?v=168.0"></script>
   <script defer src="/sonorafan-lobby-account-92.js?v=92"></script>
   <script defer src="/sonorafan-room-ux-93.js?v=93"></script>
