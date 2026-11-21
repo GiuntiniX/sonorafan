@@ -7,7 +7,7 @@ const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
 test('Global search includes only real rooms, Fan Clubs, events and safe user results',()=>{
  const src=read('public/sonorafan-global-search-208.js');
  new Function(src);
- for(const endpoint of ['/api/rooms','/api/fan-clubs?q=','/api/music-agenda','/api/social/search?q='])assert.ok(src.includes(endpoint),endpoint);
+ for(const endpoint of ['/api/rooms','/api/fan-clubs?q=','/api/music-agenda','/api/social/search?q=','/api/favorites'])assert.ok(src.includes(endpoint),endpoint);
  assert.match(src,/!r\.isPrivate/);
  assert.match(src,/ArrowDown/);
  assert.match(src,/ArrowUp/);
@@ -18,7 +18,7 @@ test('Room affiliation endpoint excludes private rooms and returns only linked F
  const backend=read('fan-clubs-71.js');new Function(backend);
  assert.match(backend,/app\.get\('\/api\/fan-clubs\/room\/:slug'/);
  assert.match(backend,/room\.isPrivate/);
- assert.match(backend,/roomSlugs\)\.includes\(room\.slug\)/);
+ assert.match(backend,/\.where\('roomSlugs','array-contains',room\.slug\)/);
 });
 test('Fan Club invitation validates administrator, member state and sends notification',()=>{
  const backend=read('fan-clubs-71.js');
