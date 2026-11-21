@@ -150,7 +150,7 @@
      state.poll=setInterval(()=>{if(state.activeId===id&&!document.hidden){if(state.focusPost)openTopic(id,state.focusPost.id,false);else if(state.forumSearch)searchForum(id);else loadPosts(id);loadExtras(id);}},25000);
    }
  }
- const showList=()=>{stopLive();$('sf71ClubList').hidden=false;$('sf71ClubDetail').hidden=true;state.activeId=null;state.detail=null;};
+ const showList=()=>{stopLive();$('sf71ClubList').hidden=false;$('sf71ClubDetail').hidden=true;state.activeId=null;state.detail=null;window.sf235ShowHome?.();};
  function clubCard(c){return `<article class="sf71-club-card" data-sf71-id="${esc(c.id)}">
    <div class="sf71-club-art sf71-theme-${esc(c.theme)} ${'sf73-with-cover'}">${imageCover(c,true)}<span aria-hidden="true">${c.theme==='stage'?'♫':c.theme==='cassette'?'▣':c.theme==='waves'?'〰':'◉'}</span></div>
    <div class="sf71-club-copy"><small>FAN CLUB · NÃO OFICIAL</small><strong>${esc(c.title)}</strong><span>Para fãs de ${esc(c.artist)}</span>
@@ -163,6 +163,7 @@
    try{const params=new URLSearchParams();if(state.query)params.set('q',state.query);if(state.mine)params.set('mine','true');
      const response=await api('/api/fan-clubs?'+params);
      state.clubs=Array.isArray(response.clubs)?response.clubs:[];
+     window.sf235UpdateFanclubs?.(state.clubs);
      box.innerHTML=state.clubs.length?state.clubs.map(clubCard).join(''):
        `<div class="sf71-empty"><strong>${state.mine?'Você ainda não participa de Fan Clubs.':'Nenhum Fan Club encontrado.'}</strong><p>Crie uma comunidade para seu artista favorito ou pesquise outro nome.</p></div>`;
      status(state.clubs.length===1?'1 Fan Club encontrado':`${state.clubs.length} Fan Clubs encontrados`);
@@ -706,7 +707,7 @@
  const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();renderCommunityAside();renderSocialWidgets();
  }
  async function openDetail(id){
-   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.pollFilter='all';state.posts=[];state.polls=[];state.clubEvents=[];state.ideas=[];state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.dataset.sf228Pane='mural';box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.pollFilter='all';state.posts=[];state.polls=[];state.clubEvents=[];state.ideas=[];state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;window.sf235HideHome?.();const box=$('sf71ClubDetail');box.dataset.sf228Pane='mural';box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
