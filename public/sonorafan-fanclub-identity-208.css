@@ -331,3 +331,11 @@
 #sf71ClubDetail [data-sf71-refresh],#sf71ClubDetail [data-sf71-retry-detail],#sf71ClubDetail [data-sf160-retry-comments]{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;margin:8px 0;padding:9px 13px;border:1px solid var(--sf244-stroke,#9562a4);border-radius:9px;background:var(--sf244-panel,#251532);color:#f8efff;font-weight:750;cursor:pointer}
 #sf71ClubDetail [data-sf71-refresh]:focus-visible,#sf71ClubDetail [data-sf71-retry-detail]:focus-visible,#sf71ClubDetail [data-sf160-retry-comments]:focus-visible{outline:2px solid var(--sf244-accent,#caff19);outline-offset:2px}
 #sf71ClubDetail .sf180-empty[role="alert"]{padding:12px;border:1px solid var(--sf244-stroke,#9562a4);border-radius:10px;background:var(--sf244-panel,#251532);color:#fff}
+
+/* Fanclub 254 — gestão de até dois coadministradores. */
+#sf71ClubDetail .sf253-admin-panel{margin:12px 0;padding:14px;border:1px solid var(--sf244-stroke,#81528d);background:var(--sf244-panel,#21142d);border-radius:12px;color:#fff}
+#sf71ClubDetail .sf253-admin-panel h4{font-size:14px;margin:0 0 7px}
+#sf71ClubDetail .sf253-admin-panel p{font-size:12px;line-height:1.55;margin:0 0 12px;color:#e4d5e9}
+#sf71ClubDetail .sf253-admin-list{display:flex;flex-wrap:wrap;gap:8px}
+#sf71ClubDetail .sf253-admin-list span{padding:7px 10px;border-radius:9px;border:1px solid var(--sf244-stroke,#81528d);background:var(--sf244-panel-light,#342340);font-size:12px}
+#sf71ClubDetail .sf226-manage:disabled{opacity:.54;cursor:not-allowed;filter:grayscale(.4)}
