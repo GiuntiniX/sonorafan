@@ -96,6 +96,7 @@ function render(){
  </div>
  ${state.loading&&state.events.length===0?'<p class="sf200-empty" role="status">Carregando a agenda musical…</p>':''}
  ${state.error?`<div class="sf200-empty" role="alert">${esc(state.error)} <button type="button" data-sf200-refresh>Tentar novamente</button></div>`:''}
+ ${state.toast?`<div class="sf201-flash" role="status">✓ ${esc(state.toast)} <button type="button" data-sf201-dismiss-toast aria-label="Fechar aviso">✕</button></div>`:''}
  <div class="sf200-content">
    <div class="sf200-left">
     <section class="sf200-featured ${featured?'sf201-has-event':'sf201-no-event'}">
@@ -122,12 +123,14 @@ function open(){
  const agenda=$('sf200Agenda'),content=document.querySelector('#screen-lobby .sf28-lobby-content');
  if(!agenda||!content)return;
  state.open=true;content.classList.add('sf200-is-open');agenda.hidden=false;
+ document.querySelectorAll('#sf125Sidebar .sf125-side-nav:not(.sf125-side-secondary) [data-sf125-go]').forEach(button=>{const isAgenda=button.dataset.sf125Go==='agenda';button.classList.toggle('is-active',isAgenda);if(isAgenda)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
  agenda.scrollIntoView({block:'nearest'});content.scrollTo({top:0});
  load(true);render();
 }
 function close(){
  state.open=false;const content=document.querySelector('#screen-lobby .sf28-lobby-content');
  content?.classList.remove('sf200-is-open');if($('sf200Agenda'))$('sf200Agenda').hidden=true;
+ document.querySelectorAll('#sf125Sidebar .sf125-side-nav:not(.sf125-side-secondary) [data-sf125-go]').forEach(button=>{const isHome=button.dataset.sf125Go==='lobby';button.classList.toggle('is-active',isHome);if(isHome)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
 }
 function lookup(k){return state.events.find(e=>eventKey(e)===k);}
 function download(e){
@@ -203,7 +206,11 @@ async function createEvent(){
  document.body.append(layer);
  const previous=document.activeElement,form=$('sf201CreateForm'),select=form.elements.target,help=$('sf201CreateHelp');
  const closeModal=()=>{layer.remove();previous?.focus?.({preventScroll:true});};
- layer.addEventListener('click',event=>{if(event.target===layer||event.target.closest('[data-sf201-dismiss]'))closeModal();});
+ layer.addEventListener('click',event=>{if(event.target===layer||event.target.closest('[data-sf201-dismiss]')){closeModal();return;}
+  const newSpace=event.target.closest('[data-sf201-new-space]');if(!newSpace)return;
+  const type=newSpace.dataset.sf201NewSpace;closeModal();
+  if(type==='room')window.showCreateRoom?.();else window.sf125Navigate?.('create-club');
+ });
  layer.addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.preventDefault();closeModal();}
   if(event.key==='Tab'){
@@ -214,7 +221,8 @@ async function createEvent(){
  });
  const earliest=new Date(now()+6*60000),latest=new Date(now()+89*86400000);
  form.elements.startAt.min=localStamp(earliest);form.elements.startAt.max=localStamp(latest);
- form.elements.startAt.value=localStamp(new Date(now()+86400000));
+ const selectedDay=fromKey(state.day);selectedDay.setHours(20,0,0,0);
+ form.elements.startAt.value=localStamp(selectedDay.getTime()>now()+5*60000?selectedDay:new Date(now()+86400000));
  const sources={fanclub:[],room:[]};
  const chooseSource=()=>{
   const type=form.elements.type.value,items=sources[type];
@@ -222,6 +230,9 @@ async function createEvent(){
   select.disabled=!items.length;
   help.textContent=items.length?'Escolha um espaço que você administra.':
    type==='fanclub'?'Você precisa administrar um Fan Club para criar encontros.':'Você precisa ser responsável por uma sala pública para criar sessões.';
+  if(!items.length){const newSpace=document.createElement('button');newSpace.type='button';
+   newSpace.className='sf201-create-space';newSpace.dataset.sf201NewSpace=type;
+   newSpace.textContent=type==='fanclub'?'＋ Criar Fan Club':'＋ Criar sala pública';help.append(document.createTextNode(' '),newSpace);}
   form.querySelector('.sf201-theme-label').hidden=type!=='room';
   [...form.elements.durationMinutes.options].forEach(o=>o.disabled=type==='fanclub'&&!['30','60','90','120'].includes(o.value));
   if(type==='fanclub'&&form.elements.durationMinutes.value==='180')form.elements.durationMinutes.value='90';
@@ -250,6 +261,7 @@ async function createEvent(){
     {roomSlug:target,title,description,startAt:new Date(start).toISOString(),durationMinutes,theme:form.elements.theme.value});
    closeModal();state.day=key(new Date(start));state.month=new Date(new Date(start).getFullYear(),new Date(start).getMonth(),1);
    state.type='all';state.genre='all';state.q='';state.onlyMine=false;state.lastLoad=0;
+   state.toast='Evento criado com sucesso! Ele já aparece no calendário.';
    await load(true);
   }catch(err){error.textContent=err.message||'Não foi possível publicar.';error.hidden=false;}
   finally{state.modalBusy=false;submit.disabled=false;submit.textContent='＋ Publicar evento';}
@@ -277,6 +289,7 @@ function handle(event){
  if(btn.hasAttribute('data-sf200-close')){close();return;}
  if(btn.hasAttribute('data-sf200-refresh')){load(true);return;}
  if(btn.hasAttribute('data-sf201-create')){createEvent();return;}
+ if(btn.hasAttribute('data-sf201-dismiss-toast')){state.toast='';render();return;}
  if(btn.hasAttribute('data-sf201-today')){state.month=new Date(today().getFullYear(),today().getMonth(),1);state.day=key(today());render();return;}
  if(btn.hasAttribute('data-sf201-mine')){state.onlyMine=!state.onlyMine;render();return;}
  if(btn.hasAttribute('data-sf201-clear')){state.type='all';state.genre='all';state.q='';state.onlyMine=false;render();return;}
