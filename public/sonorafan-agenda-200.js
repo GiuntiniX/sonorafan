@@ -185,7 +185,7 @@ const localStamp=(date)=>{
  return date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate())+'T'+pad(date.getHours())+':'+pad(date.getMinutes());
 };
 const eventCreateOptions=(items,kind)=>items.map(item=>'<option value="'+esc(item.id||item.slug)+'">'+esc(kind==='fanclub'?(item.title+' · '+(item.artist||'Artista')):item.name)+'</option>').join('');
-async function createEvent(){
+async function createEvent(preferredClub=''){
  let layer=$('sf201CreateLayer');
  if(layer){layer.remove();}
  layer=document.createElement('div');
@@ -197,7 +197,8 @@ async function createEvent(){
   '<label><input type="radio" name="type" value="room"> ♫ Sala musical</label></div>'+
   '<label class="sf201-create-target">Onde será o evento?<select name="target" required><option value="">Carregando...</option></select></label>'+
   '<p class="sf201-create-help" id="sf201CreateHelp" role="status">Carregando seus espaços...</p>'+
-  '<label>Título do evento<input name="title" maxlength="90" minlength="5" required placeholder="Ex.: Noite dos maiores hits do BTS"></label>'+
+  '<label class="sf202-room-link" hidden>Em qual sala será o evento?<select name="clubRoom"><option value="">Sem sala vinculada</option></select><small>Somente salas públicas vinculadas ao Fan Club. O convite identificará a sala.</small></label>'+ 
+   '<label>Título do evento<input name="title" maxlength="90" minlength="5" required placeholder="Ex.: Noite dos maiores hits do BTS"></label>'+
   '<label>Descrição<textarea name="description" rows="3" maxlength="240" placeholder="Conte aos fãs o que vai acontecer..."></textarea></label>'+
   '<div class="sf201-create-two"><label>Data e horário<input name="startAt" type="datetime-local" required></label>'+
   '<label>Duração<select name="durationMinutes"><option value="30">30 min</option><option value="60">1 hora</option><option value="90" selected>1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label></div>'+
@@ -226,6 +227,17 @@ async function createEvent(){
  const selectedDay=fromKey(state.day);selectedDay.setHours(20,0,0,0);
  form.elements.startAt.value=localStamp(selectedDay.getTime()>now()+5*60000?selectedDay:new Date(now()+86400000));
  const sources={fanclub:[],room:[]};
+  const roomSelector=form.elements.clubRoom;
+  async function loadClubRooms(){
+   const clubId=select.value,field=form.querySelector('.sf202-room-link');
+   field.hidden=form.elements.type.value!=='fanclub';
+   roomSelector.innerHTML='<option value="">Sem sala vinculada</option>';
+   if(!clubId||field.hidden)return;
+   try{const response=await fetch('/api/fan-clubs/'+encodeURIComponent(clubId),{credentials:'include'});
+    if(!response.ok)return;const data=await response.json();
+    for(const room of data.club?.rooms||[]){const option=document.createElement('option');option.value=room.slug;option.textContent=room.name;roomSelector.append(option);}
+   }catch(_){}
+  }
  const chooseSource=()=>{
   const type=form.elements.type.value,items=sources[type];
   select.innerHTML='<option value="">Selecione '+(type==='fanclub'?'um Fan Club':'uma sala')+'</option>'+eventCreateOptions(items,type);
@@ -239,8 +251,9 @@ async function createEvent(){
   [...form.elements.durationMinutes.options].forEach(o=>o.disabled=type==='fanclub'&&!['30','60','90','120'].includes(o.value));
   if(type==='fanclub'&&form.elements.durationMinutes.value==='180')form.elements.durationMinutes.value='90';
   form.elements.title.maxLength=type==='fanclub'?90:70;
+   loadClubRooms();
  };
- form.addEventListener('change',event=>{if(event.target.name==='type')chooseSource();});
+ form.addEventListener('change',event=>{if(event.target.name==='type')chooseSource();if(event.target.name==='target')loadClubRooms();});
  const submit=form.querySelector('[type="submit"]');
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(state.modalBusy)return;
@@ -258,7 +271,7 @@ async function createEvent(){
   try{
    const durationMinutes=Number(form.elements.durationMinutes.value);
    if(type==='fanclub')await apiPost('/api/fan-clubs/'+encodeURIComponent(target)+'/events',
-    {title,description,startAt:start,durationMinutes});
+    {title,description,startAt:start,durationMinutes,roomSlug:roomSelector.value});
    else await apiPost('/api/social/events',
     {roomSlug:target,title,description,startAt:new Date(start).toISOString(),durationMinutes,theme:form.elements.theme.value});
    closeModal();state.day=key(new Date(start));state.month=new Date(new Date(start).getFullYear(),new Date(start).getMonth(),1);
@@ -282,8 +295,10 @@ async function createEvent(){
   if(responses[1].status==='fulfilled'&&responses[1].value.ok){
    const data=await responses[1].value.json();sources.room=Array.isArray(data)?data:[];
   }
-  if(!sources.fanclub.length&&sources.room.length){const onlyRoom=form.querySelector('[name="type"][value="room"]');if(onlyRoom)onlyRoom.checked=true;}
+  if(preferredClub&&sources.fanclub.some(c=>c.id===preferredClub)){form.querySelector('[name="type"][value="fanclub"]').checked=true;}
+   else if(!sources.fanclub.length&&sources.room.length){const onlyRoom=form.querySelector('[name="type"][value="room"]');if(onlyRoom)onlyRoom.checked=true;}
   chooseSource();
+  if(preferredClub&&sources.fanclub.some(c=>c.id===preferredClub)){select.value=preferredClub;loadClubRooms();}
  }catch(err){if(layer.isConnected)help.textContent='Não foi possível carregar seus espaços. Feche e tente novamente.';}
 }
 
@@ -338,6 +353,7 @@ function init(){
    img.src=img.dataset.sf200Fallback;
  },true);
  window.sf200OpenAgenda=open;window.sf200CloseAgenda=close;
+ window.sf200CreateEvent=clubId=>createEvent(clubId||'');
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sf200DetailLayer')?.hidden){render();}});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
