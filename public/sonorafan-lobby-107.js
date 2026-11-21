@@ -60,6 +60,31 @@
     if(/vinil|classico|retro/.test(n))return art.vinyl;
     return [art.crowd,art.stage,art.vinyl,art.record][i%4];
   }
+  // Ordem de prioridade: capa personalizada, vídeo em reprodução, arte ilustrativa.
+  function coverImage(r,i=0) {
+    const custom=typeof r.coverUrl==='string' && /^https:\/\//i.test(r.coverUrl) ? r.coverUrl : '';
+    const video=yt(r.currentTrack?.id)?'https://img.youtube.com/vi/'+r.currentTrack.id+'/hqdefault.jpg':'';
+    return {src:custom||video||imageFor(r,i),fallback:video||imageFor(r,i),art:imageFor(r,i),custom:!!custom};
+  }
+  const coverFrame=r=>({
+    x:Math.min(100,Math.max(0,Number(r.coverX ?? 50)||0)),
+    y:Math.min(100,Math.max(0,Number(r.coverY ?? 50)||0)),
+    zoom:Math.min(2,Math.max(1,Number(r.coverZoom ?? 1)||1))
+  });
+  function imageFallback(host) {
+    if (!host)return;
+    host.querySelectorAll('[data-sf107-cover]').forEach(img=>{
+      const backup=img.dataset.fallback, art=img.dataset.art;
+      img.addEventListener('error',()=>{
+        if(!img.dataset.triedBackup && backup && img.src!==backup) {
+          img.dataset.triedBackup='1';img.src=backup;return;
+        }
+        if(!img.dataset.triedArt && art && img.src!==art) {
+          img.dataset.triedArt='1';img.src=art;
+        }
+      });
+    });
+  }
   const genreFor=r=>
     styles.find(([id])=>id===r.genre)?.[2]||'Estilo não informado';
   function renderStyles(){
@@ -119,8 +144,9 @@
   };
   function roomCard(r,i){
     const special=r.slug===lead()?.slug&&count(r.listenerCount)>0;
+    const media=coverImage(r,i),frame=coverFrame(r);
     return `<button class="sf107-room-card${special?' sf107-leader':''}" type="button" data-sf107-room="${esc(r.slug)}" aria-label="Entrar na sala ${esc(r.name)}">
-      <img src="${imageFor(r,i)}" alt="" loading="lazy" decoding="async">
+      <img data-sf107-cover src="${esc(media.src)}" data-fallback="${esc(media.fallback)}" data-art="${esc(media.art)}" style="object-position:${frame.x}% ${frame.y}%;--sf107-cover-zoom:${media.custom?frame.zoom:1}" alt="" loading="lazy" decoding="async">
       <span class="sf107-card-shade"></span>
       ${special?'<span class="sf107-pop-badge">♛ Mais popular</span>':''}
       ${r.isPlaying?'<span class="sf107-live-badge">● AO VIVO</span>':''}
@@ -137,6 +163,7 @@
     host.innerHTML=state.rooms===null?'<p class="sf107-empty">Carregando as salas…</p>':
       rooms.length?rooms.slice(0,state.all?48:4).map(roomCard).join(''):
       `<div class="sf107-empty">Nenhuma sala encontrada. <button data-sf107="reset" type="button">Ver todas</button></div>`;
+    imageFallback(host);
     if(more){more.hidden=rooms.length<=4;more.textContent=state.all?'Ver menos':'Ver todas ›';}
   }
   function renderFeatured(){
@@ -147,8 +174,9 @@
       <p>Assim que houver salas públicas, a que tiver mais ouvintes aparecerá em destaque.</p>
       <button class="sf107-join" type="button" data-sf107="create">＋ Criar uma sala</button></section>`;return;}
     const top=count(r.listenerCount)>0,t=r.currentTrack||{};
-    const video=yt(t.id)?'https://img.youtube.com/vi/'+encodeURIComponent(t.id)+'/mqdefault.jpg':imageFor(r);
-    host.innerHTML=`<section class="sf107-feature${top?' sf107-top':''}" style="--sf107-feature-image:url('${imageFor(r)}')">
+    const media=coverImage(r),video=yt(t.id)?'https://img.youtube.com/vi/'+encodeURIComponent(t.id)+'/mqdefault.jpg':media.src;
+    const frame=coverFrame(r);
+    host.innerHTML=`<section class="sf107-feature${top?' sf107-top':''}">
       <div class="sf107-feature-image"></div><div class="sf107-feature-content">
         <div class="sf107-feature-badges"><span class="sf107-status">${r.isPlaying?'◉ AO VIVO':'♫ SALA DISPONÍVEL'}</span>
           ${top?'<span class="sf107-top-label">♛ Maior audiência agora</span>':''}</div>
@@ -161,6 +189,13 @@
             <span>${esc(t.artist||'Música colaborativa')}</span></div><b aria-hidden="true">▂▅▃▇</b></div>
         <button type="button" class="sf107-join" data-sf107-room="${esc(r.slug)}">🎧 Entrar na sala</button>
       </div></section>`;
+    const feature=host.querySelector('.sf107-feature');
+    if(feature){
+      // Propriedades definidas via DOM, evitando interpolação de URL em CSS HTML.
+      feature.style.setProperty('--sf107-feature-image','url('+JSON.stringify(media.src)+')');
+      feature.style.setProperty('--sf107-feature-position',frame.x+'% '+frame.y+'%');
+      feature.style.setProperty('--sf107-feature-zoom',String(media.custom?frame.zoom:1));
+    }
   }
   function renderRecent(){
     const host=$('sf107Recent');if(!host)return;
@@ -394,7 +429,7 @@
   function updateRooms(list){
     if(!Array.isArray(list))return;
     const signature=list.map(r=>[r.slug,r.listenerCount,r.isPlaying,r.currentTrack?.id,
-      r.currentTrack?.title,r.roomTheme,r.genre,r.description,r.name].join(':')).join('|');
+      r.currentTrack?.title,r.roomTheme,r.genre,r.description,r.name,r.coverUrl,r.coverX,r.coverY,r.coverZoom].join(':')).join('|');
     if(signature===state.signature)return;
     state.signature=signature;state.rooms=list.filter(r=>r&&valid(r.slug));renderAll();renderStyles();
   }
