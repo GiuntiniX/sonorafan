@@ -7,7 +7,7 @@
  let themes=[FALLBACK], byId=new Map([[FALLBACK.id,FALLBACK]]);
  let roomSlug='',sharedTheme='geral',personalOverride=null,mayEdit=false;
  let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null;
- const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro']);
+ const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro','bts','kpop','jpop','trap','lofi']);
  const safe=id=>KNOWN_THEMES.has(id)?id:'geral';
  const find=id=>byId.get(safe(id))||FALLBACK;
  const storageKey=slug=>'sf88:theme:'+slug;
@@ -264,9 +264,14 @@
    sertanejo:['/themes/hd-175/sonorafan-sertanejo-aprovado.webp','/themes/hd-175/sonorafan-sertanejo-thumb.webp'],
    reggae:['/themes/final-170/reggae.webp','/themes/final-170/reggae-thumb.webp'],
    jazz:['/themes/final-170/jazz.webp','/themes/final-170/jazz-thumb.webp'],
-   forro:['/themes/final-170/forro.webp','/themes/final-170/forro-thumb.webp']
+   forro:['/themes/final-170/forro.webp','/themes/final-170/forro-thumb.webp'],
+   bts:['/themes/new-190/bts.svg','/themes/new-190/bts.svg'],
+   kpop:['/themes/new-190/kpop.svg','/themes/new-190/kpop.svg'],
+   jpop:['/themes/new-190/jpop.svg','/themes/new-190/jpop.svg'],
+   trap:['/themes/new-190/trap.svg','/themes/new-190/trap.svg'],
+   lofi:['/themes/new-190/lofi.svg','/themes/new-190/lofi.svg']
  });
- const themeRevision='177';
+ const themeRevision='190';
  const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
  fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'no-store'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
