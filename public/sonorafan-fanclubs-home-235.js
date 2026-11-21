@@ -107,10 +107,10 @@ function update(clubs){
  state.clubs=Array.isArray(clubs)?clubs.filter(c=>valid(c?.id)):[];
  state.featured=0;
  if(state.detail)return;
- render();fetchExtras();
+ render();state.loadedAt=Date.now();fetchExtras();
 }
 function show(){state.detail=false;const home=$('sf235Home');if(home)home.hidden=false;const panel=$('sfFanClubsPanel');panel?.classList.add('sf235-home-active');render();
- if(Date.now()-state.loadedAt>25000){state.loadedAt=Date.now();fetchExtras();}
+ if(state.clubs.length&&Date.now()-state.loadedAt>25000){state.loadedAt=Date.now();fetchExtras();}
 }
 function hide(){state.detail=true;state.fetchId++;$('sf235Home')?.setAttribute('hidden','');$('sfFanClubsPanel')?.classList.remove('sf235-home-active');}
 function init(){
