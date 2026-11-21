@@ -554,6 +554,20 @@
      (p.canDelete?'<button type="button" class="sf231-poll-delete" data-sf160-delete-poll="'+esc(p.id)+'">Excluir</button>':'')+
      '</div></div></article>';
  }
+
+ function filteredPolls(){
+   const mode=state.pollFilter||'all';
+   return [...state.polls].filter(p=>mode==='all'||(mode==='active'?!p.closed:p.closed))
+     .sort((a,b)=>Number(a.closed)-Number(b.closed)||Number(b.createdAt)-Number(a.createdAt));
+ }
+ function pollFilterToolbar(){
+   const active=state.polls.filter(p=>!p.closed).length;
+   const opts=[['all','Todas',state.polls.length],['active','Abertas',active],['closed','Encerradas',state.polls.length-active]];
+   return '<div class="sf231-filters" role="group" aria-label="Filtrar enquetes">'+
+      opts.map(item=>'<button type="button" data-sf231-filter="'+item[0]+'" aria-pressed="'+((state.pollFilter||'all')===item[0])+'">'+
+        item[1]+' <span>'+item[2]+'</span></button>').join('')+'</div>';
+ }
+
  function openPollEditor(poll=null){
    const editing=!!poll,hasVotes=editing&&Number(poll.totalVotes)>0;
    const opts=editing?[...(poll.options||[])]:['',''];
@@ -613,7 +627,7 @@
  function renderExtras(){
  const el=$('sf160Extras');if(!el)return;const c=state.detail?.club;
  if(state.activePane==='polls'){
- el.innerHTML=`<section class="sf160-extra-panel sf231-polls-page"><div class="sf160-extra-head"><div><h4>🗳 Enquetes do Fanclub</h4><p>Participe das decisões, confira resultados e acompanhe os assuntos favoritos dos fãs.</p></div>${c?.canModerate?'<button type="button" data-sf160-create-poll>＋ Criar enquete</button>':''}</div><div class="sf231-poll-grid">${state.polls.length?state.polls.map(p=>pollCard(p)).join(''):'<p class="sf231-empty">Nenhuma enquete publicada. Crie a primeira para começar a conversa.</p>'}</div></section>`;
+ el.innerHTML=`<section class="sf160-extra-panel sf231-polls-page"><div class="sf160-extra-head"><div><h4>🗳 Enquetes do Fanclub</h4><p>Participe das decisões, confira resultados e acompanhe os assuntos favoritos dos fãs.</p></div>${c?.canModerate?'<button type="button" data-sf160-create-poll>＋ Criar enquete</button>':''}</div>${pollFilterToolbar()}<div class="sf231-poll-grid">${filteredPolls().length?filteredPolls().map(p=>pollCard(p)).join(''):'<p class="sf231-empty">Nenhuma enquete publicada. Crie a primeira para começar a conversa.</p>'}</div></section>`;
  }else if(state.activePane==='events'){
  const events=state.clubEvents,linked=c?.events||[];
  el.innerHTML=`<section class="sf160-extra-panel sf202-club-agenda">
@@ -681,7 +695,7 @@
  const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();renderCommunityAside();renderSocialWidgets();
  }
  async function openDetail(id){
-   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.posts=[];state.polls=[];state.clubEvents=[];state.ideas=[];state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.dataset.sf228Pane='mural';box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.pollFilter='all';state.posts=[];state.polls=[];state.clubEvents=[];state.ideas=[];state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.dataset.sf228Pane='mural';box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
@@ -1054,6 +1068,11 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
  if(t.hasAttribute('data-sf160-create-poll')){
    if(!state.detail?.club?.canModerate)return;
    openPollEditor();return;
+ }
+ if(t.hasAttribute('data-sf231-filter')){
+   const filter=t.dataset.sf231Filter;
+   if(['all','active','closed'].includes(filter)){state.pollFilter=filter;renderExtras();}
+   return;
  }
  if(t.hasAttribute('data-sf231-edit-poll')){
    const poll=state.polls.find(p=>p.id===t.dataset.sf231EditPoll);
