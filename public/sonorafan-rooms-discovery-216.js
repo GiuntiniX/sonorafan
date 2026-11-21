@@ -4,7 +4,7 @@
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const valid=v=>typeof v==='string'&&/^[a-z0-9][a-z0-9_-]{0,100}$/i.test(v);
+const valid=v=>typeof v==='string'&&v.length>0&&v.length<=140&&!/[\/\\\u0000-\u001f\u007f]/.test(v); // inclui identificadores antigos com acentos
 const fmt=v=>Math.max(0,Number(v)||0).toLocaleString('pt-BR');
 const state={rooms:[],bookmarks:new Set(),mode:'discover',query:'',style:'',activity:'all',sort:'popular',view:'grid',limit:12,ready:false,loading:false,lastFetch:0,lastFavorites:0,favoritesError:''};
 const styles=[['','Todos'],['kpop','K-pop'],['pop','Pop'],['jpop','J-pop'],['trap','Trap'],['lofi','Lo-fi'],['indie','Indie'],['rock','Rock'],['mpb','MPB'],['eletronica','Eletrônica'],['funk','Funk'],['rap','Rap'],['sertanejo','Sertanejo'],['pagode','Pagode'],['reggae','Reggae'],['forro','Forró'],['jazz','Jazz'],['metal','Metal'],['samba','Samba']];
@@ -64,13 +64,23 @@ async function toggleFavorite(slug){if(!valid(slug))return;const want=!state.boo
 if(want)state.bookmarks.add(slug);else state.bookmarks.delete(slug);render();
 try{const res=await fetch('/api/room-bookmarks',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({slug,favorite:want})});const data=await res.json();if(!res.ok)throw Error(data.error||'Não foi possível salvar o favorito.');state.bookmarks=new Set((data.slugs||[]).filter(valid));render();}
 catch(e){state.bookmarks=old;render();if(typeof window.toast==='function')window.toast(e.message,'error');else alert(e.message);}}
+function enterRoom(slug,manage=false){
+ if(!valid(slug)){showError('Identificador de sala inválido.');return;}
+ const join=window.joinRoom;
+ if(typeof join!=='function'){showError('Não foi possível iniciar a entrada. Atualize a página e tente novamente.');return;}
+ if(!state.rooms.some(room=>room.slug===slug)){showError('Esta sala não está mais disponível. Atualize a lista.');fetchRooms(true);return;}
+ window.sf216ManageRoomAfterJoin=manage?slug:null;
+ close();
+ try{join(slug);}catch(error){window.sf216ManageRoomAfterJoin=null;showError('Erro ao entrar na sala. Tente novamente.');console.error('sf216 enterRoom:',error);open(state.mode);}
+}
+function showError(message){const node=$('sf216Status');if(node){node.textContent=message;node.hidden=false;}else if(typeof window.toast==='function')window.toast(message,'error');}
 function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});window.sf207SetActive?.('lobby');}
 function open(mode='discover'){const page=$('sf216Explorer');if(!page)return;if(!$('screen-lobby')?.classList.contains('active')&&typeof window.showScreen==='function')window.showScreen('lobby');window.sf207LeavePage?.();window.sf200CloseAgenda?.();
 state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discover';state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
 function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage],[data-sf216-community]');if(!node)return;
-if(node.hasAttribute('data-sf216-manage')){const slug=node.dataset.sf216Manage;if(valid(slug)){window.sf216ManageRoomAfterJoin=slug;close();window.joinRoom?.(slug);
+if(node.hasAttribute('data-sf216-manage')){const slug=node.dataset.sf216Manage;if(valid(slug)){enterRoom(slug,true);
   // Aguardar a confirmação da entrada; não abrir um editor vazio.
   let tries=0;const check=()=>{
     if(window.sf216ManageRoomAfterJoin!==slug)return;
@@ -82,7 +92,7 @@ if(node.hasAttribute('data-sf216-manage')){const slug=node.dataset.sf216Manage;i
     }else if(++tries<35)setTimeout(check,350);
     else window.sf216ManageRoomAfterJoin=null;
   };setTimeout(check,350);}return;}
-if(node.hasAttribute('data-sf216-join')){const slug=node.dataset.sf216Join;if(valid(slug)){close();window.joinRoom?.(slug);}return;}
+if(node.hasAttribute('data-sf216-join')){enterRoom(node.dataset.sf216Join);return;}
 if(node.hasAttribute('data-sf216-fav'))return void toggleFavorite(node.dataset.sf216Fav);
 if(node.hasAttribute('data-sf216-mode')){state.mode=node.dataset.sf216Mode;state.limit=12;render();return;}
 if(node.hasAttribute('data-sf216-style')){state.style=node.dataset.sf216Style;state.limit=12;render();return;}
