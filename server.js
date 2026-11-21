@@ -434,7 +434,7 @@ function broadcastState(slug) {
     history: room.history.slice(-10),
     radioMode: room.radioMode, musicMode: room.musicMode || 'all', votePriority: !!room.votePriority, radioGenre: room.radioGenre || 'pop',
     pinnedMessage: room.pinnedMessage,
-    listenerCount: room.listenerCount,
+    listenerCount: syncRoomOccupancy(slug),
     maxListeners: settings.maxListeners,
     color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), ...publicRoomCover(room), genre: room.genre || null,
     inviteCount: room.inviteCount,
@@ -1463,7 +1463,8 @@ app.post('/api/admin/kick-user', (req, res) => {
       if (socket.userEmail === email) {
         socket.emit('kicked', 'Você foi expulso da sala pelo admin.');
         socket.leave(roomSlug);
-        room.listenerCount = Math.max(0, room.listenerCount - 1);
+        syncRoomOccupancy(roomSlug);
+        notifyNextWaiting(roomSlug);
         broadcastState(roomSlug);
         broadcastUsers(roomSlug);
         res.json({ success: true });
@@ -1762,7 +1763,7 @@ io.on('connection', (socket) => {
         slug: room.slug, name: room.name, currentIndex: room.currentIndex,
         position: getPosition(room), votes: room.votes, queue: room.queue, waitingQueue: room.waitingQueue,
         admin: room.admin, isPlaying: room.isPlaying, history: room.history.slice(-10), radioMode: room.radioMode, musicMode: room.musicMode || 'all', votePriority: !!room.votePriority, radioGenre: room.radioGenre || 'pop',
-        pinnedMessage: room.pinnedMessage, listenerCount: room.listenerCount, maxListeners: settings.maxListeners,
+        pinnedMessage: room.pinnedMessage, listenerCount: syncRoomOccupancy(slug), maxListeners: settings.maxListeners,
         color: room.color, roomTheme: normalizeRoomTheme88(room.roomTheme), ...publicRoomCover(room), genre: room.genre || null, inviteCount: room.inviteCount, eventStartTime: room.eventStartTime,
         maxDuration: room.maxDuration, allowLive: room.allowLive,
         emoji: room.emoji, description: room.description, slowMode: room.slowMode, addMode: room.addMode,
@@ -2169,7 +2170,7 @@ io.on('connection', (socket) => {
       else if (action === 'ban' || action === 'kick') {
         if (action === 'ban') addSanction({ ...san, type: 'ban' });
         ts.emit('kicked', action === 'ban' ? `⛔ Você foi banido desta sala por ${dur}${why ? ' — ' + why : ''}` : 'Você foi expulso da sala.');
-        ts.leave(currentRoom); room.listenerCount = Math.max(0, room.listenerCount - 1);
+        ts.leave(currentRoom); syncRoomOccupancy(currentRoom); notifyNextWaiting(currentRoom);
         addSystemMsg(currentRoom, `${action === 'ban' ? '⛔' : '👢'} ${ts.userName} foi ${action === 'ban' ? 'banido por ' + dur : 'expulso'} (${socket.userName})`);
         broadcastState(currentRoom);
       } else return;
