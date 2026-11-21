@@ -69,21 +69,33 @@ function open(mode='discover'){const page=$('sf216Explorer');if(!page)return;if(
 state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discover';state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
-function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage]');if(!node)return;
-if(node.hasAttribute('data-sf216-manage')){const slug=node.dataset.sf216Manage;if(valid(slug)){window.sf216ManageRoomAfterJoin=slug;close();window.joinRoom?.(slug);}return;}
+function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage],[data-sf216-community]');if(!node)return;
+if(node.hasAttribute('data-sf216-manage')){const slug=node.dataset.sf216Manage;if(valid(slug)){window.sf216ManageRoomAfterJoin=slug;close();window.joinRoom?.(slug);
+  // Aguardar a confirmação da entrada; não abrir um editor vazio.
+  let tries=0;const check=()=>{
+    if(window.sf216ManageRoomAfterJoin!==slug)return;
+    const room=document.getElementById('screen-room'),title=document.getElementById('roomTitle');
+    const matching=state.rooms.find(r=>r.slug===slug);
+    if(room?.classList.contains('active')&&matching&&title?.textContent?.includes(matching.name)){
+      window.sf216ManageRoomAfterJoin=null;
+      window.openRoomCfg?.();
+    }else if(++tries<35)setTimeout(check,350);
+    else window.sf216ManageRoomAfterJoin=null;
+  };setTimeout(check,350);}return;}
 if(node.hasAttribute('data-sf216-join')){const slug=node.dataset.sf216Join;if(valid(slug)){close();window.joinRoom?.(slug);}return;}
 if(node.hasAttribute('data-sf216-fav'))return void toggleFavorite(node.dataset.sf216Fav);
 if(node.hasAttribute('data-sf216-mode')){state.mode=node.dataset.sf216Mode;state.limit=12;render();return;}
 if(node.hasAttribute('data-sf216-style')){state.style=node.dataset.sf216Style;state.limit=12;render();return;}
 if(node.hasAttribute('data-sf216-create'))return window.showCreateRoom?.();
 if(node.hasAttribute('data-sf216-profile')){close();return window.sf125Navigate?.('profile');}
+if(node.hasAttribute('data-sf216-community')){close();return window.sf125Navigate?.('clubs');}
 if(node.hasAttribute('data-sf216-close'))return close();
 if(node.hasAttribute('data-sf216-clear'))return clear();
 if(node.hasAttribute('data-sf216-more')){state.limit+=12;render();return;}
 if(node.hasAttribute('data-sf216-view')){state.view=state.view==='grid'?'list':'grid';render();return;}}
 function build(){if($('sf216Explorer'))return;const main=document.querySelector('#screen-lobby .sf28-lobby-main');if(!main)return;
 const page=document.createElement('section');page.id='sf216Explorer';page.className='sf216-page';page.hidden=true;page.setAttribute('aria-label','Explorar salas');
-page.innerHTML='<div class="sf216-shell"><aside class="sf216-aside" aria-label="Minha área de salas">'+
+page.innerHTML='<header class="sf216-topbar"><img src="/brand-144/sonorafan-logo.svg" alt="SonoraFan" width="1260" height="426"><nav aria-label="Navegação de salas"><button type="button" data-sf216-close>⌂ Início</button><button type="button" class="is-current">◈ Salas</button><button type="button" data-sf216-community>♧ Comunidade</button><button type="button" data-sf216-profile>◉ Perfil</button></nav></header><div class="sf216-shell"><aside class="sf216-aside" aria-label="Minha área de salas">'+
 '<div class="sf216-profile"><div class="sf216-avatar" id="sf216Avatar">♫</div><strong id="sf216ProfileName">Sua experiência</strong><small>Minha comunidade SonoraFan</small><div class="sf216-stats"><span><b id="sf216CountMine">0</b>salas criadas</span><span><b id="sf216CountFavorites">0</b>favoritas</span></div></div>'+
 '<section class="sf216-favorite-panel"><div class="sf216-panel-heading"><strong>♡ Favoritas</strong><button type="button" data-sf216-mode="favorites">Ver todas ›</button></div><div id="sf216SideFavorites" class="sf216-side-favorites"></div></section>'+
 '<div class="sf216-side-nav"><button type="button" data-sf216-mode="discover">◈ Descobrir salas</button><button type="button" data-sf216-mode="mine">♬ Minhas salas</button><button type="button" data-sf216-mode="manage">⚙ Gerenciar salas</button><button type="button" data-sf216-mode="favorites">♡ Favoritas</button><button type="button" data-sf216-profile>◉ Meu perfil</button><button type="button" data-sf216-create>＋ Criar sala</button><button type="button" data-sf216-close>← Voltar ao início</button></div></aside>'+
