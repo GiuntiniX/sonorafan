@@ -46,6 +46,14 @@ function init(){
   window.sf125Navigate?.('clubs');
   window.sf71OpenFanClub?.(id);
  });
+ document.addEventListener('sf71:rooms-updated',()=>{
+  const slug=new URLSearchParams(location.search).get('sala');
+  if(slug&&document.querySelector('#screen-room.active'))show(slug);
+ });
+ window.addEventListener('focus',()=>{
+  const slug=new URLSearchParams(location.search).get('sala');
+  if(slug&&document.querySelector('#screen-room.active'))show(slug);
+ });
  window.sf208RenderRoomClub=show;
  window.sf208ClearRoomClub=()=>{version++;panel.hidden=true;panel.innerHTML='';};
 }
