@@ -2,7 +2,8 @@
 // SonoraFan 71 — comunidades permanentes criadas por fãs.
 // O servidor decide acesso e moderação usando a sessão; o navegador nunca define papéis.
 const crypto = require('crypto');
-const THEMES = new Set(['vinyl','stage','cassette','waves']);
+const ROOM_THEMES = require('./public/themes/catalog-88.json');
+const THEMES = new Set(ROOM_THEMES.map(theme=>theme.id));
 const GENRES = new Set(['kpop','pop','rock','indie','sertanejo','funk','mpb','hiphop','eletronica','pagode','samba','forro','gospel','reggae','metal','punk','jazz','blues','rnb','lofi','latina','classica','outros']);
 const GALLERY_COVERS = Object.freeze({
   stage:'/art-129/sonorafan-stage.svg',
@@ -142,7 +143,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   };
   const record = (data, id) => ({
     id: String(id || data.id), title: data.title, artist: data.artist, description:data.description,
-    rules:data.rules, theme:data.theme, genre:GENRES.has(data.genre)?data.genre:'outros', coverType:data.coverType||'legacy', coverImageUrl:data.coverType==='external'?data.coverImageUrl||'':'', coverGalleryId:data.coverType==='gallery'?data.coverGalleryId||'':'', badgeImageUrl:validExternalCover(data.badgeImageUrl)||'', ownerId:data.ownerId, ownerName:data.ownerName,
+    rules:data.rules, theme:THEMES.has(data.theme)?data.theme:'geral', genre:GENRES.has(data.genre)?data.genre:'outros', coverType:data.coverType||'legacy', coverImageUrl:data.coverType==='external'?data.coverImageUrl||'':'', coverGalleryId:data.coverType==='gallery'?data.coverGalleryId||'':'', badgeImageUrl:validExternalCover(data.badgeImageUrl)||'', ownerId:data.ownerId, ownerName:data.ownerName,
     memberCount:unique(data.memberIds).length, roomCount:unique(data.roomSlugs).length,
     createdAt:data.createdAt, coverVersion:Number(data.coverVersion)||0, isUnofficial:true
   });
@@ -289,7 +290,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.post('/api/fan-clubs',rateLimit(20,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const artist=clean(req.body?.artist,65),title=clean(req.body?.title,75),description=clean(req.body?.description,280),rules=clean(req.body?.rules,300);
-    const theme=THEMES.has(req.body?.theme)?req.body.theme:'vinyl';
+    const theme=THEMES.has(req.body?.theme)?req.body.theme:'geral';
     const genre=GENRES.has(req.body?.genre)?req.body.genre:'outros';
     const cover=coverChoice(req.body);
     if(!cover)return res.status(400).json({error:'Escolha uma capa válida da galeria ou informe um link HTTPS direto.'});
@@ -1032,7 +1033,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
             const c=d.data(),ev=await d.ref.collection('events').orderBy('startAt','asc').limit(30).get();
             return ev.docs.filter(e=>Number(e.data()?.startAt)>=now-3600000&&Number(e.data()?.startAt)<=now+90*86400000)
               .map(e=>({id:e.id,type:'fanclub',clubId:d.id,clubName:clean(c.title,75),
-                artist:clean(c.artist,65),genre:clean(c.genre||'outros',32),theme:clean(c.theme||'vinyl',20),
+                artist:clean(c.artist,65),genre:clean(c.genre||'outros',32),theme:clean(THEMES.has(c.theme)?c.theme:'geral',40),
                 coverType:clean(c.coverType||'legacy',15),coverImageUrl:c.coverType==='external'?validExternalCover(c.coverImageUrl):'',
                 coverGalleryId:c.coverType==='gallery'&&Object.hasOwn(GALLERY_COVERS,c.coverGalleryId)?c.coverGalleryId:'',
                 coverVersion:Number(c.coverVersion)||0,title:clean(e.data().title,90),roomSlug:clean(e.data().roomSlug||'',100),roomName:clean(rooms.get(e.data().roomSlug)?.name||'',90),
