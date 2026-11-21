@@ -131,7 +131,9 @@ function init(){
   if(secondaryPage==='ranking'&&!$('lbModal')?.classList.contains('active'))endSecondary();
  }).observe($('lbModal'),{attributes:true,attributeFilter:['class']});
  document.addEventListener('click',event=>{
-  if(secondaryPage==='clubs'&&event.target.closest('.sf5-close')){secondaryPage='';menu('lobby');}
+  if(secondaryPage==='clubs'&&event.target.closest('.sf5-close')){
+   queueMicrotask(()=>{if(secondaryPage==='clubs')endSecondary();});
+  }
  },true);
 
  document.addEventListener('keydown',e=>{
