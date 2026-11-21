@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const gallery={stage:'/art-129/sonorafan-stage.svg',kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',brasil:'/art-33/poster-brasil.webp',electronic:'/art-33/poster-electro.webp',festival:'/art-40/poster-festival.svg'};
 const genreArt={kpop:gallery.kpop,pop:gallery.pop,rock:gallery.rock,metal:gallery.rock,indie:gallery.indie,mpb:gallery.brasil,hiphop:gallery.brasil,funk:gallery.brasil,sertanejo:gallery.brasil,eletronica:gallery.electronic};
-const state={clubs:[],notices:[],posts:[],events:[],search:'',tab:'all',featured:0,loading:false,loadedAt:0,error:'',fetchId:0,detail:false,feedLoading:false};
+const state={clubs:[],notices:[],posts:[],events:[],search:'',tab:'all',featured:0,loading:false,loadedAt:0,error:'',fetchId:0,detail:false,feedLoading:false,bootstrapped:false,request:0};
 function safeUrl(value){try{const u=new URL(String(value||''));return u.protocol==='https:'&&!u.username&&!u.password?u.href:'';}catch{return '';}}
 function cover(c){
  const fallback=genreArt[c.genre]||gallery.festival;
@@ -84,6 +84,14 @@ function render(){
   '<section class="sf235-side-card"><h3>♧ Comunidades em destaque</h3>'+
   (filtered.length?filtered.slice(0,4).map(c=>'<button class="sf235-side-club" type="button" data-sf235-open="'+esc(c.id)+'"><span>'+favCover(c)+'</span><strong>'+esc(c.title)+'</strong><small>'+num(c.memberCount)+' fãs</small></button>').join(''):'<p class="sf235-empty">Descubra seu primeiro Fanclub.</p>')+
   '</section></aside></div>';
+ if(state.error){
+   const errorBanner=document.createElement('div');
+   errorBanner.className='sf235-recovery';
+   errorBanner.setAttribute('role','alert');
+   errorBanner.innerHTML='<strong>Não foi possível atualizar os Fanclubs.</strong> '+esc(state.error)+
+    ' <button type="button" data-sf235-retry>Tentar novamente</button>';
+   home.prepend(errorBanner);
+ }
  attachImageFallback(home);
 }
 function attachImageFallback(home){home.querySelectorAll('img[data-sf235-fallback]').forEach(img=>img.addEventListener('error',()=>{if(img.dataset.fallbackUsed)return;img.dataset.fallbackUsed='1';img.src=img.dataset.sf235Fallback;},{once:true}));}
@@ -104,24 +112,70 @@ async function fetchExtras(){
  state.events=results.slice(1).filter((_,i)=>i%2===1).flat().sort((a,b)=>Number(a.startAt)-Number(b.startAt));
  render();
 }
+async function loadIndependent(){
+ if(state.loading||state.detail)return;
+ state.loading=true;
+ const current=++state.request;
+ try{
+  const response=await fetch('/api/fan-clubs',{credentials:'same-origin',cache:'no-store'});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(data.error||'Não foi possível buscar Fanclubs (HTTP '+response.status+').');
+  if(state.detail||current!==state.request)return;
+  state.clubs=Array.isArray(data.clubs)?data.clubs.filter(c=>valid(c?.id)):[];
+  state.error='';
+  state.loadedAt=Date.now();
+  render();
+  fetchExtras();
+ }catch(e){
+  if(!state.detail&&current===state.request){
+   state.error=e.message;
+   render();
+  }
+ }finally{state.loading=false;}
+}
 function update(clubs){
  state.clubs=Array.isArray(clubs)?clubs.filter(c=>valid(c?.id)):[];
- state.featured=0;
+ state.featured=0;state.error='';
  if(state.detail)return;
  render();state.loadedAt=Date.now();fetchExtras();
 }
-function show(){state.detail=false;const home=$('sf235Home');if(home)home.hidden=false;const panel=$('sfFanClubsPanel');panel?.classList.add('sf235-home-active');render();
- if(state.clubs.length&&Date.now()-state.loadedAt>25000){state.loadedAt=Date.now();fetchExtras();}
+function ensureHome(){
+ const panel=$('sfFanClubsPanel'),list=$('sf71ClubList');
+ if(!panel||!list)return null;
+ let home=$('sf235Home');
+ if(!home){
+  home=document.createElement('div');
+  home.id='sf235Home';home.className='sf235-home';
+  home.setAttribute('aria-label','Página inicial dos Fanclubs');
+  list.before(home);
+ }
+ return home;
 }
-function hide(){state.detail=true;state.fetchId++;$('sf235Home')?.setAttribute('hidden','');$('sfFanClubsPanel')?.classList.remove('sf235-home-active');}
+function show(){
+ const home=ensureHome(),panel=$('sfFanClubsPanel');if(!home||!panel)return;
+ state.detail=false;
+ home.hidden=false;panel.classList.add('sf235-home-active');
+ try{render()}catch(e){
+  console.error('[Fanclubs home] Falha de renderização:',e);
+  // Nunca deixar a página vazia: revelar a listagem tradicional.
+  panel.classList.remove('sf235-home-active');
+  home.hidden=true;
+  panel.querySelector('#sf71ClubList')?.removeAttribute('hidden');
+  return;
+ }
+ if(!state.clubs.length||Date.now()-state.loadedAt>30000)loadIndependent();
+}
+function hide(){state.detail=true;state.fetchId++;state.request++;$('sf235Home')?.setAttribute('hidden','');$('sfFanClubsPanel')?.classList.remove('sf235-home-active');}
 function init(){
- const panel=$('sfFanClubsPanel'),list=$('sf71ClubList');if(!panel||!list)return;
- const home=document.createElement('div');home.id='sf235Home';home.className='sf235-home';home.setAttribute('aria-label','Página inicial dos Fanclubs');home.hidden=true;
- list.before(home);
+ const panel=$('sfFanClubsPanel'),list=$('sf71ClubList'),home=ensureHome();
+ if(!panel||!list||!home||state.bootstrapped)return;
+ state.bootstrapped=true;
+ home.hidden=true;
  home.addEventListener('click',event=>{
   const b=event.target.closest('button');if(!b)return;
   if(b.hasAttribute('data-sf235-feature')){const total=getVisible().length;if(total){state.featured=(state.featured+(b.dataset.sf235Feature==='next'?1:total-1))%total;render();}return;}
   if(b.hasAttribute('data-sf235-open')){const id=b.dataset.sf235Open;if(valid(id))window.sf71OpenFanClub?.(id);return;}
+  if(b.hasAttribute('data-sf235-retry')){state.error='';loadIndependent();return;}
   if(b.hasAttribute('data-sf235-create')){$('sf71CreateClub')?.click();return;}
   if(b.hasAttribute('data-sf235-notifications')){window.sf15OpenNotifications?.();return;}
   if(b.hasAttribute('data-sf235-tab')){state.tab=b.dataset.sf235Tab;render();$('sf235Discover')?.scrollIntoView({block:'start',behavior:'smooth'});return;}
@@ -129,8 +183,20 @@ function init(){
  });
  home.addEventListener('input',event=>{if(event.target.id!=='sf235Search')return;const input=event.target;state.search=input.value.slice(0,60);const pos=input.selectionStart;render();const next=$('sf235Search');next?.focus({preventScroll:true});next?.setSelectionRange(pos,pos);});
  window.sf235UpdateFanclubs=update;window.sf235ShowHome=show;window.sf235HideHome=hide;
- // Se a listagem já estiver aberta após um carregamento inicial, preservar o estado correto.
+ // A página pode ser exibida antes da inicialização do módulo de Fanclubs.
+ // Reconciliar com o DOM em vez de depender da ordem dos callbacks.
  if(!$('sf71ClubDetail')?.hidden)hide();
+ else if(!panel.hidden)show();
+ const observer=new MutationObserver(()=>{
+  if(panel.hidden)return;
+  const detail=$('sf71ClubDetail');
+  if(detail&&!detail.hidden){if(!state.detail)hide();return;}
+  if(state.detail||$('sf235Home')?.hidden||!panel.classList.contains('sf235-home-active'))show();
+ });
+ observer.observe(panel,{attributes:true,attributeFilter:['hidden']});
+ observer.observe($('sf71ClubDetail'),{attributes:true,attributeFilter:['hidden']});
+ window.addEventListener('pageshow',()=>{if(!panel.hidden&&$('sf71ClubDetail')?.hidden)show();});
+ 
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
