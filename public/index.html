@@ -1442,6 +1442,8 @@
   <link rel="stylesheet" href="/sonorafan-community-profile-202.css?v=205.1">
   <link rel="stylesheet" href="/sonorafan-profile-festival-206.css?v=206.0">
   <link rel="stylesheet" href="/sonorafan-page-shell-207.css?v=207.1">
+  <link rel="stylesheet" href="/sonorafan-global-search-208.css?v=208.0">
+  <link rel="stylesheet" href="/sonorafan-fanclub-identity-208.css?v=208.0">
   <link rel="stylesheet" href="/sonorafan-room-genres-109.css?v=600.0">
   <link rel="stylesheet" href="/sonorafan-community-110.css?v=139.1">
   <link rel="stylesheet" href="/sonorafan-profile-108.css?v=108.1">
@@ -3827,6 +3829,7 @@ function openRoomCfg() {
       window.sf88BeginRoom?.(slug);
       emitJoin(slug);
       showScreen('room');
+      window.sf208RenderRoomClub?.(slug);
       setTab('player'); setTimeout(maybeRoomTour, 1200);
       document.getElementById('chatMessagesInner').innerHTML = '';
       amIAdmin = false;
@@ -3838,6 +3841,7 @@ function openRoomCfg() {
       _joinedSlug = null; _joinExtra = {};
       if (currentRoom) socket.emit('leaveRoom');
       currentRoom = null; currentRoomData = null;
+      window.sf208ClearRoomClub?.();
       window.sf88LeaveRoom?.();
       if (player && player.stopVideo) player.stopVideo();
       setSpectrum(false); applyAlbumGlow(null);
@@ -4965,6 +4969,8 @@ function openRoomCfg() {
 <script defer src="/sonorafan-room-redesign-113.js?v=163.0"></script>
   <script defer src="/sonorafan-unified-125.js?v=207.5"></script>
   <script defer src="/sonorafan-page-shell-207.js?v=207.4"></script>
+  <script defer src="/sonorafan-global-search-208.js?v=208.0"></script>
+  <script defer src="/sonorafan-room-fanclub-208.js?v=208.0"></script>
   <script defer src="/sonorafan-experience-126.js?v=126.1"></script>
   <script defer src="/sonorafan-room-permissions-129.js?v=129.1"></script>
   <script defer src="/sonorafan-room-personalization-133.js?v=143.0"></script>
