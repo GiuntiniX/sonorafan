@@ -6,9 +6,35 @@
  const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],postCursor:null,postHasMore:false,forumSearch:false,forumSearching:false,focusPost:null,related:[],replyTo:null,quoteTo:null,forumSearchCursor:null,forumSearchHasMore:false,activePane:'mural',polls:[],ideas:[],clubEvents:[],insights:null,contributors:[],reports:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
  const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
+ const genres={kpop:'K-Pop',pop:'Pop',rock:'Rock',indie:'Indie / Alternativo',sertanejo:'Sertanejo',funk:'Funk',mpb:'MPB',hiphop:'Hip-Hop',eletronica:'Eletrônica',pagode:'Pagode',samba:'Samba',forro:'Forró',gospel:'Gospel',reggae:'Reggae',metal:'Metal',punk:'Punk',jazz:'Jazz',blues:'Blues',rnb:'R&B',lofi:'Lo-fi',latina:'Música Latina',classica:'Clássica',outros:'Outros'};
+ const gallery={stage:'/art-129/sonorafan-stage.svg',kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',brasil:'/art-33/poster-brasil.webp',electronic:'/art-33/poster-electro.webp',festival:'/art-40/poster-festival.svg'};
+ const preferred={kpop:'kpop',pop:'pop',rock:'rock',metal:'rock',punk:'rock',indie:'indie',eletronica:'electronic',funk:'brasil',mpb:'brasil',hiphop:'brasil',pagode:'brasil',samba:'brasil',forro:'brasil',sertanejo:'brasil',latina:'brasil'};
+ const fallback=club=>gallery[preferred[club?.genre]||'stage'];
+ const safeUrl=value=>{try{const u=new URL(String(value||''));return u.protocol==='https:'&&!u.username&&!u.password&&u.hostname.includes('.')&&!/(^|\\.)(localhost|local|internal|test|invalid)$/.test(u.hostname)?u.href:'';}catch(_){return '';}};
+ const coverForm=(kind='default',id='',url='')=>`<fieldset class="sf192-choices"><legend>Imagem de capa</legend>
+   <label><input type="radio" name="coverType" value="default" ${kind==='default'?'checked':''}> Automática pelo gênero musical</label>
+   <label><input type="radio" name="coverType" value="gallery" ${kind==='gallery'?'checked':''}> Escolher na galeria SonoraFan</label>
+   <div class="sf192-gallery">${Object.entries(gallery).map(([key,src])=>`<label><input type="radio" name="coverGalleryId" value="${key}" ${id===key?'checked':''}><img src="${src}" alt="Capa ${key}" loading="lazy"><span>${key}</span></label>`).join('')}</div>
+   <label><input type="radio" name="coverType" value="external" ${kind==='external'?'checked':''}> Usar URL da internet (HTTPS)</label>
+   <label class="sf192-link">Endereço direto da imagem<input type="url" name="coverImageUrl" maxlength="500" placeholder="https://exemplo.com/imagem.webp" value="${esc(url)}"></label>
+   <img class="sf192-preview" alt="Prévia da capa">
+   <small>Use somente imagens autorizadas; links externos podem parar de funcionar. A capa padrão é usada automaticamente em caso de erro.</small>
+ </fieldset>`;
+ const chosenCover=fd=>{const type=String(fd.get('coverType')||'default');
+   if(type==='gallery'){const coverGalleryId=String(fd.get('coverGalleryId')||'stage');if(!gallery[coverGalleryId])throw Error('Escolha uma capa.');return {coverType:type,coverGalleryId};}
+   if(type==='external'){const coverImageUrl=safeUrl(fd.get('coverImageUrl'));if(!coverImageUrl||coverImageUrl.length>500)throw Error('Informe um endereço HTTPS válido.');return {coverType:type,coverImageUrl};}
+   return {coverType:'default'};
+ };
+ const wireCover=overlay=>{const update=()=>{const f=overlay.querySelector('form'),type=f.querySelector('[name="coverType"]:checked')?.value||'default';
+   f.querySelector('.sf192-gallery').hidden=type!=='gallery';f.querySelector('.sf192-link').hidden=type!=='external';
+   const id=f.querySelector('[name="coverGalleryId"]:checked')?.value||'stage',url=f.querySelector('[name="coverImageUrl"]')?.value||'';
+   f.querySelector('.sf192-preview').src=type==='gallery'?(gallery[id]||gallery.stage):type==='external'?(safeUrl(url)||gallery.stage):fallback({genre:f.querySelector('[name="genre"]')?.value});};
+   overlay.addEventListener('change',e=>{if(e.target.matches('input,select'))update();});overlay.querySelector('[name="coverImageUrl"]').addEventListener('input',update);
+   overlay.querySelector('.sf192-preview').addEventListener('error',e=>{e.target.onerror=null;e.target.src=gallery.stage;});update();
+ };
  const byId=id=>state.clubs.find(c=>c.id===id);
- const coverUrl=club=>club?.coverVersion ? '/api/fan-clubs/'+encodeURIComponent(club.id)+'/cover?v='+encodeURIComponent(String(club.coverVersion)) : '';
- const imageCover=(club,small=false)=>club?.coverVersion ? `<img class="sf73-cover-img" src="${coverUrl(club)}" alt="Capa do Fan Club ${esc(club.title)}" ${small?'loading="lazy"':''} decoding="async">` : '';
+ const coverUrl=club=>club?.coverType==='gallery'?(gallery[club.coverGalleryId]||fallback(club)):club?.coverType==='external'?(safeUrl(club.coverImageUrl)||fallback(club)):club?.coverVersion?'/api/fan-clubs/'+encodeURIComponent(club.id)+'/cover?v='+encodeURIComponent(String(club.coverVersion)):fallback(club);
+ const imageCover=(club,small=false)=>`<img class="sf73-cover-img" src="${esc(coverUrl(club))}" data-sf192-fallback="${esc(fallback(club))}" onerror="this.onerror=null;this.src=this.dataset.sf192Fallback" alt="Capa do Fan Club ${esc(club.title)}" ${small?'loading="lazy"':''} decoding="async">`;
  async function compressCover(file){
    if(!file)return null;
    if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw Error('Escolha uma imagem JPG, PNG ou WebP.');
@@ -125,10 +151,10 @@
  }
  const showList=()=>{stopLive();$('sf71ClubList').hidden=false;$('sf71ClubDetail').hidden=true;state.activeId=null;state.detail=null;};
  function clubCard(c){return `<article class="sf71-club-card" data-sf71-id="${esc(c.id)}">
-   <div class="sf71-club-art sf71-theme-${esc(c.theme)} ${c.coverVersion?'sf73-with-cover':''}">${imageCover(c,true)}<span aria-hidden="true">${c.theme==='stage'?'♫':c.theme==='cassette'?'▣':c.theme==='waves'?'〰':'◉'}</span></div>
+   <div class="sf71-club-art sf71-theme-${esc(c.theme)} ${'sf73-with-cover'}">${imageCover(c,true)}<span aria-hidden="true">${c.theme==='stage'?'♫':c.theme==='cassette'?'▣':c.theme==='waves'?'〰':'◉'}</span></div>
    <div class="sf71-club-copy"><small>FAN CLUB · NÃO OFICIAL</small><strong>${esc(c.title)}</strong><span>Para fãs de ${esc(c.artist)}</span>
     <p>${esc(c.description||'Converse, conheça outros fãs e compartilhe músicas.')}</p>
-    <div class="sf71-club-meta"><span>👥 ${Number(c.memberCount)||0} membros</span><span>♫ ${Number(c.roomCount)||0} salas</span>${c.joined?'<span>✓ Participando</span>':''}</div>
+    <div class="sf71-club-meta"><span>👥 ${Number(c.memberCount)||0} membros</span><span>♫ ${Number(c.roomCount)||0} salas</span><span>${esc(genres[c.genre]||'Outros')}</span>${c.joined?'<span>✓ Participando</span>':''}</div>
    </div><button type="button" data-sf71-open="${esc(c.id)}" aria-label="Abrir ${esc(c.title)}">Ver Fan Club</button></article>`;}
  async function loadClubs(){
    const box=$('sf71ClubList');if(!box)return;
@@ -173,37 +199,31 @@
    document.body.append(overlay);overlay.querySelector('input,select,textarea')?.focus();return overlay;
  }
  function openCreate(){
-   const overlay=modal('Criar Fan Club',`<label>Artista ou banda<input name="artist" maxlength="65" minlength="2" required placeholder="Ex.: Linkin Park"></label>
-   <label>Nome da comunidade<input name="title" maxlength="75" minlength="3" required placeholder="Ex.: Fãs de Linkin Park Brasil"></label>
-   <label>Descrição<textarea name="description" maxlength="280" rows="2" placeholder="O que une os fãs por aqui?"></textarea></label>
-   <label>Regras da comunidade<textarea name="rules" maxlength="300" rows="2" placeholder="Respeito, sem spam e com muito som…"></textarea></label>
+   const opts=Object.entries(genres).map(([id,name])=>`<option value="${id}">${esc(name)}</option>`).join('');
+   const overlay=modal('Criar Fan Club',`<label>Artista ou banda<input name="artist" maxlength="65" minlength="2" required placeholder="Ex.: BTS"></label>
+   <label>Nome da comunidade<input name="title" maxlength="75" minlength="3" required placeholder="Ex.: Armys"></label>
+   <label>Descrição<textarea name="description" maxlength="280" rows="2"></textarea></label>
+   <label>Regras da comunidade<textarea name="rules" maxlength="300" rows="2"></textarea></label>
+   <label>Gênero musical<select name="genre" required>${opts}</select></label>
    <label>Identidade visual<select name="theme"><option value="vinyl">Vinil</option><option value="stage">Palco</option><option value="cassette">Cassete</option><option value="waves">Ondas</option></select></label>
-   <label class="sf73-cover-field">Imagem de capa (opcional)<input type="file" id="sf73CreateCover" name="coverImage" accept="image/jpeg,image/png,image/webp"><small>Use uma foto do artista ou da comunidade. A imagem será ajustada para o formato panorâmico.</small><img id="sf73CoverPreview" alt="Prévia da capa escolhida" hidden></label>
-   <small class="sf71-unofficial">Fan Club criado por fãs, sem associação oficial ao artista.</small>`,async fd=>{
-     const file=fd.get('coverImage');
-     if(file?.size && (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size>8*1024*1024)) throw Error('Escolha uma imagem JPG, PNG ou WebP de até 8 MB.');
-     const payload={};for(const key of ['artist','title','description','rules','theme'])payload[key]=fd.get(key)||'';
-     const d=await post('/api/fan-clubs',payload);return {id:d.club.id,file:file?.size?file:null};
+   ${coverForm()}<small class="sf71-unofficial">Fan Club criado por fãs, sem associação oficial ao artista.</small>`,async fd=>{
+     const payload={};for(const key of ['artist','title','description','rules','theme','genre'])payload[key]=fd.get(key)||'';
+     Object.assign(payload,chosenCover(fd));const d=await post('/api/fan-clubs',payload);return {id:d.club.id};
    },async result=>{
-     let warning='';if(result.file){status('Preparando capa do Fan Club…');try{await uploadCover(result.id,result.file);}catch(e){warning='O Fan Club foi criado, mas a capa não foi enviada: '+e.message;}}
      state.mine=false;$('sf71ClubMine')?.setAttribute('aria-pressed','false');
-     await loadClubs();
-     window.sf107RefreshFanClubs?.();
+     await loadClubs();window.sf107RefreshFanClubs?.();
      document.dispatchEvent(new CustomEvent('sf71:created',{detail:{id:result.id}}));
-     if(document.getElementById('screen-lobby')?.classList.contains('active')
-       && typeof window.sf107OpenFanClub==='function'){
-       window.sf107OpenFanClub(result.id);
-     }else{
-       await openDetail(result.id);
-     }
-     status(warning||'Fan Club criado! Personalize a capa e convide outros fãs.',!!warning);
-   });
-   const input=overlay.querySelector('#sf73CreateCover'),img=overlay.querySelector('#sf73CoverPreview');let objectUrl=null;
-   input?.addEventListener('change',()=>{
-     if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}
-     const file=input.files?.[0];if(file){objectUrl=URL.createObjectURL(file);img.src=objectUrl;img.hidden=false;}else{img.hidden=true;img.removeAttribute('src');}
-   });
-   return overlay;
+     if(document.getElementById('screen-lobby')?.classList.contains('active')&&typeof window.sf107OpenFanClub==='function')window.sf107OpenFanClub(result.id);
+     else await openDetail(result.id);
+     status('Fan Club criado! Convide outros fãs.');
+   });wireCover(overlay);return overlay;
+ }
+ function changeCover(id,club){
+   const kind=['gallery','external'].includes(club.coverType)?club.coverType:'default';
+   const overlay=modal('Alterar capa',coverForm(kind,club.coverGalleryId,club.coverImageUrl),async fd=>{
+     await post('/api/fan-clubs/'+encodeURIComponent(id)+'/cover-choice',chosenCover(fd));return true;
+   },async()=>{await openDetail(id);await loadClubs();window.sf107RefreshFanClubs?.();status('Capa atualizada.');});
+   wireCover(overlay);
  }
  function membersHtml(d){if(!d.club.joined&&!d.club.owner)return '';
    const members=(d.club.members||[]).map(m=>`<div class="sf71-member"><span>${esc(m.avatar||'🎧')}</span><strong>${esc(m.name)}</strong>
@@ -441,7 +461,7 @@
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
-       <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} ${c.coverVersion?'sf73-with-cover':''}">${imageCover(c)}<div class="sf71-detail-symbol" aria-hidden="true">♫</div><div class="sf73-hero-info"><span>FAN CLUB NÃO OFICIAL</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${c.memberCount} participantes</p></div></div>
+       <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} ${'sf73-with-cover'}">${imageCover(c)}<div class="sf71-detail-symbol" aria-hidden="true">♫</div><div class="sf73-hero-info"><span>FAN CLUB NÃO OFICIAL</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${esc(genres[c.genre]||'Outros')} · ${c.memberCount} participantes</p></div></div>
        <p class="sf71-detail-desc">${esc(c.description||'Um lugar para reunir fãs, músicas e boas conversas.')}</p>
        ${c.canEditProfile?`<button type="button" class="sf180-edit-profile" data-sf180-edit-profile>✎ Editar bio e regras</button>`:''}
        ${c.profileUpdatedAt?`<small class="sf180-profile-updated">Informações atualizadas em ${new Date(c.profileUpdatedAt).toLocaleDateString('pt-BR')}</small>`:''}
@@ -451,7 +471,7 @@
         <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
          ${c.owner?'<button type="button" data-sf160-pane="members">👑 Administradores do Fan Club</button>':''}
          <button type="button" data-sf170-show-events>📅 Ver eventos</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
-         ${c.owner?`<button type="button" data-sf73-change-cover>🖼 ${c.coverVersion?'Trocar':'Adicionar'} capa</button>${c.coverVersion?'<button type="button" data-sf73-remove-cover>Remover capa</button>':''}<input id="sf73DetailCover" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Escolher imagem de capa" hidden>`:''}
+         ${c.owner?`<button type="button" data-sf73-change-cover>🖼 Alterar capa</button><button type="button" data-sf73-remove-cover>Usar capa padrão</button>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Fórum da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
          ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf600Title">Título da discussão<input id="sf600Title" name="title" maxlength="110" minlength="6" required placeholder="Resuma sua discussão em um título"></label>
@@ -690,10 +710,10 @@
      if(submit){submit.textContent='Excluir definitivamente';submit.classList.add('sf75-delete-confirm');}
      return;
    }
-   if(t.hasAttribute('data-sf73-change-cover')){$('sf73DetailCover')?.click();return;}
+   if(t.hasAttribute('data-sf73-change-cover')){changeCover(id,state.detail.club);return;}
    if(t.hasAttribute('data-sf73-remove-cover')){
      if(!confirm('Remover a imagem de capa deste Fan Club?'))return;
-     await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/cover',{method:'DELETE'});await openDetail(id);},'Capa removida.');return;
+     await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/cover-choice',{coverType:'default'});await openDetail(id);await loadClubs();window.sf107RefreshFanClubs?.();},'Capa removida.');return;
    }
    if(t.matches('[data-sf71-back]')){showList();await loadClubs();return;}
    if(t.hasAttribute('data-sf142-club-calendar')){
