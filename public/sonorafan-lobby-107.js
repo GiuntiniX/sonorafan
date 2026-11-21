@@ -202,11 +202,12 @@
     const m=new Map(allRooms().map(r=>[r.slug,r]));
     const list=[...new Set([...state.recent,...state.pinned.map(r=>r.slug)])].map(id=>m.get(id)).filter(Boolean).slice(0,3);
     host.innerHTML=list.length?list.map((r,i)=>`<button class="sf107-recent" type="button" data-sf107-room="${esc(r.slug)}">
-      <img src="${imageFor(r,i)}" alt="" loading="lazy" decoding="async">
+      <img data-sf107-cover src="${esc(coverImage(r,i).src)}" data-fallback="${esc(coverImage(r,i).fallback)}" data-art="${esc(coverImage(r,i).art)}" style="object-position:${coverFrame(r).x}% ${coverFrame(r).y}%;transform-origin:${coverFrame(r).x}% ${coverFrame(r).y}%;--sf107-cover-zoom:${coverImage(r,i).custom?coverFrame(r).zoom:1}" alt="" loading="lazy" decoding="async">
       <span><strong>${esc(r.name)}</strong><small>Sala · ${esc(genreFor(r))}</small></span>
       <i aria-hidden="true">▶</i></button>`).join(''):
       `<div class="sf107-inline-empty"><span>♫</span> As salas visitadas ou favoritas aparecerão aqui.
         <button type="button" data-sf107="scroll">Explorar salas ›</button></div>`;
+    imageFallback(host);
   }
   function clubGenre(c){
     // Club themes are not always music genres. Do not infer genres from artwork or people's names.
