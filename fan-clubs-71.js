@@ -175,6 +175,35 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     return {id,name:person?clean(person[1]?.nome||'Fã SonoraFan',40):'Membro',avatar:person?clean(person[1]?.avatar||'🎧',8):'🎧'};
   }
 
+  // Vinculação pública da sala, sem expor ambientes privados.
+  app.get('/api/fan-clubs/room/:slug',rateLimit(50,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const room=rooms.get(clean(req.params.slug,100));
+    if(!room||room.isPrivate)return res.json({clubs:[]});
+    try{
+      const snap=await db.collection(CLUBS).limit(200).get();
+      const clubs=snap.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug))
+        .slice(0,6).map(d=>({...record(d.data(),d.id),primary:d.data().defaultRoomSlug===room.slug}));
+      res.json({clubs});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/invite',rateLimit(10,3600000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const userId=String(req.body?.userId||'');
+    if(!/^[a-f0-9-]{16,128}$/i.test(userId))return res.status(400).json({error:'Usuário inválido.'});
+    try{
+      const {data}=await readClub(req.params.id);
+      if(!canModerate(data,me))throwHttp(403,'Somente administradores podem convidar.');
+      if(unique(data.blockedIds).includes(userId))throwHttp(403,'Usuário bloqueado.');
+      if(unique(data.memberIds).includes(userId))throwHttp(409,'Usuário já é membro.');
+      const found=[...users.entries()].find(([email,user])=>email!==me.email&&!user?.banned&&publicUserId(email)===userId);
+      if(!found)throwHttp(404,'Usuário não encontrado.');
+      if(typeof sf15Notify!=='function')throwHttp(503,'Notificações indisponíveis.');
+      await sf15Notify(found[0],{type:'fanclub',title:'Convite: '+clean(data.title,65),
+        message:clean(me.name+' convidou você para o Fan Club '+data.title+'. Abra o Fan Club para participar.',200),fanClubId:req.params.id});
+      res.json({success:true});
+    }catch(e){error(res,e);}
+  });
   app.get('/api/fan-clubs/:id/stream',rateLimit(15,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{
