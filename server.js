@@ -789,6 +789,36 @@ app.post('/api/social/events/:id/rsvp',rateLimit(20,60000),async(req,res)=>{
   try{await db.collection('socialEvents').doc(e.id).set({...e,attendees});e.attendees=attendees;res.json({going:attendees.includes(id),attendees:attendees.length});}
   catch(err){res.status(503).json({error:'Não foi possível confirmar presença'});}
 });
+app.patch('/api/social/events/:id',rateLimit(12,60000),async(req,res)=>{
+ const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+ const original=socialEvents.get(req.params.id);
+ if(!original)return res.status(404).json({error:'Evento não encontrado'});
+ const room=rooms.get(original.roomSlug);
+ if(original.hostId!==publicUserId(me)&&room?.ownerEmail!==me&&!adminEmails.has(me))
+   return res.status(403).json({error:'Somente quem criou ou administra este evento pode editar'});
+ if(!room||room.isPrivate)return res.status(409).json({error:'A sala associada não está disponível'});
+ if(original.startAt<Date.now()-3600000)return res.status(409).json({error:'Evento encerrado não pode ser editado'});
+ const title=eventClean(req.body?.title,70),description=eventClean(req.body?.description,240),
+   startAt=Date.parse(req.body?.startAt),durationMinutes=Number(req.body?.durationMinutes);
+ if(title.length<3||!Number.isFinite(startAt)||startAt<Date.now()+300000||startAt>Date.now()+90*86400000||
+   ![45,60,90,120,180].includes(durationMinutes))
+   return res.status(400).json({error:'Título, data futura (5 minutos a 90 dias) ou duração inválidos'});
+ const theme=['indie','rock2000','discoveries','pop','electronic'].includes(req.body?.theme)?req.body.theme:(original.theme||'indie');
+ // Mover para outra sala só é permitido a quem administra ambas.
+ const slug=String(req.body?.roomSlug||original.roomSlug);
+ const target=rooms.get(slug);
+ if(!target||target.isPrivate)return res.status(400).json({error:'Selecione uma sala pública'});
+ if(slug!==original.roomSlug&&target.ownerEmail!==me&&!adminEmails.has(me))
+   return res.status(403).json({error:'Você precisa administrar a sala selecionada'});
+ if(slug!==original.roomSlug&&[...socialEvents.values()].filter(e=>e.id!==original.id&&e.roomSlug===slug&&e.startAt>Date.now()).length>=10)
+   return res.status(409).json({error:'Limite de eventos futuros na sala selecionada'});
+ const updated={...original,title,description,startAt,durationMinutes,theme,roomSlug:slug,roomName:target.name,updatedAt:Date.now()};
+ try{
+   await db.collection('socialEvents').doc(original.id).set(updated);
+   socialEvents.set(original.id,updated);
+   res.json({success:true,event:publicEvent(updated)});
+ }catch(err){res.status(503).json({error:'Não foi possível atualizar o evento'});}
+});
 app.delete('/api/social/events/:id',rateLimit(10,60000),async(req,res)=>{
   const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
   const e=socialEvents.get(req.params.id);if(!e)return res.status(404).json({error:'Evento inexistente'});
