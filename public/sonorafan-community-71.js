@@ -206,7 +206,7 @@
    <label>Descrição<textarea name="description" maxlength="280" rows="2"></textarea></label>
    <label>Regras da comunidade<textarea name="rules" maxlength="300" rows="2"></textarea></label>
    <label>Gênero musical<select name="genre" required>${opts}</select></label>
-   <label>Identidade visual<select name="theme"><option value="vinyl">Vinil</option><option value="stage">Palco</option><option value="cassette">Cassete</option><option value="waves">Ondas</option></select></label>
+   <label>Identidade visual · escolha o estilo da comunidade<select name="theme"><option value="vinyl">Vinil</option><option value="stage">Palco</option><option value="cassette">Cassete</option><option value="waves">Ondas</option></select></label>
    ${coverForm()}<small class="sf71-unofficial">Fan Club criado por fãs, sem associação oficial ao artista.</small>`,async fd=>{
      const payload={};for(const key of ['artist','title','description','rules','theme','genre'])payload[key]=fd.get(key)||'';
      Object.assign(payload,chosenCover(fd));const d=await post('/api/fan-clubs',payload);return {id:d.club.id};
@@ -528,6 +528,8 @@
         <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
          ${c.owner?'<button type="button" data-sf160-pane="members">👑 Administradores do Fan Club</button>':''}
           ${c.canModerate?'<button type="button" data-sf160-pane="rooms">♫ Gerenciar salas</button>':''}
+          ${c.canModerate?'<button type="button" data-sf208-invite>✉ Convidar usuários</button>':''}
+          <button type="button" data-sf208-share>⌁ Compartilhar Fan Club</button>
          <button type="button" class="sf202-club-agenda-link" data-sf170-show-events>▦ Agenda do Fan Club</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 Alterar capa</button><button type="button" data-sf73-remove-cover>Usar capa padrão</button>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
@@ -631,6 +633,44 @@
   }
 
  
+ 
+ if(t.hasAttribute('data-sf208-invite')){
+  if(!state.detail?.club?.canModerate)return;
+  const overlay=modal('Convidar para '+state.detail.club.title,
+   '<p>Pesquise pessoas pelo nome. O convite chega por notificação; elas escolhem se querem participar.</p>'+
+   '<label>Buscar usuário<input name="query" type="search" maxlength="40" placeholder="Nome ou nickname" autocomplete="off"></label>'+
+   '<div class="sf208-invite-results" role="listbox"></div><input type="hidden" name="userId">'+
+   '<p class="sf208-invite-choice" role="status">Selecione alguém da lista.</p>',
+   async fd=>{if(!fd.get('userId'))throw Error('Selecione uma pessoa.');await post('/api/fan-clubs/'+encodeURIComponent(id)+'/invite',{userId:fd.get('userId')});},
+   ()=>status('Convite enviado com sucesso.'));
+  const input=overlay.querySelector('[name=query]'),box=overlay.querySelector('.sf208-invite-results');
+  let seq=0,timer,controller=null;
+  input.addEventListener('input',()=>{
+   const q=input.value.trim(),i=++seq;
+   overlay.querySelector('[name=userId]').value='';clearTimeout(timer);controller?.abort();
+   if(q.length<2){box.textContent='Digite pelo menos duas letras.';return;}
+   timer=setTimeout(async()=>{
+    controller=new AbortController();
+    try{const response=await fetch('/api/social/search?q='+encodeURIComponent(q),{credentials:'include',signal:controller.signal});
+      if(!response.ok)throw Error('Busca indisponível');
+      const found=await response.json();if(i!==seq)return;
+      box.innerHTML=found.length?found.map(person=>'<button type="button" data-sf208-person="'+esc(person.id)+'" data-sf208-name="'+esc(person.name)+'">◉ '+esc(person.name)+'</button>').join(''):'<p>Nenhuma pessoa encontrada.</p>';
+    }catch(e){if(e.name!=='AbortError')box.textContent='Falha na busca de pessoas.';}
+   },240);
+  });
+  box.addEventListener('click',e=>{const btn=e.target.closest('[data-sf208-person]');if(!btn)return;
+    overlay.querySelector('[name=userId]').value=btn.dataset.sf208Person;
+    overlay.querySelector('.sf208-invite-choice').textContent='Convidar: '+btn.dataset.sf208Name;
+    box.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===btn));
+  });
+  return;
+ }
+ if(t.hasAttribute('data-sf208-share')){
+  const url=location.origin+location.pathname+'#fanclub/'+encodeURIComponent(id);
+  try{await navigator.clipboard.writeText(url);status('Link do Fan Club copiado.');}
+  catch(_){status('Link: '+url);}
+  return;
+ }
  if(t.hasAttribute('data-sf204-edit-identity')){
    const club=state.detail?.club;if(!club?.owner)return;
    const genreOpts=Object.entries(genres).map(([key,label])=>'<option value="'+esc(key)+'" '+(key===club.genre?'selected':'')+'>'+esc(label)+'</option>').join('');
