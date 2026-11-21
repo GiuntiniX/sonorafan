@@ -84,3 +84,52 @@
   min-height:0!important;
  }
 }
+
+
+/* Os demais destinos principais utilizam a mesma área de página. */
+#screen-lobby.sf207-clubs-page .sf28-lobby-content.sf207-clubs-content,
+#screen-lobby.sf207-ranking-page .sf28-lobby-content.sf207-ranking-content{
+ display:block!important;overflow-x:hidden!important;overflow-y:auto!important;
+ position:relative;min-height:0!important;
+}
+#screen-lobby.sf207-clubs-page .sf28-lobby-content.sf207-clubs-content>:not(.sf5-community-layer),
+#screen-lobby.sf207-ranking-page .sf28-lobby-content.sf207-ranking-content>:not(#lbModal){display:none!important}
+#screen-lobby.sf207-clubs-page .sf5-community-layer.sf207-in-page,
+#screen-lobby.sf207-ranking-page #lbModal.sf207-in-page{
+ position:relative!important;inset:auto!important;top:auto!important;left:auto!important;
+ transform:none!important;display:block!important;opacity:1!important;visibility:visible!important;
+ width:100%!important;min-width:0!important;height:auto!important;max-height:none!important;
+ padding:12px clamp(12px,2vw,28px) 45px!important;margin:0!important;
+ border:0!important;background:#100b18!important;backdrop-filter:none!important;
+ overflow:visible!important;pointer-events:auto!important;z-index:1!important;
+}
+#screen-lobby.sf207-clubs-page .sf5-community-shell.sf110-community-shell{
+ display:block!important;position:relative!important;inset:auto!important;
+ max-width:none!important;width:100%!important;height:auto!important;max-height:none!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important;overflow:visible!important;
+}
+#screen-lobby.sf207-clubs-page .sf5-community-scroll{
+ display:block!important;width:100%!important;max-height:none!important;min-height:0!important;
+ overflow:visible!important;
+}
+#screen-lobby.sf207-clubs-page .sf5-community-top{
+ position:sticky;top:0;z-index:20;background:#160b21;
+ border-bottom:1px solid #653b74;border-radius:12px;padding:14px;
+}
+#screen-lobby.sf207-clubs-page .sf5-community-top .sf5-close{display:none!important}
+#screen-lobby.sf207-ranking-page #lbModal.sf207-in-page .sf60-ranking-modal{
+ position:relative!important;inset:auto!important;width:100%!important;max-width:none!important;
+ max-height:none!important;height:auto!important;min-height:calc(100dvh - 150px)!important;
+ margin:0!important;overflow:visible!important;
+ box-shadow:none!important;border:0!important;background:transparent!important;
+}
+#screen-lobby.sf207-ranking-page #lbModal.sf207-in-page .sf60-ranking-modal .sf60-close{display:none!important}
+#screen-lobby.sf207-clubs-page #sf125Sidebar [data-sf125-go="clubs"].is-active,
+#screen-lobby.sf207-ranking-page #sf125Sidebar [data-sf125-go="ranking"].is-active{
+ background:#caff00!important;color:#140b1c!important;
+}
+@media(max-width:700px){
+ #screen-lobby.sf207-clubs-page .sf5-community-layer.sf207-in-page,
+ #screen-lobby.sf207-ranking-page #lbModal.sf207-in-page{padding:9px 9px 90px!important}
+}
