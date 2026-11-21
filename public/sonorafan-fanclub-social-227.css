@@ -208,3 +208,16 @@
  #sf71ClubDetail #sf180ForumCounts::before{min-height:33px}
  #sf71ClubDetail #sf71Posts .sf180-post{padding:12px!important}
 }
+
+/* v228.1 — banner exclusivo da identidade social. Capas de galeria/upload continuam prioritárias. */
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf227-hero.sf228-reference-art{
+ background-color:#180820!important;
+ background-image:linear-gradient(0deg,rgba(15,4,24,.91) 0%,rgba(21,4,29,.18) 67%,rgba(18,3,30,.02)),url('/art-228/fanclub-stage-banner.svg')!important;
+ background-repeat:no-repeat!important;
+ background-size:cover!important;
+ background-position:center 35%!important;
+}
+.sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf227-hero.sf228-reference-art>.sf73-cover-img{opacity:0!important;visibility:hidden!important}
+@media(max-width:650px){
+ .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf227-hero.sf228-reference-art{background-position:center center!important}
+}
