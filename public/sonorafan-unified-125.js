@@ -22,7 +22,7 @@
       case 'lobby':window.sf200CloseAgenda?.();screen?.classList.contains('active')&&qs('#sf125LobbyHero')?.scrollIntoView({block:'start',behavior:'smooth'});break;
       case 'rooms':window.sf200CloseAgenda?.();qs('#sf107Popular')?.scrollIntoView({block:'start',behavior:'smooth'});break;
        case 'agenda':window.sf200OpenAgenda?.();break;
-      case 'profile':(typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('profile'):window.sf5OpenProfile?.());break;
+      case 'profile':(typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('overview'):window.sf5OpenProfile?.());break;
       case 'library':(typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('library'):qs('[data-sf107="favorites"]')?.click());break;
       case 'community':if(typeof window.sf126OpenClubs==='function')window.sf126OpenClubs();else window.sf110OpenCommunity?.('fanclubs');break;
       case 'clubs':if(typeof window.sf126OpenClubs==='function')window.sf126OpenClubs();else window.sf110OpenCommunity?.('fanclubs');break;
