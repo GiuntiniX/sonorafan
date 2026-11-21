@@ -175,10 +175,10 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   });
   const overview=(data,id,me)=>({
     ...record(data,id),
-    joined:unique(data.memberIds).includes(me.id),
+    joined:member(data,me),
     owner:data.ownerId===me.id,
     blocked:unique(data.blockedIds).includes(me.id),
-    canDelete:ownerOrAdmin(data,me),canModerate:canModerate(data,me),canEditProfile:canEditProfile(data,me),moderator:activeCoAdmin(data,me),
+    canDelete:ownerOrAdmin(data,me),canModerate:canModerate(data,me),canEditProfile:canEditProfile(data,me),canManageAdmins:ownerOrAdmin(data,me),moderator:activeCoAdmin(data,me),
     defaultRoomSlug:unique(data.roomSlugs).includes(data.defaultRoomSlug)&&rooms.get(data.defaultRoomSlug)&&!rooms.get(data.defaultRoomSlug).isPrivate?data.defaultRoomSlug:'',
      notificationsEnabled:!unique(data.notificationMutedIds).includes(me.id),profileUpdatedAt:Number(data.profileUpdatedAt)||null
   });
@@ -192,7 +192,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   const activeCoAdmin=(data,me)=>unique(data.moderatorIds).includes(me.id)&&unique(data.memberIds).includes(me.id)&&!unique(data.blockedIds).includes(me.id);
   const canModerate=(data,me)=>ownerOrAdmin(data,me)||activeCoAdmin(data,me);
   // A identidade do Fan Club pertence ao criador, com edição delegável a dois coadministradores.
-  const canEditProfile=(data,me)=>data.ownerId===me.id||activeCoAdmin(data,me);
+  const canEditProfile=(data,me)=>canModerate(data,me);
   const member=(data,me)=>unique(data.memberIds).includes(me.id) || ownerOrAdmin(data,me);
   function cleanRooms(data){
     return unique(data.roomSlugs).map(slug=>rooms.get(slug)).filter(r=>r&&!r.isPrivate&&r.slug.toLowerCase()!=='lobby')
@@ -389,7 +389,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     rawCoverParser||((req,res,next)=>next()),async(req,res)=>{
       const me=identity(req,res);if(!me)return;
       try{const {ref,data}=await readClub(req.params.id);
-        if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode alterar a capa.');
+        if(!canEditProfile(data,me))throwHttp(403,'Somente administradores do Fanclub podem alterar a capa.');
         const bytes=req.body;const mime=sniffCover(bytes);
         if(!mime)throwHttp(400,'A imagem deve ser WebP, PNG ou JPG e ter no máximo 180 KB.');
         const v=Math.max(Date.now(),Number(data.coverVersion||0)+1);
@@ -401,7 +401,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.delete('/api/fan-clubs/:id/cover',rateLimit(15,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode remover a capa.');
+      if(!canEditProfile(data,me))throwHttp(403,'Somente administradores do Fanclub podem remover a capa.');
       await ref.update({coverVersion:0,coverType:'default',coverImageUrl:'',coverGalleryId:'',updatedAt:Date.now()});
       await coverRef(req.params.id).delete();publish(req.params.id,'cover');res.json({success:true});
     }catch(e){error(res,e);}
@@ -413,7 +413,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(!cover)return res.status(400).json({error:'Capa inválida. Use HTTPS ou escolha uma imagem da galeria.'});
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode alterar a capa.');
+      if(!canEditProfile(data,me))throwHttp(403,'Somente administradores do Fanclub podem alterar a capa.');
       const version=cover.coverType==='default'?0:Math.max(Date.now(),Number(data.coverVersion||0)+1);
       await ref.update({...cover,coverVersion:version,updatedAt:Date.now()});
       if(data.coverType==='legacy'||(!data.coverType&&data.coverVersion))await coverRef(req.params.id).delete();
@@ -464,7 +464,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(includesBadge&&raw&&!badgeImageUrl)return res.status(400).json({error:'Informe uma URL HTTPS pública de até 500 caracteres para a segunda imagem.'});
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o fundador pode editar a identidade da comunidade.');
+      if(!canEditProfile(data,me))throwHttp(403,'Somente administradores do Fanclub podem editar a identidade.');
       const now=Date.now();
       await ref.update({title,artist,genre,theme,...(includesBadge?{badgeImageUrl}:{}),profileUpdatedAt:now,profileUpdatedBy:me.id,updatedAt:now});
       publish(req.params.id,'members');
@@ -480,7 +480,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(raw&&!badgeImageUrl)return res.status(400).json({error:'Informe uma URL HTTPS pública válida (até 500 caracteres).'});
     try{
       const {ref,data}=await readClub(req.params.id);
-      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode alterar a imagem de identidade.');
+      if(!canEditProfile(data,me))throwHttp(403,'Somente administradores do Fanclub podem alterar a imagem.');
       await ref.update({badgeImageUrl,profileUpdatedAt:Date.now(),profileUpdatedBy:me.id,updatedAt:Date.now()});
       publish(req.params.id,'cover');res.json({success:true,badgeImageUrl});
     }catch(e){error(res,e);}
@@ -521,7 +521,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await db.runTransaction(async tx=>{
         const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();if(!canModerate(data,me))throwHttp(403,'Apenas a moderação pode alterar membros.');
-         if(unique(data.moderatorIds).includes(userId)&&!canModerate(data,me))throwHttp(403,'Somente o criador pode remover moderadores.');
+         if(unique(data.moderatorIds).includes(userId)&&!ownerOrAdmin(data,me))throwHttp(403,'Somente o dono ou administrador global pode alterar outro administrador.');
         if(userId===data.ownerId)throwHttp(403,'Não é possível bloquear o criador.');
         const blocked=unique(data.blockedIds).filter(id=>id!==userId);
         tx.update(ref,{blockedIds:action==='block'?[...blocked,userId]:blocked,
@@ -555,15 +555,17 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await db.runTransaction(async tx=>{
         const doc=await tx.get(ref);if(!doc.exists||doc.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=doc.data();
-        if(data.ownerId!==me.id)throwHttp(403,'Somente quem criou o Fan Club pode compartilhar a administração.');
+        if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o dono ou administrador global pode gerenciar administradores.');
         if(userId===data.ownerId)throwHttp(400,'O criador já administra a comunidade.');
         if(enabled&&!unique(data.memberIds).includes(userId))throwHttp(400,'Escolha um membro ativo.');
+        if(enabled&&unique(data.blockedIds).includes(userId))throwHttp(403,'Não é possível promover um membro bloqueado.');
         const next=unique(data.moderatorIds).filter(x=>x!==userId);
         if(enabled)next.push(userId);
         if(next.length>2)throwHttp(409,'O criador pode compartilhar a administração com até dois membros.');
         tx.update(ref,{moderatorIds:next,updatedAt:Date.now()});
       });
-      publish(req.params.id,'members');res.json({success:true});
+      publish(req.params.id,'members');
+      res.json({success:true,moderatorCount:unique((await refFor(req.params.id).get()).data()?.moderatorIds).length,maxModerators:2});
     }catch(e){error(res,e);}
   });
   // Imagens leves associadas a posts: bytes em subcoleção separada do feed.
