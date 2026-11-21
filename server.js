@@ -1120,8 +1120,8 @@ app.post('/api/social/invite-friend',rateLimit(8,60000),async(req,res)=>{
 // 53.0 — mensagens privadas, caixa de entrada e privacidade persistidos no Firestore.
 installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit });
 // Comunidades permanentes de fãs: membros e mural protegidos pela sessão.
-installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, gamification45,
-  ranking60, rawCoverParser: express.raw({type:['image/webp','image/jpeg','image/png'],limit:'256kb'}) });
+const fanclubRoomModule=installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, gamification45,
+  ranking60, io, rawCoverParser: express.raw({type:['image/webp','image/jpeg','image/png'],limit:'256kb'}) });
 
 // Administração de denúncias 53.0 — protegida por requireAdmin já aplicado em /api/admin.
 app.get('/api/admin/chat-reports', async(req,res)=>{
@@ -1772,6 +1772,15 @@ io.on('connection', (socket) => {
         sf141Party:sf141PartyPublic(room.slug),
       });
       socket.emit('joinedRoom',{slug,listenerCount:syncRoomOccupancy(slug),maxListeners:MAX_PEOPLE_PER_ROOM});
+      // Entrega o selo também pelo canal da sala, independente do fetch inicial.
+      // Uma busca que falhe não pode impedir o ingresso no chat.
+      fanclubRoomModule.findRoomFanclubs(slug)
+        .then(clubs=>{
+          if(socket.sfSocialRoom===slug && socket.connected)
+            socket.emit('sf208RoomFanclubs',{slug,clubs,updatedAt:Date.now()});
+        })
+        .catch(e=>console.warn('[Fanclubs] Falha ao sincronizar selo no ingresso:',e.message));
+
       socket.emit('chatHistory', room.chatHistory.filter(m=>!m.isSystem||!/^⚙️ .* atualizou as configurações da sala$/.test(String(m.text||''))).slice(-150));
       socket.emit('isAdmin', socket.isAdmin);
       socket.emit('isMod', !!socket.isMod);
