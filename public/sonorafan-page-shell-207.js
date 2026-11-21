@@ -118,6 +118,10 @@ function init(){
   const openRanking=window.sf60Ranking.open;
   window.sf60Ranking.open=(...args)=>{const value=openRanking(...args);startSecondary('ranking');return value;};
  }
+ // O acesso antigo a "Comunidade" deve abrir Fan Clubs, sem uma página duplicada.
+ if(typeof window.sf5OpenCommunity==='function'){
+  window.sf5OpenCommunity=()=>window.sf125Navigate?.('clubs');
+ }
  window.sf207OpenProfile=openProfile;
  window.sf207SetActive=menu;
  window.sf207ProfileIsPage=()=>isPage;
