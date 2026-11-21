@@ -54,6 +54,7 @@ function startSecondary(type){
  content.scrollTo({top:0,behavior:'instant'});
 }
 function openProfile(tab='overview'){
+ if(secondaryPage)endSecondary();
  const modal=$('sf43ProfileModal');
  const screen=$('screen-lobby');
  const content=screen?.querySelector('.sf28-lobby-content');
