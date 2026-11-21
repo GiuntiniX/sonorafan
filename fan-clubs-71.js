@@ -139,7 +139,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     owner:data.ownerId===me.id,
     blocked:unique(data.blockedIds).includes(me.id),
     canDelete:ownerOrAdmin(data,me),canModerate:canModerate(data,me),canEditProfile:canEditProfile(data,me),moderator:activeCoAdmin(data,me),
-    notificationsEnabled:!unique(data.notificationMutedIds).includes(me.id),profileUpdatedAt:Number(data.profileUpdatedAt)||null
+    defaultRoomSlug:unique(data.roomSlugs).includes(data.defaultRoomSlug)&&rooms.get(data.defaultRoomSlug)&&!rooms.get(data.defaultRoomSlug).isPrivate?data.defaultRoomSlug:'',
+     notificationsEnabled:!unique(data.notificationMutedIds).includes(me.id),profileUpdatedAt:Number(data.profileUpdatedAt)||null
   });
   async function readClub(id){
     if (!validateId(id))throwHttp(400,'Fan Club inválido.');
@@ -1118,6 +1119,18 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         tx.update(target,{status:'resolved',resolvedAt:Date.now()});
       });
       res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  app.post('/api/fan-clubs/:id/default-room',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const slug=clean(req.body?.roomSlug,100);
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!canModerate(data,me))throwHttp(403,'Somente administradores definem a sala padrão.');
+      if(slug&&(!unique(data.roomSlugs).includes(slug)||!rooms.get(slug)||rooms.get(slug).isPrivate))
+        throwHttp(400,'Selecione uma sala pública vinculada ao Fan Club.');
+      await ref.update({defaultRoomSlug:slug,updatedAt:Date.now()});
+      publish(req.params.id,'rooms');res.json({success:true,roomSlug:slug});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/rooms',rateLimit(15,60000),async(req,res)=>{
