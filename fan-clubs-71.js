@@ -142,7 +142,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   };
   const record = (data, id) => ({
     id: String(id || data.id), title: data.title, artist: data.artist, description:data.description,
-    rules:data.rules, theme:data.theme, genre:GENRES.has(data.genre)?data.genre:'outros', coverType:data.coverType||'legacy', coverImageUrl:data.coverType==='external'?data.coverImageUrl||'':'', coverGalleryId:data.coverType==='gallery'?data.coverGalleryId||'':'', ownerId:data.ownerId, ownerName:data.ownerName,
+    rules:data.rules, theme:data.theme, genre:GENRES.has(data.genre)?data.genre:'outros', coverType:data.coverType||'legacy', coverImageUrl:data.coverType==='external'?data.coverImageUrl||'':'', coverGalleryId:data.coverType==='gallery'?data.coverGalleryId||'':'', badgeImageUrl:validExternalCover(data.badgeImageUrl)||'', ownerId:data.ownerId, ownerName:data.ownerName,
     memberCount:unique(data.memberIds).length, roomCount:unique(data.roomSlugs).length,
     createdAt:data.createdAt, coverVersion:Number(data.coverVersion)||0, isUnofficial:true
   });
@@ -288,7 +288,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const owned=await db.collection(CLUBS).where('ownerId','==',me.id).limit(5).get();
       if(owned.size>=5)throwHttp(409,'Você já administra 5 Fan Clubs.');
       const id=crypto.randomUUID();
-      const data={id,artist,title,description,rules,theme,genre,...cover,coverVersion:cover.coverType==='default'?0:Date.now(),ownerId:me.id,ownerName:me.name,
+      const data={id,artist,title,description,rules,theme,genre,...cover,badgeImageUrl:'',coverVersion:cover.coverType==='default'?0:Date.now(),ownerId:me.id,ownerName:me.name,
         memberIds:[me.id],blockedIds:[],moderatorIds:[],notificationMutedIds:[],roomSlugs:[],createdAt:Date.now(),updatedAt:Date.now()};
       await refFor(id).create(data);
       res.status(201).json({club:overview(data,id,me)});
@@ -394,6 +394,19 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       await ref.update({title,artist,genre,theme,profileUpdatedAt:Date.now(),profileUpdatedBy:me.id,updatedAt:Date.now()});
       publish(req.params.id,'members');
       res.json({success:true,title,artist,genre,theme});
+    }catch(e){error(res,e);}
+  });
+  // Segundo ícone quadrado HTTPS, separado da imagem de capa.
+  app.patch('/api/fan-clubs/:id/badge-image',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    if(typeof req.body?.badgeImageUrl!=='string')return res.status(400).json({error:'Informe uma URL HTTPS ou deixe vazio para restaurar o ícone.'});
+    const raw=req.body.badgeImageUrl.trim(),badgeImageUrl=raw?validExternalCover(raw):'';
+    if(raw&&!badgeImageUrl)return res.status(400).json({error:'Informe uma URL HTTPS pública válida (até 500 caracteres).'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o criador pode alterar a imagem de identidade.');
+      await ref.update({badgeImageUrl,profileUpdatedAt:Date.now(),profileUpdatedBy:me.id,updatedAt:Date.now()});
+      publish(req.params.id,'cover');res.json({success:true,badgeImageUrl});
     }catch(e){error(res,e);}
   });
   app.post('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
