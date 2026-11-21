@@ -74,7 +74,7 @@ async function show(slug,{force=false}={}){
   if(!list.length){target.hidden=true;target.innerHTML='';return;}
   target.innerHTML='<span class="sf208-room-affiliation-label">♧ Esta sala faz parte de um Fan Club</span>'+
    list.map(c=>'<a class="sf208-room-club" href="#fanclub/'+encodeURIComponent(c.id)+'" data-sf208-open-club="'+esc(c.id)+'" aria-label="Visitar Fanclub '+esc(c.title)+'">'+
-    '<img class="sf208-room-club-cover" src="'+esc(imageFor(c))+'" data-sf208-fallback="'+gallery.stage+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span><strong>'+esc(c.title)+'</strong><small>Fãs de '+esc(c.artist)+(c.primary?' · Sala principal':'')+'</small></span><span class="sf208-room-club-cta">Visitar ›</span></button>').join('');
+    '<img class="sf208-room-club-cover" src="'+esc(imageFor(c))+'" data-sf208-fallback="'+gallery.stage+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span><strong>'+esc(c.title)+'</strong><small>Fãs de '+esc(c.artist)+(c.primary?' · Sala principal':'')+'</small></span><span class="sf208-room-club-cta">Visitar ›</span></a>').join('');
   target.hidden=false;
  }catch(err){
   if(version!==v||activeSlug!==normalized||!isRoomActive())return;
