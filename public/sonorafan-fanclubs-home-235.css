@@ -157,3 +157,20 @@
 #sf235Home[data-sf235-view="events"] .sf235-right{display:block}
 #sf235Home[data-sf235-view="events"] .sf235-right>.sf235-side-card:not(#sf235Events){display:none}
 #sf235Home[data-sf235-view="mine"] .sf235-section-head h2{color:#dfff55}
+
+/* Fanclub 256 · Destaques automáticos, sem setas, e links para discussão. */
+#sf235Home .sf235-hero-switch{gap:9px;padding:5px 7px 5px 12px}
+#sf235Home .sf235-hero-switch .sf235-hero-position{color:#fff;font-size:11px;font-weight:800;white-space:nowrap}
+#sf235Home .sf235-hero-progress{display:block;position:relative;width:52px;height:4px;overflow:hidden;border-radius:999px;background:#ffffff48}
+#sf235Home .sf235-hero-progress>span{display:block;height:100%;width:100%;background:#cbff22;transform-origin:left;animation:sf235Cycle 7s linear infinite}
+#sf235Home .sf235-hero-switch button[data-sf235-autoplay]{display:grid;place-items:center;width:25px;height:25px;font-size:13px;line-height:1;border-radius:50%;background:#5d3168;color:#fff}
+#sf235Home .sf235-hero:has([data-sf235-autoplay][aria-pressed="true"]) .sf235-hero-progress>span,
+#sf235Home .sf235-hero:hover .sf235-hero-progress>span,
+#sf235Home .sf235-hero:focus-within .sf235-hero-progress>span{animation-play-state:paused}
+#sf235Home .sf235-hero-art img{animation:sf235Appear .45s ease both}
+#sf235Home .sf235-post-footer a{color:#cfff32;text-decoration:none;font-weight:800;font-size:11px;border-radius:4px}
+#sf235Home .sf235-post-footer a:hover{text-decoration:underline}
+#sf235Home .sf235-post-footer a:focus-visible{outline:2px solid #cfff32;outline-offset:3px}
+@keyframes sf235Cycle{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes sf235Appear{from{opacity:.25}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){#sf235Home .sf235-hero-progress>span,#sf235Home .sf235-hero-art img{animation:none}}
