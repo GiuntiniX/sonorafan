@@ -23,7 +23,7 @@ test('Agenda aggregates Fan Club and public-room events without returning attend
  assert.match(api,/collection\('events'\)/);
  assert.match(api,/socialEvents\?\.values/);
  assert.match(api,/rooms\.get\(e\.roomSlug\)\.isPrivate/);
- assert.match(api,/const \{attendeeIds,memberIds,blockedIds,moderatorIds,ownerId,hostId,\.\.\.publicData\}/);
+ assert.match(api,/const \{attendeeIds,memberIds,blockedIds,moderatorIds,ownerId,hostId,creatorId,\.\.\.publicData\}/);
  assert.match(api,/req\.query\.refresh==='1'/);
 });
 
@@ -51,5 +51,5 @@ test('Agenda has a distinctive empty hero, responsive styles and dedicated navig
  assert.match(css,/\.sf201-create-dialog/);
  assert.match(css,/@media\(max-width:580px\)/);
  assert.match(nav,/\['agenda','▦','Agenda Musical'\]/);
- assert.match(nav,/case 'agenda':window\.sf200OpenAgenda/);
+ assert.match(nav,/case 'agenda':[\s\S]{0,450}window\.sf200OpenAgenda/);
 });
