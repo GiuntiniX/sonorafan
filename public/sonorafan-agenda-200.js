@@ -157,7 +157,7 @@ function detail(e){
    <div class="sf200-event-actions">${actionButtons(e)}</div>
    ${e.roomSlug?`<button type="button" class="sf200-primary" data-sf200-room="${esc(e.roomSlug)}">♫ Entrar na sala</button>`:''}
    ${e.type==='fanclub'?`<button type="button" data-sf200-club="${esc(e.clubId)}">Visitar Fan Club</button>`:''}
-   ${e.canManage?`<button type="button" class="sf201-delete" data-sf201-delete="${esc(eventKey(e))}">Cancelar evento</button>`:''}</div></div>`;
+   ${e.canManage?`<button type="button" class="sf203-edit" data-sf203-edit="${esc(eventKey(e))}">✎ Editar evento</button><button type="button" class="sf201-delete" data-sf201-delete="${esc(eventKey(e))}">Cancelar evento</button>`:''}</div></div>`;
  layer.querySelector('.sf200-dialog-close')?.focus();
 }
 async function rsvp(e){
@@ -174,8 +174,8 @@ async function rsvp(e){
  }catch(err){alert(err.message||'Erro ao confirmar presença.');}
 }
 
-const apiPost=async(url,payload)=>{
- const response=await fetch(url,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
+const apiPost=async(url,payload,method='POST')=>{
+ const response=await fetch(url,{method,credentials:'include',headers:{'Content-Type':'application/json'},
   body:JSON.stringify(payload)}),data=await response.json().catch(()=>({}));
  if(!response.ok)throw Error(data.error||'Não foi possível criar o evento.');
  return data;
@@ -185,13 +185,14 @@ const localStamp=(date)=>{
  return date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate())+'T'+pad(date.getHours())+':'+pad(date.getMinutes());
 };
 const eventCreateOptions=(items,kind)=>items.map(item=>'<option value="'+esc(item.id||item.slug)+'">'+esc(kind==='fanclub'?(item.title+' · '+(item.artist||'Artista')):item.name)+'</option>').join('');
-async function createEvent(preferredClub=''){
+async function createEvent(preferredClub='',editing=null){
+ if(editing&&!editing.canManage)return;
  let layer=$('sf201CreateLayer');
  if(layer){layer.remove();}
  layer=document.createElement('div');
  layer.id='sf201CreateLayer';layer.className='sf201-layer';
  layer.innerHTML='<section class="sf201-create-dialog" role="dialog" aria-modal="true" aria-labelledby="sf201CreateTitle">'+
-  '<div class="sf201-create-top"><div><span>SONORAFAN · AGENDA MUSICAL</span><h2 id="sf201CreateTitle">Criar evento</h2><p>Organize um encontro no seu Fan Club ou uma sessão em sua sala.</p></div><button type="button" data-sf201-dismiss aria-label="Fechar">✕</button></div>'+
+  '<div class="sf201-create-top"><div><span>SONORAFAN · AGENDA MUSICAL</span><h2 id="sf201CreateTitle">'+(editing?'Editar evento':'Criar evento')+'</h2><p>Organize um encontro no seu Fan Club ou uma sessão em sua sala.</p></div><button type="button" data-sf201-dismiss aria-label="Fechar">✕</button></div>'+
   '<form id="sf201CreateForm"><div class="sf201-create-types" role="group" aria-label="Tipo de evento">'+
   '<label><input type="radio" name="type" value="fanclub" checked> ♧ Fan Club</label>'+
   '<label><input type="radio" name="type" value="room"> ♫ Sala musical</label></div>'+
@@ -209,7 +210,7 @@ async function createEvent(preferredClub=''){
  '<label><input type="checkbox" name="sendRoomLink" checked> Enviar link da sala nos lembretes</label>'+
  '<label><input type="checkbox" name="remindStart" checked> Avisar quando o evento estiver chegando</label></div>'+
  '<p class="sf201-create-error" id="sf201CreateError" role="alert" hidden></p>'+
-  '<div class="sf201-create-actions"><button type="button" data-sf201-dismiss>Cancelar</button><button type="submit" class="sf200-primary" id="sf201Submit">＋ Publicar evento</button></div></form>'+
+  '<div class="sf201-create-actions"><button type="button" data-sf201-dismiss>Cancelar</button><button type="submit" class="sf200-primary" id="sf201Submit">'+(editing?'Salvar alterações':'＋ Publicar evento')+'</button></div></form>'+
  '<aside class="sf202-event-preview"><h3>Prévia do evento</h3><img id="sf202PreviewArt" src="/art-44/festival-crowd.webp" alt="Arte ilustrativa da comunidade">'+
  '<span class="sf202-preview-type" id="sf202PreviewType">♧ Fan Club</span>'+
  '<h4 id="sf202PreviewTitle">Seu próximo encontro musical</h4>'+
@@ -237,6 +238,19 @@ async function createEvent(preferredClub=''){
  form.elements.startAt.min=localStamp(earliest);form.elements.startAt.max=localStamp(latest);
  const selectedDay=fromKey(state.day);selectedDay.setHours(20,0,0,0);
  form.elements.startAt.value=localStamp(selectedDay.getTime()>now()+5*60000?selectedDay:new Date(now()+86400000));
+ if(editing){
+  form.elements.title.value=editing.title||'';
+  form.elements.description.value=editing.description||'';
+  form.elements.startAt.value=localStamp(new Date(editing.startAt));
+  form.elements.durationMinutes.value=String(editing.durationMinutes||90);
+  if(editing.type==='fanclub'){
+   form.elements.notifyMembers.checked=editing.notifyMembers!==false;
+   form.elements.sendRoomLink.checked=editing.sendRoomLink!==false;
+   form.elements.remindStart.checked=editing.remindStart!==false;
+  }else if(editing.theme)form.elements.theme.value=editing.theme;
+  form.querySelectorAll('input[name="type"]').forEach(el=>{el.checked=el.value===editing.type;el.disabled=true;});
+  form.querySelector('.sf201-create-types').classList.add('sf203-locked');
+ }
  const sources={fanclub:[],room:[]};let previewClub=null;
   function updatePreview(){
    if(!layer.isConnected)return;
@@ -260,7 +274,8 @@ async function createEvent(preferredClub=''){
    try{const response=await fetch('/api/fan-clubs/'+encodeURIComponent(clubId),{credentials:'include'});
     if(!response.ok)return;const data=await response.json();previewClub=data.club||null;
     for(const room of data.club?.rooms||[]){const option=document.createElement('option');option.value=room.slug;option.textContent=room.name;roomSelector.append(option);}
-    if(data.club?.defaultRoomSlug&&[...roomSelector.options].some(o=>o.value===data.club.defaultRoomSlug))roomSelector.value=data.club.defaultRoomSlug;
+    const selectedRoom=editing?.type==='fanclub'&&editing.clubId===clubId?editing.roomSlug:data.club?.defaultRoomSlug;
+    if(selectedRoom&&[...roomSelector.options].some(o=>o.value===selectedRoom))roomSelector.value=selectedRoom;
     updatePreview();
    }catch(_){}
   }
@@ -277,6 +292,13 @@ async function createEvent(preferredClub=''){
   [...form.elements.durationMinutes.options].forEach(o=>o.disabled=type==='fanclub'&&!['30','60','90','120'].includes(o.value));
   if(type==='fanclub'&&form.elements.durationMinutes.value==='180')form.elements.durationMinutes.value='90';
   form.elements.title.maxLength=type==='fanclub'?90:70;
+   if(editing){
+    const targetId=editing.type==='fanclub'?editing.clubId:editing.roomSlug;
+    if(![...select.options].some(o=>o.value===targetId)){
+     const option=document.createElement('option');option.value=targetId;option.textContent=editing.clubName||editing.roomName||'Evento existente';select.append(option);
+    }
+    select.value=targetId;select.disabled=true;
+   }
    loadClubRooms();
  };
  form.addEventListener('change',event=>{if(event.target.name==='type')chooseSource();if(event.target.name==='target')loadClubRooms();updatePreview();});
@@ -297,16 +319,16 @@ async function createEvent(preferredClub=''){
   state.modalBusy=true;submit.disabled=true;submit.textContent='Publicando...';
   try{
    const durationMinutes=Number(form.elements.durationMinutes.value);
-   if(type==='fanclub')await apiPost('/api/fan-clubs/'+encodeURIComponent(target)+'/events',
-    {title,description,startAt:start,durationMinutes,roomSlug:roomSelector.value,notifyMembers:form.elements.notifyMembers.checked,sendRoomLink:form.elements.sendRoomLink.checked,remindStart:form.elements.remindStart.checked});
-   else await apiPost('/api/social/events',
-    {roomSlug:target,title,description,startAt:new Date(start).toISOString(),durationMinutes,theme:form.elements.theme.value});
+   if(type==='fanclub')await apiPost('/api/fan-clubs/'+encodeURIComponent(target)+'/events'+(editing?'/'+encodeURIComponent(editing.id):''),
+    {title,description,startAt:start,durationMinutes,roomSlug:roomSelector.value,notifyMembers:form.elements.notifyMembers.checked,sendRoomLink:form.elements.sendRoomLink.checked,remindStart:form.elements.remindStart.checked},editing?'PATCH':'POST');
+   else await apiPost('/api/social/events'+(editing?'/'+encodeURIComponent(editing.id):''),
+    {roomSlug:target,title,description,startAt:new Date(start).toISOString(),durationMinutes,theme:form.elements.theme.value},editing?'PATCH':'POST');
    closeModal();state.day=key(new Date(start));state.month=new Date(new Date(start).getFullYear(),new Date(start).getMonth(),1);
    state.type='all';state.genre='all';state.q='';state.onlyMine=false;state.lastLoad=0;
-   state.toast='Evento criado com sucesso! Ele já aparece no calendário.';
+   state.toast=editing?'Evento atualizado com sucesso. Presenças mantidas.':'Evento criado com sucesso! Ele já aparece no calendário.';
    await load(true,true);
   }catch(err){error.textContent=err.message||'Não foi possível publicar.';error.hidden=false;}
-  finally{state.modalBusy=false;submit.disabled=false;submit.textContent='＋ Publicar evento';}
+  finally{state.modalBusy=false;submit.disabled=false;submit.textContent=editing?'Salvar alterações':'＋ Publicar evento';}
  });
  chooseSource();
  layer.querySelector('[data-sf201-dismiss]')?.focus();
@@ -322,10 +344,11 @@ async function createEvent(preferredClub=''){
   if(responses[1].status==='fulfilled'&&responses[1].value.ok){
    const data=await responses[1].value.json();sources.room=Array.isArray(data)?data:[];
   }
-  if(preferredClub&&sources.fanclub.some(c=>c.id===preferredClub)){form.querySelector('[name="type"][value="fanclub"]').checked=true;}
+  if(editing){form.querySelector('[name="type"][value="'+editing.type+'"]').checked=true;}
+   else if(preferredClub&&sources.fanclub.some(c=>c.id===preferredClub)){form.querySelector('[name="type"][value="fanclub"]').checked=true;}
    else if(!sources.fanclub.length&&sources.room.length){const onlyRoom=form.querySelector('[name="type"][value="room"]');if(onlyRoom)onlyRoom.checked=true;}
   chooseSource();
-  if(preferredClub&&sources.fanclub.some(c=>c.id===preferredClub)){select.value=preferredClub;loadClubRooms();}
+  if(preferredClub&&sources.fanclub.some(c=>c.id===preferredClub)&&!editing){select.value=preferredClub;loadClubRooms();}
  }catch(err){if(layer.isConnected)help.textContent='Não foi possível carregar seus espaços. Feche e tente novamente.';}
 }
 
@@ -346,6 +369,7 @@ function handle(event){
  const btn=event.target.closest('button');if(!btn)return;
  if(btn.hasAttribute('data-sf200-close')){close();return;}
  if(btn.hasAttribute('data-sf200-refresh')){load(true,true);return;}
+ if(btn.hasAttribute('data-sf203-edit')){const e=lookup(btn.dataset.sf203Edit);if(e?.canManage)createEvent('',e);return;}
  if(btn.hasAttribute('data-sf201-delete')){const e=lookup(btn.dataset.sf201Delete);if(e)deleteEvent(e);return;}
  if(btn.hasAttribute('data-sf201-create')){createEvent();return;}
  if(btn.hasAttribute('data-sf201-dismiss-toast')){state.toast='';render();return;}
@@ -381,6 +405,7 @@ function init(){
  },true);
  window.sf200OpenAgenda=open;window.sf200CloseAgenda=close;
  window.sf200CreateEvent=clubId=>createEvent(clubId||'');
+ window.sf200EditEvent=event=>{if(event?.canManage)createEvent('',event);};
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sf200DetailLayer')?.hidden){render();}});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
