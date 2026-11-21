@@ -1,113 +1,219 @@
-/* SonoraFan 202 — unified, real-data profile and fan-club membership dashboard */
-(() => {
- 'use strict';
- const $=id=>document.getElementById(id);
- const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const state={events:[],clubs:[],notifications:[],error:'',loading:false,section:'overview',last:0,request:0};
- const genreArt={kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',mpb:'/art-33/poster-brasil.webp'};
- const getImage=item=>{
-   if(item.type==='room')return genreArt[item.genre]||'/art-44/festival-crowd.webp';
-   if(item.coverType==='external'){
-     try{const u=new URL(item.coverImageUrl);if(u.protocol==='https:'&&u.hostname.includes('.'))return u.href;}catch(_){}
-   }
-   if(item.coverType==='gallery'){
-     const gallery={stage:'/art-129/sonorafan-stage.svg',kpop:genreArt.kpop,pop:genreArt.pop,rock:genreArt.rock,indie:genreArt.indie,
-      brasil:genreArt.mpb,electronic:genreArt.pop,festival:'/art-40/poster-festival.svg'};
-     if(gallery[item.coverGalleryId])return gallery[item.coverGalleryId];
-   }
-   if(item.coverVersion&&/^[a-f0-9-]{36}$/i.test(String(item.clubId||item.id)))return '/api/fan-clubs/'+encodeURIComponent(item.clubId||item.id)+'/cover?v='+encodeURIComponent(item.coverVersion);
-   return genreArt[item.genre]||'/art-44/festival-crowd.webp';
- };
- const image=item=>'<img src="'+esc(getImage(item))+'" alt="" loading="lazy" referrerpolicy="no-referrer" data-sf202-fallback="/art-44/festival-crowd.webp">';
- const when=ms=>new Intl.DateTimeFormat('pt-BR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(ms));
- const upcoming=()=>state.events.filter(e=>e.going&&Number(e.startAt)+Math.max(30,Number(e.durationMinutes)||90)*60000>Date.now()).sort((a,b)=>a.startAt-b.startAt);
- const accepted=()=>state.events.filter(e=>e.going);
- const managed=()=>state.clubs.filter(c=>c.canModerate||c.owner);
- const member=()=>state.clubs.filter(c=>c.joined||c.owner);
- const name=()=>String($('sf43ProfileName')?.textContent||$('userDisplayName')?.textContent||'Meu perfil').trim()||'Meu perfil';
- const goAgenda=()=>{window.sf43CloseProfile?.();if(typeof window.sf125Navigate==='function')window.sf125Navigate('agenda');else window.sf200OpenAgenda?.();};
- const clubBtn=(c,manage=false)=>'<button type="button" class="sf202-club-tile" data-sf202-club="'+esc(c.id)+'">'+image(c)+
-  '<strong>'+esc(c.title)+'</strong><small>'+esc(c.artist||'Artista')+'</small><span>'+ (manage?'⚙ Gerenciar':'♧ Ver comunidade')+'</span></button>';
- const eventBtn=e=>'<article class="sf202-personal-event">'+image(e)+'<div class="sf202-personal-info"><span class="sf202-mini-badge">'+(e.type==='fanclub'?'♧ Fan Club':'♫ Sala')+'</span><h3>'+esc(e.title)+'</h3>'+
-  '<p>▦ '+esc(when(Number(e.startAt)))+'</p><p>'+esc(e.type==='fanclub'?('Fan Club: '+e.clubName):('Sala: '+e.roomName))+
-  (e.roomSlug?' · '+esc(e.roomName||'Sala vinculada'):'')+'</p></div>'+
-  '<div class="sf202-personal-actions"><button type="button" data-sf202-event="'+esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)+'">Ver evento</button>'+
-  (e.roomSlug?'<button type="button" class="sf202-bright" data-sf202-room="'+esc(e.roomSlug)+'">♫ Entrar na sala</button>':'<button type="button" class="sf202-bright" data-sf202-agenda>Ver agenda</button>')+'</div></article>';
- function render(){
-   const host=$('sf202ProfileOverview');if(!host)return;
-   const events=upcoming(),joined=member(),admin=managed(),section=state.section,all=state.clubs;
-   const invites=state.notifications.filter(n=>n.type==='invite'&&!n.read).slice(0,3),updates=state.notifications.filter(n=>n.type==='event'||n.type==='fanclub').slice(0,4);
-   host.innerHTML='<div class="sf202-profile-hero"><div class="sf202-profile-identity">'+
-     '<div><span class="sf202-kicker">SONORAFAN · MEU PERFIL</span><h1>'+esc(name())+'</h1>'+
-     '<p>Minha agenda, meus Fan Clubs e minhas salas em um só lugar.</p></div></div>'+
-     '<button type="button" data-sf202-edit>✎ Editar perfil</button>'+
-     '<div class="sf202-profile-stats">'+
-     '<div><b>▦ '+accepted().length+'</b><span>Eventos confirmados</span></div>'+
-     '<div><b>♧ '+all.filter(c=>c.joined||c.owner).length+'</b><span>Fan Clubs que participo</span></div>'+
-     '<div><b>♕ '+admin.length+'</b><span>Fan Clubs que administro</span></div>'+
-     '<div><b>♫ '+events.filter(e=>e.roomSlug).length+'</b><span>Eventos com sala</span></div></div></div>'+
-     '<nav class="sf202-profile-nav" aria-label="Filtros da visão geral">'+
-     (section!=='overview'?'<button type="button" class="sf202-return-all" data-sf202-section="overview">← Mostrar tudo</button>':'')+
-     [['events','▦ Eventos confirmados'],['clubs','♧ Meus Fan Clubs'],['reminders','♧ Lembretes']].map(([id,title])=>
-      '<button type="button" data-sf202-section="'+id+'" aria-pressed="'+(section===id)+'" class="'+(section===id?'active':'')+'">'+title+'</button>').join('')+'</nav>'+
-     (state.error?'<p class="sf202-profile-error" role="alert">'+esc(state.error)+' <button type="button" data-sf202-refresh>Atualizar</button></p>':'')+
-     (state.loading?'<p class="sf202-profile-loading" role="status">Atualizando suas comunidades e eventos...</p>':'')+
-     '<div class="sf202-profile-columns"><div class="sf202-profile-main">'+
-     (section==='overview'||section==='events'?'<section class="sf202-panel"><header><h2>▦ Próximos eventos confirmados</h2><button type="button" data-sf202-agenda>Ver toda a agenda ›</button></header>'+
-       (events.length?events.slice(0,section==='events'?40:5).map(eventBtn).join(''):'<div class="sf202-profile-empty"><strong>Seu próximo encontro começa aqui</strong><p>Confirme presença em algum evento da Agenda Musical para encontrá-lo nesta seção.</p><button type="button" data-sf202-agenda>Explorar eventos</button></div>')+'</section>':'')+
-     (section==='overview'||section==='clubs'?'<div class="sf202-club-columns"><section class="sf202-panel"><header><h2>♧ Fan Clubs de que faço parte</h2><span>'+joined.length+' comunidades</span></header>'+
-      '<div class="sf202-club-grid">'+(joined.length?joined.map(c=>clubBtn(c)).join(''):'<div class="sf202-profile-empty"><strong>Encontre sua comunidade</strong><p>As comunidades em que você participa aparecerão aqui, incluindo as que administra.</p><button type="button" data-sf202-discover>Descobrir Fan Clubs</button></div>')+'</div></section>'+
-      '<section class="sf202-panel"><header><h2>♕ Fan Clubs que administro</h2><span>'+admin.length+' comunidades</span></header>'+
-      '<div class="sf202-club-grid">'+(admin.length?admin.map(c=>clubBtn(c,true)).join(''):'<div class="sf202-profile-empty"><strong>Crie sua comunidade</strong><p>Você ainda não administra Fan Clubs.</p><button type="button" data-sf202-create-club>＋ Criar Fan Club</button></div>')+'</div></section></div>':'')+
-     (section==='reminders'?'<section class="sf202-panel"><header><h2>♧ Seus próximos lembretes</h2></header><div class="sf202-profile-empty">Os eventos confirmados com horário futuro ficam disponíveis aqui, com acesso à sala vinculada.</div></section>':'')+
-     '</div><aside class="sf202-profile-aside">'+
-     '<section class="sf202-panel sf202-reminder"><header><h2>♧ Lembretes</h2><button type="button" data-sf202-agenda>Ver todos ›</button></header>'+
-     (events.length?events.slice(0,5).map(e=>'<button type="button" data-sf202-agenda><span>▦</span><strong>'+esc(e.title)+'</strong><small>'+esc(when(e.startAt))+'</small></button>').join(''):'<p>Confirme presença em um evento para vê-lo aqui.</p>')+'</section>'+
-     '<section class="sf202-panel sf202-reminder"><header><h2>✉ Convites</h2><button type="button" data-sf202-notices>Ver todos ›</button></header>'+
-     (invites.length?invites.map(n=>'<button type="button" '+(n.roomSlug?'data-sf202-room="'+esc(n.roomSlug)+'"':'data-sf202-notices')+'><span>✉</span><strong>'+esc(n.title||'Convite SonoraFan')+'</strong><small>'+esc(n.message||'Você recebeu um convite.')+'</small></button>').join(''):'<p>Novos convites aparecerão aqui.</p>')+'</section>'+
-     '<section class="sf202-panel sf202-reminder"><header><h2>♧ Próximas notificações</h2><button type="button" data-sf202-notices>Ver todas ›</button></header>'+
-     (updates.length?updates.map(n=>'<button type="button" '+(n.roomSlug?'data-sf202-room="'+esc(n.roomSlug)+'"':n.fanClubId?'data-sf202-club="'+esc(n.fanClubId)+'"':'data-sf202-notices')+'><span>▦</span><strong>'+esc(n.title||'Atualização')+'</strong><small>'+esc(n.message||'')+'</small></button>').join(''):'<p>Você está em dia com suas notificações.</p>')+'</section>'+
-     '<section class="sf202-panel sf202-profile-shortcuts"><header><h2>✦ Acesso rápido</h2></header><button type="button" data-sf202-agenda>▦ Abrir Agenda Musical</button>'+
-     '<button type="button" data-sf202-discover>♧ Descobrir Fan Clubs</button><button type="button" data-sf202-create-club>＋ Criar Fan Club</button></section>'+
-     '</aside></div>';
-
+/* SonoraFan 206 — perfil festival, dados reais, foto em destaque e navegação unificada. */
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const n=v=>Math.max(0,Number(v)||0),num=v=>n(v).toLocaleString('pt-BR');
+const date=v=>{const d=new Date(Number(v));return Number.isFinite(d.getTime())?d.toLocaleString('pt-BR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Data não disponível';};
+const art={kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',mpb:'/art-33/poster-brasil.webp',festival:'/art-41/festival-noite.webp',stage:'/art-129/sonorafan-stage.svg'};
+const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫'};
+const isManager=c=>!!(c?.owner||c?.canModerate);
+const joined=()=>state.clubs.filter(c=>c.joined||c.owner);
+const managed=()=>state.clubs.filter(isManager);
+const accepted=()=>state.events.filter(e=>e.going);
+const upcoming=()=>accepted().filter(e=>Number(e.startAt)+(Number(e.durationMinutes)||90)*60000>Date.now()).sort((a,b)=>a.startAt-b.startAt);
+const avatarSrc=()=>{
+ const img=$('sf43ProfileAvatar')?.querySelector('img');
+ const raw=img?.getAttribute('src')||'';
+ if(!raw)return '';
+ try{const u=new URL(raw,location.href);return ['http:','https:'].includes(u.protocol)?u.href:'';}catch(_){return '';}
+};
+function syncPhoto(){
+ const src=avatarSrc();
+ const photo=$('sf206Portrait');
+ if(!photo)return;
+ if(src){
+  if(photo.dataset.src!==src){photo.dataset.src=src;photo.src=src;}
+  photo.hidden=false;
+  $('sf206PortraitFallback')?.setAttribute('hidden','');
+ }else{
+  photo.hidden=true;
+  const fallback=$('sf206PortraitFallback');
+  if(fallback){fallback.hidden=false;fallback.textContent=($('sf43ProfileAvatar')?.textContent||'♫').trim().slice(0,2)||'♫';}
  }
- async function load(){
-   const current=++state.request,host=$('sf202ProfileOverview');if(!host)return;
-   if(state.loading)return;
-   state.loading=true;render();
-   const tasks=await Promise.allSettled([
-    fetch('/api/music-agenda',{credentials:'include',cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('Agenda indisponível');return r.json();}),
-    fetch('/api/fan-clubs?mine=true',{credentials:'include',cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('Fan Clubs indisponíveis');return r.json();}),
-     fetch('/api/social/notifications',{credentials:'include',cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('Notificações indisponíveis');return r.json();})
-   ]);
-   if(current!==state.request)return;
-   if(tasks[0].status==='fulfilled')state.events=Array.isArray(tasks[0].value.events)?tasks[0].value.events:[];
-   if(tasks[1].status==='fulfilled')state.clubs=Array.isArray(tasks[1].value.clubs)?tasks[1].value.clubs:[];
-   if(tasks[2].status==='fulfilled')state.notifications=Array.isArray(tasks[2].value)?tasks[2].value:[];
-   state.error=tasks.some(t=>t.status==='rejected')?'Algumas informações não foram carregadas.':'';
-   state.loading=false;state.last=Date.now();render();
+}
+const getImage=item=>{
+ if(item.type==='room')return art[item.genre]||art.festival;
+ if(item.coverType==='external'){
+  try{const u=new URL(item.coverImageUrl);if(u.protocol==='https:'&&u.hostname.includes('.')&&!u.username&&!u.password)return u.href;}catch(_){}
  }
- function init(){
-  const root=$('sf202ProfileOverview');if(!root)return;
-  root.addEventListener('click',e=>{
-   const btn=e.target.closest('button');if(!btn)return;
-   if(btn.dataset.sf202Section){state.section=btn.dataset.sf202Section;render();return;}
-   if(btn.hasAttribute('data-sf202-refresh')){load();return;}
-   if(btn.hasAttribute('data-sf202-notices')){window.sf43CloseProfile?.();window.sf15OpenNotifications?.();return;}
-   if(btn.hasAttribute('data-sf202-edit')){window.sf112SwitchProfileTab?.('profile');return;}
-   if(btn.hasAttribute('data-sf202-event')){goAgenda();window.sf200OpenEvent?.(btn.dataset.sf202Event);return;}
-   if(btn.hasAttribute('data-sf202-agenda')){goAgenda();return;}
-   if(btn.hasAttribute('data-sf202-room')){const slug=btn.dataset.sf202Room;window.sf43CloseProfile?.();window.joinRoom?.(slug);return;}
-   if(btn.hasAttribute('data-sf202-club')){const id=btn.dataset.sf202Club;window.sf43CloseProfile?.();window.sf107OpenFanClub?.(id);return;}
-   if(btn.hasAttribute('data-sf202-discover')){window.sf43CloseProfile?.();window.sf107OpenFanClub?.();return;}
-   if(btn.hasAttribute('data-sf202-create-club')){window.sf43CloseProfile?.();window.sf125Navigate?.('create-club');}
-  });
-  root.addEventListener('error',e=>{const img=e.target;if(img?.matches?.('img[data-sf202-fallback]')){img.src=img.dataset.sf202Fallback;delete img.dataset.sf202Fallback;}},true);
-  window.sf202RefreshProfile=(force=false)=>{if(state.loading)return;if(force||Date.now()-state.last>25000)load();else render();};
-  const modal=$('sf43ProfileModal');
-  modal&&new MutationObserver(()=>{if(modal.classList.contains('active')&&modal.classList.contains('sf112-tab-overview'))window.sf202RefreshProfile();}).observe(modal,{attributes:true,attributeFilter:['class']});
-  render();if(modal?.classList.contains('active'))load();
+ if(item.coverType==='gallery'){
+  const m={stage:art.stage,kpop:art.kpop,pop:art.pop,rock:art.rock,indie:art.indie,brasil:art.mpb,electronic:art.pop,festival:art.festival};
+  if(m[item.coverGalleryId])return m[item.coverGalleryId];
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+ if(item.coverVersion&&/^[a-f0-9-]{36}$/i.test(String(item.clubId||item.id||'')))
+  return '/api/fan-clubs/'+encodeURIComponent(item.clubId||item.id)+'/cover?v='+encodeURIComponent(item.coverVersion);
+ return art[item.genre]||art.festival;
+};
+const image=item=>'<img src="'+esc(getImage(item))+'" data-sf206-fallback="'+art.festival+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="">';
+const name=()=>String(state.profile?.nome||$('sf43ProfileName')?.textContent||$('userDisplayName')?.textContent||'Meu perfil').trim()||'Meu perfil';
+const handle=()=>String($('sf43ProfileHandle')?.textContent||'').trim();
+const bio=()=>String(state.profile?.bio||'').trim();
+const genres=()=>Array.isArray(state.profile?.musicGenres)?state.profile.musicGenres.filter(Boolean):[];
+const level=()=>state.journey?.level||{};
+const xp=()=>state.journey?.points;
+const eventId=e=>[e.type,e.clubId||e.roomSlug,e.id].join(':');
+function agenda(){window.sf43CloseProfile?.();window.sf125Navigate?.('agenda')||window.sf200OpenAgenda?.();}
+function move(tab){window.sf112SwitchProfileTab?.(tab);}
+const eventCard=e=>'<article class="sf206-event">'+
+ image(e)+'<div class="sf206-event-text"><span class="sf206-pill">'+(e.type==='fanclub'?'♧ Fan Club':'♫ Sala')+'</span>'+
+ '<h3>'+esc(e.title)+'</h3><p>▦ '+esc(date(e.startAt))+'</p><p>⌖ '+esc(e.type==='fanclub'?('Fan Club: '+(e.clubName||'Comunidade')):('Sala: '+(e.roomName||'Sala musical')))+
+ (e.type==='fanclub'&&e.roomSlug?' · '+esc(e.roomName||'Sala vinculada'):'')+'</p></div>'+
+ '<div class="sf206-event-buttons"><button type="button" data-sf206-event="'+esc(eventId(e))+'">Ver evento</button>'+
+ (e.roomSlug?'<button type="button" class="sf206-lime" data-sf206-room="'+esc(e.roomSlug)+'">▷ Entrar na sala</button>':'')+'</div></article>';
+const clubCard=(c,manage=false)=>'<button class="sf206-club" type="button" data-sf206-club="'+esc(c.id)+'">'+
+ image(c)+'<strong>'+esc(c.title)+'</strong><small>'+esc(c.artist||'Comunidade musical')+'</small>'+
+ (manage?'<span>⚙ Gerenciar</span>':'')+'</button>';
+const miniNotice=(entry,i)=>'<button type="button" class="sf206-notice" '+(entry.roomSlug?'data-sf206-room="'+esc(entry.roomSlug)+'"':entry.fanClubId?'data-sf206-club="'+esc(entry.fanClubId)+'"':'data-sf206-notices')+'>'+
+ '<span>'+(i==='invite'?'✉':'▦')+'</span><span><strong>'+esc(entry.title||'Atualização SonoraFan')+'</strong><small>'+esc(entry.message||'')+'</small></span></button>';
+function hero(){
+ const lv=level(),points=xp(),progress=Math.min(100,Math.max(0,n(lv.progress)));
+ const isXp=Number.isFinite(Number(points));
+ const chips=genres().slice(0,2);
+ return '<header class="sf202-profile-hero sf206-hero">'+
+ '<div class="sf202-profile-identity sf206-identity"><div class="sf206-portrait" aria-label="Minha foto de perfil">'+
+ '<img id="sf206Portrait" alt="Foto do perfil" hidden><span id="sf206PortraitFallback" aria-hidden="true">♫</span></div>'+
+ '<div class="sf206-person"><span class="sf202-kicker">SONORAFAN · MEU PERFIL</span>'+
+ '<h1>'+esc(name())+'</h1><p class="sf206-handle">'+esc(handle())+
+ (lv.name?'<span class="sf206-level">'+esc(lv.icon||'✦')+' '+esc(lv.name)+'</span>':'')+'</p>'+
+ '<p class="sf206-bio">'+esc(bio()||'Sua história musical começa aqui. Edite sua bio para se apresentar à comunidade.')+'</p>'+
+ '<button type="button" class="sf206-genres" data-sf206-edit>♡ '+esc(chips.length?chips.join(' · '):'Definir meus artistas e estilos favoritos')+' ✎</button></div></div>'+
+ '<div class="sf206-hero-actions"><button type="button" data-sf206-edit>✎ Editar perfil</button><button type="button" data-sf206-manage>⚙ Gerenciar conteúdo</button></div>'+
+ '<div class="sf202-profile-stats sf206-stats">'+
+ '<div><b>▦ '+num(accepted().length)+'</b><span>Eventos confirmados</span></div>'+
+ '<div><b>♧ '+num(joined().length)+'</b><span>Fan Clubs que participo</span></div>'+
+ '<div><b>♕ '+num(managed().length)+'</b><span>Fan Clubs que administro</span></div>'+
+ '<div><b>♫ '+num(accepted().filter(e=>e.roomSlug).length)+'</b><span>Eventos com sala</span></div>'+
+ '<button class="sf206-xp" type="button" data-sf206-journey><span><b>ϟ '+(isXp?num(points):'—')+'</b><small>XP musical</small></span>'+
+ '<span class="sf206-xp-caption">'+esc(lv.name||'Minha jornada')+'</span>'+
+ '<span class="sf206-xp-track"><span style="width:'+progress+'%"></span></span></button>'+
+ '</div></header>';
+}
+function clubsSection(){
+ const list=joined(),own=managed();
+ const panel=(title,items,manage)=>'<section class="sf202-panel sf206-panel sf206-club-panel">'+
+ '<header><h2>'+title+'</h2><button type="button" data-sf206-clubs>Ver todos ('+num(items.length)+') ›</button></header>'+
+ (items.length?'<div class="sf206-clubs-grid">'+items.slice(0,state.section==='clubs'?24:6).map(c=>clubCard(c,manage)).join('')+'</div>':
+ '<div class="sf202-profile-empty"><strong>'+(manage?'Crie seu primeiro Fan Club':'Encontre sua comunidade')+'</strong>'+
+ '<p>'+(manage?'Administre seus próprios encontros e salas.':'Descubra comunidades e participe dos próximos eventos.')+'</p>'+
+ '<button type="button" '+(manage?'data-sf206-create-club':'data-sf206-clubs')+'>'+(manage?'＋ Criar Fan Club':'Explorar Fan Clubs')+'</button></div>')+
+ '</section>';
+ return '<div class="sf202-club-columns sf206-club-columns">'+
+ panel('♧ Fan Clubs que participo',list,false)+panel('♕ Fan Clubs que administro',own,true)+'</div>';
+}
+function suggestions(){
+ const cards=[
+ ['♫','Artistas favoritos','Gerencie seus estilos e preferências.','edit'],
+ ['♬','Salas frequentadas','Veja seus ambientes e músicas.','library'],
+ ['🏆','Conquistas','Acompanhe XP, níveis e medalhas.','journey'],
+ ['▥','Sua atividade','Explore suas contribuições musicais.','dna']
+ ];
+ return '<section class="sf206-suggestions"><h2>ϟ Sugestões para você</h2><div class="sf206-suggestion-grid">'+
+ cards.map(([ico,title,description,act])=>'<button type="button" data-sf206-suggest="'+act+'"><span>'+ico+'</span><strong>'+title+'</strong><small>'+description+'</small><i>›</i></button>').join('')+
+ '</div></section>';
+}
+function activity(){
+ const records=Array.isArray(state.journey?.recent)?state.journey.recent:[];
+ const userNotifications=state.notices.filter(x=>x.type==='event'||x.type==='fanclub').slice(0,4);
+ const rows=records.slice(0,3).map(x=>'<div class="sf206-activity-row"><span>✓</span><p><strong>'+esc(x.name||x.title||'Contribuição reconhecida')+'</strong>'+
+ '<small>'+ (n(x.xp)?'+'+num(x.xp)+' XP · ':'')+esc(x.time?new Date(x.time).toLocaleDateString('pt-BR'):'Minha jornada')+'</small></p></div>');
+ if(!rows.length)rows.push(...userNotifications.map(x=>'<div class="sf206-activity-row"><span>♧</span><p><strong>'+esc(x.title||'Notificação')+'</strong><small>'+esc(x.message||'')+'</small></p></div>'));
+ return '<section class="sf202-panel sf206-panel sf206-activity"><header><h2>ϟ Atividade recente</h2><button type="button" data-sf206-journey>Ver jornada ›</button></header>'+
+ (rows.length?rows.join(''):'<p class="sf206-muted">Suas atividades reconhecidas aparecerão aqui.</p>')+'</section>';
+}
+function render(){
+ const host=$('sf202ProfileOverview');if(!host)return;
+ const upcomingEvents=upcoming(),invitations=state.notices.filter(x=>x.type==='invite'&&!x.read).slice(0,3);
+ const sec=state.section;
+ host.innerHTML=hero()+
+ '<nav class="sf202-profile-nav sf206-nav" aria-label="Áreas do Meu Perfil">'+
+ [['overview','▦ Visão geral'],['events','▦ Eventos'],['clubs','♧ Fan Clubs'],['reminders','♧ Lembretes'],['activity','ϟ Atividade']].map(([id,label])=>
+ '<button type="button" data-sf206-section="'+id+'" aria-pressed="'+(sec===id)+'" class="'+(sec===id?'active':'')+'">'+label+'</button>').join('')+
+ '</nav>'+
+ (state.error?'<p class="sf202-profile-error" role="alert">'+esc(state.error)+' <button type="button" data-sf206-reload>Tentar novamente</button></p>':'')+
+ '<div class="sf202-profile-columns sf206-layout"><div class="sf202-profile-main">'+
+ ((sec==='overview'||sec==='events')?'<section class="sf202-panel sf206-panel"><header><h2>▦ Próximos eventos confirmados</h2><button type="button" data-sf206-agenda>Ver toda a agenda ›</button></header>'+
+ (upcomingEvents.length?upcomingEvents.slice(0,sec==='events'?30:3).map(eventCard).join(''):
+ '<div class="sf202-profile-empty"><strong>Seu próximo evento começa aqui</strong><p>Confirme presença na Agenda Musical para encontrar seus próximos encontros.</p><button type="button" data-sf206-agenda>Explorar eventos</button></div>')+'</section>':'')+
+ ((sec==='overview'||sec==='clubs')?clubsSection():'')+
+ ((sec==='overview'||sec==='activity')?suggestions():'')+
+ ((sec==='reminders')?'<section class="sf202-panel sf206-panel"><header><h2>▦ Meus próximos lembretes</h2></header>'+
+ (upcomingEvents.length?upcomingEvents.map(eventCard).join(''):'<p class="sf206-muted">Nenhum evento futuro confirmado.</p>')+'</section>':'')+
+ ((sec==='activity')?activity():'')+
+ '</div><aside class="sf202-profile-aside">'+
+ '<section class="sf202-panel sf206-panel sf206-aside"><header><h2>♧ Lembretes</h2><button type="button" data-sf206-agenda>Ver todos ›</button></header>'+
+ (upcomingEvents.length?upcomingEvents.slice(0,3).map(e=>'<button class="sf206-notice" type="button" data-sf206-event="'+esc(eventId(e))+'"><span>▦</span><span><strong>'+esc(e.title)+'</strong><small>'+esc(date(e.startAt))+'</small></span></button>').join(''):'<p class="sf206-muted">Nenhum evento confirmado para os próximos dias.</p>')+'</section>'+
+ '<section class="sf202-panel sf206-panel sf206-aside"><header><h2>✉ Convites</h2><button type="button" data-sf206-notices>Ver todos ›</button></header>'+
+ (invitations.length?invitations.map(i=>miniNotice(i,'invite')).join(''):'<p class="sf206-muted">Novos convites aparecerão aqui.</p>')+'</section>'+
+ activity()+
+ '<section class="sf202-panel sf206-panel sf206-quick"><header><h2>ϟ Ações rápidas</h2></header><div>'+
+ [['▦','Criar evento','create-event'],['♧','Criar Fan Club','create-club'],['♫','Criar sala','create-room']].map(([ico,name,act])=>
+ '<button type="button" data-sf206-action="'+act+'"><span>'+ico+'</span><strong>'+name+'</strong></button>').join('')+
+ '</div></section></aside></div>';
+ syncPhoto();
+}
+async function load(force=false){
+ if(state.loading)return;
+ if(!force&&Date.now()-state.lastLoad<28000){render();return;}
+ state.loading=true;state.error='';render();const request=++state.request;
+ const queries=[
+ ['/api/music-agenda',v=>state.events=Array.isArray(v.events)?v.events:[]],
+ ['/api/fan-clubs?mine=true',v=>state.clubs=Array.isArray(v.clubs)?v.clubs:[]],
+ ['/api/social/notifications',v=>state.notices=Array.isArray(v)?v:[]],
+ ['/api/community/profile',v=>state.profile=v&&typeof v==='object'?v:null],
+ ['/api/ranking60/me',v=>state.journey=v&&typeof v==='object'?v:null]
+ ];
+ const result=await Promise.allSettled(queries.map(async([url,assign])=>{
+  const r=await fetch(url,{credentials:'include',cache:'no-store'});
+  if(!r.ok)throw Error('Serviço indisponível');
+  const value=await r.json();if(state.request===request)assign(value);
+ }));
+ if(state.request!==request)return;
+ state.loading=false;state.lastLoad=Date.now();
+ state.error=result.some(x=>x.status==='rejected')?'Alguns dados não puderam ser carregados. Os demais continuam disponíveis.':'';
+ render();
+}
+function navigateAgenda(){window.sf43CloseProfile?.();if(typeof window.sf125Navigate==='function')window.sf125Navigate('agenda');else window.sf200OpenAgenda?.();}
+function navigateClub(id){window.sf43CloseProfile?.();window.sf107OpenFanClub?.(id);}
+function navigateAction(name){
+ if(name==='create-event'){window.sf43CloseProfile?.();window.sf125Navigate?.('agenda');window.sf200CreateEvent?.();return;}
+ if(name==='create-club'){window.sf43CloseProfile?.();window.sf125Navigate?.('create-club');return;}
+ if(name==='create-room'){window.sf43CloseProfile?.();window.showCreateRoom?.();return;}
+}
+function init(){
+ const host=$('sf202ProfileOverview');if(!host)return;
+ host.addEventListener('click',e=>{
+  const btn=e.target.closest('button');if(!btn)return;
+  const d=btn.dataset;
+  if(d.sf206Section){state.section=d.sf206Section;render();return;}
+  if('sf206Edit'in d){move('profile');return;}
+  if('sf206Manage'in d){state.section='clubs';render();return;}
+  if('sf206Clubs'in d){window.sf43CloseProfile?.();window.sf125Navigate?.('clubs');return;}
+  if('sf206CreateClub'in d){navigateAction('create-club');return;}
+  if('sf206Journey'in d){move('achievements');return;}
+  if('sf206Agenda'in d){navigateAgenda();return;}
+  if('sf206Notices'in d){window.sf43CloseProfile?.();window.sf15OpenNotifications?.();return;}
+  if(d.sf206Club){navigateClub(d.sf206Club);return;}
+  if(d.sf206Event){navigateAgenda();window.sf200OpenEvent?.(d.sf206Event);return;}
+  if(d.sf206Room){window.sf43CloseProfile?.();window.joinRoom?.(d.sf206Room);return;}
+  if(d.sf206Action){navigateAction(d.sf206Action);return;}
+  if(d.sf206Suggest){const routes={edit:'profile',library:'library',journey:'achievements',dna:'dna'};move(routes[d.sf206Suggest]||'profile');return;}
+  if('sf206Reload'in d){load(true);}
+ });
+ host.addEventListener('error',e=>{
+  const img=e.target;
+  if(img?.id==='sf206Portrait'){img.hidden=true;$('sf206PortraitFallback')?.removeAttribute('hidden');return;}
+  if(img?.matches?.('img[data-sf206-fallback]')){img.src=img.dataset.sf206Fallback;delete img.dataset.sf206Fallback;}
+ },true);
+ const photo=$('sf43ProfileAvatar');
+ if(photo)new MutationObserver(()=>{if($('sf202ProfileOverview')&&!host.hidden)syncPhoto();}).observe(photo,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+ window.sf202RefreshProfile=(force=false)=>{if(force)state.lastLoad=0;load(force);};
+ const modal=$('sf43ProfileModal');
+ if(modal)new MutationObserver(()=>{
+  if(modal.classList.contains('active')&&modal.classList.contains('sf112-tab-overview'))load();
+ }).observe(modal,{attributes:true,attributeFilter:['class']});
+ render();
+ if(modal?.classList.contains('active'))load();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
