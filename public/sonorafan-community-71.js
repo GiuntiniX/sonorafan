@@ -10,7 +10,7 @@
  const gallery={stage:'/art-129/sonorafan-stage.svg',kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',brasil:'/art-33/poster-brasil.webp',electronic:'/art-33/poster-electro.webp',festival:'/art-40/poster-festival.svg'};
  const preferred={kpop:'kpop',pop:'pop',rock:'rock',metal:'rock',punk:'rock',indie:'indie',eletronica:'electronic',funk:'brasil',mpb:'brasil',hiphop:'brasil',pagode:'brasil',samba:'brasil',forro:'brasil',sertanejo:'brasil',latina:'brasil'};
  const fallback=club=>gallery[preferred[club?.genre]||'stage'];
- const safeUrl=value=>{try{const u=new URL(String(value||''));return u.protocol==='https:'&&!u.username&&!u.password&&u.hostname.includes('.')&&!/(^|\\.)(localhost|local|internal|test|invalid)$/.test(u.hostname)?u.href:'';}catch(_){return '';}};
+ const safeUrl=value=>{try{const u=new URL(String(value||''));return u.protocol==='https:'&&!u.username&&!u.password&&u.hostname.includes('.')&&!/(^|\.)(localhost|local|internal|test|invalid)$/.test(u.hostname)?u.href:'';}catch(_){return '';}};
  const coverForm=(kind='default',id='',url='')=>`<fieldset class="sf192-choices"><legend>Imagem de capa</legend>
    <label><input type="radio" name="coverType" value="default" ${kind==='default'?'checked':''}> Automática pelo gênero musical</label>
    <label><input type="radio" name="coverType" value="gallery" ${kind==='gallery'?'checked':''}> Escolher na galeria SonoraFan</label>
@@ -34,7 +34,8 @@
  };
  const byId=id=>state.clubs.find(c=>c.id===id);
  const coverUrl=club=>club?.coverType==='gallery'?(gallery[club.coverGalleryId]||fallback(club)):club?.coverType==='external'?(safeUrl(club.coverImageUrl)||fallback(club)):club?.coverVersion?'/api/fan-clubs/'+encodeURIComponent(club.id)+'/cover?v='+encodeURIComponent(String(club.coverVersion)):fallback(club);
- const imageCover=(club,small=false)=>`<img class="sf73-cover-img" src="${esc(coverUrl(club))}" data-sf192-fallback="${esc(fallback(club))}" onerror="this.onerror=null;this.src=this.dataset.sf192Fallback" alt="Capa do Fan Club ${esc(club.title)}" ${small?'loading="lazy"':''} decoding="async">`;
+ const imageCover=(club,small=false)=>`<img class="sf73-cover-img" src="${esc(coverUrl(club))}" data-sf192-fallback="${esc(fallback(club))}" referrerpolicy="no-referrer" alt="Capa do Fan Club ${esc(club.title)}" ${small?'loading="lazy"':''} decoding="async">`;
+ document.addEventListener('error',event=>{const img=event.target;if(img?.matches?.('img.sf73-cover-img')&&img.dataset.sf192Fallback&&img.src!==new URL(img.dataset.sf192Fallback,location.href).href){img.src=img.dataset.sf192Fallback;}},true);
  async function compressCover(file){
    if(!file)return null;
    if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw Error('Escolha uma imagem JPG, PNG ou WebP.');
