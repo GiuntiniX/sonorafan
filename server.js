@@ -1218,7 +1218,8 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   if (!name || name.trim().length < 2 || name.trim().length > 40) return res.status(400).json({ error: 'Nome inválido' });
   const genre=normalizeRoomGenre109(req.body?.genre);
   if (!genre) return res.status(400).json({error:'Selecione o gênero musical da sala.'});
-  const slug = name.trim().toLowerCase().replace(/\s+/g, '-') + '-' + Date.now().toString(36);
+  const baseSlug=name.trim().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,55)||'sala';
+   const slug=baseSlug+'-'+Date.now().toString(36);
   if (rooms.has(slug)) return res.status(400).json({ error: 'Sala já existe' });
   const room = createRoom(slug, name.trim(), String(adminName || 'Anônimo').slice(0, 40));
   room.ownerEmail = email;
@@ -1770,6 +1771,7 @@ io.on('connection', (socket) => {
         isPrivate: room.isPrivate, hasPassword: !!room.passHash,
         sf141Party:sf141PartyPublic(room.slug),
       });
+      socket.emit('joinedRoom',{slug,listenerCount:syncRoomOccupancy(slug),maxListeners:MAX_PEOPLE_PER_ROOM});
       socket.emit('chatHistory', room.chatHistory.filter(m=>!m.isSystem||!/^⚙️ .* atualizou as configurações da sala$/.test(String(m.text||''))).slice(-150));
       socket.emit('isAdmin', socket.isAdmin);
       socket.emit('isMod', !!socket.isMod);
@@ -2315,7 +2317,8 @@ io.on('connection', (socket) => {
   // Este handler corrige os três.
   socket.on('leaveRoom', () => {
     try {
-      if (!currentRoom) return;
+      clearWaitingSocket(socket);
+      if (!currentRoom) { socket.sfSocialRoom=null; return; }
       const room = rooms.get(currentRoom);
       const oldSlug = currentRoom;
 
