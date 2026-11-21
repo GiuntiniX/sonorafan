@@ -242,3 +242,11 @@
  .sf201-create-dialog{max-height:94dvh}
 }
 @media(prefers-reduced-motion:reduce){#screen-lobby .sf200-agenda button{transition:none}}
+
+/* Agenda 201 — feedback, onboarding and organizer controls. */
+#screen-lobby .sf200-agenda .sf201-flash{display:flex;align-items:center;gap:12px;justify-content:space-between;border-radius:12px;padding:12px 16px;margin:0 0 18px;font-weight:800;font-size:13px;color:#e8ffba;background:#293a17;border:1px solid #8fbc4e}
+#screen-lobby .sf200-agenda .sf201-flash button{border:1px solid #97b65f;border-radius:50%;min-width:32px;min-height:32px;color:#d7ff9f;background:#253617;cursor:pointer}
+.sf201-create-dialog .sf201-create-space{border:1px solid #9d75b2;background:#372043;color:#eadaf5;border-radius:999px;padding:6px 12px;margin-left:4px;font-size:11px;font-weight:800;cursor:pointer}
+.sf201-create-dialog .sf201-create-space:hover{border-color:#caff00;color:#dfff8a}
+#screen-lobby .sf200-agenda .sf200-dialog .sf201-delete{background:#4c2033;border:1px solid #c06e91;color:#ffd7e6;padding:10px 15px;min-height:42px;border-radius:999px;justify-self:start;font-size:12px;font-weight:850;cursor:pointer}
+#screen-lobby .sf200-agenda .sf200-dialog .sf201-delete:hover{background:#652a43}
