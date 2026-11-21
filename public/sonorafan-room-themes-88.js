@@ -299,10 +299,10 @@
    'bts-lights-festival':['/themes/hd-220/bts-lights-festival.webp','/themes/hd-220/bts-lights-festival.webp'],
    'jpop-fuji-stage':['/themes/hd-220/jpop-fuji-stage.webp','/themes/hd-220/jpop-fuji-stage.webp'],
    'trap-street-crown':['/themes/hd-220/trap-street-crown.webp','/themes/hd-220/trap-street-crown.webp'],
-   'lofi-riverside':['/themes/renovados-219/lofi-riverside.webp','/themes/renovados-219/lofi-riverside.webp'],
+   'lofi-riverside':['/themes/hd-220/lofi-riverside.webp','/themes/hd-220/lofi-riverside.webp'],
    'lofi-acoustic-garden':['/themes/renovados-219/lofi-acoustic-garden.webp','/themes/renovados-219/lofi-acoustic-garden.webp']
  });
- const themeRevision='220';
+ const themeRevision='221';
  const assetUrl=url=>url+(url.includes('?')?'&':'?')+'v='+themeRevision;
  fetch('/themes/catalog-88.json?v='+themeRevision,{credentials:'same-origin',cache:'no-store'})
    .then(resp=>{if(!resp.ok)throw new Error('Catálogo indisponível');return resp.json();})
