@@ -1429,6 +1429,12 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
        else if(state.focusPost)closeTopic(false);
      }
    };
+   window.sf71OpenFanClubTopic=(clubId,postId)=>{
+     if(!/^[a-f0-9-]{36}$/.test(String(clubId||''))||!/^[A-Za-z0-9_-]{1,100}$/.test(String(postId||'')))return;
+     const target='#fanclub/'+encodeURIComponent(clubId)+'/topic/'+encodeURIComponent(postId);
+     if(location.hash===target)handleForumRoute();
+     else location.hash=target;
+   };
    window.addEventListener('popstate',handleForumRoute);
    window.addEventListener('hashchange',handleForumRoute);
    if(/^#fanclub\//.test(location.hash))setTimeout(handleForumRoute,300);
