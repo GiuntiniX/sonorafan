@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+arquivo.env
 arquivo.env.local
 *.pem
 service-account*.json
