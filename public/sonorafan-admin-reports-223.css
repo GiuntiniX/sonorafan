@@ -1,0 +1,15 @@
+
+/* Admin reports: separated identities and contextual private support. */
+#sf53AdminReports .sf53-admin-people{display:grid;gap:8px;margin:12px 0}
+#sf53AdminReports .sf53-admin-person,
+#sf13ReportItems .sf13-report-person{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:9px 10px;border:1px solid #594064;border-radius:9px;background:#24182e;color:#e9d6f0;font-size:12px}
+#sf53AdminReports .sf53-admin-person strong,
+#sf13ReportItems .sf13-report-person strong{color:#fff;font-weight:800}
+#sf53AdminReports .sf53-admin-person button,
+#sf13ReportItems .sf13-report-person button{border:1px solid #9061a4;background:#402551;border-radius:8px;color:#f9eafe;padding:8px 10px;font:750 11px Inter,system-ui,sans-serif;cursor:pointer}
+#sf53AdminReports .sf53-admin-person button:hover,
+#sf13ReportItems .sf13-report-person button:hover{border-color:#d67fe9;background:#503263}
+#sf53AdminReports .sf53-admin-evidence{white-space:pre-wrap;overflow-wrap:anywhere}
+#sf53AdminReports .sf53-admin-actions{margin-top:12px}
+#sf13ReportItems .sf13-report-person{margin:7px 0}
+@media(max-width:580px){#sf53AdminReports .sf53-admin-person button,#sf13ReportItems .sf13-report-person button{width:100%}}
