@@ -172,7 +172,14 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   }
   function memberView(id){
     const person=[...users.entries()].find(([email])=>publicUserId(email)===id);
-    return {id,name:person?clean(person[1]?.nome||'Fã SonoraFan',40):'Membro',avatar:person?clean(person[1]?.avatar||'🎧',8):'🎧'};
+    const user=person?.[1], saved=user?.avatar108;
+    // Expor somente a foto ou personagem público escolhido pelo usuário.
+    const photo=saved?.kind==='photo'&&/^[a-f0-9]{24}$/.test(id)
+      ?'/api/profile108/photo/'+id+'?v='+Number(saved.updatedAt||0):'';
+    const character=saved?.kind==='character'&&typeof saved.id==='string'&&/^[a-z0-9-]{1,60}$/.test(saved.id)
+      ?'/avatars-108/'+saved.id+'.svg':'';
+    return {id,name:user?clean(user.nome||'Fã SonoraFan',40):'Membro',
+      avatar:user?clean(user.avatar||'🎧',8):'🎧',avatarUrl:photo||character};
   }
 
   // Vinculação pública da sala, sem expor ambientes privados.
@@ -336,7 +343,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{const {data}=await readClub(req.params.id);
       res.json({club:{...overview(data,req.params.id,me),rooms:cleanRooms(data),events:clubEvents(data,me),
-        members:member(data,me)?unique(data.memberIds).slice(0,50).map(memberView):[],
+        members:member(data,me)?unique(data.memberIds).slice(0,50).map(mid=>({...memberView(mid),isSelf:mid===me.id})):[],
         blockedMembers:canModerate(data,me)?unique(data.blockedIds).slice(0,50).map(memberView):[],
          moderators:unique(data.moderatorIds).slice(0,10).map(memberView)}});
     }catch(e){error(res,e);}
