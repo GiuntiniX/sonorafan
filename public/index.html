@@ -2574,7 +2574,8 @@
       </div>
         </div>
         <footer class="sf130-create-footer">
-          <div class="sf130-footer-caption"><span aria-hidden="true">◉</span><span>Sua música, suas regras.</span></div>
+          <div class="sf130-footer-caption"><span aria-hidden="true">◉</span><span>Sua música, suas regras. Até 30 salas na plataforma e 50 pessoas por sala.</span></div>
+          <p id="sf230RoomCapacity" role="status" aria-live="polite" style="font-size:12px;color:var(--text-secondary);margin:4px 0 8px"></p>
           <div class="modal-actions">
             <button class="btn-secondary sf130-cancel" type="button" onclick="closeCreateRoom()">Cancelar</button>
             <button class="btn-secondary sf10-back" type="button" onclick="window.sf10WizardBack?.()" hidden>← Anterior</button>
@@ -3760,6 +3761,13 @@
       const genreError=$('sf109GenreError');if(genreError)genreError.hidden=true;
       window.sf88ResetCreateTheme?.();
       sfCoverReset('c');
+      const label=$('sf230RoomCapacity');
+      if(label)label.textContent='Consultando capacidade da plataforma…';
+      fetch('/api/rooms/limits',{credentials:'include',cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(Error('indisponível'))).then(d=>{
+        if(!label||!$('createRoomModal').classList.contains('active'))return;
+        label.textContent=d.ready?`${d.currentRooms} de ${d.maxRooms} salas utilizadas · ${d.maxPeoplePerRoom} pessoas por sala`:'Aguarde: catálogo de salas sendo carregado.';
+        label.classList.toggle('sf230-full',d.currentRooms>=d.maxRooms);
+      }).catch(()=>{if(label)label.textContent='Limite: 30 salas, com 50 pessoas por sala.';});
     }
     function closeCreateRoom() { $('createRoomModal').classList.remove('active'); }
 
@@ -3974,7 +3982,9 @@ function openRoomCfg() {
       sessionStorage.removeItem('vc_invite');
       try { const i = JSON.parse(v); joinRoom(i.slug, { invite: i.code }); } catch (e) {}
     }
+    let sf230CreatingRoom=false;
     async function createRoom() {
+      if(sf230CreatingRoom)return;
       if(sfCoverBusy.c)return toast('Aguarde o envio da capa terminar','error');
       let coverUrl;try{coverUrl=sfCoverValue('c');}catch(e){return toast(e.message,'error');}
       const name = $('newRoomName').value.trim();
@@ -3988,11 +3998,15 @@ function openRoomCfg() {
         return toast('Selecione o gênero musical da sala.', 'error');
       }
       if(genreError)genreError.hidden=true;
+      sf230CreatingRoom=true;
+      const sendButton=$('createRoomModal')?.querySelector('.sf10-submit');
+      if(sendButton)sendButton.disabled=true;
       try {
-        const r = await fetch('/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, genre, adminName: myName, ...readCfg('c'), coverUrl, roomTheme: window.sf88GetCreateTheme?.()||'indie' }) });
+        const r = await fetch('/api/rooms', { method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, genre, adminName: myName, ...readCfg('c'), coverUrl, roomTheme: window.sf88GetCreateTheme?.()||'indie' }) });
         const d = await r.json();
-        if (d.slug) { closeCreateRoom(); joinRoom(d.slug); } else toast(d.error || 'Erro', 'error');
+        if (r.ok && d.slug) { closeCreateRoom(); joinRoom(d.slug); } else toast(d.error || 'Erro ao criar sala', 'error');
       } catch(e) { toast('Erro ao criar sala', 'error'); }
+      finally{sf230CreatingRoom=false;if(sendButton)sendButton.disabled=false;}
     }
     async function joinRandomRoom() {
       try { const r = await fetch('/api/rooms/random'); const d = await r.json(); if (d.slug) joinRoom(d.slug); else toast('Nenhuma sala disponível', 'error'); } catch(e) {}
@@ -4721,6 +4735,11 @@ function openRoomCfg() {
     });
     socket.on('votesState', (votesData) => { queueVotes = votesData || {}; if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex); });
     socket.on('error', (msg) => toast(msg, 'error'));
+    socket.on('joinError', ({slug,message}={})=>{
+      if(!slug||slug!==currentRoom||slug!==_joinedSlug)return;
+      toast(message||'Não foi possível entrar na sala.','error');
+      leaveRoom();
+    });
     socket.on('isAdmin', (isAdmin) => { amIAdmin = !!isAdmin || currentUser?.email === 'admin@sonora.com'; window.sf88Permission?.(amIAdmin); $('cfgBtn').classList.toggle('hidden', !amIAdmin); checkAdmin(); });
     socket.on('kicked', (msg) => { alert(msg); leaveRoom(); });
     socket.on('banned', (msg) => { alert(msg); leaveRoom(); });
@@ -4728,7 +4747,11 @@ function openRoomCfg() {
     socket.on('adminBroadcast', (data) => { toast(`📢 ${data.message}`, 'success'); if (currentRoom) { renderMessage({ user: '📢 Admin', text: data.message, isSystem: true, createdAt: new Date() }); } });
     socket.on('roomClosed', (msg) => { alert(msg); leaveRoom(); });
     socket.on('skipVoteUpdate', ({ votes, needed }) => { skipVotes = { votes, needed }; updateSkipBtn(); toast(`🗳️ Votos para pular: ${votes}/${needed}`, 'success'); });
-    socket.on('waitingRoom', ({ position, canJoin }) => { if (canJoin) { toast('🟢 Vaga liberada!', 'success'); joinRoom(currentRoom); } else { toast(`⏳ Fila de espera (posição ${position})`, 'error'); } });
+    socket.on('waitingRoom', ({ slug,position,canJoin,maxListeners }={}) => {
+      if(!slug||slug!==currentRoom||slug!==_joinedSlug)return;
+      if(canJoin){toast('🟢 Vaga liberada! Entrando na sala…','success');emitJoin(slug);}
+      else toast(`⏳ Sala com ${maxListeners||50} vagas ocupadas. Fila de espera: posição ${position}.`,'error');
+    });
     socket.on('playSound', (type) => playSound(type));
 
     // ===== PROGRESS BAR =====
