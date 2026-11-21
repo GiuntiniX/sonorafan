@@ -12,6 +12,6 @@ test('desktop registration reference remains consistent at 60–125% browser zoo
   assert.match(base,/sonorafan-cadastro-referencia-exata\.webp/);
   assert.match(live,/left:42\.1%!important;top:13\.15%!important/);
   assert.match(html,/signup-reference-184\.css\?v=184\.5/);
-  assert.match(html,/signup-clean-185\.css\?v=185\.3/);
-  assert.match(html,/sonorafan-mobile-186\.css\?v=186\.3/);
+  assert.match(html,/signup-clean-185\.css\?v=190\.0/);
+  assert.match(html,/sonorafan-mobile-186\.css\?v=186\.4/);
 });
