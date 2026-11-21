@@ -6,7 +6,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const n=v=>Math.max(0,Number(v)||0),num=v=>n(v).toLocaleString('pt-BR');
 const date=v=>{const d=new Date(Number(v));return Number.isFinite(d.getTime())?d.toLocaleString('pt-BR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Data não disponível';};
 const art={kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',mpb:'/art-33/poster-brasil.webp',festival:'/art-41/festival-noite.webp',stage:'/art-129/sonorafan-stage.svg'};
-const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫'};
+const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0};
 const isManager=c=>!!(c?.owner||c?.canModerate);
 const joined=()=>state.clubs.filter(c=>c.joined||c.owner);
 const managed=()=>state.clubs.filter(isManager);
@@ -121,13 +121,92 @@ function activity(){
  return '<section class="sf202-panel sf206-panel sf206-activity"><header><h2>ϟ Atividade recente</h2><button type="button" data-sf206-journey>Ver jornada ›</button></header>'+
  (rows.length?rows.join(''):'<p class="sf206-muted">Suas atividades reconhecidas aparecerão aqui.</p>')+'</section>';
 }
+const validFriendId=id=>typeof id==='string'&&/^[a-f0-9]{24}$/i.test(id);
+const validRoomSlug=id=>typeof id==='string'&&/^[a-z0-9_-]{1,120}$/i.test(id);
+async function friendRequest(url,init){
+ const response=await fetch(url,{credentials:'include',cache:'no-store',...init});
+ const data=await response.json().catch(()=>null);
+ if(!response.ok)throw Error(data?.error||'Não foi possível carregar seus amigos.');
+ return data;
+}
+async function fetchFriends(force=false) {
+ if(state.friendsLoading||(!force&&Date.now()-state.friendsLoaded<30000))return;
+ state.friendsLoading=true;state.friendsError='';if(state.section==='friends')render();
+ try{
+  const data=await friendRequest('/api/social/following');
+  state.friends=Array.isArray(data)?data.filter(x=>validFriendId(x.id)):[];
+  state.friendsLoaded=Date.now();
+ }catch(err){state.friendsError=err.message;}
+ finally{state.friendsLoading=false;if(state.section==='friends')render();}
+}
+function friendAvatar(person) {
+ const value=String(person.avatar||'🎧').trim();
+ // Avatares do serviço social são emojis, não URLs verificadas.
+ return '<span class="sf220-friend-avatar" aria-hidden="true">'+esc(value.slice(0,8)||'🎧')+'</span>';
+}
+function friendCard(person,added=true){
+ const room=person.activity&&validRoomSlug(person.activity.roomSlug)?person.activity:null;
+ const online=!!person.online,joined=room?.roomName||'';
+ return '<article class="sf220-friend-card">'+friendAvatar(person)+
+ '<div class="sf220-friend-info"><strong>'+esc(person.name||'Participante')+'</strong>'+
+ '<small class="sf220-friend-status"><i class="'+(online?'is-online':'')+'"></i> '+(online?'Online':'Offline')+
+ (room?' · '+esc(joined):'')+'</small>'+
+ (person.bio?'<p>'+esc(person.bio)+'</p>':'')+'</div>'+
+ '<div class="sf220-friend-actions">'+
+ (added?'<button type="button" data-sf220-dm="'+esc(person.id)+'" data-sf220-name="'+esc(person.name||'Participante')+'">✉ Conversar</button>':'')+
+ (added&&room?'<button class="sf220-join" type="button" data-sf220-room="'+esc(room.roomSlug)+'">▶ Entrar na sala</button>':'')+
+ '<button class="sf220-manage" type="button" data-sf220-follow="'+esc(person.id)+'" data-sf220-value="'+(added?'remove':'add')+'">'+(added?'Remover':'＋ Adicionar amigo')+'</button>'+
+ '</div></article>';
+}
+function friendsPanel(){
+ let friends=state.friends.slice();
+ if(state.friendsFilter==='online')friends=friends.filter(x=>x.online);
+ if(state.friendsFilter==='inroom')friends=friends.filter(x=>x.activity&&validRoomSlug(x.activity.roomSlug));
+ const online=state.friends.filter(x=>x.online).length;
+ return '<section class="sf202-panel sf206-panel sf220-friends">'+
+ '<header><div><h2>♡ Meus amigos</h2><p>Converse em particular ou encontre quem está ouvindo música agora.</p></div>'+
+ '<span class="sf220-counter">'+state.friends.length+' adicionados · '+online+' online</span></header>'+
+ '<div class="sf220-friend-controls"><div class="sf220-chips" role="group" aria-label="Filtrar amigos">'+
+ [['all','Todos'],['online','Online'],['inroom','Em uma sala']].map(([id,label])=>
+ '<button type="button" data-sf220-filter="'+id+'" aria-pressed="'+(state.friendsFilter===id)+'">'+label+'</button>').join('')+
+ '</div><button type="button" data-sf220-refresh>↻ Atualizar</button></div>'+
+ (state.friendsError?'<p class="sf220-error" role="alert">'+esc(state.friendsError)+'</p>':'')+
+ (state.friendsLoading?'<p class="sf206-muted">Atualizando seus amigos…</p>':'')+
+ '<div class="sf220-friend-list">'+(friends.length?friends.map(x=>friendCard(x)).join(''):
+ '<div class="sf220-empty"><strong>Nenhum amigo nesta visualização</strong><p>Adicione pessoas pelo chat ou encontre alguém abaixo.</p></div>')+'</div>'+
+ '<form class="sf220-find-form" id="sf220FriendSearchForm"><label for="sf220FriendSearch">Encontrar pessoas</label>'+
+ '<div><input id="sf220FriendSearch" maxlength="40" minlength="2" placeholder="Digite um nome ou nickname" value="'+esc(state.friendQuery)+'" autocomplete="off">'+
+ '<button type="submit"'+(state.friendsSearchLoading?' disabled':'')+'>Buscar</button></div></form>'+
+ '<div class="sf220-friend-search-results" aria-live="polite">'+
+ state.friendResults.filter(x=>!state.friends.some(f=>f.id===x.id)).map(x=>friendCard(x,false)).join('')+'</div>'+
+ '<p class="sf220-privacy">A localização em salas aparece apenas quando a pessoa permite compartilhar sua atividade e está em uma sala pública.</p>'+
+ '</section>';
+}
+async function searchFriends(query){
+ state.friendQuery=query.trim().slice(0,40);
+ if(state.friendQuery.length<2){state.friendResults=[];state.friendsError='Digite pelo menos 2 caracteres.';render();return;}
+ state.friendsSearchLoading=true;state.friendsError='';render();
+ try{const data=await friendRequest('/api/social/search?q='+encodeURIComponent(state.friendQuery));state.friendResults=Array.isArray(data)?data.filter(x=>validFriendId(x.id)):[];}
+ catch(err){state.friendsError=err.message;}
+ finally{state.friendsSearchLoading=false;render();}
+}
+async function changeFriend(id,add) {
+ if(!validFriendId(id))return;
+ try{
+  await friendRequest('/api/social/follow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,follow:add})});
+  state.friendsLoaded=0;
+  await fetchFriends(true);
+  state.friendResults=state.friendResults.filter(x=>add?x.id!==id:true);
+  render();
+ }catch(err){state.friendsError=err.message;render();}
+}
 function render(){
  const host=$('sf202ProfileOverview');if(!host)return;
  const upcomingEvents=upcoming(),invitations=state.notices.filter(x=>x.type==='invite'&&!x.read).slice(0,3);
  const sec=state.section;
  host.innerHTML=hero()+
  '<nav class="sf202-profile-nav sf206-nav" aria-label="Áreas do Meu Perfil">'+
- [['overview','▦ Visão geral'],['events','▦ Eventos'],['clubs','♧ Fan Clubs'],['reminders','♧ Lembretes'],['activity','ϟ Atividade']].map(([id,label])=>
+ [['overview','▦ Visão geral'],['events','▦ Eventos'],['clubs','♧ Fan Clubs'],['friends','♡ Amigos'],['reminders','♧ Lembretes'],['activity','ϟ Atividade']].map(([id,label])=>
  '<button type="button" data-sf206-section="'+id+'" aria-pressed="'+(sec===id)+'" class="'+(sec===id?'active':'')+'">'+label+'</button>').join('')+
  '</nav>'+
  (state.error?'<p class="sf202-profile-error" role="alert">'+esc(state.error)+' <button type="button" data-sf206-reload>Tentar novamente</button></p>':'')+
@@ -136,6 +215,7 @@ function render(){
  (upcomingEvents.length?upcomingEvents.slice(0,sec==='events'?30:3).map(eventCard).join(''):
  '<div class="sf202-profile-empty"><strong>Seu próximo evento começa aqui</strong><p>Confirme presença na Agenda Musical para encontrar seus próximos encontros.</p><button type="button" data-sf206-agenda>Explorar eventos</button></div>')+'</section>':'')+
  ((sec==='overview'||sec==='clubs')?clubsSection():'')+
+ ((sec==='friends')?friendsPanel():'')+
  ((sec==='overview'||sec==='activity')?suggestions():'')+
  ((sec==='reminders')?'<section class="sf202-panel sf206-panel"><header><h2>▦ Meus próximos lembretes</h2></header>'+
  (upcomingEvents.length?upcomingEvents.map(eventCard).join(''):'<p class="sf206-muted">Nenhum evento futuro confirmado.</p>')+'</section>':'')+
@@ -185,7 +265,12 @@ function init(){
  host.addEventListener('click',e=>{
   const btn=e.target.closest('button');if(!btn)return;
   const d=btn.dataset;
-  if(d.sf206Section){state.section=d.sf206Section;render();return;}
+  if(d.sf206Section){state.section=d.sf206Section;render();if(state.section==='friends')fetchFriends();return;}
+  if(d.sf220Filter){state.friendsFilter=d.sf220Filter;render();return;}
+  if('sf220Refresh'in d){fetchFriends(true);return;}
+  if(d.sf220Dm&&validFriendId(d.sf220Dm)){window.sf53OpenInbox?.(d.sf220Dm,d.sf220Name||'Participante');return;}
+  if(d.sf220Room&&validRoomSlug(d.sf220Room)){window.sf43CloseProfile?.();window.joinRoom?.(d.sf220Room);return;}
+  if(d.sf220Follow&&validFriendId(d.sf220Follow)){changeFriend(d.sf220Follow,d.sf220Value==='add');return;}
   if('sf206Edit'in d){move('profile');return;}
   if('sf206Manage'in d){state.section='clubs';render();return;}
   if('sf206Clubs'in d){window.sf43CloseProfile?.();window.sf125Navigate?.('clubs');return;}
@@ -200,6 +285,7 @@ function init(){
   if(d.sf206Suggest){const routes={edit:'profile',library:'library',journey:'achievements',dna:'dna'};move(routes[d.sf206Suggest]||'profile');return;}
   if('sf206Reload'in d){load(true);}
  });
+ host.addEventListener('submit',e=>{if(e.target?.id==='sf220FriendSearchForm'){e.preventDefault();searchFriends($('sf220FriendSearch')?.value||'');}});
  host.addEventListener('error',e=>{
   const img=e.target;
   if(img?.id==='sf206Portrait'){img.hidden=true;$('sf206PortraitFallback')?.removeAttribute('hidden');return;}
