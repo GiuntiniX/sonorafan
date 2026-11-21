@@ -833,10 +833,14 @@ app.get('/api/social/notifications',rateLimit(50,60000),async(req,res)=>{
     const now=Date.now(),me=sf15UserKey(email);
     const reminders=[...socialEvents.values()].filter(e=>e&&e.startAt>=now&&e.startAt<now+24*3600000&&Array.isArray(e.attendees)&&e.attendees.includes(me)&&rooms.get(e.roomSlug)&&!rooms.get(e.roomSlug).isPrivate)
       .map(e=>({id:'event-'+e.id,type:'event',title:'Evento chegando',message:eventClean(e.title,70)+' · '+new Date(e.startAt).toLocaleString('pt-BR'),roomSlug:e.roomSlug,createdAt:e.startAt,read:false}));
+    const fanClubReminders=typeof app.locals.sf202ClubEventReminders==='function'
+      ? await app.locals.sf202ClubEventReminders(email).catch(err=>{console.warn('Fan Club event reminders:',err.message);return [];})
+      : [];
+    const allReminders=[...reminders,...fanClubReminders];
     const readIds=new Set(stored.filter(x=>x.type==='event_seen').map(x=>x.id));
     const dismissedIds=new Set(stored.filter(x=>x.type==='event_hidden').map(x=>x.id));
     const normal=stored.filter(x=>x.type!=='event_seen' && x.type!=='event_hidden' && (x.type!=='invite' || (rooms.has(x.roomSlug)&&!rooms.get(x.roomSlug).isPrivate)));
-    res.json([...reminders.filter(x=>!dismissedIds.has('hidden-'+x.id)).map(x=>({...x,read:readIds.has('seen-'+x.id)})),...normal].sort((a,b)=>b.createdAt-a.createdAt).slice(0,70));
+    res.json([...allReminders.filter(x=>!dismissedIds.has('hidden-'+x.id)).map(x=>({...x,read:readIds.has('seen-'+x.id)})),...normal].sort((a,b)=>b.createdAt-a.createdAt).slice(0,70));
   }catch(e){console.error('notifications read:',e.message);res.status(503).json({error:'Notificações indisponíveis'});}
 });
 app.post('/api/social/notifications/read',rateLimit(30,60000),async(req,res)=>{
