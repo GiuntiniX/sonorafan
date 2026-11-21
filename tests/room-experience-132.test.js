@@ -14,7 +14,7 @@ test('v134 landing preview displays the approved K-pop image at higher resolutio
  assert.ok(b.length>100000,'high resolution image must not be an aggressively compressed thumbnail');
  assert.equal(b.toString('ascii',4,12).slice(0,4),'ftyp','AVIF file signature');
  assert.match(html,/class="sf121-room-preview sf132-landing-preview"/);
- assert.match(html,/class="sf132-room-illustration" src="\/art-134\/sonorafan-kpop-home-hq\.avif"/);
+ assert.match(html,/class="sf132-room-illustration" src="\/art-134\/sonorafan-todos-os-generos-home\.avif"/);
  assert.match(html,/sonorafan-room-experience-132\.css\?v=132/);
  assert.match(css,/#landingScreen\.sf121-home \.sf121-room-preview \.sf132-room-illustration/);
 });
