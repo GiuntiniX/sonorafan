@@ -1680,19 +1680,19 @@ io.on('connection', (socket) => {
   socket.on('joinRoom', ({ slug, name, avatar, token, invite, password }) => {
     try {
       const room = rooms.get(slug);
-      if (!room) { socket.emit('error', 'Sala não encontrada'); return; }
+      if (!room) { socket.emit('joinError', {slug,message:'Sala não encontrada.'}); return; }
       // identidade vem da conta logada, nunca do que o navegador envia
       const ck = (socket.handshake.headers.cookie || '').match(/sessionToken=([^;]+)/);
       let who = ck ? sessions.get(ck[1]) : null;
       if (!who && token) { const rt = socketTokens.get(token); if (rt && rt.exp > Date.now()) who = rt.email; }
-      if (!who) { socket.emit('error', 'Faça login para entrar na sala.'); return; }
+      if (!who) { socket.emit('joinError', {slug,message:'Faça login para entrar na sala.'}); return; }
       const prof = users.get(who) || {};
-      if (prof.banned) { socket.emit('error', 'Conta banida.'); return; }
+      if (prof.banned) { socket.emit('joinError', {slug,message:'Conta banida.'}); return; }
       name = uniqueName(slug, who, String(prof.nome || who.split('@')[0]).slice(0, 40));
       avatar = prof.avatar || avatar;
       const sb = sanActive(who, 'ban', slug);
-      if (sb) { socket.emit('error', '⛔ Você está banido desta sala' + (sb.until ? ' por mais ' + Math.ceil((sb.until - Date.now()) / 60000) + ' min' : '') + (sb.reason ? ' — ' + sb.reason : '')); return; }
-      if (room.bannedUsers.includes(name)) { socket.emit('error', 'Você foi banido'); return; }
+      if (sb) { socket.emit('joinError', {slug,message:'⛔ Você está banido desta sala' + (sb.until ? ' por mais ' + Math.ceil((sb.until - Date.now()) / 60000) + ' min' : '') + (sb.reason ? ' — ' + sb.reason : '')}); return; }
+      if (room.bannedUsers.includes(name)) { socket.emit('joinError', {slug,message:'Você foi banido'}); return; }
       // ----- sala privada: só entra com convite ou senha (dono e admins sempre entram) -----
       if (room.isPrivate) {
         const gc = (socket.handshake.headers.cookie || '').match(/sessionToken=([^;]+)/);
@@ -1711,19 +1711,22 @@ io.on('connection', (socket) => {
           if (ge) room.allowed.add(ge);
         }
       }
-      if (room.listenerCount >= settings.maxListeners) {
+      // A contagem vem dos sockets efetivamente presentes; reentradas não ocupam outra vaga.
+      if (!canJoinRoom(io,slug,socket.id)) {
         if (!waitingRooms.has(slug)) waitingRooms.set(slug, []);
-        waitingRooms.get(slug).push(socket);
-        socket.emit('waitingRoom', { position: waitingRooms.get(slug).length, maxListeners: settings.maxListeners });
+        const queue=waitingRooms.get(slug);
+        if (!queue.includes(socket)) queue.push(socket);
+        socket.emit('waitingRoom', { slug, position: queue.indexOf(socket)+1, maxListeners: MAX_PEOPLE_PER_ROOM });
         return;
       }
+      clearWaitingSocket(socket);
       // ✅ FIX: ao trocar de sala direto, propaga a saída da sala antiga
-      if (currentRoom) {
+      if (currentRoom && currentRoom !== slug) {
         const oldSlug = currentRoom;
         socket.leave(oldSlug);
         const old = rooms.get(oldSlug);
         if (old) {
-          old.listenerCount = Math.max(0, old.listenerCount - 1);
+          syncRoomOccupancy(oldSlug);
           broadcastState(oldSlug);
           broadcastUsers(oldSlug);
           notifyNextWaiting(oldSlug);
@@ -1736,7 +1739,7 @@ io.on('connection', (socket) => {
       socket.userName = name;
       socket.userColor = colors[Math.floor(Math.random() * colors.length)];
       socket.userAvatar = avatar || '👤';
-      room.listenerCount++;
+      syncRoomOccupancy(slug);
       const cookie = socket.handshake.headers.cookie || '';
       const tokenMatch = cookie.match(/sessionToken=([^;]+)/);
       let email = tokenMatch ? sessions.get(tokenMatch[1]) : null;
@@ -1777,18 +1780,17 @@ io.on('connection', (socket) => {
       });
     } catch (e) {
       console.error('Erro no joinRoom:', e.message);
-      socket.emit('error', 'Erro ao entrar na sala.');
+      socket.emit('joinError', {slug,message:'Erro ao entrar na sala.'});
     }
   });
 
   function notifyNextWaiting(slug) {
-    const waiting = waitingRooms.get(slug) || [];
-    if (waiting.length === 0) return;
-    const room = rooms.get(slug);
-    if (!room) return;
-    if (room.listenerCount < settings.maxListeners) {
-      const nextSocket = waiting.shift();
-      if (nextSocket) nextSocket.emit('waitingRoom', { position: 0, maxListeners: settings.maxListeners, canJoin: true });
+    const waiting = (waitingRooms.get(slug)||[]).filter(s=>s.connected);
+    waitingRooms.set(slug,waiting);
+    if (!waiting.length||!rooms.has(slug)) return;
+    if (syncRoomOccupancy(slug) < MAX_PEOPLE_PER_ROOM) {
+      const nextSocket=waiting.shift();
+      nextSocket.emit('waitingRoom',{slug,position:0,maxListeners:MAX_PEOPLE_PER_ROOM,canJoin:true});
     }
   }
 
@@ -1916,6 +1918,7 @@ io.on('connection', (socket) => {
 
   socket.on('voteSkip', () => {
     try {
+      clearWaitingSocket(socket);
       if (!currentRoom) return;
       const room = rooms.get(currentRoom);
       if (room.queue.length === 0) return;
@@ -2320,7 +2323,7 @@ io.on('connection', (socket) => {
 
       // 2) Decrementa e propaga
       if (room) {
-        room.listenerCount = Math.max(0, room.listenerCount - 1);
+        syncRoomOccupancy(oldSlug);
         broadcastState(oldSlug);
         broadcastUsers(oldSlug);
         notifyNextWaiting(oldSlug);
@@ -2338,9 +2341,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    if (currentRoom) {
-      const room = rooms.get(currentRoom);
-      if (room) { room.listenerCount = Math.max(0, room.listenerCount - 1); broadcastState(currentRoom); broadcastUsers(currentRoom); notifyNextWaiting(currentRoom); }
+    clearWaitingSocket(socket);
+    if (currentRoom&&rooms.has(currentRoom)) {
+      syncRoomOccupancy(currentRoom);
+      broadcastState(currentRoom);
+      broadcastUsers(currentRoom);
+      notifyNextWaiting(currentRoom);
     }
   });
 });
