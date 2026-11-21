@@ -23,7 +23,7 @@ test('Agenda aggregates Fan Club and public-room events without returning attend
  assert.match(api,/collection\('events'\)/);
  assert.match(api,/socialEvents\?\.values/);
  assert.match(api,/rooms\.get\(e\.roomSlug\)\.isPrivate/);
- assert.match(api,/const \{attendeeIds,memberIds,blockedIds,ownerId,\.\.\.publicData\}/);
+ assert.match(api,/const \{attendeeIds,memberIds,blockedIds,moderatorIds,ownerId,hostId,\.\.\.publicData\}/);
  assert.match(api,/req\.query\.refresh==='1'/);
 });
 
