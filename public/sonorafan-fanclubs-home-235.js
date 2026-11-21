@@ -62,7 +62,7 @@ function render(){
   '<div class="sf235-tabs" role="group" aria-label="Áreas do Fanclub">'+
   '<button type="button" data-sf235-tab="all" aria-pressed="'+(state.tab==='all')+'">◈ Descobrir</button>'+
   '<button type="button" data-sf235-tab="mine" aria-pressed="'+(state.tab==='mine')+'">♧ Meus Fanclubs <small>'+joined.length+'</small></button>'+
-  '<button type="button" data-sf235-scroll="feed">✦ Publicações</button><button type="button" data-sf235-scroll="events">▦ Eventos</button></div>'+
+  '<button type="button" data-sf235-tab="posts" aria-pressed="'+(state.tab==='posts')+'">✦ Publicações</button><button type="button" data-sf235-tab="events" aria-pressed="'+(state.tab==='events')+'">▦ Eventos</button></div>'+
   '<section class="sf235-section" id="sf235Discover"><div class="sf235-section-head"><div><span>✦ DESCUBRA A SUA GALERA</span><h2>Fan Clubs para conhecer</h2><p>Comunidades reais criadas pelos fãs do SonoraFan.</p></div>'+
   '<button type="button" data-sf235-create>＋ Criar Fanclub</button></div>'+
   '<label class="sf235-search"><span>⌕</span><input id="sf235Search" type="search" maxlength="60" placeholder="Buscar Fanclub, artista ou gênero…" value="'+esc(state.search)+'" aria-label="Buscar comunidades"></label>'+
@@ -92,6 +92,7 @@ function render(){
     ' <button type="button" data-sf235-retry>Tentar novamente</button>';
    home.prepend(errorBanner);
  }
+ home.dataset.sf235View=['all','mine','posts','events'].includes(state.tab)?state.tab:'all';
  attachImageFallback(home);
 }
 function attachImageFallback(home){home.querySelectorAll('img[data-sf235-fallback]').forEach(img=>img.addEventListener('error',()=>{if(img.dataset.fallbackUsed)return;img.dataset.fallbackUsed='1';img.src=img.dataset.sf235Fallback;},{once:true}));}
@@ -188,13 +189,36 @@ function init(){
  state.bootstrapped=true;
  home.hidden=true;
  home.addEventListener('click',event=>{
-  const b=event.target.closest('button');if(!b)return;
+  const b=event.target.closest('button[data-sf235-open],button[data-sf235-feature],button[data-sf235-retry],button[data-sf235-create],button[data-sf235-notifications],button[data-sf235-tab],button[data-sf235-scroll]');
+  if(!b||!home.contains(b))return;
+  // Evita que o menu e os delegadores antigos da área de comunidade
+  // consumam o mesmo clique e desmontem a home.
+  event.stopPropagation();
   if(b.hasAttribute('data-sf235-feature')){const total=getVisible().length;if(total){state.featured=(state.featured+(b.dataset.sf235Feature==='next'?1:total-1))%total;render();}return;}
-  if(b.hasAttribute('data-sf235-open')){const id=b.dataset.sf235Open;if(valid(id))window.sf71OpenFanClub?.(id);return;}
+  if(b.hasAttribute('data-sf235-open')){
+   const id=b.dataset.sf235Open;
+   if(!valid(id))return;
+   if(typeof window.sf71OpenFanClub==='function')window.sf71OpenFanClub(id);
+   else{state.error='A abertura do Fanclub não está disponível. Atualize a página.';render();}
+   return;
+  }
   if(b.hasAttribute('data-sf235-retry')){state.error='';loadIndependent();return;}
-  if(b.hasAttribute('data-sf235-create')){$('sf71CreateClub')?.click();return;}
+  if(b.hasAttribute('data-sf235-create')){
+   const create=$('sf71CreateClub');
+   if(!create){state.error='O cadastro de Fanclubs está indisponível. Atualize a página.';render();return;}
+   create.click();return;
+  }
   if(b.hasAttribute('data-sf235-notifications')){window.sf15OpenNotifications?.();return;}
-  if(b.hasAttribute('data-sf235-tab')){state.tab=b.dataset.sf235Tab;render();$('sf235Discover')?.scrollIntoView({block:'start',behavior:'smooth'});return;}
+  if(b.hasAttribute('data-sf235-tab')){
+   const tab=b.dataset.sf235Tab;
+   if(!['all','mine','posts','events'].includes(tab))return;
+   state.tab=tab;
+   if(tab==='mine')state.search='';
+   render();
+   const section=tab==='posts'?'sf235Feed':tab==='events'?'sf235Events':'sf235Discover';
+   $(section)?.scrollIntoView({block:'start',behavior:'smooth'});
+   return;
+  }
   if(b.hasAttribute('data-sf235-scroll')){const id={discover:'sf235Discover',feed:'sf235Feed',events:'sf235Events'}[b.dataset.sf235Scroll];$(id)?.scrollIntoView({block:'start',behavior:'smooth'});}
  });
  home.addEventListener('input',event=>{if(event.target.id!=='sf235Search')return;const input=event.target;state.search=input.value.slice(0,60);const pos=input.selectionStart;render();const next=$('sf235Search');next?.focus({preventScroll:true});next?.setSelectionRange(pos,pos);});
