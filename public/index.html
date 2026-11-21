@@ -3676,6 +3676,7 @@
         if (!r.ok) throw new Error('Erro');
         const roomsData = await r.json();
         sf39UpdateRoomPulse(roomsData);
+        window.sf88RememberRooms?.(roomsData);
         if (!roomsData.length) { window.sf41UpdateRooms?.([]); grid.innerHTML = '<div class="empty-state"><div class="icon">🎵</div><p>Nenhuma sala ainda. Crie a primeira!</p></div>'; return; }
         const sf50DisplayRooms = window.sf50PrepareRooms ? window.sf50PrepareRooms(roomsData) : roomsData.sort((a,b) => b.listenerCount - a.listenerCount);
         grid.innerHTML = '';
@@ -3686,6 +3687,9 @@
           const card = document.createElement('div');
           card.className = 'room-card sf37-room-card' + (r.isPlaying ? ' live' : '');
           card.dataset.slug = r.slug;
+          card.dataset.roomTheme = r.roomTheme || "geral";
+          card.addEventListener("pointerenter", () => window.sf88WarmTheme?.(card.dataset.roomTheme), {once:true});
+          card.addEventListener("pointerdown", () => window.sf88WarmTheme?.(card.dataset.roomTheme), {once:true});
           const track = r.currentTrack;
           // YouTube images are only ever built using a validated 11-character video ID.
           const videoId = typeof track?.id === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(track.id) ? track.id : null;
@@ -5125,7 +5129,8 @@ function openRoomCfg() {
   <script defer src="/sonorafan-queue-discovery-82.js?v=82"></script>
   
   <script defer src="/sonorafan-pwa-83.js?v=142.0"></script>
-  <script defer src="/sonorafan-room-themes-88.js?v=221.0"></script>
+  <script defer src="/sonorafan-theme-bootstrap-226.js?v=226.0"></script>
+  <script defer src="/sonorafan-room-themes-88.js?v=226.0"></script>
   <script defer src="/sonorafan-room-menu-167.js?v=168.0"></script>
   <script defer src="/sonorafan-lobby-account-92.js?v=92"></script>
   <script defer src="/sonorafan-room-ux-93.js?v=93"></script>
