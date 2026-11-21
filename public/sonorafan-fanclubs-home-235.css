@@ -120,3 +120,13 @@
 #sf235Home .sf235-hero-switch button{display:grid;place-items:center;width:31px;height:31px;border:0;border-radius:50%;background:#5d3168;color:#fff;font-size:23px;cursor:pointer;line-height:1}
 #sf235Home .sf235-hero-switch span{font-size:10px;font-weight:800;color:#f7ddfb}
 @media(max-width:600px){#sf235Home .sf235-hero-switch{right:10px;bottom:10px}#sf235Home .sf235-hero-actions{padding-bottom:29px}}
+
+/* Recuperação da home: os elementos antigos nunca ficam ocultos sem substituto visível. */
+#sfFanClubsPanel.sf235-home-active:has(#sf235Home[hidden]) .sf71-club-toolbar,
+#sfFanClubsPanel.sf235-home-active:has(#sf235Home[hidden]) .sf71-club-search,
+#sfFanClubsPanel.sf235-home-active:has(#sf235Home[hidden]) #sf71ClubStatus,
+#sfFanClubsPanel.sf235-home-active:has(#sf235Home[hidden]) #sf71ClubList{
+ display:revert!important;
+}
+#sf235Home .sf235-recovery{padding:14px 16px;margin:0 0 12px;border:1px solid #a65f96;border-radius:12px;background:#2b1730;color:#fff;line-height:1.5}
+#sf235Home .sf235-recovery button{margin-left:12px;border:1px solid #ceff33;border-radius:9px;padding:8px 12px;background:#ceff33;color:#141018;font-weight:800;cursor:pointer}
