@@ -37,6 +37,25 @@ const validPostImageUrl = value => {
     return u.href;
   } catch (_) { return null; }
 };
+// Publicações aceitam apenas vídeos individuais de domínios oficiais do YouTube.
+const youtubeVideoId = value => {
+  if(value===undefined||value===null||value==='')return '';
+  if(typeof value!=='string'||value.length>1000)return null;
+  try {
+    const url=new URL(value.trim());
+    if(url.protocol!=='https:'||url.username||url.password||url.port)return null;
+    const host=url.hostname.toLowerCase();
+    const youtube=['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(host);
+    const short=host==='youtu.be'||host==='www.youtu.be';
+    if(!youtube&&!short)return null;
+    const parts=url.pathname.split('/').filter(Boolean);
+    let id='';
+    if(short&&parts.length===1)id=parts[0];
+    else if(youtube&&parts.length===1&&parts[0]==='watch')id=url.searchParams.get('v')||'';
+    else if(youtube&&parts.length===2&&['shorts','live','embed','v'].includes(parts[0]))id=parts[1];
+    return /^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+  }catch(_){return null;}
+};
 const coverChoice = body => {
   const kind = body?.coverType;
   if (kind === undefined || kind === null || kind === 'default') return {coverType:'default',coverImageUrl:'',coverGalleryId:''};
@@ -132,7 +151,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   const forumTitle = post => clean(post?.title,110)||clean(String(post?.text||'').split(/[.!?\n]/)[0],95)||'Discussão da comunidade';
   const forumPost = (doc,data,me,profile={}) => {
     const p=doc.data(),id=doc.id;
-    return {id,...p,imageUrl:validPostImageUrl(p.imageUrl)||'',title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
+    return {id,...p,imageUrl:validPostImageUrl(p.imageUrl)||'',youtubeId:/^[A-Za-z0-9_-]{11}$/.test(String(p.youtubeId||''))?p.youtubeId:'',title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
       pinned:id===data.pinnedPostId,likeCount:unique(p.likedBy).length,
       liked:unique(p.likedBy).includes(me.id),favorite:unique(profile.favorites).includes(id),
       unread:!Number(profile.readAt?.[id])||
@@ -692,11 +711,13 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const text=clean(req.body?.text,600),title=clean(req.body?.title,110),tags=forumTags(req.body?.tags);
      const imageUrl=validPostImageUrl(req.body?.imageUrl);
      if(imageUrl===null)return res.status(400).json({error:'Informe uma URL HTTPS pública válida para a imagem.'});
+     const youtubeId=youtubeVideoId(req.body?.youtubeUrl);
+     if(youtubeId===null)return res.status(400).json({error:'Use um link HTTPS válido para um vídeo do YouTube (watch, Shorts, Live ou youtu.be).'});
     const topic=['conversa','duvida','novidade','evento','ideia'].includes(req.body?.topic)?req.body.topic:'conversa';
     if(text.length<3)return res.status(400).json({error:'Escreva uma mensagem com pelo menos 3 caracteres.'});
     try{const {ref,data}=await readClub(req.params.id);if(!member(data,me))throwHttp(403,'Participe do Fan Club para publicar.');
       const doc=ref.collection('posts').doc();
-      const post={authorId:me.id,authorName:me.name,text,title:title||forumTitle({text}),tags,topic,imageUrl,createdAt:Date.now(),lastActivityAt:Date.now(),replyCount:0};
+      const post={authorId:me.id,authorName:me.name,text,title:title||forumTitle({text}),tags,topic,imageUrl,youtubeId,createdAt:Date.now(),lastActivityAt:Date.now(),replyCount:0};
       await doc.create(post);
       publish(req.params.id,'post');
       notifyPostMembers(req.params.id,data,me.id,me.name);
