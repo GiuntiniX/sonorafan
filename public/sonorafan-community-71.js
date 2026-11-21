@@ -207,6 +207,7 @@
    <label>Regras da comunidade<textarea name="rules" maxlength="300" rows="2"></textarea></label>
    <label>Gênero musical<select name="genre" required>${opts}</select></label>
    <label>Identidade visual · escolha o estilo da comunidade<select name="theme"><option value="vinyl">Vinil</option><option value="stage">Palco</option><option value="cassette">Cassete</option><option value="waves">Ondas</option></select></label>
+   <div id="sf208CreateThemePreview" class="sf208-theme-preview sf71-theme-vinyl"><span>♫ Prévia da identidade</span><strong>Seu Fan Club</strong><small>Escolha um estilo; suas cores mudam sem cobrir a imagem.</small></div>
    ${coverForm()}<small class="sf71-unofficial">Fan Club criado por fãs, sem associação oficial ao artista.</small>`,async fd=>{
      const payload={};for(const key of ['artist','title','description','rules','theme','genre'])payload[key]=fd.get(key)||'';
      Object.assign(payload,chosenCover(fd));const d=await post('/api/fan-clubs',payload);return {id:d.club.id};
@@ -217,7 +218,11 @@
      if(document.getElementById('screen-lobby')?.classList.contains('active')&&typeof window.sf107OpenFanClub==='function')window.sf107OpenFanClub(result.id);
      else await openDetail(result.id);
      status('Fan Club criado! Convide outros fãs.');
-   });wireCover(overlay);return overlay;
+   });
+   const theme=overlay.querySelector('[name=theme]'),preview=overlay.querySelector('#sf208CreateThemePreview');
+   theme?.addEventListener('change',()=>{if(preview)preview.className='sf208-theme-preview sf71-theme-'+theme.value;});
+   overlay.querySelector('[name=title]')?.addEventListener('input',e=>{const el=preview?.querySelector('strong');if(el)el.textContent=e.target.value.trim()||'Seu Fan Club';});
+   wireCover(overlay);return overlay;
  }
  function changeCover(id,club){
    const kind=['gallery','external'].includes(club.coverType)?club.coverType:'default';
