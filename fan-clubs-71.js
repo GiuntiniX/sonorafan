@@ -330,6 +330,23 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       res.json({success:true,description,rules});
     }catch(e){error(res,e);}
   });
+  // Dados de identidade: fundador ou administrador global. Bio/regras seguem delegáveis.
+  app.patch('/api/fan-clubs/:id/identity',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    if(typeof req.body?.title!=='string'||typeof req.body?.artist!=='string')
+      return res.status(400).json({error:'Informe o nome da comunidade e o artista.'});
+    const title=clean(req.body.title,75),artist=clean(req.body.artist,65);
+    const genre=String(req.body?.genre||''),theme=String(req.body?.theme||'');
+    if(title.length<3||artist.length<2||!GENRES.has(genre)||!THEMES.has(theme))
+      return res.status(400).json({error:'Nome, artista, gênero musical ou identidade visual inválidos.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!ownerOrAdmin(data,me))throwHttp(403,'Somente o fundador pode editar a identidade da comunidade.');
+      await ref.update({title,artist,genre,theme,profileUpdatedAt:Date.now(),profileUpdatedBy:me.id,updatedAt:Date.now()});
+      publish(req.params.id,'members');
+      res.json({success:true,title,artist,genre,theme});
+    }catch(e){error(res,e);}
+  });
   app.post('/api/fan-clubs/:id/join',rateLimit(20,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
@@ -1174,11 +1191,30 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
         const snap=await tx.get(ref);if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
-        const data=snap.data();if(!ownerOrAdmin(data,me))throwHttp(403,'Apenas o criador pode vincular salas.');
+        const data=snap.data();if(!canModerate(data,me))throwHttp(403,'Somente administradores podem vincular salas.');
         const slugs=unique(data.roomSlugs);if(slugs.includes(slug))return;
         if(slugs.length>=3)throwHttp(409,'Limite de três salas por Fan Club.');
         tx.update(ref,{roomSlugs:[...slugs,slug],updatedAt:Date.now()});
       });publish(req.params.id,'rooms');res.json({success:true});
+    }catch(e){error(res,e);}
+  });
+  // Troca atômica: sem janela em que a comunidade fique com quatro salas.
+  app.patch('/api/fan-clubs/:id/rooms/:slug',rateLimit(12,60000),async(req,res)=>{
+    const me=identity(req,res);if(!me)return;
+    const oldSlug=String(req.params.slug||''),slug=clean(req.body?.slug,100),room=rooms.get(slug);
+    if(!room||room.isPrivate)return res.status(400).json({error:'Selecione uma sala pública existente.'});
+    if(room.ownerEmail!==me.email&&!adminEmails.has(me.email))
+      return res.status(403).json({error:'Você precisa administrar a nova sala.'});
+    try{
+      const {ref,data}=await readClub(req.params.id);
+      if(!canModerate(data,me))throwHttp(403,'Sem permissão para trocar a sala do Fan Club.');
+      if(!unique(data.roomSlugs).includes(oldSlug))throwHttp(404,'Sala vinculada não encontrada.');
+      if(slug!==oldSlug&&unique(data.roomSlugs).includes(slug))throwHttp(409,'Essa sala já está vinculada.');
+      const slugs=unique(data.roomSlugs).map(x=>x===oldSlug?slug:x);
+      const defaultRoomSlug=data.defaultRoomSlug===oldSlug?slug:data.defaultRoomSlug||'';
+      await ref.update({roomSlugs:slugs,defaultRoomSlug,updatedAt:Date.now()});
+      publish(req.params.id,'rooms');
+      res.json({success:true,roomSlugs:slugs,defaultRoomSlug});
     }catch(e){error(res,e);}
   });
   app.delete('/api/fan-clubs/:id/rooms/:slug',rateLimit(15,60000),async(req,res)=>{
@@ -1186,8 +1222,9 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
         const snap=await tx.get(ref);if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
-        if(!ownerOrAdmin(snap.data(),me))throwHttp(403,'Sem permissão.');
-        tx.update(ref,{roomSlugs:unique(snap.data().roomSlugs).filter(x=>x!==req.params.slug),updatedAt:Date.now()});
+        if(!canModerate(snap.data(),me))throwHttp(403,'Sem permissão.');
+        const slugs=unique(snap.data().roomSlugs).filter(x=>x!==req.params.slug);
+        tx.update(ref,{roomSlugs:slugs,defaultRoomSlug:snap.data().defaultRoomSlug===req.params.slug?'':snap.data().defaultRoomSlug||'',updatedAt:Date.now()});
       });publish(req.params.id,'rooms');res.json({success:true});
     }catch(e){error(res,e);}
   });
