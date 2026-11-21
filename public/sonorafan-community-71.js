@@ -773,7 +773,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
   if(!state.detail?.club?.canModerate)return;
   let rooms;try{rooms=await api('/api/social/my-rooms');}catch(e){status(e.message,true);return;}
   const linked=state.detail.club.rooms||[],used=new Set(linked.map(r=>r.slug));
-  const choices=rooms.filter(r=>!used.has(r.slug));
+  const choices=rooms.filter(r=>r.slug&&r.slug.toLowerCase()!=='lobby'&&!used.has(r.slug));
   if(!choices.length){status('Não há outra sala pública sob sua administração para vincular. Crie uma sala ou escolha outra.',true);return;}
   const previous=linked.find(r=>r.slug===replacing);
   const options=choices.map(r=>'<option value="'+esc(r.slug)+'">'+esc(r.name)+'</option>').join('');
@@ -787,7 +787,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
     if(replacing)await api(url+'/'+encodeURIComponent(replacing),{method:'PATCH',body:JSON.stringify({slug:fd.get('slug')})});
     else await post(url,{slug:fd.get('slug')});
     return clubId;
-   },async id=>{await refreshClubRooms(id);status(replacing?'Sala substituída.':'Sala vinculada.');});
+   },async id=>{await refreshClubRooms(id);document.dispatchEvent(new CustomEvent('sf71:rooms-updated',{detail:{clubId:id}}));status(replacing?'Sala substituída.':'Sala vinculada.');});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
   if(t.hasAttribute('data-sf227-compose')||t.hasAttribute('data-sf227-photo')){
