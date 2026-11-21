@@ -1378,8 +1378,12 @@
     .sf-cover-editor{margin:16px 0;padding:16px;border:1px solid var(--border);border-radius:16px;background:rgba(124,58,237,.055)}
     .sf-cover-editor p{font-size:12px;color:var(--text-secondary);margin:5px 0 12px;line-height:1.5}
     .sf-cover-editor>label{display:block;font-size:12px;color:var(--text-secondary);margin:10px 0 5px}
-    .sf-cover-preview{width:100%;aspect-ratio:16/7;max-height:175px;border:1px dashed var(--border-hover);border-radius:12px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#1b1242,#080914);color:var(--text-secondary);font-size:14px}
+    .sf-cover-preview{width:100%;aspect-ratio:5/4;max-height:260px;border:1px dashed var(--border-hover);border-radius:12px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#1b1242,#080914);color:var(--text-secondary);font-size:14px}
     .sf-cover-preview img{width:100%;height:100%;object-fit:cover}
+    .sf-cover-framing{display:grid;gap:10px;margin:12px 0;padding:10px 0;border-top:1px solid var(--border)}
+    .sf-cover-framing label{display:grid;grid-template-columns:90px 1fr;align-items:center;gap:10px;color:var(--text-secondary);font-size:12px}
+    .sf-cover-framing input[type="range"]{width:100%;min-width:0;accent-color:var(--accent2);cursor:pointer}
+    .sf-cover-framing button{background:transparent;color:var(--text);font-size:12px;padding:8px;border:1px solid var(--border);border-radius:9px;cursor:pointer}
     .sf-cover-controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
     .sf-cover-controls button,.sf-cover-upload{font:inherit;font-size:12px;border-radius:10px;padding:9px 12px;background:var(--bg-hover);border:1px solid var(--border-hover);color:var(--text);cursor:pointer}
     .sf-cover-upload input{display:none}
@@ -3689,7 +3693,7 @@
           });
           const live = r.isPlaying ? '<div class="room-live-badge"><span class="live-dot"></span> AO VIVO</div>' : '';
           const playingIndicator = r.isPlaying ? `<div class="playing-indicator" aria-hidden="true"><span></span><span></span><span></span><span></span></div>` : '';
-          const visual = (customCover||trackThumb) ? `<div class="sf36-room-visual sf37-room-media"><img src="${escapeHtml(customCover||trackThumb)}" alt="${customCover?'Capa personalizada':'Capa da música atual'} da sala ${escapeHtml(r.name||'')}" loading="lazy" decoding="async"></div>` : '';
+          const visual = (customCover||trackThumb) ? `<div class="sf36-room-visual sf37-room-media"><img src="${escapeHtml(customCover||trackThumb)}" alt="${customCover?'Capa personalizada':'Capa da música atual'} da sala ${escapeHtml(r.name||'')}" style="object-position:${Math.min(100,Math.max(0,Number(r.coverX ?? 50)||0))}% ${Math.min(100,Math.max(0,Number(r.coverY ?? 50)||0))}%;transform:scale(${Math.min(2,Math.max(1,Number(r.coverZoom ?? 1)||1))})" loading="lazy" decoding="async"></div>` : '';
           const nowPlaying = track ? `<div class="sf36-room-now sf37-room-now"><div class="sf36-room-now-copy"><small>${r.isPlaying ? '♫ Tocando agora' : '♫ Música selecionada'}</small><strong>${escapeHtml(sf74SongText(track.title || 'Música'))}</strong><span>${escapeHtml(sf74SongText(track.artist || 'Escolha da comunidade'))}</span></div></div>` : `<div class="sf36-room-idle sf37-room-idle">♫ Sala pronta para receber músicas</div>`;
           card.innerHTML = `${live}<div class="room-listeners-badge">🎧 ${Math.max(0,Number(r.listenerCount)||0)}</div>${playingIndicator}${visual}
             <div class="room-card-body">
@@ -3748,7 +3752,7 @@
     const cfgState = {};
     let _joinExtra = {}, _pwSlug = null;
     function renderCfg(boxId, k, v) {
-      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', coverUrl: '', isPrivate: false, allowLong: false, allowLive: false }, v || {});
+      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', coverUrl: '', coverX: 50, coverY: 50, coverZoom: 1, isPrivate: false, allowLong: false, allowLive: false }, v || {});
       const pick = (key, val) => `cfgPick('${boxId}','${k}','${key}','${val}')`;
       $(boxId).innerHTML = `
         <div class="cfg-lbl">Ícone da sala</div><div class="cfg-row">${CFG_EMOJIS.map(e => `<button type="button" class="cfg-e ${s.emoji === e ? 'on' : ''}" onclick="${pick('emoji', e)}">${e}</button>`).join('')}</div>
@@ -3756,7 +3760,14 @@
         <div class="sf-cover-editor">
           <div class="cfg-lbl">📸 Capa da sala na busca</div>
           <p>Escolha uma imagem. Sem capa, a miniatura da música atual aparece automaticamente.</p>
-          <div class="sf-cover-preview" id="${k}CoverPreview" aria-label="Prévia da capa"><span>♫ Capa dinâmica</span></div>
+          <div class="sf-cover-preview" id="${k}CoverPreview" aria-label="Prévia do recorte no formato do card de salas"><span>♫ Capa dinâmica</span></div>
+          <small>Para melhor encaixe no card: 1500 × 1200 px (5:4). Também aceita 1600 × 900 px (16:9), com recorte.</small>
+          <div class="sf-cover-framing" role="group" aria-label="Enquadrar a imagem da capa">
+            <label>↔ Horizontal <input id="${k}CoverX" type="range" min="0" max="100" step="1" value="${Number.isFinite(+s.coverX)?Math.min(100,Math.max(0,+s.coverX)):50}" oninput="sfCoverFrame('${k}')"></label>
+            <label>↕ Vertical <input id="${k}CoverY" type="range" min="0" max="100" step="1" value="${Number.isFinite(+s.coverY)?Math.min(100,Math.max(0,+s.coverY)):50}" oninput="sfCoverFrame('${k}')"></label>
+            <label>＋ Zoom <input id="${k}CoverZoom" type="range" min="1" max="2" step="0.05" value="${Number.isFinite(+s.coverZoom)?Math.min(2,Math.max(1,+s.coverZoom)):1}" oninput="sfCoverFrame('${k}')"></label>
+            <button type="button" onclick="sfCoverFrameReset('${k}')">Centralizar recorte</button>
+          </div>
           <label for="${k}CoverUrl">URL de imagem HTTPS</label>
           <input class="cfg-in" id="${k}CoverUrl" type="url" inputmode="url" maxlength="1600" placeholder="https://exemplo.com/capa.webp" value="${escapeHtml(s.coverUrl || '')}" oninput="sfCoverPreview('${k}')">
           <div class="sf-cover-controls">
@@ -3800,9 +3811,30 @@ function sfCoverPreview(k) {
       box.replaceChildren();
       if (safe) {
         const img=document.createElement('img');img.src=url;img.alt='Prévia da capa da sala';img.loading='lazy';
+        img.style.objectPosition=sfCoverValueNumber(k,'X',50,0,100)+'% '+sfCoverValueNumber(k,'Y',50,0,100)+'%';
+        img.style.transform='scale('+sfCoverValueNumber(k,'Zoom',1,1,2)+')';
+        img.style.transformOrigin='center center';
         img.onerror=()=>{box.replaceChildren();box.textContent='Não foi possível mostrar a imagem';};
         box.appendChild(img);
       } else {box.textContent=url?'Use uma URL HTTPS válida':'♫ Capa dinâmica';}
+    }
+    function sfCoverValueNumber(k,key,initial,lower,upper) {
+      const value=Number($(k+'Cover'+key)?.value);
+      return Number.isFinite(value)?Math.max(lower,Math.min(upper,value)):initial;
+    }
+    function sfCoverFrame(k) {
+      if(cfgState[k]) {
+        cfgState[k].coverX=sfCoverValueNumber(k,'X',50,0,100);
+        cfgState[k].coverY=sfCoverValueNumber(k,'Y',50,0,100);
+        cfgState[k].coverZoom=sfCoverValueNumber(k,'Zoom',1,1,2);
+      }
+      sfCoverPreview(k);
+    }
+    function sfCoverFrameReset(k) {
+      if($(k+'CoverX'))$(k+'CoverX').value='50';
+      if($(k+'CoverY'))$(k+'CoverY').value='50';
+      if($(k+'CoverZoom'))$(k+'CoverZoom').value='1';
+      sfCoverFrame(k);
     }
     function sfCoverReset(k) {
       const el=$(k+'CoverUrl');if(el)el.value='';
@@ -3835,6 +3867,9 @@ function sfCoverPreview(k) {
     function readCfg(k) {
       const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: s.addMode === 'owner' ? 'owner' : 'all', isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value, allowLong: !!s.allowLong, allowLive: !!s.allowLive };
       out.coverUrl = $(k+'CoverUrl')?.value.trim()||'';
+      out.coverX=sfCoverValueNumber(k,'X',50,0,100);
+      out.coverY=sfCoverValueNumber(k,'Y',50,0,100);
+      out.coverZoom=sfCoverValueNumber(k,'Zoom',1,1,2);
       const pw = $(k + 'Pw'); if (pw && pw.value) out.password = pw.value;
       return out;
     }
@@ -3842,7 +3877,7 @@ function cfgPick(boxId, k, key, val) { const boolKeys = ['isPrivate', 'allowLong
 function openRoomCfg() {
       const d = currentRoomData || {};
       window.sf88OpenEditor?.(d.roomTheme);
-      renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, coverUrl: d.coverUrl || '', welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
+      renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, coverUrl: d.coverUrl || '', coverX: d.coverX ?? 50, coverY: d.coverY ?? 50, coverZoom: d.coverZoom ?? 1, welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
       sfCoverPreview('e');
       $('roomCfgModal').classList.add('active');
     }
