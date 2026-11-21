@@ -5,7 +5,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const gallery={stage:'/art-129/sonorafan-stage.svg',kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',brasil:'/art-33/poster-brasil.webp',electronic:'/art-33/poster-electro.webp',festival:'/art-40/poster-festival.svg'};
 const genreArt={kpop:gallery.kpop,pop:gallery.pop,rock:gallery.rock,metal:gallery.rock,indie:gallery.indie,mpb:gallery.brasil,hiphop:gallery.brasil,funk:gallery.brasil,sertanejo:gallery.brasil,eletronica:gallery.electronic};
-const state={clubs:[],notices:[],posts:[],events:[],search:'',tab:'all',featured:0,loading:false,loadedAt:0,error:'',fetchId:0,detail:false,feedLoading:false,bootstrapped:false,request:0,autoplay:true,autoTimer:null};
+const state={clubs:[],notices:[],posts:[],events:[],search:'',tab:'all',featured:0,loading:false,loadedAt:0,error:'',fetchId:0,detail:false,feedLoading:false,bootstrapped:false,request:0,autoplay:true,autoTimer:null,slideDirection:1};
 function safeUrl(value){try{const u=new URL(String(value||''));return u.protocol==='https:'&&!u.username&&!u.password?u.href:'';}catch{return '';}}
 function cover(c){
  const fallback=genreArt[c.genre]||gallery.festival;
@@ -104,7 +104,11 @@ function advanceFeatured(){
  if(!home||home.hidden||state.detail)return;
  const items=getVisible().sort((a,b)=>Number(b.memberCount||0)-Number(a.memberCount||0));
  if(items.length<2)return;
- state.featured=(state.featured+1)%items.length;
+ // Movimento contínuo de ida e volta: 1→2→1; 1→2→3→2→1.
+ const current=Math.min(items.length-1,Math.max(0,state.featured));
+ if(current>=items.length-1)state.slideDirection=-1;
+ else if(current<=0)state.slideDirection=1;
+ state.featured=current+state.slideDirection;
  const club=items[state.featured],hero=home.querySelector('.sf235-hero');
  if(!hero)return;
  const art=hero.querySelector('.sf235-hero-art');
@@ -124,9 +128,7 @@ function startAutoplay(){
  state.autoTimer=setInterval(()=>{
   const home=$('sf235Home');
   if(!state.autoplay||state.detail||!home||home.hidden||document.hidden)return;
-  const hero=home.querySelector('.sf235-hero');
-  if(hero&&(hero.matches(':hover')||hero.contains(document.activeElement)))return;
-  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+  // O banner continua mesmo com o cursor sobre ele. Para pausar, use o botão.
   advanceFeatured();
  },7000);
 }
@@ -174,7 +176,7 @@ async function loadIndependent(){
 }
 function update(clubs){
  state.clubs=Array.isArray(clubs)?clubs.filter(c=>valid(c?.id)):[];
- state.featured=0;state.error='';
+ state.featured=0;state.slideDirection=1;state.error='';
  if(state.detail)return;
  render();state.loadedAt=Date.now();fetchExtras();
 }
