@@ -104,3 +104,26 @@
 #sf71ClubDetail .sf202-joined-event strong{display:block;flex:1 1 100%;font-size:12px}
 #sf71ClubDetail .sf202-joined-event small{font-size:11px;color:#d8bedf}
 #sf71ClubDetail .sf202-joined-event button{margin-left:auto;background:#caff00;color:#150d1d;border-color:#caff00;border-radius:999px;font-size:11px}
+
+
+/* Event creation — two-column clipboard with real-time preview, as in the approved mockup. */
+.sf201-layer .sf201-create-dialog{width:min(1020px,calc(100vw - 28px))!important;max-width:1020px!important;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(225px,.8fr);grid-template-rows:auto minmax(0,1fr);align-content:start;gap:0;max-height:min(92dvh,960px);overflow:auto;border:1px solid #b95bde;box-shadow:0 25px 95px #000c;background:linear-gradient(145deg,#291632,#130c1e)}
+.sf201-layer .sf201-create-top{grid-column:1/-1;grid-row:1;padding:20px 26px 18px}
+.sf201-layer .sf201-create-dialog>form{grid-column:1;grid-row:2;min-width:0;padding:20px 24px 25px;gap:12px}
+.sf201-layer .sf202-event-preview{grid-column:2;grid-row:2;margin:22px 24px 22px 0;border:1px solid #825395;background:linear-gradient(145deg,#331b3e,#22132d);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0;align-self:start;position:sticky;top:8px}
+.sf201-layer .sf202-event-preview h3{font-size:15px;margin:0 0 5px;color:#fff;font-weight:900}
+.sf201-layer .sf202-event-preview img{width:100%;height:clamp(140px,16vw,220px);object-fit:cover;border-radius:11px;background:#210f2d}
+.sf201-layer .sf202-preview-type{display:inline-flex;align-self:start;background:#ce77df;color:#1d1028;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900}
+.sf201-layer .sf202-event-preview h4{font-size:clamp(17px,1.65vw,23px);font-weight:950;line-height:1.2;margin:0;color:#fff;overflow-wrap:anywhere}
+.sf201-layer .sf202-event-preview p{font-size:12px;color:#ead6f1;line-height:1.5;margin:0;overflow-wrap:anywhere}
+.sf201-layer .sf202-preview-button{margin-top:6px;background:#caff00;border:1px solid #caff00;color:#170d1b;text-align:center;font-size:12px;font-weight:950;border-radius:999px;padding:11px 13px}
+.sf201-layer .sf202-event-settings{display:grid;gap:8px;border-top:1px solid #744b87;padding-top:14px}
+.sf201-layer .sf202-event-settings[hidden]{display:none!important}
+.sf201-layer .sf202-event-settings label{display:flex;align-items:center;gap:11px;font-size:12px;color:#f2e5fa;font-weight:750;cursor:pointer;line-height:1.4}
+.sf201-layer .sf202-event-settings input[type=checkbox]{appearance:none!important;width:38px!important;min-width:38px!important;height:23px!important;min-height:23px!important;display:block;position:relative;padding:0!important;border:1px solid #765782!important;border-radius:999px!important;background:#48304f!important;cursor:pointer;transition:background .18s}
+.sf201-layer .sf202-event-settings input[type=checkbox]::before{content:'';position:absolute;left:3px;top:3px;height:15px;width:15px;border-radius:50%;background:#eee;transition:transform .18s}
+.sf201-layer .sf202-event-settings input[type=checkbox]:checked{background:#caff00!important;border-color:#caff00!important}
+.sf201-layer .sf202-event-settings input[type=checkbox]:checked::before{background:#190b22;transform:translateX(15px)}
+.sf201-layer .sf202-event-settings input[type=checkbox]:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.sf201-layer .sf201-create-dialog .sf201-create-actions button{min-height:44px;padding:11px 18px;font-size:12px}
+@media(max-width:740px){.sf201-layer .sf201-create-dialog{display:block;max-height:95dvh}.sf201-layer .sf201-create-dialog>form{padding:18px}.sf201-layer .sf202-event-preview{position:static;margin:0 18px 18px}.sf201-layer .sf202-event-preview img{height:155px}}
