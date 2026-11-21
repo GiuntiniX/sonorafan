@@ -525,13 +525,95 @@
  <p class="sf170-intro">O que podemos fazer juntos neste Fan Club?</p>
  <div class="sf170-ideas">${ideas.length?ideas.map(i=>`<article class="sf170-idea"><strong>${esc(i.title)}</strong><p>${esc(i.description||'')}</p><small>${esc(i.authorName)} · ${i.votes} apoios · ${i.status==='planned'?'Planejada':i.status==='done'?'Realizada':i.status==='closed'?'Encerrada':'Em discussão'}</small><div class="sf170-inline-actions"><button type="button" data-sf170-vote-idea="${esc(i.id)}" aria-pressed="${i.voted}" ${i.status!=='open'?'disabled':''}>${i.voted?'✓ Apoiada':'♡ Apoiar ideia'}</button>${i.canManage&&i.status==='open'?`<button type="button" data-sf170-plan-idea="${esc(i.id)}">Planejar</button>`:''}${i.canManage&&i.status==='planned'?`<button type="button" data-sf170-done-idea="${esc(i.id)}">Concluir</button>`:''}</div></article>`).join(''):'<p class="sf170-empty">Nenhuma ideia ainda. Seja o primeiro a sugerir!</p>'}</div>
  <div class="sf170-aside-title sf170-poll-title"><h4>🗳 Enquetes em destaque</h4><button type="button" data-sf160-pane="polls">Ver todas</button></div>
- <div class="sf170-polls">${active.length?active.map(p=>`<article class="sf170-poll"><strong>${esc(p.question)}</strong>${p.options.map((o,n)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${n}" ${p.voted?'disabled':''}>${esc(o)} <small>${p.counts[n]||0}</small></button>`).join('')}</article>`).join(''):'<p class="sf170-empty">Nenhuma enquete em andamento.</p>'}</div>
+ <div class="sf170-polls">${active.length?active.map(p=>pollCard(p,true)).join(''):'<p class="sf170-empty">Nenhuma enquete em andamento.</p>'}</div>
  ${c.canModerate?'<button class="sf170-create-poll" type="button" data-sf160-create-poll>＋ Criar enquete</button>':''}`;
  }
+
+ function pollCard(p,compact=false){
+   const total=Math.max(0,Number(p.totalVotes)||0);
+   const showResults=!!(p.voted||p.closed||p.canEdit);
+   const opt=p.options||[];
+   const labels=opt.map((value,i)=>{
+     const count=Math.max(0,Number(p.counts?.[i])||0);
+     const percent=total?Math.round(count*100/total):0;
+     const chosen=p.myVote===i;
+     return '<button type="button" class="sf231-poll-choice'+(chosen?' sf231-selected':'')+'" data-sf160-vote="'+esc(p.id)+'" data-choice="'+i+'"'+(p.voted||p.closed?' disabled':'')+
+       ' aria-label="'+esc(value)+(showResults?', '+percent+' por cento':'')+'">'+
+       '<span class="sf231-poll-bar" style="width:'+(showResults?percent:0)+'%"></span>'+
+       '<span class="sf231-poll-text">'+(chosen?'✓ ':'')+esc(value)+'</span>'+
+       (showResults?'<small>'+percent+'% · '+count+'</small>':'<span class="sf231-choice-mark" aria-hidden="true">○</span>')+'</button>';
+   }).join('');
+   const statusText=p.closed?'Encerrada':p.closesAt?'Até '+new Date(Number(p.closesAt)).toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Sem prazo definido';
+   return '<article class="'+(compact?'sf170-poll ':'sf160-poll ')+'sf231-poll" data-sf231-poll="'+esc(p.id)+'">'+
+     '<div class="sf231-poll-heading"><span class="sf231-poll-icon">▤</span><div><strong>'+esc(p.question)+'</strong><small>'+statusText+'</small></div></div>'+
+     '<div class="sf231-poll-options">'+labels+'</div>'+
+     '<div class="sf231-poll-footer"><span>'+total+' '+(total===1?'voto':'votos')+(p.voted?' · ✓ Você votou':'')+'</span>'+
+     '<div class="sf231-poll-actions">'+
+     (p.canEdit?'<button type="button" data-sf231-edit-poll="'+esc(p.id)+'">✎ Editar</button>':'')+
+     (p.canEdit&&!p.closed?'<button type="button" data-sf231-close-poll="'+esc(p.id)+'">Encerrar</button>':'')+
+     (p.canDelete?'<button type="button" class="sf231-poll-delete" data-sf160-delete-poll="'+esc(p.id)+'">Excluir</button>':'')+
+     '</div></div></article>';
+ }
+ function openPollEditor(poll=null){
+   const editing=!!poll,hasVotes=editing&&Number(poll.totalVotes)>0;
+   const opts=editing?[...(poll.options||[])]:['',''];
+   const field=(value,i)=>'<div class="sf231-option-row"><label>Alternativa '+(i+1)+
+      '<input name="sf231Option" data-sf231-option maxlength="80" required value="'+esc(value)+'"'+(hasVotes?' readonly':'')+'></label>'+
+      (!hasVotes?'<button type="button" data-sf231-remove-option aria-label="Remover alternativa '+(i+1)+'">✕</button>':'')+'</div>';
+   const fields='<p class="sf231-help">'+(editing?'Atualize a pergunta e o prazo da enquete.':'Escolha de 2 a 8 alternativas para a comunidade votar.')+'</p>'+
+     '<label>Pergunta<input name="question" required maxlength="140" minlength="8" value="'+esc(poll?.question||'')+'" placeholder="O que você quer perguntar aos fãs?"></label>'+
+     (hasVotes?'<p class="sf231-lock-hint">🔒 Esta enquete já recebeu votos. As alternativas não podem ser alteradas.</p>':'')+
+     '<div class="sf231-option-list">'+opts.map(field).join('')+'</div>'+
+     (!hasVotes?'<button type="button" class="sf231-add-option" data-sf231-add-option>＋ Adicionar alternativa</button>':'')+
+     '<small class="sf231-option-count" aria-live="polite"></small>'+
+     '<label>Encerramento<select name="duration">'+
+     (editing?'<option value="keep">Manter prazo atual</option>':'')+
+     '<option value="none"'+(!editing?' selected':'')+'>Sem prazo</option>'+
+     [1,3,7,14].map(days=>'<option value="'+days+'">'+days+' '+(days===1?'dia':'dias')+' a partir de agora</option>').join('')+
+     (editing?'<option value="close">Encerrar agora</option>':'')+
+     '</select></label>';
+   const overlay=modal(editing?'Editar enquete':'Criar enquete',fields,async fd=>{
+     const form=overlay.querySelector('form');
+     const options=[...form.querySelectorAll('[data-sf231-option]')].map(el=>el.value.trim());
+     if(options.length<2||options.length>8||options.some(v=>!v)||new Set(options.map(v=>v.toLocaleLowerCase('pt-BR'))).size!==options.length)
+       throw Error('Informe de 2 a 8 alternativas diferentes.');
+     const question=String(fd.get('question')||'').trim();
+     if(question.length<8)throw Error('A pergunta precisa ter ao menos 8 caracteres.');
+     const duration=String(fd.get('duration')||'none');
+     const url='/api/fan-clubs/'+encodeURIComponent(state.activeId)+'/polls'+(editing?'/'+encodeURIComponent(poll.id):'');
+     if(editing)await api(url,{method:'PATCH',body:JSON.stringify({question,...(!hasVotes?{options}:{}),duration})});
+     else await post(url,{question,options,durationDays:duration==='none'?null:Number(duration)});
+     return true;
+   },async()=>{await loadExtras(state.activeId);switchPane('polls');status(editing?'Enquete atualizada.':'Enquete publicada.');});
+   const list=overlay.querySelector('.sf231-option-list'),counter=overlay.querySelector('.sf231-option-count');
+   const refresh=()=>{
+     const rows=[...list.querySelectorAll('.sf231-option-row')];
+     rows.forEach((row,i)=>{
+       row.querySelector('label').firstChild.textContent='Alternativa '+(i+1);
+       const remove=row.querySelector('[data-sf231-remove-option]');
+       if(remove){remove.disabled=rows.length<=2;remove.setAttribute('aria-label','Remover alternativa '+(i+1));}
+     });
+     const add=overlay.querySelector('[data-sf231-add-option]');
+     if(add)add.disabled=rows.length>=8;
+     if(counter)counter.textContent=rows.length+' de 8 alternativas';
+   };
+   overlay.addEventListener('click',event=>{
+     if(event.target.closest('[data-sf231-add-option]')){
+       if(list.children.length>=8)return;
+       const div=document.createElement('div');div.innerHTML=field('',list.children.length);
+       list.appendChild(div.firstElementChild);refresh();
+       list.lastElementChild.querySelector('input')?.focus();
+     }
+     const remove=event.target.closest('[data-sf231-remove-option]');
+     if(remove&&list.children.length>2){remove.closest('.sf231-option-row')?.remove();refresh();}
+   });
+   refresh();
+ }
+
  function renderExtras(){
  const el=$('sf160Extras');if(!el)return;const c=state.detail?.club;
  if(state.activePane==='polls'){
- el.innerHTML=`<section class="sf160-extra-panel"><div class="sf160-extra-head"><h4>🗳 Enquetes</h4>${c?.canModerate?'<button type="button" data-sf160-create-poll>＋ Criar</button>':''}</div>${state.polls.length?state.polls.map(p=>`<article class="sf160-poll"><strong>${esc(p.question)}</strong><div class="sf160-poll-options">${p.options.map((v,i)=>`<button type="button" data-sf160-vote="${esc(p.id)}" data-choice="${i}" ${p.voted||p.closed?'disabled':''}>${esc(v)} <small>${p.counts[i]||0} votos</small></button>`).join('')}</div>${p.voted?'<small>Voto registrado</small>':''}${p.closed?'<small> · Enquete encerrada</small>':''}${p.closesAt?`<small> · Termina ${new Date(p.closesAt).toLocaleDateString('pt-BR')}</small>`:''}${p.canDelete?`<button type="button" data-sf160-delete-poll="${esc(p.id)}">Excluir enquete</button>`:''}</article>`).join(''):'<p>Sem enquetes por enquanto.</p>'}</section>`;
+ el.innerHTML=`<section class="sf160-extra-panel sf231-polls-page"><div class="sf160-extra-head"><div><h4>🗳 Enquetes do Fanclub</h4><p>Participe das decisões, confira resultados e acompanhe os assuntos favoritos dos fãs.</p></div>${c?.canModerate?'<button type="button" data-sf160-create-poll>＋ Criar enquete</button>':''}</div><div class="sf231-poll-grid">${state.polls.length?state.polls.map(p=>pollCard(p)).join(''):'<p class="sf231-empty">Nenhuma enquete publicada. Crie a primeira para começar a conversa.</p>'}</div></section>`;
  }else if(state.activePane==='events'){
  const events=state.clubEvents,linked=c?.events||[];
  el.innerHTML=`<section class="sf160-extra-panel sf202-club-agenda">
@@ -970,9 +1052,22 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
  await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/reports/'+encodeURIComponent(t.dataset.sf160Resolve)+'/resolve',{});await loadExtras(id);},'Denúncia resolvida.');return;
  }
  if(t.hasAttribute('data-sf160-create-poll')){
- modal('Nova enquete',`<label>Pergunta<input name="question" maxlength="140" minlength="8" required></label><label>Opção 1<input name="option1" required maxlength="80"></label><label>Opção 2<input name="option2" required maxlength="80"></label><label>Opção 3 (opcional)<input name="option3" maxlength="80"></label><label>Opção 4 (opcional)<input name="option4" maxlength="80"></label><label>Encerramento<select name="durationDays"><option value="">Sem prazo</option><option value="1">1 dia</option><option value="3">3 dias</option><option value="7">7 dias</option><option value="14">14 dias</option></select></label>`,async fd=>{
- await post('/api/fan-clubs/'+encodeURIComponent(id)+'/polls',{question:fd.get('question'),options:[1,2,3,4].map(n=>fd.get('option'+n)).filter(Boolean),durationDays:Number(fd.get('durationDays'))});return id;
- },async()=>{await loadExtras(id);switchPane('polls');});return;
+   if(!state.detail?.club?.canModerate)return;
+   openPollEditor();return;
+ }
+ if(t.hasAttribute('data-sf231-edit-poll')){
+   const poll=state.polls.find(p=>p.id===t.dataset.sf231EditPoll);
+   if(poll?.canEdit)openPollEditor(poll);
+   return;
+ }
+ if(t.hasAttribute('data-sf231-close-poll')){
+   const poll=state.polls.find(p=>p.id===t.dataset.sf231ClosePoll);
+   if(!poll?.canEdit||poll.closed||!confirm('Encerrar esta enquete? Os resultados continuarão disponíveis.'))return;
+   await action(async()=>{
+     await api('/api/fan-clubs/'+encodeURIComponent(id)+'/polls/'+encodeURIComponent(poll.id),{
+       method:'PATCH',body:JSON.stringify({question:poll.question,duration:'close'})
+     });await loadExtras(id);
+   },'Enquete encerrada.');return;
  }
  if(t.hasAttribute('data-sf160-vote')){
  await action(async()=>{t.disabled=true;await post('/api/fan-clubs/'+encodeURIComponent(id)+'/polls/'+encodeURIComponent(t.dataset.sf160Vote)+'/vote',{choice:Number(t.dataset.choice)});await loadExtras(id);},'Voto registrado.');return;
