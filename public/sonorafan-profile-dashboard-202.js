@@ -268,7 +268,7 @@ function init(){
   if(d.sf206Section){state.section=d.sf206Section;render();if(state.section==='friends')fetchFriends();return;}
   if(d.sf220Filter){state.friendsFilter=d.sf220Filter;render();return;}
   if('sf220Refresh'in d){fetchFriends(true);return;}
-  if(d.sf220Dm&&validFriendId(d.sf220Dm)){window.sf53OpenInbox?.(d.sf220Dm,d.sf220Name||'Participante');return;}
+  if(d.sf220Dm&&validFriendId(d.sf220Dm)){window.sf43CloseProfile?.();window.sf53OpenInbox?.(d.sf220Dm,d.sf220Name||'Participante');return;}
   if(d.sf220Room&&validRoomSlug(d.sf220Room)){window.sf43CloseProfile?.();window.joinRoom?.(d.sf220Room);return;}
   if(d.sf220Follow&&validFriendId(d.sf220Follow)){changeFriend(d.sf220Follow,d.sf220Value==='add');return;}
   if('sf206Edit'in d){move('profile');return;}
