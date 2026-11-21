@@ -101,13 +101,6 @@
   const clubs=card('♧ Meus Fan Clubs','Suas comunidades musicais em um só lugar.','sf108Clubs','sf108-clubs');
   clubs.querySelector('header').insertAdjacentHTML('beforeend','<button type="button" id="sf108CreateClub">＋ Criar Fan Club</button>');
   const clubList=document.createElement('div');clubList.id='sf108MyClubs';clubs.append(clubList);
-  const quick=body.querySelector('.sf43-profile-card:has(.sf43-quick-actions)');
-  if(quick){
-   const details=document.createElement('details');details.className='sf108-more-actions';
-   details.innerHTML='<summary>Mais atalhos e recursos da comunidade</summary>';
-   move(quick,details);quick.classList.add('sf108-quick-wrapper');
-   body.append(details);
-  }
   const actions=body.querySelector('.sf43-profile-actions');
   const controls=document.createElement('div');controls.className='sf108-footer';controls.innerHTML=
     '<span id="sf108Status" role="status" aria-live="polite"></span>';
