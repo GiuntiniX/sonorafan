@@ -554,13 +554,31 @@
    renderFeed();
  }catch(e){if(append){status(e.message,true);}else{const box=$('sf71Posts');if(box)box.textContent=e.message;}}
  }
- async function chooseRoom(){
-   let rooms;try{rooms=await api('/api/social/my-rooms');}catch(e){status(e.message,true);return;}
-   if(!rooms.length){status('Você precisa criar ou administrar uma sala pública antes de vinculá-la.',true);return;}
-   modal('Vincular sala pública',`<label>Escolha uma sala<select name="slug">${rooms.map(r=>`<option value="${esc(r.slug)}">${esc(r.name)}</option>`).join('')}</select></label>
-     <p>Você pode vincular até 3 salas públicas a este Fan Club.</p>`,async fd=>{
-       const clubId=state.activeId;await post('/api/fan-clubs/'+encodeURIComponent(clubId)+'/rooms',{slug:fd.get('slug')});return clubId;
-     },async id=>{await openDetail(id);});
+ 
+ async function refreshClubRooms(id){
+  const data=await api('/api/fan-clubs/'+encodeURIComponent(id));
+  if(state.activeId!==id)return;
+  state.detail=data;renderExtras();renderCommunityAside();window.sf107RefreshFanClubs?.();
+ }
+ async function chooseRoom(replacing=''){
+  if(!state.detail?.club?.canModerate)return;
+  let rooms;try{rooms=await api('/api/social/my-rooms');}catch(e){status(e.message,true);return;}
+  const linked=state.detail.club.rooms||[],used=new Set(linked.map(r=>r.slug));
+  const choices=rooms.filter(r=>!used.has(r.slug));
+  if(!choices.length){status('Não há outra sala pública sob sua administração para vincular. Crie uma sala ou escolha outra.',true);return;}
+  const previous=linked.find(r=>r.slug===replacing);
+  const options=choices.map(r=>'<option value="'+esc(r.slug)+'">'+esc(r.name)+'</option>').join('');
+  modal(replacing?'Trocar sala vinculada':'Vincular sala pública',
+   '<p>'+(replacing?'Substituir '+esc(previous?.name||'a sala atual')+' por uma sala pública que você administra.':
+     'Adicione uma sala pública administrada por você.')+'</p>'+
+   '<label>Selecione a sala<select name="slug" required>'+options+'</select></label>'+
+   '<small>Eventos já agendados não são alterados automaticamente. Revise os encontros futuros após a troca.</small>',
+   async fd=>{
+    const clubId=state.activeId,url='/api/fan-clubs/'+encodeURIComponent(clubId)+'/rooms';
+    if(replacing)await api(url+'/'+encodeURIComponent(replacing),{method:'PATCH',body:JSON.stringify({slug:fd.get('slug')})});
+    else await post(url,{slug:fd.get('slug')});
+    return clubId;
+   },async id=>{await refreshClubRooms(id);status(replacing?'Sala substituída.':'Sala vinculada.');});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
   if(t.hasAttribute('data-sf600-open')){
