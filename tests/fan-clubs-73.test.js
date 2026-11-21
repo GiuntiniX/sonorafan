@@ -141,3 +141,42 @@ test('Cover rejects invalid image and large files; only owner deletes it',async(
  assert.equal((await m.call('delete',`/api/fan-clubs/${id}/cover`)).code,200);
  assert.equal((await m.call('get',`/api/fan-clubs/${id}/cover`)).code,404);
 });
+
+
+test('genre and gallery covers are saved without image documents',async()=>{
+ const m=mock();
+ const response=await m.call('post','/api/fan-clubs',{
+   artist:'BTS',title:'Armys',genre:'kpop',theme:'stage',
+   coverType:'gallery',coverGalleryId:'kpop'
+ });
+ assert.equal(response.code,201);
+ const club=response.data.club;
+ assert.equal(club.genre,'kpop');
+ assert.equal(club.coverType,'gallery');
+ assert.equal(club.coverGalleryId,'kpop');
+ assert.ok(club.coverVersion>0);
+ assert.equal(m.docs.has('sonorafanFanClubCovers73/'+club.id),false);
+ const filtered=await m.call('get','/api/fan-clubs',{},'ana@exemplo.com',{genre:'kpop'});
+ assert.equal(filtered.data.clubs.length,1);
+ const other=await m.call('get','/api/fan-clubs',{},'ana@exemplo.com',{genre:'rock'});
+ assert.equal(other.data.clubs.length,0);
+});
+test('external cover URL is validated and replacement respects ownership',async()=>{
+ const m=mock();const id=await create(m);
+ const route='/api/fan-clubs/'+id+'/cover-choice';
+ assert.equal((await m.call('post',route,{coverType:'external',coverImageUrl:'http://example.com/c.jpg'})).code,400);
+ assert.equal((await m.call('post',route,{coverType:'external',coverImageUrl:'https://localhost/a.jpg'})).code,400);
+ assert.equal((await m.call('post',route,{coverType:'gallery',coverGalleryId:'unknown'})).code,400);
+ assert.equal((await m.call('post',route,{coverType:'external',coverImageUrl:'https://images.example.org/artist.webp'},'leo@exemplo.com')).code,403);
+ const changed=await m.call('post',route,{coverType:'external',coverImageUrl:'https://images.example.org/artist.webp'});
+ assert.equal(changed.code,200);
+ let club=(await m.call('get','/api/fan-clubs/'+id)).data.club;
+ assert.equal(club.coverImageUrl,'https://images.example.org/artist.webp');
+ assert.equal(club.coverType,'external');
+ assert.equal(m.docs.has('sonorafanFanClubCovers73/'+id),false);
+ assert.equal((await m.call('get',route.replace('/cover-choice','/cover'))).code,404);
+ assert.equal((await m.call('post',route,{coverType:'default'})).code,200);
+ club=(await m.call('get','/api/fan-clubs/'+id)).data.club;
+ assert.equal(club.coverType,'default');
+ assert.equal(club.coverVersion,0);
+});
