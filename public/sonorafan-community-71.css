@@ -170,8 +170,8 @@
 #sf71ClubDetail{--sf160-bg:#131018;--sf160-panel:#1c1525;--sf160-line:rgba(191,132,213,.27);--sf160-text:#f4eafd;--sf160-muted:#c4b2d1;--sf160-accent:#caff00;color:var(--sf160-text);scroll-margin-top:90px}
 #sf71ClubDetail .sf71-back{margin:8px 0 12px}
 #sf71ClubDetail .sf71-detail-hero{min-height:160px;padding:20px 24px;margin:0;isolation:isolate;overflow:hidden;border:1px solid var(--sf160-line);background-color:#24152e}
-#sf71ClubDetail .sf71-detail-hero .sf73-cover-img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:-2!important;opacity:.6}
-#sf71ClubDetail .sf71-detail-hero::before{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(13,9,21,.96),rgba(13,9,21,.47))}
+#sf71ClubDetail .sf71-detail-hero .sf73-cover-img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;z-index:0!important;opacity:1!important;filter:none!important;mix-blend-mode:normal!important}
+#sf71ClubDetail .sf71-detail-hero::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(10,7,15,.72) 0%,rgba(10,7,15,.24) 37%,transparent 68%);pointer-events:none}
 #sf71ClubDetail .sf71-detail-desc{font-size:13px;margin:12px 2px;line-height:1.55}
 #sf71ClubDetail .sf160-rules{padding:11px 14px!important;margin:6px 0 10px;border-radius:12px;border:1px solid var(--sf160-line);background:rgba(104,63,124,.13)}
 #sf71ClubDetail .sf160-rules summary{cursor:pointer;font-weight:750;font-size:12px;color:var(--sf160-text)}
@@ -410,3 +410,9 @@
 #sf71Modal .sf192-choices small{font-size:11px;line-height:1.5;color:#bba9c9}
 #sf71Modal .sf192-choices :is(input,select):focus-visible{outline:2px solid #caff00;outline-offset:2px}
 @media(max-width:600px){#sf71Modal .sf192-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}#sf71Modal .sf192-preview{height:110px}}
+
+/* Fan Club 193: a capa selecionada ocupa o banner sem ilustração fantasma ou transparência. */
+#sf71ClubDetail .sf71-detail-hero.sf73-with-cover{background-image:none!important;background-color:#16101c!important}
+#sf71ClubDetail .sf71-detail-hero.sf73-with-cover .sf73-hero-info{position:relative;z-index:2}
+#sf71ClubDetail .sf71-detail-hero.sf73-with-cover::after{content:none!important;display:none!important}
+@media(max-width:600px){#sf71ClubDetail .sf71-detail-hero.sf73-with-cover::before{background:linear-gradient(0deg,rgba(10,7,15,.7),transparent 80%)}}
