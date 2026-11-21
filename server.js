@@ -1557,7 +1557,7 @@ io.on('connection', (socket) => {
         isPrivate: room.isPrivate, hasPassword: !!room.passHash,
         sf141Party:sf141PartyPublic(room.slug),
       });
-      socket.emit('chatHistory', room.chatHistory.slice(-150));
+      socket.emit('chatHistory', room.chatHistory.filter(m=>!m.isSystem||!/^⚙️ .* atualizou as configurações da sala$/.test(String(m.text||''))).slice(-150));
       socket.emit('isAdmin', socket.isAdmin);
       socket.emit('isMod', !!socket.isMod);
       socket.emit('userPoints', userPoints.get(email) || { points: 0, badges: [] });
