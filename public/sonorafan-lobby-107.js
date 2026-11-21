@@ -146,7 +146,7 @@
     const special=r.slug===lead()?.slug&&count(r.listenerCount)>0;
     const media=coverImage(r,i),frame=coverFrame(r);
     return `<button class="sf107-room-card${special?' sf107-leader':''}" type="button" data-sf107-room="${esc(r.slug)}" aria-label="Entrar na sala ${esc(r.name)}">
-      <img data-sf107-cover src="${esc(media.src)}" data-fallback="${esc(media.fallback)}" data-art="${esc(media.art)}" style="object-position:${frame.x}% ${frame.y}%;--sf107-cover-zoom:${media.custom?frame.zoom:1}" alt="" loading="lazy" decoding="async">
+      <img data-sf107-cover src="${esc(media.src)}" data-fallback="${esc(media.fallback)}" data-art="${esc(media.art)}" style="object-position:${frame.x}% ${frame.y}%;transform-origin:${frame.x}% ${frame.y}%;--sf107-cover-zoom:${media.custom?frame.zoom:1}" alt="" loading="lazy" decoding="async">
       <span class="sf107-card-shade"></span>
       ${special?'<span class="sf107-pop-badge">♛ Mais popular</span>':''}
       ${r.isPlaying?'<span class="sf107-live-badge">● AO VIVO</span>':''}
