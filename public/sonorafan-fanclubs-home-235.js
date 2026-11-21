@@ -124,7 +124,8 @@ function startAutoplay(){
  state.autoTimer=setInterval(()=>{
   const home=$('sf235Home');
   if(!state.autoplay||state.detail||!home||home.hidden||document.hidden)return;
-  if(home.matches(':hover')||home.contains(document.activeElement))return;
+  const hero=home.querySelector('.sf235-hero');
+  if(hero&&(hero.matches(':hover')||hero.contains(document.activeElement)))return;
   if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
   advanceFeatured();
  },7000);
