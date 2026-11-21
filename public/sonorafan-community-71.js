@@ -775,6 +775,7 @@
    const request=++state.openingId;
    const freshClub=state.activeId!==id;stopLive();state.activeId=id;
    ++state.postRequestId;++state.searchRequestId;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.pollFilter='all';state.posts=[];state.polls=[];state.clubEvents=[];state.ideas=[];state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;window.sf235HideHome?.();const box=$('sf71ClubDetail');box.dataset.sf228Pane='mural';box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   let rendered=false;
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));
      if(request!==state.openingId||state.activeId!==id)return;
      state.detail=d;const c=d.club;
@@ -812,6 +813,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
          <label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImageUrl">📷 URL HTTPS da imagem (opcional)</label><input id="sf170PostImageUrl" name="imageUrl" type="url" maxlength="1500" placeholder="https://exemplo.com/imagem.webp" aria-label="Endereço HTTPS da imagem"><small>Use um link direto para uma imagem pública.</small><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option><option value="active">Recentemente ativos</option><option value="unanswered">Dúvidas sem resposta</option><option value="saved">Meus favoritos</option><option value="unread">Não lidos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button>
          <button type="button" data-sf600-search>🔎 Buscar no histórico completo</button></div><div id="sf180ForumCounts" class="sf180-forum-counts" aria-label="Filtrar por categorias"></div><div id="sf180FeedSummary" class="sf180-feed-summary" aria-live="polite"></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
        </div><div id="sf160Extras" aria-live="polite"></div></section><div class="sf227-side sf227-right"><aside id="sf227Right" aria-label="Novidades e assuntos em destaque"></aside><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div></div>`;
+     rendered=true;
      renderSocialWidgets();
      if(c.joined){
        const feedArea=$('sf160FeedArea');if(feedArea)feedArea.hidden=false;
@@ -821,10 +823,13 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
          if(match?.[1]===id){switchPane('mural');await openTopic(id,match[2],false);}
        }
    }catch(e){
-     if(request!==state.openingId||state.activeId!==id)return;
-     box.innerHTML=`<p class="sf71-empty" role="alert">${esc(e.message)}</p><button type="button" data-sf71-retry-detail>Tentar novamente</button><button type="button" class="sf71-back" data-sf71-back>← Voltar</button>`;
-     status(e.message,true);
-   }
+      if(request!==state.openingId||state.activeId!==id)return;
+      if(!rendered){
+        box.innerHTML=`<p class="sf71-empty" role="alert">${esc(e.message)}</p><button type="button" data-sf71-retry-detail>Tentar novamente</button><button type="button" class="sf71-back" data-sf71-back>← Voltar</button>`;
+      }
+      // Uma falha em painel, eventos ou fórum não pode apagar a comunidade já renderizada.
+      status(e.message,true);
+    }
  }
  async function loadPosts(id,append=false){
    if(!id||state.activeId!==id)return;
