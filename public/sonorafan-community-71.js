@@ -625,8 +625,7 @@
     state.quoteTo=t.hasAttribute('data-sf600-quote')?replying:null;
     await loadComments(id,state.commentsOpen);
     $('sf71Posts')?.querySelector('form[data-sf160-comment-form] input[name=text]')?.focus();
-    const picker=themeOverlay.querySelector('[name=theme]'),sample=themeOverlay.querySelector('#sf208ThemePreview');
-    picker?.addEventListener('change',()=>{sample.className='sf208-theme-preview sf71-theme-'+picker.value;});
+
     return;
   }
   if(t.hasAttribute('data-sf600-cancel-reply')){
@@ -690,6 +689,8 @@
        await api('/api/fan-clubs/'+encodeURIComponent(id)+'/identity',{method:'PATCH',body:JSON.stringify({
          title:fd.get('title'),artist:fd.get('artist'),genre:fd.get('genre'),theme:fd.get('theme')})});return id;
      },async ()=>{await openDetail(id);await loadClubs();window.sf107RefreshFanClubs?.();status('Identidade atualizada.');});
+   const picker=themeOverlay.querySelector('[name=theme]'),sample=themeOverlay.querySelector('#sf208ThemePreview');
+   picker?.addEventListener('change',()=>{if(sample)sample.className='sf208-theme-preview sf71-theme-'+picker.value;});
    return;
  }
 
