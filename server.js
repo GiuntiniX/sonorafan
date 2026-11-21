@@ -881,10 +881,13 @@ app.post('/api/social/friend-requests',rateLimit(24,60000),async(req,res)=>{
     if(action==='accept'||action==='decline'){
       if(!incoming)return res.status(409).json({error:'Solicitação não está pendente.'});
       const ref=sfFriendRequests.doc(sfFriendKey(otherId,mine));
+      if(action==='accept'){
+        // Conclui o vínculo recíproco antes de marcar a solicitação como aceita.
+        await sfFriendMutual(me,otherId);
+      }
       await ref.set({from:otherId,to:mine,status:action==='accept'?'accepted':'declined',
         updatedAt:Date.now(),resolvedAt:Date.now()},{merge:true});
       if(action==='accept'){
-        await sfFriendMutual(me,otherId);
         sf15Notify(target[0],{type:'follow',title:'Solicitação aceita',
           message:(users.get(me)?.nome||'Um participante')+' aceitou sua amizade.',peerId:mine})
           .catch(e=>console.error('friend accepted notification',e.message));
