@@ -231,6 +231,26 @@
    },async()=>{await openDetail(id);await loadClubs();window.sf107RefreshFanClubs?.();status('Capa atualizada.');});
    wireCover(overlay);
  }
+
+ const memberId=id=>typeof id==='string'&&/^[a-f0-9]{24}$/.test(id);
+ function memberTile(m,club){
+   const id=memberId(m.id)?m.id:'',name=String(m.name||'Participante'),src=String(m.avatarUrl||'');
+   const validImage=/^\/api\/profile108\/photo\/[a-f0-9]{24}\?v=\d+$/.test(src)||/^\/avatars-108\/[a-z0-9-]{1,60}\.svg$/.test(src);
+   const avatar=validImage?'<img src="'+esc(src)+'" alt="Foto de '+esc(name)+'" loading="lazy" decoding="async">':'<span aria-hidden="true">'+esc(m.avatar||'🎧')+'</span>';
+   const moderator=(club.moderators||[]).some(mod=>mod.id===m.id);
+   const role=m.id===club.ownerId?'Criador':moderator?'Coadministrador':m.isSelf?'Você':'Membro';
+   const actions=m.isSelf?'<span class="sf226-myself">Seu perfil</span>':
+     '<button type="button" data-sf226-dm="'+esc(id)+'" data-sf226-name="'+esc(name)+'">✉ Conversar</button>'+
+     '<button type="button" data-sf226-add="'+esc(id)+'">♡ Amizade</button>';
+   const moderate=club.owner&&id&&m.id!==club.ownerId?
+     '<button type="button" class="sf226-manage" data-sf170-moderator="'+esc(id)+'" data-enabled="'+(!moderator)+'">'+
+     (moderator?'Retirar administração':'Tornar administrador')+'</button>':'';
+   return '<article class="sf226-member-card"><div class="sf226-member-avatar">'+avatar+'</div>'+
+     '<strong title="'+esc(name)+'">'+esc(name)+'</strong>'+
+     '<small class="sf226-member-role">'+role+'</small>'+
+     '<div class="sf226-member-actions">'+(id?actions:'')+
+     '<button type="button" data-sf160-mention="'+esc(name)+'">@ Mencionar</button>'+moderate+'</div></article>';
+ }
  function membersHtml(d){if(!d.club.joined&&!d.club.owner)return '';
    const members=(d.club.members||[]).map(m=>`<div class="sf71-member"><span>${esc(m.avatar||'🎧')}</span><strong>${esc(m.name)}</strong>
      ${d.club.owner&&m.id!==d.club.ownerId?`<button type="button" data-sf71-block="${esc(m.id)}">Remover</button>`:''}</div>`).join('');
@@ -505,7 +525,8 @@
  <h4>👥 Participantes (${c?.memberCount||0})</h4>
  ${c?.owner?`<p class="sf180-coadmin-count">Administração compartilhada: ${(c.moderators||[]).length} de 2 vagas utilizadas. Somente o criador concede ou remove permissões.</p>`:''}
  ${c?.canModerate&&state.insights?`<div class="sf170-insights"><h4>📊 Indicadores da comunidade</h4><div><span>${state.insights.members} membros</span><span>${state.insights.recent.posts} posts recentes</span><span>${state.insights.recent.comments} respostas recentes</span><span>${state.insights.recent.ideas} ideias recentes</span><span>${state.insights.openReports} denúncias abertas</span></div><small>Amostra de até ${state.insights.sampleLimit} registros por categoria. Visível apenas à moderação.</small></div>`:''}
- ${(c?.members||[]).map(m=>`<div class="sf160-member"><strong>${esc(m.avatar||'🎧')} ${esc(m.name)}</strong>${m.id===c.ownerId?'<small> Criador</small>':(c.moderators||[]).some(mod=>mod.id===m.id)?'<small> Coadministrador</small>':''}<button type="button" data-sf160-mention="${esc(m.name)}">Mencionar</button>${c.owner&&m.id!==c.ownerId?`<button type="button" data-sf170-moderator="${esc(m.id)}" data-enabled="${!(c.moderators||[]).some(mod=>mod.id===m.id)}">${(c.moderators||[]).some(mod=>mod.id===m.id)?'Remover administrador':'Compartilhar administração'}</button>`:''}</div>`).join('')}
+ <div class="sf226-members-intro"><p>Conheça outros fãs, converse no privado ou envie um convite de amizade.</p><span>0 perfis exibidos</span></div>
+ <div class="sf226-member-grid"></div>
  ${c?.canModerate?`<div class="sf160-moderation"><h4>⚑ Moderação</h4><p>Denúncias recebidas (somente administradores)</p>${state.reports.length?state.reports.map(r=>`<div class="sf160-report"><strong>${esc(r.reason)}</strong><small>${esc(r.status)}</small>${r.status==='open'?`<button type="button" data-sf160-resolve="${esc(r.id)}">Marcar como resolvida</button>`:''}</div>`).join(''):'<p>Nenhuma denúncia recebida.</p>'}</div>`:''}
  ${c?.canModerate&&c?.blockedMembers?.length?`<div class="sf170-blocked"><h4>Membros bloqueados</h4>${c.blockedMembers.map(m=>`<div class="sf160-member"><strong>${esc(m.name)}</strong><button type="button" data-sf71-unblock="${esc(m.id)}">Desbloquear</button></div>`).join('')}</div>`:''}
  </section>`;
@@ -590,6 +611,31 @@
    },async id=>{await refreshClubRooms(id);status(replacing?'Sala substituída.':'Sala vinculada.');});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+  if(t.hasAttribute('data-sf226-dm')){
+    const peer=t.dataset.sf226Dm;
+    if(!memberId(peer)||!state.detail?.club?.members?.some(m=>m.id===peer&&!m.isSelf))return;
+    if(typeof window.sf53OpenInbox!=='function'){status('Mensagens privadas indisponíveis no momento.',true);return;}
+    window.sf53OpenInbox(peer,t.dataset.sf226Name||'Participante');
+    return;
+  }
+  if(t.hasAttribute('data-sf226-add')){
+    const peer=t.dataset.sf226Add;
+    if(!memberId(peer)||!state.detail?.club?.members?.some(m=>m.id===peer&&!m.isSelf))return;
+    t.disabled=true;
+    try{
+      const response=await fetch('/api/social/follow',{
+        method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({id:peer,follow:true})
+      });
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw Error(data.error||'Não foi possível solicitar amizade.');
+      if(data.status==='incoming'){status('Este membro já solicitou sua amizade. Aceite em Meu Perfil → Amigos.');}
+      else if(data.status==='accepted'){status('Vocês já são amigos.');t.textContent='✓ Amigos';}
+      else{status('Solicitação de amizade enviada.');t.textContent='✓ Solicitado';}
+    }catch(err){status(err.message,true);t.disabled=false;}
+    return;
+  }
+
   if(t.hasAttribute('data-sf600-open')){
     await openTopic(id,t.dataset.sf600Open);return;
   }
