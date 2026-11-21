@@ -1191,6 +1191,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
      await action(async()=>{
        await post('/api/fan-clubs/'+encodeURIComponent(id)+'/default-room',{roomSlug:t.dataset.sf204MakeDefault});
        await refreshClubRooms(id);
+       document.dispatchEvent(new CustomEvent('sf71:rooms-updated',{detail:{clubId:id,action:'default'}}));
      },'Sala principal atualizada.');return;
    }
    if(t.hasAttribute('data-sf204-unlink-room')){
@@ -1200,6 +1201,7 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
      await action(async()=>{
        await api('/api/fan-clubs/'+encodeURIComponent(id)+'/rooms/'+encodeURIComponent(slug),{method:'DELETE'});
        await refreshClubRooms(id);
+       document.dispatchEvent(new CustomEvent('sf71:rooms-updated',{detail:{clubId:id,slug,action:'unlink'}}));
      },'Sala desvinculada.');return;
    }
 
