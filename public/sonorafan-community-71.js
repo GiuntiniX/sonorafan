@@ -462,7 +462,8 @@
  </div><div class="sf202-event-controls"><button type="button" class="sf202-confirm" data-sf170-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Presença confirmada':'Confirmar presença'}</button>
  ${ev.roomSlug?`<button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">♫ Entrar na sala</button>`:''}
  <button type="button" data-sf170-calendar="${esc(ev.id)}">▦ Adicionar à agenda</button>
- ${ev.canDelete?`<button type="button" data-sf170-delete-event="${esc(ev.id)}">Cancelar evento</button>`:''}</div>
+ ${ev.canEdit?`<button type="button" class="sf203-edit-club" data-sf203-edit-event="${esc(ev.id)}">✎ Editar evento</button>`:''}
+  ${ev.canDelete?`<button type="button" data-sf170-delete-event="${esc(ev.id)}">Cancelar evento</button>`:''}</div>
  </article>`).join(''):'<div class="sf202-agenda-empty"><strong>O primeiro encontro começa aqui</strong><p>Organize uma sessão para os fãs, vincule uma sala e convide a comunidade.</p>'+ (c?.canModerate?'<button type="button" data-sf170-create-event>＋ Criar primeiro evento</button>':'<button type="button" data-sf170-global-events>Explorar agenda musical</button>')+'</div>'}
  ${linked.length?'<h4 class="sf202-linked-title">♫ Sessões em salas vinculadas</h4>':''}
  ${linked.map(ev=>`<article class="sf71-club-event sf202-linked-event"><strong>${esc(ev.title)}</strong><small>▦ ${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)} · ${Number(ev.attendees)||0} participantes</small><div class="sf141-event-actions"><button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf142-club-calendar="${esc(ev.id)}">Adicionar à agenda</button><button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Entrar na sala</button></div></article>`).join('')}
@@ -656,7 +657,14 @@
   if(t.hasAttribute('data-sf170-rsvp')){
    await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/events/'+encodeURIComponent(t.dataset.sf170Rsvp)+'/rsvp',{going:t.dataset.going==='true'});await loadExtras(id);},'Presença atualizada.');return;
  }
- if(t.hasAttribute('data-sf170-delete-event')){
+ if(t.hasAttribute('data-sf203-edit-event')){
+   const event=state.clubEvents.find(x=>x.id===t.dataset.sf203EditEvent);
+   if(event?.canEdit&&typeof window.sf200EditEvent==='function'){
+    window.sf200EditEvent({...event,type:'fanclub',clubId:id,clubName:state.detail?.club?.title||'',artist:state.detail?.club?.artist||'',canManage:true});
+   }
+   return;
+  }
+  if(t.hasAttribute('data-sf170-delete-event')){
    if(!confirm('Cancelar este encontro?'))return;
    await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/events/'+encodeURIComponent(t.dataset.sf170DeleteEvent),{method:'DELETE'});await loadExtras(id);},'Encontro cancelado.');return;
  }
@@ -824,6 +832,7 @@
    $('sf71ClubMine')?.addEventListener('click',e=>{state.mine=!state.mine;e.currentTarget.setAttribute('aria-pressed',String(state.mine));loadClubs();});
    $('sf71ClubList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-sf71-open]');if(b)await openDetail(b.dataset.sf71Open);});
    $('sf71ClubDetail')?.addEventListener('click',onDetailClick);
+    document.addEventListener('sf203:event-updated',e=>{if(e.detail?.clubId===state.activeId&&state.activeId)loadExtras(state.activeId).catch(()=>{});});
    $('sf71ClubDetail')?.addEventListener('change',async e=>{
      if(e.target?.id!=='sf73DetailCover')return;
      const file=e.target.files?.[0],id=state.activeId;if(!file||!id)return;
