@@ -65,10 +65,10 @@ const calendar=events=>{
  }
  return html+'</div>';
 };
-async function load(force=false){
+async function load(force=false,refreshServer=false){
  if(state.loading||!force&&now()-state.lastLoad<45000)return;
  state.loading=true;state.error='';render();const rid=++state.request;
- try{const r=await fetch('/api/music-agenda'+(force?'?refresh=1':''),{credentials:'include',cache:'no-store'});
+ try{const r=await fetch('/api/music-agenda'+(refreshServer?'?refresh=1':''),{credentials:'include',cache:'no-store'});
   const data=await r.json();if(!r.ok)throw Error(data.error||'Não foi possível abrir a agenda.');
   if(rid!==state.request)return;
   state.events=(Array.isArray(data.events)?data.events:[]).filter(e=>Number.isFinite(Number(e.startAt))).sort((a,b)=>a.startAt-b.startAt);
@@ -262,7 +262,7 @@ async function createEvent(){
    closeModal();state.day=key(new Date(start));state.month=new Date(new Date(start).getFullYear(),new Date(start).getMonth(),1);
    state.type='all';state.genre='all';state.q='';state.onlyMine=false;state.lastLoad=0;
    state.toast='Evento criado com sucesso! Ele já aparece no calendário.';
-   await load(true);
+   await load(true,true);
   }catch(err){error.textContent=err.message||'Não foi possível publicar.';error.hidden=false;}
   finally{state.modalBusy=false;submit.disabled=false;submit.textContent='＋ Publicar evento';}
  });
@@ -287,7 +287,7 @@ async function createEvent(){
 function handle(event){
  const btn=event.target.closest('button');if(!btn)return;
  if(btn.hasAttribute('data-sf200-close')){close();return;}
- if(btn.hasAttribute('data-sf200-refresh')){load(true);return;}
+ if(btn.hasAttribute('data-sf200-refresh')){load(true,true);return;}
  if(btn.hasAttribute('data-sf201-create')){createEvent();return;}
  if(btn.hasAttribute('data-sf201-dismiss-toast')){state.toast='';render();return;}
  if(btn.hasAttribute('data-sf201-today')){state.month=new Date(today().getFullYear(),today().getMonth(),1);state.day=key(today());render();return;}
