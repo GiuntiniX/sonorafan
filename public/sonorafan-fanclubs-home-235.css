@@ -130,3 +130,10 @@
 }
 #sf235Home .sf235-recovery{padding:14px 16px;margin:0 0 12px;border:1px solid #a65f96;border-radius:12px;background:#2b1730;color:#fff;line-height:1.5}
 #sf235Home .sf235-recovery button{margin-left:12px;border:1px solid #ceff33;border-radius:9px;padding:8px 12px;background:#ceff33;color:#141018;font-weight:800;cursor:pointer}
+
+/* Home autônoma: renderizada no layout principal, fora do hub legado. */
+.sf5-community-layer.sf126-fan-layer .sf126-club-layout.sf235-standalone-home{display:block!important;min-width:0;width:100%}
+.sf5-community-layer.sf126-fan-layer .sf126-club-layout.sf235-standalone-home > #sf235Home:not([hidden]){display:block!important;width:100%;min-width:0;padding:0;margin:0;visibility:visible!important;opacity:1!important;max-height:none!important;overflow:visible!important}
+.sf5-community-layer.sf126-fan-layer .sf126-club-layout.sf235-standalone-home > #sfSocialHub,
+.sf5-community-layer.sf126-fan-layer .sf126-club-layout.sf235-standalone-home > .sf126-club-side{display:none!important}
+.sf5-community-layer.sf126-fan-layer .sf126-club-layout > #sf235Home[hidden]{display:none!important}
