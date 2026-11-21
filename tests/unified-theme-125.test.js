@@ -14,7 +14,7 @@ const mobile=load('sonorafan-mobile-125.css');
 test('v125 foundation and v127/v128 overrides are linked in dependency order',()=>{
   assert.match(html,/sonorafan-unified-125\.css\?v=125/);
   assert.match(html,/sonorafan-mobile-125\.css\?v=125/);
-  assert.match(html,/sonorafan-unified-125\.js\?v=144\.0/);
+  assert.match(html,/sonorafan-unified-125\.js\?v=207\.5/);
   assert.match(html,/sonorafan-fanclubs-navigation-127\.css\?v=127\.1/);
   assert.match(html,/sonorafan-room-queue-128\.css\?v=128\.1/);
   assert.ok(html.indexOf('sonorafan-unified-125.css')>html.indexOf('sonorafan-chat-neon-124.css'));
