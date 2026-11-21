@@ -82,7 +82,7 @@
    const selected=modalChoice===theme.id;
    const b=document.createElement('button');
    b.type='button';
-   b.className='sf88-theme-card'+(selected?' is-selected':'');
+   b.className='sf88-theme-card'+(theme.type==='color'?' sf88-color-card':'')+(selected?' is-selected':'');
    b.dataset.theme=theme.id;
    b.setAttribute('role','option');
    b.setAttribute('aria-selected',String(selected));
