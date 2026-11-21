@@ -108,3 +108,10 @@
 @media(max-width:780px){#sf235Home .sf235-hero{min-height:240px}#sf235Home .sf235-bottom,#sf235Home .sf235-right{grid-template-columns:1fr}#sf235Home .sf235-right .sf235-side-card:last-child{grid-column:auto}#sf235Home .sf235-posts{grid-template-columns:1fr}#sf235Home .sf235-clubs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:470px){#sf235Home .sf235-hero{min-height:270px;padding:20px 15px}#sf235Home .sf235-hero h1{font-size:27px}#sf235Home .sf235-section,#sf235Home .sf235-side-card{padding:12px}#sf235Home .sf235-clubs{grid-template-columns:1fr}#sf235Home .sf235-club{flex-direction:row;min-height:134px}#sf235Home .sf235-club-art{height:auto;min-width:105px;width:105px;flex:0 0 105px}#sf235Home .sf235-club-footer{gap:6px}#sf235Home .sf235-tabs button{font-size:10px;padding:8px}#sf235Home .sf235-club-body{padding:10px}#sf235Home .sf235-club-body>p{-webkit-line-clamp:2;margin:4px 0}}
 @media(prefers-reduced-motion:reduce){#sf235Home *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Cabeçalho antigo da comunidade fica oculto somente na página geral nova. */
+.sf5-community-layer.sf126-fan-layer:has(#sfFanClubsPanel.sf235-home-active) #sfSocialHub>.sf-hub-intro,
+.sf5-community-layer.sf126-fan-layer:has(#sfFanClubsPanel.sf235-home-active) #sfSocialHub>.sf71-social-head{display:none!important}
+.sf5-community-layer.sf126-fan-layer:has(#sfFanClubsPanel.sf235-home-active) .sf5-community-scroll{width:100%!important;max-width:100%!important;min-width:0!important}
+#sf235Home [data-sf235-scroll]{scroll-margin-top:22px}
+#sf235Home #sf235Discover,#sf235Home #sf235Feed,#sf235Home #sf235Events{scroll-margin-top:72px}
