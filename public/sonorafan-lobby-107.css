@@ -267,14 +267,14 @@
 }
 #screen-lobby .sf107-room-card img{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  filter:saturate(1.14) contrast(1.05);transition:transform .28s ease;
+  filter:saturate(1.14) contrast(1.05);transform:scale(var(--sf107-cover-zoom,1));transform-origin:center;transition:transform .28s ease;
 }
 #screen-lobby .sf107-card-shade{
   position:absolute;inset:0;z-index:1;pointer-events:none;
   background:linear-gradient(180deg,rgba(17,5,22,.05) 10%,rgba(27,6,25,.28) 47%,rgba(17,4,22,.98) 100%)
 }
 #screen-lobby .sf107-room-card:hover{transform:translateY(-2px);border-color:#ffb385;box-shadow:0 12px 28px #0007}
-#screen-lobby .sf107-room-card:hover img{transform:scale(1.04)}
+#screen-lobby .sf107-room-card:hover img{transform:scale(calc(var(--sf107-cover-zoom,1) * 1.035))}
 #screen-lobby .sf107-room-card.sf107-leader{
   border:2px solid #ffab66;
   box-shadow:0 0 0 1px #ff5287,0 0 18px rgba(255,120,113,.6),inset 0 0 18px rgba(251,159,107,.17);
@@ -415,7 +415,7 @@
 #screen-lobby .sf107-feature-image{
   position:absolute;inset:0 0 auto;height:53%;z-index:-1;
   background-image:linear-gradient(to bottom,rgba(48,12,43,.22),rgba(46,11,37,.45) 70%,#2c122e 100%),var(--sf107-feature-image);
-  background-size:cover;background-position:center;filter:saturate(1.19) contrast(1.03)
+  background-size:cover;background-position:var(--sf107-feature-position,center);filter:saturate(1.19) contrast(1.03)
 }
 #screen-lobby .sf107-feature::after{
   content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
