@@ -178,5 +178,65 @@
     "emoji": "🪗",
     "art": "/themes/final-170/forro.webp",
     "thumbnail": "/themes/final-170/forro-thumb.webp"
+  },
+  {
+    "id": "bts",
+    "name": "BTS · Purple Stage",
+    "description": "Palco violeta com sete feixes de luz, estrelas e energia de show para fãs de BTS",
+    "primary": "#a975ff",
+    "secondary": "#f5a8ff",
+    "bg": "#0d0926",
+    "text": "#f5e8ff",
+    "emoji": "💜",
+    "art": "/themes/new-190/bts.svg",
+    "thumbnail": "/themes/new-190/bts.svg"
+  },
+  {
+    "id": "kpop",
+    "name": "K-pop · Neon Seoul",
+    "description": "Prismas holográficos e neon de Seul para uma noite K-pop",
+    "primary": "#ff60bd",
+    "secondary": "#6cddff",
+    "bg": "#130d30",
+    "text": "#fff0fb",
+    "emoji": "💖",
+    "art": "/themes/new-190/kpop.svg",
+    "thumbnail": "/themes/new-190/kpop.svg"
+  },
+  {
+    "id": "jpop",
+    "name": "J-pop · Tokyo Lights",
+    "description": "Tóquio noturna, sol retrô e luzes urbanas de J-pop",
+    "primary": "#ff8962",
+    "secondary": "#75d6f5",
+    "bg": "#10182f",
+    "text": "#fff0de",
+    "emoji": "🌸",
+    "art": "/themes/new-190/jpop.svg",
+    "thumbnail": "/themes/new-190/jpop.svg"
+  },
+  {
+    "id": "trap",
+    "name": "Trap · Midnight City",
+    "description": "Graves e anéis de luz em uma atmosfera urbana cinematográfica",
+    "primary": "#f8d347",
+    "secondary": "#a073ff",
+    "bg": "#0e0b1c",
+    "text": "#fff4d3",
+    "emoji": "💎",
+    "art": "/themes/new-190/trap.svg",
+    "thumbnail": "/themes/new-190/trap.svg"
+  },
+  {
+    "id": "lofi",
+    "name": "Lo-fi · Moonlight",
+    "description": "Janela chuvosa, lua suave e rádio noturno para ouvir e relaxar",
+    "primary": "#8da8f2",
+    "secondary": "#edb5ba",
+    "bg": "#151b37",
+    "text": "#eef0ff",
+    "emoji": "🌙",
+    "art": "/themes/new-190/lofi.svg",
+    "thumbnail": "/themes/new-190/lofi.svg"
   }
 ]
