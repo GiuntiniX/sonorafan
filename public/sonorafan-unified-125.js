@@ -34,6 +34,7 @@
       case 'ranking':window.openLeaderboard?.();break;
       case 'club-ranking':window.sf45OpenClub?.();break;
       case 'create':window.showCreateRoom?.();break;
+      case 'create-event':window.sf200OpenAgenda?.();window.sf200CreateEvent?.();break;
       case 'create-club':if(typeof window.sf126OpenClubs==='function')window.sf126OpenClubs();else window.sf110OpenCommunity?.('fanclubs');setTimeout(()=>$('sf71CreateClub')?.click(),180);break;
       case 'invite':qs('[data-sf107="invite"]')?.click();break;
       case 'notifications':window.sf15OpenNotifications?.();break;
@@ -66,7 +67,8 @@
       '<div class="sf125-sidebar-separator"></div><span class="sf125-sidebar-caption">Criar</span>'+
       '<nav class="sf125-side-nav sf125-side-secondary" aria-label="Criar salas e Fan Clubs">'+
       '<button type="button" data-sf125-go="create"><span class="sf125-nav-icon">＋</span><span>Criar Sala</span></button>'+
-      '<button type="button" data-sf125-go="create-club"><span class="sf125-nav-icon">♧</span><span>Criar Fan Club</span></button></nav>'+
+      '<button type="button" data-sf125-go="create-club"><span class="sf125-nav-icon">♧</span><span>Criar Fan Club</span></button>'+ 
+      '<button type="button" data-sf125-go="create-event"><span class="sf125-nav-icon">▦</span><span>Criar Evento</span></button></nav>'+
       '<div class="sf125-sidebar-art" aria-hidden="true"></div>';
     app.insertBefore(sidebar,qs('.sf28-lobby-main',app));
     const main=qs('.sf28-lobby-main',app);
