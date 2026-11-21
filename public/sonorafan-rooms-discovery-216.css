@@ -90,3 +90,59 @@
 #screen-lobby.sf125-platform.sf216-explore-mode #sf125Sidebar{display:none!important}
 #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main.sf125-main{overflow-y:auto!important;overflow-x:hidden!important}
 @media(max-width:760px){#screen-lobby.sf125-platform.sf216-explore-mode .sf216-page{padding-bottom:90px}}
+
+/* 218 — layout fiel à estrutura editorial de "Minhas salas e descoberta". */
+#screen-lobby .sf216-page{background:var(--sf-brand-bg,#100b16)!important}
+#screen-lobby .sf216-shell{grid-template-columns:250px minmax(0,1fr)!important;gap:18px}
+#screen-lobby .sf216-content{overflow:visible}
+#screen-lobby .sf216-head{position:relative;min-height:143px;padding:24px 20px 24px 22px;border:1px solid #59305d;border-radius:16px;background:linear-gradient(90deg,rgba(16,11,22,.96) 0%,rgba(26,13,34,.9) 49%,rgba(29,14,39,.18) 100%),url('/themes/final-172/indie.webp') center 44%/cover no-repeat!important;overflow:hidden}
+#screen-lobby .sf216-head .sf216-heading{position:relative;z-index:1}
+#screen-lobby .sf216-head .sf216-heading h1{font-size:clamp(25px,2.4vw,37px)}
+#screen-lobby .sf216-head .sf216-create{position:relative;z-index:1}
+#screen-lobby .sf216-profile{border-radius:15px;background:#21132a}
+#screen-lobby .sf216-favorite-panel{margin-top:13px;padding:12px 10px;border:1px solid #603368;border-radius:13px;background:#211429}
+#screen-lobby .sf216-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:12px}
+#screen-lobby .sf216-panel-heading strong{font-size:13px}
+#screen-lobby .sf216-panel-heading button{border:0;background:transparent;color:#ceff55;font-size:10px;font-weight:800;cursor:pointer}
+#screen-lobby .sf216-side-favorites{display:grid;gap:8px}
+#screen-lobby .sf216-side-favorites>button{display:flex;gap:8px;align-items:center;text-align:left;width:100%;border:0;border-bottom:1px solid #56305f;background:transparent;padding:0 0 8px;color:#fff;cursor:pointer}
+#screen-lobby .sf216-side-favorites>button:last-child{border:0;padding-bottom:0}
+#screen-lobby .sf216-side-favorites .sf216-cover{width:54px;aspect-ratio:1;flex:0 0 54px;border-radius:8px}
+#screen-lobby .sf216-side-favorites strong{display:block;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+#screen-lobby .sf216-side-favorites small{display:block;max-width:130px;margin-top:3px;color:#bda7cd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
+#screen-lobby .sf216-side-favorites>button>span:last-child{margin-left:auto;color:#d6ff60}
+#screen-lobby .sf216-side-empty{margin:6px 0;color:#a78bb1;font-size:11px;line-height:1.5}
+#screen-lobby .sf216-side-nav button[data-sf216-create]{margin-top:7px;border:1px solid #b85cb3;color:#f5d5ff;background:#3e2140}
+#screen-lobby .sf216-tabs{margin:15px 0 16px;grid-template-columns:repeat(3,minmax(0,1fr));}
+#screen-lobby .sf216-styles{gap:6px}
+#screen-lobby .sf216-styles button{font-size:11px;padding:6px 11px}
+#screen-lobby .sf216-hero[hidden]{display:none!important}
+#screen-lobby .sf216-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden;min-height:208px;border:1px solid #bc559e;border-radius:14px;background:linear-gradient(95deg,#24132d,#341739);margin:15px 0 21px}
+#screen-lobby .sf216-hero-art{min-height:208px;overflow:hidden}
+#screen-lobby .sf216-hero-art .sf216-cover{width:100%;height:100%;aspect-ratio:auto}
+#screen-lobby .sf216-hero-content{display:flex;flex-direction:column;gap:8px;padding:19px 22px;min-width:0;justify-content:center}
+#screen-lobby .sf216-hero-kicker{width:max-content;border-radius:999px;border:1px solid #af82a9;background:#512958;padding:5px 9px;color:#e9d0fa;font-size:10px;font-weight:900}
+#screen-lobby .sf216-hero-content h2{margin:0;color:#fff;font-size:clamp(21px,2vw,29px);line-height:1.15}
+#screen-lobby .sf216-hero-content p{margin:0;color:#e6d7e9;font-size:12px}
+#screen-lobby .sf216-hero-content small{color:#c8b1d7;font-size:11px;line-height:1.35;max-height:42px;overflow:hidden}
+#screen-lobby .sf216-hero-actions{display:flex;align-items:center;gap:10px;margin-top:9px}
+#screen-lobby .sf216-hero-actions button{border:1px solid #bf6abc;border-radius:10px;cursor:pointer;font-size:13px;font-weight:850;background:#3b2144;color:#fff;padding:11px 14px}
+#screen-lobby .sf216-hero-actions button:first-child{background:#c4ff00;color:#121b04;border-color:#c4ff00}
+#screen-lobby .sf216-hero-actions button[aria-pressed="true"]{color:#ff8dc2}
+#screen-lobby .sf216-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#screen-lobby .sf216-card{display:grid;grid-template-columns:minmax(95px,37%) minmax(0,1fr);min-height:154px;max-height:176px;border-radius:12px}
+#screen-lobby .sf216-card .sf216-cover{height:100%;min-height:152px;aspect-ratio:auto}
+#screen-lobby .sf216-card-body{min-height:0;padding:11px 9px;gap:5px}
+#screen-lobby .sf216-card-body h3{font-size:13px;white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+#screen-lobby .sf216-meta{font-size:10px}
+#screen-lobby .sf216-track{font-size:10px}
+#screen-lobby .sf216-join{font-size:11px;padding:9px}
+#screen-lobby .sf216-card-actions{margin-top:auto}
+#screen-lobby .sf216-card-actions button[data-sf216-fav]{width:29px;height:29px;font-size:18px}
+#screen-lobby .sf216-tags span{font-size:9px;padding:3px 5px}
+#screen-lobby .sf216-cards.sf216-list-mode{grid-template-columns:1fr}
+#screen-lobby .sf216-cards.sf216-list-mode .sf216-card{height:150px;max-height:none}
+#screen-lobby .sf216-cards.sf216-list-mode .sf216-cover{width:210px;height:148px;min-height:0}
+@media(max-width:1220px){#screen-lobby .sf216-shell{grid-template-columns:205px minmax(0,1fr)!important}#screen-lobby .sf216-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){#screen-lobby .sf216-shell{grid-template-columns:1fr!important}#screen-lobby .sf216-hero{min-height:175px}#screen-lobby .sf216-hero-art{min-height:175px}}
+@media(max-width:580px){#screen-lobby .sf216-head{min-height:132px;padding:18px 13px;background-position:67% center!important}#screen-lobby .sf216-hero{grid-template-columns:1fr}#screen-lobby .sf216-hero-art{height:160px;min-height:160px}#screen-lobby .sf216-hero-content{padding:15px}#screen-lobby .sf216-cards{grid-template-columns:1fr}#screen-lobby .sf216-card{min-height:147px;max-height:175px;grid-template-columns:34% minmax(0,1fr)}#screen-lobby .sf216-card .sf216-cover{min-height:147px}#screen-lobby .sf216-card-body{padding:10px}#screen-lobby .sf216-search-row{grid-template-columns:1fr 1fr}}
