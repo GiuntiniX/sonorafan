@@ -31,6 +31,6 @@ test('new highlighted poll stylesheet is responsive and loaded fresh',()=>{
  assert.match(html,/sonorafan-community-71\.js\?v=232\.0/);
  assert.match(html,/sonorafan-fanclub-social-227\.css\?v=232\.0/);
  assert.match(css,/\.sf232-poll-intro/);
- assert.match(css,/#sf227Right \.sf231-poll-choice/);
+ assert.match(css,/#sf227Right \.sf231-poll \.sf231-poll-choice/);
  assert.match(css,/@media\(max-width:800px\)/);
 });
