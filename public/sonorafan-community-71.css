@@ -390,3 +390,23 @@
 #sf71ClubDetail.sf600-reading #sf180FeedSummary{display:none!important}
 #sf71ClubDetail.sf600-reading .sf71-rooms-head{margin-bottom:12px}
 #sf71ClubDetail.sf600-reading .sf600-topic-detail{width:100%;min-width:0}
+
+
+/* Fan Club 192 — seleção de capa leve, responsiva e acessível. */
+#sf71Modal .sf192-choices{border:1px solid rgba(200,164,221,.3);border-radius:14px;padding:13px;margin:6px 0 15px;display:grid;gap:10px;min-width:0}
+#sf71Modal .sf192-choices legend{font-size:13px;font-weight:850;color:#f5e9fd;padding:0 6px}
+#sf71Modal .sf192-choices>label:not(.sf192-link){display:flex;align-items:center;gap:10px;min-height:34px;margin:0;font-weight:700;font-size:12px}
+#sf71Modal .sf192-choices input[type=radio]{width:17px;height:17px;min-height:0;accent-color:#caff00;flex:none}
+#sf71Modal .sf192-gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#sf71Modal .sf192-gallery[hidden],#sf71Modal .sf192-link[hidden]{display:none!important}
+#sf71Modal .sf192-gallery label{display:flex;flex-direction:column;gap:5px;position:relative;font-size:11px;cursor:pointer;background:#201729;border:1px solid #654777;border-radius:9px;overflow:hidden;padding:5px;color:#dfcdea}
+#sf71Modal .sf192-gallery label:has(input:checked){border-color:#caff00;box-shadow:0 0 0 1px #caff00}
+#sf71Modal .sf192-gallery input{position:absolute;top:7px;left:7px;z-index:1;opacity:.95}
+#sf71Modal .sf192-gallery img{width:100%;aspect-ratio:1.75;object-fit:cover;border-radius:6px}
+#sf71Modal .sf192-gallery span{padding:2px;text-transform:capitalize}
+#sf71Modal .sf192-link{display:grid;gap:6px;font-size:12px;color:#efddf5}
+#sf71Modal .sf192-link input{width:100%;min-width:0}
+#sf71Modal .sf192-preview{width:100%;height:125px;max-height:24vh;object-fit:cover;border-radius:10px;border:1px solid #654777;background:#241b2e}
+#sf71Modal .sf192-choices small{font-size:11px;line-height:1.5;color:#bba9c9}
+#sf71Modal .sf192-choices :is(input,select):focus-visible{outline:2px solid #caff00;outline-offset:2px}
+@media(max-width:600px){#sf71Modal .sf192-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}#sf71Modal .sf192-preview{height:110px}}
