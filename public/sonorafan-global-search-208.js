@@ -64,7 +64,7 @@ function init(){
  input.setAttribute('aria-label','Buscar em toda a plataforma SonoraFan');
  input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-controls','sf208SearchResults');
  const layer=document.createElement('div');layer.id='sf208SearchResults';layer.className='sf208-search-results';layer.setAttribute('role','listbox');layer.hidden=true;parent.after(layer);
- const align=()=>{layer.style.left=parent.offsetLeft+'px';layer.style.width=parent.offsetWidth+'px';};
+ const align=()=>{if(innerWidth<=670){layer.style.left='8px';layer.style.width='calc(100vw - 16px)';}else{layer.style.left=parent.offsetLeft+'px';layer.style.width=parent.offsetWidth+'px';}};
  align();window.addEventListener('resize',align,{passive:true});
  // Não interrompe o filtro de salas já existente no lobby.
  input.addEventListener('input',()=>{const q=input.value.trim().slice(0,70);clearTimeout(timer);if(q.length<2){serial++;aborter?.abort();close();return;}timer=setTimeout(()=>search(q),240);});
