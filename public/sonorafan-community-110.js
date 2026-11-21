@@ -45,8 +45,8 @@
  }
  function head(){
    return `<div class="sf110-hero">
-     <div><span>SONORAFAN · COMUNIDADE</span><h2>Comunidades</h2>
-       <p>Suas conexões, grupos e conversas em um só lugar.</p></div>
+     <div><span>SONORAFAN · COMUNIDADE</span><h2>Fan Clubs</h2>
+       <p>Seus Fan Clubs, encontros e conexões musicais em um só lugar.</p></div>
    </div>`;
  }
  function messages(){
@@ -221,9 +221,9 @@
    if(!s||!scroller)return;
    s.classList.add('sf110-community-shell');
    const heading=s.querySelector('.sf5-community-top h2');
-   if(heading)heading.textContent='Comunidades';
+   if(heading)heading.textContent='Fan Clubs';
    const sub=s.querySelector('.sf5-community-top p');
-   if(sub)sub.textContent='Conecte-se, compartilhe e faça parte da música.';
+   if(sub)sub.textContent='Encontre seus Fan Clubs e acompanhe os encontros musicais.';
    const goBack=document.createElement('button');
    goBack.type='button';goBack.id='sf110Back';goBack.hidden=true;
    goBack.textContent='← Visão geral';goBack.addEventListener('click',back);
