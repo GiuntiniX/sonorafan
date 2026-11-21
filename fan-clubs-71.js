@@ -933,7 +933,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         const roomItems=[...(socialEvents?.values()||[])].filter(e=>
           Number(e.startAt)>=now-3600000&&Number(e.startAt)<=now+90*86400000&&rooms.has(e.roomSlug)&&!rooms.get(e.roomSlug).isPrivate)
           .map(e=>({id:String(e.id),type:'room',roomSlug:String(e.roomSlug),roomName:clean(e.roomName,90),
-            genre:clean(rooms.get(e.roomSlug)?.genre||e.theme||'outros',32),hostName:clean(e.hostName,80),
+            genre:clean(rooms.get(e.roomSlug)?.genre||e.theme||'outros',32),theme:clean(e.theme||'indie',32),hostName:clean(e.hostName,80),
             title:clean(e.title,90),description:clean(e.description,300),startAt:Number(e.startAt),
             durationMinutes:Number(e.durationMinutes)||90,attendees:unique(e.attendees).length,attendeeIds:unique(e.attendees),hostId:e.hostId}));
         items=[...clubItems.flat(),...roomItems].sort((a,b)=>a.startAt-b.startAt).slice(0,180);
