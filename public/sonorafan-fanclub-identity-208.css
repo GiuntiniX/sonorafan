@@ -1,8 +1,43 @@
 /* SonoraFan 208 — identidade visual de verdade, preservando 100% da capa escolhida. */
-#sf71ClubDetail:has(.sf71-theme-vinyl){--sf208-club-accent:#f8c17d;--sf208-club-shade:#6c345e}
-#sf71ClubDetail:has(.sf71-theme-stage){--sf208-club-accent:#caff00;--sf208-club-shade:#4b1f6c}
-#sf71ClubDetail:has(.sf71-theme-cassette){--sf208-club-accent:#ff9768;--sf208-club-shade:#613052}
-#sf71ClubDetail:has(.sf71-theme-waves){--sf208-club-accent:#65e3ed;--sf208-club-shade:#213c72}
+#sf71ClubDetail:has(.sf71-theme-geral){--sf208-club-accent:#7c3aed;--sf208-club-shade:#180f25}
+#sf71ClubDetail:has(.sf71-theme-indie){--sf208-club-accent:#c256e7;--sf208-club-shade:#170e27}
+#sf71ClubDetail:has(.sf71-theme-metal){--sf208-club-accent:#ed3a39;--sf208-club-shade:#130b0c}
+#sf71ClubDetail:has(.sf71-theme-emo){--sf208-club-accent:#ef54a5;--sf208-club-shade:#101014}
+#sf71ClubDetail:has(.sf71-theme-mpb){--sf208-club-accent:#efb34f;--sf208-club-shade:#182d23}
+#sf71ClubDetail:has(.sf71-theme-eletronica){--sf208-club-accent:#15d7f8;--sf208-club-shade:#0c1027}
+#sf71ClubDetail:has(.sf71-theme-rock){--sf208-club-accent:#f04b42;--sf208-club-shade:#1f1213}
+#sf71ClubDetail:has(.sf71-theme-pop){--sf208-club-accent:#f264d7;--sf208-club-shade:#271127}
+#sf71ClubDetail:has(.sf71-theme-rap){--sf208-club-accent:#f8a434;--sf208-club-shade:#1c1721}
+#sf71ClubDetail:has(.sf71-theme-funk){--sf208-club-accent:#ff4ba9;--sf208-club-shade:#1a1030}
+#sf71ClubDetail:has(.sf71-theme-pagode){--sf208-club-accent:#f5bb55;--sf208-club-shade:#122b27}
+#sf71ClubDetail:has(.sf71-theme-sertanejo){--sf208-club-accent:#ee9850;--sf208-club-shade:#342019}
+#sf71ClubDetail:has(.sf71-theme-reggae){--sf208-club-accent:#e7c742;--sf208-club-shade:#14271f}
+#sf71ClubDetail:has(.sf71-theme-jazz){--sf208-club-accent:#d4ad72;--sf208-club-shade:#131c2b}
+#sf71ClubDetail:has(.sf71-theme-forro){--sf208-club-accent:#ed8b4c;--sf208-club-shade:#322019}
+#sf71ClubDetail:has(.sf71-theme-bts){--sf208-club-accent:#a975ff;--sf208-club-shade:#0d0926}
+#sf71ClubDetail:has(.sf71-theme-kpop){--sf208-club-accent:#ff60bd;--sf208-club-shade:#130d30}
+#sf71ClubDetail:has(.sf71-theme-jpop){--sf208-club-accent:#ff8962;--sf208-club-shade:#10182f}
+#sf71ClubDetail:has(.sf71-theme-trap){--sf208-club-accent:#f8d347;--sf208-club-shade:#0e0b1c}
+#sf71ClubDetail:has(.sf71-theme-lofi){--sf208-club-accent:#8da8f2;--sf208-club-shade:#151b37}
+#sf71ClubDetail:has(.sf71-theme-cor-preto){--sf208-club-accent:#9da3b2;--sf208-club-shade:#090b12}
+#sf71ClubDetail:has(.sf71-theme-cor-vermelho){--sf208-club-accent:#ff4c61;--sf208-club-shade:#200b15}
+#sf71ClubDetail:has(.sf71-theme-cor-azul){--sf208-club-accent:#4d9aff;--sf208-club-shade:#09162c}
+#sf71ClubDetail:has(.sf71-theme-cor-verde){--sf208-club-accent:#5ee3a6;--sf208-club-shade:#08231c}
+#sf71ClubDetail:has(.sf71-theme-cor-roxo){--sf208-club-accent:#ad73ff;--sf208-club-shade:#180c2f}
+#sf71ClubDetail:has(.sf71-theme-cor-rosa){--sf208-club-accent:#ff6db8;--sf208-club-shade:#2e1026}
+#sf71ClubDetail:has(.sf71-theme-cor-dourado){--sf208-club-accent:#f1c16c;--sf208-club-shade:#24180e}
+#sf71ClubDetail:has(.sf71-theme-kpop-sakura-arena){--sf208-club-accent:#fd60c6;--sf208-club-shade:#101039}
+#sf71ClubDetail:has(.sf71-theme-bts-purple-monument){--sf208-club-accent:#a25dff;--sf208-club-shade:#120829}
+#sf71ClubDetail:has(.sf71-theme-jpop-tokyo-night){--sf208-club-accent:#ed65e5;--sf208-club-shade:#0a1b45}
+#sf71ClubDetail:has(.sf71-theme-trap-crown-stage){--sf208-club-accent:#f6a339;--sf208-club-shade:#210c27}
+#sf71ClubDetail:has(.sf71-theme-lofi-golden-listening){--sf208-club-accent:#ffc06c;--sf208-club-shade:#1a1530}
+#sf71ClubDetail:has(.sf71-theme-lofi-moonlight-live){--sf208-club-accent:#bd96f6;--sf208-club-shade:#131d36}
+#sf71ClubDetail:has(.sf71-theme-kpop-cherry-city){--sf208-club-accent:#ff70dc;--sf208-club-shade:#0c153c}
+#sf71ClubDetail:has(.sf71-theme-bts-lights-festival){--sf208-club-accent:#aa6cff;--sf208-club-shade:#170a35}
+#sf71ClubDetail:has(.sf71-theme-jpop-fuji-stage){--sf208-club-accent:#f38ac9;--sf208-club-shade:#122a4e}
+#sf71ClubDetail:has(.sf71-theme-trap-street-crown){--sf208-club-accent:#ffb34d;--sf208-club-shade:#241126}
+#sf71ClubDetail:has(.sf71-theme-lofi-riverside){--sf208-club-accent:#f7be85;--sf208-club-shade:#101d3d}
+#sf71ClubDetail:has(.sf71-theme-lofi-acoustic-garden){--sf208-club-accent:#ffba77;--sf208-club-shade:#171b32}
 #sf71ClubDetail .sf71-detail-hero.sf73-with-cover{
  border:2px solid var(--sf208-club-accent,#b965d7)!important;
  box-shadow:0 0 0 2px #ffffff09,0 12px 35px #0005!important;
@@ -23,15 +58,85 @@
 #sf71ClubDetail .sf170-community-aside,#sf71ClubDetail .sf160-extra-panel{
  border-top:2px solid var(--sf208-club-accent,#caff00)!important;
 }
-#sf71ClubDetail .sf71-detail-hero.sf71-theme-vinyl{background-color:#452a45!important}
-#sf71ClubDetail .sf71-detail-hero.sf71-theme-stage{background-color:#25133c!important}
-#sf71ClubDetail .sf71-detail-hero.sf71-theme-cassette{background-color:#543046!important}
-#sf71ClubDetail .sf71-detail-hero.sf71-theme-waves{background-color:#1c3155!important}
-/* Nos cards do lobby o tema aparece como borda e etiqueta, sem esconder a capa. */
-.sf71-club-art.sf73-with-cover.sf71-theme-vinyl{outline:2px solid #f8c17d}
-.sf71-club-art.sf73-with-cover.sf71-theme-stage{outline:2px solid #caff00}
-.sf71-club-art.sf73-with-cover.sf71-theme-cassette{outline:2px solid #ff9768}
-.sf71-club-art.sf73-with-cover.sf71-theme-waves{outline:2px solid #65e3ed}
+/* Identidades compartilhadas com os temas das salas. */
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-geral{background-color:#180f25!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-geral{outline:2px solid #7c3aed}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-indie{background-color:#170e27!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-indie{outline:2px solid #c256e7}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-metal{background-color:#130b0c!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-metal{outline:2px solid #ed3a39}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-emo{background-color:#101014!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-emo{outline:2px solid #ef54a5}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-mpb{background-color:#182d23!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-mpb{outline:2px solid #efb34f}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-eletronica{background-color:#0c1027!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-eletronica{outline:2px solid #15d7f8}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-rock{background-color:#1f1213!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-rock{outline:2px solid #f04b42}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-pop{background-color:#271127!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-pop{outline:2px solid #f264d7}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-rap{background-color:#1c1721!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-rap{outline:2px solid #f8a434}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-funk{background-color:#1a1030!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-funk{outline:2px solid #ff4ba9}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-pagode{background-color:#122b27!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-pagode{outline:2px solid #f5bb55}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-sertanejo{background-color:#342019!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-sertanejo{outline:2px solid #ee9850}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-reggae{background-color:#14271f!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-reggae{outline:2px solid #e7c742}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-jazz{background-color:#131c2b!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-jazz{outline:2px solid #d4ad72}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-forro{background-color:#322019!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-forro{outline:2px solid #ed8b4c}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-bts{background-color:#0d0926!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-bts{outline:2px solid #a975ff}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-kpop{background-color:#130d30!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-kpop{outline:2px solid #ff60bd}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-jpop{background-color:#10182f!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-jpop{outline:2px solid #ff8962}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-trap{background-color:#0e0b1c!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-trap{outline:2px solid #f8d347}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-lofi{background-color:#151b37!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-lofi{outline:2px solid #8da8f2}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-cor-preto{background-color:#090b12!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-cor-preto{outline:2px solid #9da3b2}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-cor-vermelho{background-color:#200b15!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-cor-vermelho{outline:2px solid #ff4c61}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-cor-azul{background-color:#09162c!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-cor-azul{outline:2px solid #4d9aff}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-cor-verde{background-color:#08231c!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-cor-verde{outline:2px solid #5ee3a6}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-cor-roxo{background-color:#180c2f!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-cor-roxo{outline:2px solid #ad73ff}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-cor-rosa{background-color:#2e1026!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-cor-rosa{outline:2px solid #ff6db8}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-cor-dourado{background-color:#24180e!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-cor-dourado{outline:2px solid #f1c16c}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-kpop-sakura-arena{background-color:#101039!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-kpop-sakura-arena{outline:2px solid #fd60c6}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-bts-purple-monument{background-color:#120829!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-bts-purple-monument{outline:2px solid #a25dff}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-jpop-tokyo-night{background-color:#0a1b45!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-jpop-tokyo-night{outline:2px solid #ed65e5}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-trap-crown-stage{background-color:#210c27!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-trap-crown-stage{outline:2px solid #f6a339}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-lofi-golden-listening{background-color:#1a1530!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-lofi-golden-listening{outline:2px solid #ffc06c}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-lofi-moonlight-live{background-color:#131d36!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-lofi-moonlight-live{outline:2px solid #bd96f6}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-kpop-cherry-city{background-color:#0c153c!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-kpop-cherry-city{outline:2px solid #ff70dc}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-bts-lights-festival{background-color:#170a35!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-bts-lights-festival{outline:2px solid #aa6cff}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-jpop-fuji-stage{background-color:#122a4e!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-jpop-fuji-stage{outline:2px solid #f38ac9}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-trap-street-crown{background-color:#241126!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-trap-street-crown{outline:2px solid #ffb34d}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-lofi-riverside{background-color:#101d3d!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-lofi-riverside{outline:2px solid #f7be85}
+#sf71ClubDetail .sf71-detail-hero.sf71-theme-lofi-acoustic-garden{background-color:#171b32!important}
+.sf71-club-art.sf73-with-cover.sf71-theme-lofi-acoustic-garden{outline:2px solid #ffba77}
 #sf71Modal .sf208-theme-preview{
  display:grid;gap:8px;min-height:126px;margin:10px 0;padding:18px;border-radius:16px;
  border:2px solid var(--sf208-preview-accent,#caff00);
@@ -41,10 +146,45 @@
 #sf71Modal .sf208-theme-preview span{font-size:11px;letter-spacing:.11em;color:var(--sf208-preview-accent,#caff00);font-weight:950}
 #sf71Modal .sf208-theme-preview strong{font-size:22px;line-height:1.2}
 #sf71Modal .sf208-theme-preview small{font-size:11px;line-height:1.45;color:#eadbf1}
-#sf71Modal .sf208-theme-preview.sf71-theme-vinyl{--sf208-preview-accent:#f8c17d;--sf208-preview-shade:#643b5f}
-#sf71Modal .sf208-theme-preview.sf71-theme-stage{--sf208-preview-accent:#caff00;--sf208-preview-shade:#46206d}
-#sf71Modal .sf208-theme-preview.sf71-theme-cassette{--sf208-preview-accent:#ff9768;--sf208-preview-shade:#703448}
-#sf71Modal .sf208-theme-preview.sf71-theme-waves{--sf208-preview-accent:#65e3ed;--sf208-preview-shade:#253e75}
+#sf71Modal .sf208-theme-preview.sf71-theme-geral{--sf208-preview-accent:#7c3aed;--sf208-preview-shade:#180f25}
+#sf71Modal .sf208-theme-preview.sf71-theme-indie{--sf208-preview-accent:#c256e7;--sf208-preview-shade:#170e27}
+#sf71Modal .sf208-theme-preview.sf71-theme-metal{--sf208-preview-accent:#ed3a39;--sf208-preview-shade:#130b0c}
+#sf71Modal .sf208-theme-preview.sf71-theme-emo{--sf208-preview-accent:#ef54a5;--sf208-preview-shade:#101014}
+#sf71Modal .sf208-theme-preview.sf71-theme-mpb{--sf208-preview-accent:#efb34f;--sf208-preview-shade:#182d23}
+#sf71Modal .sf208-theme-preview.sf71-theme-eletronica{--sf208-preview-accent:#15d7f8;--sf208-preview-shade:#0c1027}
+#sf71Modal .sf208-theme-preview.sf71-theme-rock{--sf208-preview-accent:#f04b42;--sf208-preview-shade:#1f1213}
+#sf71Modal .sf208-theme-preview.sf71-theme-pop{--sf208-preview-accent:#f264d7;--sf208-preview-shade:#271127}
+#sf71Modal .sf208-theme-preview.sf71-theme-rap{--sf208-preview-accent:#f8a434;--sf208-preview-shade:#1c1721}
+#sf71Modal .sf208-theme-preview.sf71-theme-funk{--sf208-preview-accent:#ff4ba9;--sf208-preview-shade:#1a1030}
+#sf71Modal .sf208-theme-preview.sf71-theme-pagode{--sf208-preview-accent:#f5bb55;--sf208-preview-shade:#122b27}
+#sf71Modal .sf208-theme-preview.sf71-theme-sertanejo{--sf208-preview-accent:#ee9850;--sf208-preview-shade:#342019}
+#sf71Modal .sf208-theme-preview.sf71-theme-reggae{--sf208-preview-accent:#e7c742;--sf208-preview-shade:#14271f}
+#sf71Modal .sf208-theme-preview.sf71-theme-jazz{--sf208-preview-accent:#d4ad72;--sf208-preview-shade:#131c2b}
+#sf71Modal .sf208-theme-preview.sf71-theme-forro{--sf208-preview-accent:#ed8b4c;--sf208-preview-shade:#322019}
+#sf71Modal .sf208-theme-preview.sf71-theme-bts{--sf208-preview-accent:#a975ff;--sf208-preview-shade:#0d0926}
+#sf71Modal .sf208-theme-preview.sf71-theme-kpop{--sf208-preview-accent:#ff60bd;--sf208-preview-shade:#130d30}
+#sf71Modal .sf208-theme-preview.sf71-theme-jpop{--sf208-preview-accent:#ff8962;--sf208-preview-shade:#10182f}
+#sf71Modal .sf208-theme-preview.sf71-theme-trap{--sf208-preview-accent:#f8d347;--sf208-preview-shade:#0e0b1c}
+#sf71Modal .sf208-theme-preview.sf71-theme-lofi{--sf208-preview-accent:#8da8f2;--sf208-preview-shade:#151b37}
+#sf71Modal .sf208-theme-preview.sf71-theme-cor-preto{--sf208-preview-accent:#9da3b2;--sf208-preview-shade:#090b12}
+#sf71Modal .sf208-theme-preview.sf71-theme-cor-vermelho{--sf208-preview-accent:#ff4c61;--sf208-preview-shade:#200b15}
+#sf71Modal .sf208-theme-preview.sf71-theme-cor-azul{--sf208-preview-accent:#4d9aff;--sf208-preview-shade:#09162c}
+#sf71Modal .sf208-theme-preview.sf71-theme-cor-verde{--sf208-preview-accent:#5ee3a6;--sf208-preview-shade:#08231c}
+#sf71Modal .sf208-theme-preview.sf71-theme-cor-roxo{--sf208-preview-accent:#ad73ff;--sf208-preview-shade:#180c2f}
+#sf71Modal .sf208-theme-preview.sf71-theme-cor-rosa{--sf208-preview-accent:#ff6db8;--sf208-preview-shade:#2e1026}
+#sf71Modal .sf208-theme-preview.sf71-theme-cor-dourado{--sf208-preview-accent:#f1c16c;--sf208-preview-shade:#24180e}
+#sf71Modal .sf208-theme-preview.sf71-theme-kpop-sakura-arena{--sf208-preview-accent:#fd60c6;--sf208-preview-shade:#101039}
+#sf71Modal .sf208-theme-preview.sf71-theme-bts-purple-monument{--sf208-preview-accent:#a25dff;--sf208-preview-shade:#120829}
+#sf71Modal .sf208-theme-preview.sf71-theme-jpop-tokyo-night{--sf208-preview-accent:#ed65e5;--sf208-preview-shade:#0a1b45}
+#sf71Modal .sf208-theme-preview.sf71-theme-trap-crown-stage{--sf208-preview-accent:#f6a339;--sf208-preview-shade:#210c27}
+#sf71Modal .sf208-theme-preview.sf71-theme-lofi-golden-listening{--sf208-preview-accent:#ffc06c;--sf208-preview-shade:#1a1530}
+#sf71Modal .sf208-theme-preview.sf71-theme-lofi-moonlight-live{--sf208-preview-accent:#bd96f6;--sf208-preview-shade:#131d36}
+#sf71Modal .sf208-theme-preview.sf71-theme-kpop-cherry-city{--sf208-preview-accent:#ff70dc;--sf208-preview-shade:#0c153c}
+#sf71Modal .sf208-theme-preview.sf71-theme-bts-lights-festival{--sf208-preview-accent:#aa6cff;--sf208-preview-shade:#170a35}
+#sf71Modal .sf208-theme-preview.sf71-theme-jpop-fuji-stage{--sf208-preview-accent:#f38ac9;--sf208-preview-shade:#122a4e}
+#sf71Modal .sf208-theme-preview.sf71-theme-trap-street-crown{--sf208-preview-accent:#ffb34d;--sf208-preview-shade:#241126}
+#sf71Modal .sf208-theme-preview.sf71-theme-lofi-riverside{--sf208-preview-accent:#f7be85;--sf208-preview-shade:#101d3d}
+#sf71Modal .sf208-theme-preview.sf71-theme-lofi-acoustic-garden{--sf208-preview-accent:#ffba77;--sf208-preview-shade:#171b32}
 #sf71ClubDetail [data-sf208-invite],#sf71ClubDetail [data-sf208-share]{
  min-height:40px;border:1px solid var(--sf208-club-accent,#caff00);border-radius:999px;
  padding:10px 14px;background:#2a1935;color:#fff;font-size:12px;font-weight:850;cursor:pointer;
