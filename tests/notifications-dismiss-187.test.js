@@ -44,7 +44,7 @@ test('authenticated server dismissal persists while keeping message records unch
 });
 test('updated assets are loaded and scripts pass syntax checks',()=>{
  assert.match(html,/social-stage3\.js\?v=187\.0/);
- assert.match(html,/sonorafan-lobby-107\.js\?v=187\.0/);
+ assert.match(html,/sonorafan-lobby-107\.js\?v=191\.0/);
  assert.match(html,/sonorafan-notifications-111\.css\?v=187\.0/);
  assert.doesNotThrow(()=>new Function(notifications));
  assert.doesNotThrow(()=>new Function(lobby));
