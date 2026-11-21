@@ -70,3 +70,6 @@
 .sf208-room-club small{color:#e4d5ec;font-size:10px}
 .sf208-room-club-cta{color:#caff00;font-size:10px;font-weight:850;white-space:nowrap}
 @media(max-width:600px){.sf208-room-clubs{margin:7px 6px;padding:7px}.sf208-room-club{min-height:39px}.sf208-room-club-cta{font-size:10px}}
+
+
+.sf208-room-club-cover{width:38px;height:38px;flex:0 0 38px;object-fit:cover;border:1px solid #bd8bc9;border-radius:9px;background:#24122e}
