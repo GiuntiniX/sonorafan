@@ -121,6 +121,7 @@ function render(){
  <div class="sf200-detail-layer" id="sf200DetailLayer" hidden></div>`;
 }
 function open(){
+ window.sf207LeavePage?.();
  const agenda=$('sf200Agenda'),content=document.querySelector('#screen-lobby .sf28-lobby-content');
  if(!agenda||!content)return;
  state.open=true;content.classList.add('sf200-is-open');agenda.hidden=false;
