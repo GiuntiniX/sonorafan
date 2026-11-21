@@ -158,3 +158,28 @@
  #screen-lobby .sf200-agenda .sf203-manage{min-height:40px}
  #sf71ClubDetail .sf202-event-controls .sf203-edit-club{width:100%}
 }
+
+
+/* SonoraFan 204 · Central de gerenciamento do Fan Club */
+#sf71ClubDetail .sf204-room-manager{display:grid;gap:15px;padding:clamp(15px,2vw,23px)}
+#sf71ClubDetail .sf204-manager-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+#sf71ClubDetail .sf204-manager-head>div{display:grid;gap:8px;min-width:0}
+#sf71ClubDetail .sf204-manager-head h4{margin:0;font-size:clamp(22px,2.3vw,29px);font-weight:950}
+#sf71ClubDetail .sf204-manager-head p{margin:0;line-height:1.5;font-size:12px;color:#decae8}
+#sf71ClubDetail .sf204-room-counter{margin:0;font-size:12px;color:#caff00;font-weight:900}
+#sf71ClubDetail .sf204-room-entry{border:1px solid #8e59a0;background:linear-gradient(115deg,#3a1e47,#24142f);border-radius:15px;padding:16px;display:grid;grid-template-columns:minmax(130px,1fr) auto;align-items:center;gap:15px}
+#sf71ClubDetail .sf204-room-copy{display:grid;gap:7px;justify-items:start;min-width:0}
+#sf71ClubDetail .sf204-room-copy strong{color:#fff;font-size:17px;font-weight:900;overflow-wrap:anywhere}
+#sf71ClubDetail .sf204-room-copy small{font-size:12px;color:#d9c2e6}
+#sf71ClubDetail .sf204-primary-label{font-size:11px;font-weight:900;border-radius:99px;background:#caff0024;border:1px solid #caff00;color:#eaffb5;padding:6px 10px}
+#sf71ClubDetail .sf204-room-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+#sf71ClubDetail .sf204-room-actions button{padding:10px 13px!important;min-height:41px;border:1px solid #956ba9;border-radius:999px!important;background:#2e1b3b;color:#f9ecff;font-size:12px;font-weight:850;cursor:pointer}
+#sf71ClubDetail .sf204-room-actions button:hover{background:#513064;border-color:#c891e5}
+#sf71ClubDetail .sf204-room-actions button.sf204-danger{color:#ffd4e2;border-color:#b15a83;background:#52223b}
+#sf71ClubDetail .sf204-room-actions button.sf204-danger:hover{background:#71314e}
+#sf71ClubDetail .sf204-primary,#sf71ClubDetail .sf204-room-manager [data-sf71-addroom]{background:#caff00!important;color:#180f20!important;border-color:#caff00!important;border-radius:999px!important;min-height:44px;padding:11px 17px;font-size:12px;font-weight:900}
+#sf71ClubDetail .sf204-help{margin:0;padding:12px 14px;background:#281734;border:1px dashed #815693;border-radius:11px;color:#d4c2de;font-size:12px;line-height:1.6}
+#sf71ClubDetail .sf204-identity-button,#sf71ClubDetail [data-sf160-pane="rooms"]{min-height:41px;border:1px solid #ab7bc2;background:#30203d;color:#fff;border-radius:999px;padding:10px 14px;font-weight:850}
+#sf71ClubDetail .sf204-room-manager button:focus-visible,#sf71ClubDetail .sf204-identity-button:focus-visible{outline:2px solid #caff00;outline-offset:3px}
+@media(max-width:900px){#sf71ClubDetail .sf204-room-entry{grid-template-columns:1fr}#sf71ClubDetail .sf204-room-actions{justify-content:flex-start}}
+@media(max-width:560px){#sf71ClubDetail .sf204-room-actions{display:grid;grid-template-columns:1fr 1fr}#sf71ClubDetail .sf204-room-actions button{min-width:0;font-size:11px;padding:9px!important}#sf71ClubDetail .sf204-manager-head .sf204-primary{width:100%}}
