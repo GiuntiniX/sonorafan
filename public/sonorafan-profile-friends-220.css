@@ -1,0 +1,37 @@
+/* SonoraFan · Amigos no Meu Perfil — extensão de visual do perfil, sem duplicar chats. */
+#sf202ProfileOverview .sf220-friends{min-width:0}
+#sf202ProfileOverview .sf220-friends>header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#sf202ProfileOverview .sf220-friends>header h2{margin:0 0 6px;font-size:19px}
+#sf202ProfileOverview .sf220-friends>header p{margin:0;color:#c5b5cc;font-size:12px;line-height:1.5}
+#sf202ProfileOverview .sf220-counter{border-radius:999px;padding:8px 11px;font-size:11px;background:#33203d;color:#e9cafa;white-space:nowrap}
+#sf202ProfileOverview .sf220-friend-controls{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:16px 0 12px;flex-wrap:wrap}
+#sf202ProfileOverview .sf220-chips{display:flex;gap:7px;flex-wrap:wrap}
+#sf202ProfileOverview .sf220-chips button,
+#sf202ProfileOverview .sf220-friend-controls>button{font:700 11px Inter,system-ui,sans-serif;color:#ead9f6;background:#281931;border:1px solid #70427c;border-radius:999px;padding:9px 13px;cursor:pointer}
+#sf202ProfileOverview .sf220-chips button[aria-pressed="true"]{background:#bbff13;color:#1b1420;border-color:#bbff13}
+#sf202ProfileOverview .sf220-friend-list,#sf202ProfileOverview .sf220-friend-search-results{display:grid;gap:9px}
+#sf202ProfileOverview .sf220-friend-card{display:flex;min-width:0;gap:13px;align-items:center;padding:14px;border:1px solid #61416d;border-radius:14px;background:linear-gradient(100deg,#26162e,#211628)}
+#sf202ProfileOverview .sf220-friend-avatar{display:grid;flex:0 0 49px;width:49px;height:49px;place-items:center;border-radius:50%;border:1px solid #b56ad4;background:linear-gradient(145deg,#703c89,#39234d);font-size:24px}
+#sf202ProfileOverview .sf220-friend-info{flex:1;min-width:0}
+#sf202ProfileOverview .sf220-friend-info strong{display:block;color:#fff;font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#sf202ProfileOverview .sf220-friend-status{display:block;margin:5px 0;color:#c3b3d1;font-size:11px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#sf202ProfileOverview .sf220-friend-status i{display:inline-block;width:8px;height:8px;margin-right:4px;border-radius:50%;background:#71647e}
+#sf202ProfileOverview .sf220-friend-status i.is-online{background:#baff19;box-shadow:0 0 8px #a6ff4c99}
+#sf202ProfileOverview .sf220-friend-info p{margin:4px 0 0;color:#a99ab8;font-size:11px}
+#sf202ProfileOverview .sf220-friend-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px}
+#sf202ProfileOverview .sf220-friend-actions button{border:1px solid #80588f;background:#342040;border-radius:9px;color:#f5dcfc;padding:9px 10px;font:750 11px Inter,system-ui,sans-serif;cursor:pointer}
+#sf202ProfileOverview .sf220-friend-actions button:hover{border-color:#e08deb;background:#4b2b5d}
+#sf202ProfileOverview .sf220-friend-actions button.sf220-join{border-color:#c2ff19;background:#c2ff19;color:#151915}
+#sf202ProfileOverview .sf220-friend-actions button.sf220-manage{background:transparent;color:#ad9cbc}
+#sf202ProfileOverview .sf220-empty{padding:27px 18px;text-align:center;border:1px dashed #593a65;border-radius:12px}
+#sf202ProfileOverview .sf220-empty strong{font-size:14px;color:#eee}
+#sf202ProfileOverview .sf220-empty p{font-size:11px;color:#b7a8c5}
+#sf202ProfileOverview .sf220-find-form{display:grid;gap:7px;padding:18px 0 11px;margin-top:18px;border-top:1px solid #53335e}
+#sf202ProfileOverview .sf220-find-form>label{font-weight:800;font-size:12px;color:#f7eafa}
+#sf202ProfileOverview .sf220-find-form>div{display:flex;gap:9px}
+#sf202ProfileOverview .sf220-find-form input{flex:1;min-width:0;height:42px;padding:9px 12px;background:#211429;border:1px solid #794f89;border-radius:9px;color:#fff;font:500 12px Inter,system-ui,sans-serif}
+#sf202ProfileOverview .sf220-find-form button{border:0;border-radius:9px;padding:9px 16px;background:#c2ff19;color:#151915;font-weight:900;cursor:pointer}
+#sf202ProfileOverview .sf220-friend-search-results{margin-top:8px}
+#sf202ProfileOverview .sf220-privacy{font-size:11px;line-height:1.5;color:#ae9bb9;margin:18px 0 0}
+#sf202ProfileOverview .sf220-error{font-size:11px;background:#432238;border-radius:9px;padding:10px;color:#f8d1e4}
+@media(max-width:760px){#sf202ProfileOverview .sf220-friend-card{flex-wrap:wrap;padding:12px}#sf202ProfileOverview .sf220-friend-info{flex-basis:calc(100% - 65px)}#sf202ProfileOverview .sf220-friend-actions{width:100%;justify-content:flex-start}#sf202ProfileOverview .sf220-friend-actions button{flex:1}}
