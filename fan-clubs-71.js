@@ -1465,4 +1465,4 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   });
   return {CLUBS,clean,record,findRoomFanclubs};
 }
-module.exports={installFanClubs71,clean};
+module.exports={installFanClubs71,clean,youtubeVideoId};
