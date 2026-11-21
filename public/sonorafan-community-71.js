@@ -38,9 +38,13 @@
  const byId=id=>state.clubs.find(c=>c.id===id);
  const coverUrl=club=>club?.coverType==='gallery'?(gallery[club.coverGalleryId]||fallback(club)):club?.coverType==='external'?(safeUrl(club.coverImageUrl)||fallback(club)):club?.coverVersion?'/api/fan-clubs/'+encodeURIComponent(club.id)+'/cover?v='+encodeURIComponent(String(club.coverVersion)):fallback(club);
  const badgeUrl=club=>safeUrl(club?.badgeImageUrl);
-  const badgeMark=club=>badgeUrl(club)?'<img src="'+esc(badgeUrl(club))+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Imagem do Fanclub">':'♫';
+  const badgeMark=club=>badgeUrl(club)?'<img class="sf244-badge-image" src="'+esc(badgeUrl(club))+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Imagem do Fanclub">':'♫';
   const imageCover=(club,small=false)=>`<img class="sf73-cover-img" src="${esc(coverUrl(club))}" data-sf192-fallback="${esc(fallback(club))}" referrerpolicy="no-referrer" alt="Capa do Fan Club ${esc(club.title)}" ${small?'loading="lazy"':''} decoding="async">`;
- document.addEventListener('error',event=>{const img=event.target;if(img?.matches?.('img.sf73-cover-img')&&img.dataset.sf192Fallback&&img.src!==new URL(img.dataset.sf192Fallback,location.href).href){img.src=img.dataset.sf192Fallback;}},true);
+ document.addEventListener('error',event=>{
+   const img=event.target;
+   if(img?.matches?.('img.sf244-badge-image')){img.parentElement.textContent='♫';return;}
+   if(img?.matches?.('img.sf73-cover-img')&&img.dataset.sf192Fallback&&img.src!==new URL(img.dataset.sf192Fallback,location.href).href)img.src=img.dataset.sf192Fallback;
+ },true);
  async function compressCover(file){
    if(!file)return null;
    if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw Error('Escolha uma imagem JPG, PNG ou WebP.');
@@ -186,7 +190,11 @@
      stream.addEventListener('error',()=>{if(label)label.textContent='Reconectando…';});
    }else{
      if(label)label.textContent='Atualização periódica';
-     state.poll=setInterval(()=>{if(state.activeId===id&&!document.hidden){if(state.focusPost)openTopic(id,state.focusPost.id,false);else if(state.forumSearch)searchForum(id);else loadPosts(id);loadExtras(id);}},25000);
+     state.poll=setInterval(()=>{
+       if(state.activeId===id&&!document.hidden){
+         scheduleRefresh(id,'post');loadExtras(id).catch(()=>{});
+       }
+     },30000);
    }
  }
  const showList=()=>{stopLive();$('sf71ClubList').hidden=false;$('sf71ClubDetail').hidden=true;state.activeId=null;state.detail=null;window.sf235ShowHome?.();};
@@ -1288,7 +1296,11 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
    if(del){if(!confirm('Excluir esta publicação?'))return;
      await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/posts/'+encodeURIComponent(del),{method:'DELETE'});if(state.focusPost?.id===del)closeTopic();await loadPosts(id);},'Publicação excluída.');return;}
    const unlink=t.dataset.sf71Unlink;
-   if(unlink){await action(async()=>{await api('/api/fan-clubs/'+encodeURIComponent(id)+'/rooms/'+encodeURIComponent(unlink),{method:'DELETE'});await openDetail(id);},'Sala desvinculada.');return;}
+   if(unlink){await action(async()=>{
+      await api('/api/fan-clubs/'+encodeURIComponent(id)+'/rooms/'+encodeURIComponent(unlink),{method:'DELETE'});
+      await refreshClubRooms(id);
+      document.dispatchEvent(new CustomEvent('sf71:rooms-updated',{detail:{clubId:id,slug:unlink,action:'unlink'}}));
+    },'Sala desvinculada.');return;}
    const block=t.dataset.sf71Block,unblock=t.dataset.sf71Unblock;
    if(block||unblock){if(block&&!confirm('Remover este participante e impedir novas entradas?'))return;
      await action(async()=>{await post('/api/fan-clubs/'+encodeURIComponent(id)+'/moderation',{userId:block||unblock,action:block?'block':'unblock'});await openDetail(id);},'Moderação atualizada.');}
