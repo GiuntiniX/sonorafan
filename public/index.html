@@ -1447,6 +1447,7 @@
   <link rel="stylesheet" href="/sonorafan-pwa-83.css?v=142.0">
   <link rel="stylesheet" href="/sonorafan-layout-fix-87.css?v=87">
   <link rel="stylesheet" href="/sonorafan-room-themes-88.css?v=214.3">
+  <link rel="stylesheet" href="/sonorafan-rooms-discovery-216.css?v=216.0">
   <link rel="stylesheet" href="/sonorafan-menu-align-89.css?v=89">
   <link rel="stylesheet" href="/sonorafan-menu-no-scroll-90.css?v=90">
   <link rel="stylesheet" href="/sonorafan-responsive-91.css?v=92">
@@ -2174,6 +2175,7 @@
           <h1 id="roomTitle">Sala</h1><span class="sf113-brand" aria-label="SonoraFan"><img src="/brand-144/sonorafan-logo.svg" alt="SonoraFan" width="1260" height="426" decoding="async"></span>
           <button class="action-btn hidden" id="cfgBtn" onclick="openRoomCfg()" title="Personalizar sala">⚙️</button>
         </div>
+<div class="sf216-room-title" id="sf216RoomHeaderTitle" aria-live="polite" title="Nome da sala">Sala</div>
 <div class="header-right sf9-room-header-actions">
           <div class="sf167-room-menu" id="sf167RoomMenu">
             <button id="sf167MenuTrigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="sf167MenuPanel" title="Abrir opções da sala"><span class="sf167-icon" aria-hidden="true">☰</span><span>Menu da Sala</span><span class="sf167-arrow" aria-hidden="true">⌄</span></button>
@@ -3990,6 +3992,8 @@ function openRoomCfg() {
       _joinExtra = Object.assign({ slug }, extra || {});
       if (!currentUser) { pendingRoomAfterLogin = slug; toast('Faça login primeiro', 'error'); showLogin(); return; }
       currentRoom = slug; _joinedSlug = slug;
+      const pendingTitle = document.getElementById('sf216RoomHeaderTitle');
+      if (pendingTitle) pendingTitle.textContent = 'Entrando na sala…';
       window.sf88BeginRoom?.(slug);
       emitJoin(slug);
       showScreen('room');
@@ -4629,6 +4633,8 @@ function openRoomCfg() {
       if (next !== prev) { sf13CancelTrackTimers(); currentTrackId = null; }
       if (window.premiumRoomState) window.premiumRoomState(state);
       currentRoomData = state;
+      const visibleRoomName = document.getElementById('sf216RoomHeaderTitle');
+      if (visibleRoomName) { visibleRoomName.textContent = (state.isPrivate ? '🔒 ' : '') + (state.name || 'Sala'); visibleRoomName.title = state.name || 'Sala'; }
       window.sf88RoomState?.(state);
       syncPlayer(state);
     });
@@ -5133,6 +5139,7 @@ function openRoomCfg() {
 <script defer src="/sonorafan-room-redesign-113.js?v=163.0"></script>
   <script defer src="/sonorafan-unified-125.js?v=207.5"></script>
   <script defer src="/sonorafan-page-shell-207.js?v=207.4"></script>
+  <script defer src="/sonorafan-rooms-discovery-216.js?v=216.0"></script>
   <script defer src="/sonorafan-global-search-208.js?v=208.2"></script>
   <script defer src="/sonorafan-room-fanclub-208.js?v=208.2"></script>
   <script defer src="/sonorafan-experience-126.js?v=126.1"></script>
