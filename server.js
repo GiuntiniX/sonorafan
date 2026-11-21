@@ -956,7 +956,7 @@ const eventClean=(v,n)=>String(v??'').replace(/[<>\u0000-\u001f]/g,' ').trim().s
 const publicEvent = e => ({ id:e.id,roomSlug:e.roomSlug,roomName:e.roomName,title:e.title,description:e.description,startAt:e.startAt,hostName:e.hostName,attendees:e.attendees.length,theme:e.theme||'indie',durationMinutes:e.durationMinutes||90 });
 async function initSocialEvents(){try{const snap=await db.collection('socialEvents').get();snap.forEach(d=>{const e=d.data();if(e&&e.id&&Array.isArray(e.attendees))socialEvents.set(e.id,e);});}catch(e){console.error('social events load',e.message);}}
 initSocialEvents();
-app.get('/api/social/my-rooms', (req,res)=>{const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});res.json([...rooms.values()].filter(r=>!r.isPrivate&&(r.ownerEmail===me||adminEmails.has(me))).map(r=>({slug:r.slug,name:r.name})));});
+app.get('/api/social/my-rooms', (req,res)=>{const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});res.json([...rooms.values()].filter(r=>!r.isPrivate&&r.ownerEmail===me&&r.slug.toLowerCase()!=='lobby').map(r=>({slug:r.slug,name:r.name})));});
 app.get('/api/social/events', (req,res)=>{
   const now=Date.now();const list=[...socialEvents.values()].filter(e=>e.startAt>=now-3600000&&e.startAt<now+90*86400000&&rooms.has(e.roomSlug)&&!rooms.get(e.roomSlug).isPrivate).sort((a,b)=>a.startAt-b.startAt).slice(0,60);
   res.json(list.map(e=>({...publicEvent(e),going:!!sessionEmail(req)&&e.attendees.includes(publicUserId(sessionEmail(req)))})));
