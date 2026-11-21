@@ -469,16 +469,31 @@
  ${linked.map(ev=>`<article class="sf71-club-event sf202-linked-event"><strong>${esc(ev.title)}</strong><small>▦ ${new Date(Number(ev.startAt)).toLocaleString('pt-BR')} · ${esc(ev.roomName)} · ${Number(ev.attendees)||0} participantes</small><div class="sf141-event-actions"><button type="button" data-sf141-club-rsvp="${esc(ev.id)}" data-going="${!ev.going}">${ev.going?'✓ Confirmado':'Confirmar presença'}</button><button type="button" data-sf142-club-calendar="${esc(ev.id)}">Adicionar à agenda</button><button type="button" data-sf141-club-room="${esc(ev.roomSlug)}">Entrar na sala</button></div></article>`).join('')}
  </section>`;
  }
+ 
  else if(state.activePane==='rooms'){
-   const list=c?.rooms||[];
-   el.innerHTML=`<section class="sf160-extra-panel sf202-club-rooms"><h4>♫ Salas vinculadas ao Fan Club</h4>
-     <p>Entre para ouvir música com a comunidade. Apenas salas públicas aparecem nesta lista.</p>
-     ${list.length?list.map(room=>`<article><strong>${esc(room.name)}</strong><small>${Number(room.listenerCount)||0} ouvintes agora</small>
-       <button type="button" data-sf141-club-room="${esc(room.slug)}">♫ Entrar na sala</button></article>`).join(''):
-       '<div class="sf202-agenda-empty"><strong>Sem salas vinculadas</strong><p>Os organizadores poderão associar salas públicas ao Fan Club.</p></div>'}
-   </section>`;
-  }
-  else if(state.activePane==='members'){
+   const list=c?.rooms||[],admin=!!c?.canModerate;
+   const cards=list.map(room=>{
+     const primary=c.defaultRoomSlug===room.slug;
+     return '<article class="sf204-room-entry"><div class="sf204-room-copy"><strong>♫ '+esc(room.name)+'</strong>'+
+       '<small>'+(Number(room.listenerCount)||0)+' ouvintes · '+(room.isPlaying?'Tocando agora':'Disponível')+'</small>'+
+       (primary?'<span class="sf204-primary-label">★ Sala principal</span>':'')+'</div>'+
+       '<div class="sf204-room-actions"><button type="button" data-sf141-club-room="'+esc(room.slug)+'">Entrar na sala</button>'+
+       (admin?'<button type="button" data-sf204-replace-room="'+esc(room.slug)+'">✎ Trocar sala</button>'+
+         '<button type="button" data-sf204-make-default="'+(primary?'':esc(room.slug))+'">'+(primary?'Retirar padrão':'★ Tornar principal')+'</button>'+
+         '<button type="button" class="sf204-danger" data-sf204-unlink-room="'+esc(room.slug)+'">Desvincular</button>':'')+
+       '</div></article>';
+   }).join('');
+   el.innerHTML='<section class="sf160-extra-panel sf202-club-rooms sf204-room-manager">'+
+     '<div class="sf204-manager-head"><div><span class="sf202-eyebrow">GERENCIAMENTO MUSICAL</span><h4>♫ Salas do Fan Club</h4>'+
+     '<p>Vincule até três salas públicas e escolha a sala principal da comunidade.</p></div>'+
+     (admin&&list.length<3?'<button type="button" class="sf204-primary" data-sf71-addroom>＋ Vincular sala</button>':'')+'</div>'+
+     '<p class="sf204-room-counter">'+list.length+' de 3 salas vinculadas</p>'+
+     (list.length?cards:'<div class="sf202-agenda-empty"><strong>Nenhuma sala vinculada</strong><p>Adicione uma sala que você administra para organizar eventos.</p>'+
+       (admin?'<button type="button" data-sf71-addroom>＋ Vincular primeira sala</button>':'')+'</div>')+
+     (admin?'<p class="sf204-help">Trocar uma sala não exclui eventos existentes. Confira os locais dos próximos encontros após a alteração.</p>':'')+
+     '</section>';
+ }
+ else if(state.activePane==='members'){
  const rank=state.contributors;
  el.innerHTML=`<section class="sf160-extra-panel"><h4>🏆 Destaques do Fan Club</h4><p>Atividade real recente, não XP ou pontuação global.</p>
  ${rank.length?rank.map((v,i)=>`<div class="sf160-rank"><strong>#${i+1} ${esc(v.name)}</strong><small>${v.posts} posts · ${v.comments} respostas · ${v.likesReceived} curtidas recebidas</small></div>`).join(''):'<p>A comunidade ainda não tem contribuições suficientes.</p>'}
