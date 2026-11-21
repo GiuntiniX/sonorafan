@@ -32,7 +32,7 @@ test('creator supports room selection from club details and defaults',()=>{
 
 test('profile shows distinct joined and managed clubs, confirmed events and notifications',()=>{
  const code=file('public/sonorafan-profile-dashboard-202.js');
- assert.match(code,/Fan Clubs de que faço parte/);
+ assert.match(code,/Fan Clubs que participo/);
  assert.match(code,/Fan Clubs que administro/);
  assert.match(code,/Próximos eventos confirmados/);
  assert.match(code,/\/api\/social\/notifications/);
