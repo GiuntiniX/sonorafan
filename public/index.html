@@ -3775,6 +3775,8 @@
     const CFG_EMOJIS = ['🎧', '🎸', '🎹', '🥁', '🎤', '🔥', '🌙', '🌴', '🪩', '🎷', '🎻', '🚀'];
     const cfgState = {};
     let _joinExtra = {}, _pwSlug = null;
+    let sf233JoinTimer = null;
+    function sf233ClearJoinTimer(){ if(sf233JoinTimer){clearTimeout(sf233JoinTimer);sf233JoinTimer=null;} }
     function renderCfg(boxId, k, v) {
       const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', coverUrl: '', coverX: 50, coverY: 50, coverZoom: 1, isPrivate: false, allowLong: false, allowLive: false }, v || {});
       const pick = (key, val) => `cfgPick('${boxId}','${k}','${key}','${val}')`;
@@ -3965,11 +3967,20 @@ function openRoomCfg() {
       let token;
       try { const r = await fetch('/api/socket-token', { credentials: 'include' }); if (r.ok) token = (await r.json()).token; } catch (e) {}
       // Não reentra em uma sala antiga se a pessoa saiu durante o fetch.
-      if (!socket.connected || currentRoom !== slug || _joinedSlug !== slug) return;
+      if (currentRoom !== slug || _joinedSlug !== slug) return;
+      if (!socket.connected) { socket.connect(); return; }
       socket.emit('joinRoom', { slug, name: myName, avatar: myAvatar, token, ...(_joinExtra.slug === slug ? { invite: _joinExtra.invite, password: _joinExtra.password } : {}) });
+      sf233ClearJoinTimer();
+      sf233JoinTimer=setTimeout(()=>{
+        if(currentRoom!==slug||_joinedSlug!==slug)return;
+        toast('Não foi possível confirmar a entrada na sala. Verifique a conexão e tente novamente.','error');
+        leaveRoom();
+      },15000);
     }
     renderCfg('createCfg', 'c');
     socket.on('joinDenied', d => {
+      if(!d?.slug||d.slug!==currentRoom)return;
+      sf233ClearJoinTimer();
       leaveRoom();
       if (!d.needPassword) return toast('🔒 Sala privada', 'error');
       _pwSlug = d.slug; $('pwMsg').textContent = d.wrong ? '❌ Senha incorreta.' : 'Esta sala é privada.';
@@ -4013,6 +4024,8 @@ function openRoomCfg() {
     }
 
     function joinRoom(slug, extra) {
+      if(typeof slug!=='string'||!slug.trim()||slug.length>140)return toast('Identificador de sala inválido.','error');
+      sf233ClearJoinTimer();
       _joinExtra = Object.assign({ slug }, extra || {});
       if (!currentUser) { pendingRoomAfterLogin = slug; toast('Faça login primeiro', 'error'); showLogin(); return; }
       currentRoom = slug; _joinedSlug = slug;
@@ -4030,6 +4043,7 @@ function openRoomCfg() {
       try { history.replaceState(null, '', '?sala=' + encodeURIComponent(slug)); } catch(e) {}
     }
     function leaveRoom() {
+      sf233ClearJoinTimer();
       _joinedSlug = null; _joinExtra = {};
       if (currentRoom) socket.emit('leaveRoom');
       currentRoom = null; currentRoomData = null;
@@ -4651,6 +4665,7 @@ function openRoomCfg() {
     socket.on('userPoints', (data) => { if (data) { myPoints = data.points || 0; myBadges = data.badges || []; updateUserInfo(); } });
     socket.on('chatError', m => toast(m, 'error'));
     socket.on('roomState', (state) => {
+      if(!state||!currentRoom||state.slug!==currentRoom||state.slug!==_joinedSlug)return;
       state._at = Date.now();
       const prev = currentRoomData?.queue?.[currentRoomData.currentIndex]?.id;
       const next = state.queue?.[state.currentIndex]?.id;
@@ -4735,8 +4750,14 @@ function openRoomCfg() {
     });
     socket.on('votesState', (votesData) => { queueVotes = votesData || {}; if (currentRoomData && currentRoomData.queue) renderQueue(currentRoomData.queue, currentRoomData.currentIndex); });
     socket.on('error', (msg) => toast(msg, 'error'));
+    socket.on('joinedRoom', (data={}) => {
+      if(!data.slug||data.slug!==currentRoom||data.slug!==_joinedSlug)return;
+      sf233ClearJoinTimer();
+      $('connBanner')?.classList.remove('show');
+    });
     socket.on('joinError', ({slug,message}={})=>{
       if(!slug||slug!==currentRoom||slug!==_joinedSlug)return;
+      sf233ClearJoinTimer();
       toast(message||'Não foi possível entrar na sala.','error');
       leaveRoom();
     });
@@ -4864,7 +4885,7 @@ function openRoomCfg() {
 
     // ===== RECONEXÃO / RESSINC =====
     let _joinedSlug = null;
-    socket.on('disconnect', () => { if (_joinedSlug) $('connBanner').classList.add('show'); });
+    socket.on('disconnect', () => { sf233ClearJoinTimer(); if (_joinedSlug) $('connBanner').classList.add('show'); });
     socket.on('connect', () => {
       $('connBanner').classList.remove('show');
       if (_joinedSlug && myName) emitJoin(_joinedSlug);
