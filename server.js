@@ -762,40 +762,178 @@ function socialOnline(email) {
   }
   return false;
 }
-app.get('/api/social/following', async(req,res)=>{
+// Solicitações de amizade: seguir alguém não estabelece amizade até a aceitação.
+// Contatos anteriores unilaterais são recuperados como solicitações pendentes.
+const sfFriendRequests=db.collection('socialFriendRequests');
+const sfFriendId=id=>typeof id==='string'&&/^[a-f0-9]{24}$/.test(id);
+const sfFriendKey=(from,to)=>from+'_'+to;
+const sfFriendInfo=id=>{
+  const user=sfFriendId(id)?findSocialUser(id):null;
+  return user&&!user[1].banned?{...profileSafe(user),online:socialOnline(user[0]),activity:publicActivity(user[0])}:null;
+};
+async function sfFriendState(email){
+  const mine=publicUserId(email);
+  const [out,incoming,following,followerDocs]=await Promise.all([
+    sfFriendRequests.where('from','==',mine).limit(100).get(),
+    sfFriendRequests.where('to','==',mine).limit(100).get(),
+    getFollowing(email),
+    db.collection('socialFollowing').where('ids','array-contains',mine).limit(100).get()
+  ]);
+  const accepted=new Set(),incomingMap=new Map(),outgoingMap=new Map(),decisions=new Map();
+  for(const d of [...out.docs,...incoming.docs]){
+    const x=d.data()||{},other=x.from===mine?x.to:x.from;
+    if(!sfFriendId(other)||other===mine)continue;
+    decisions.set(sfFriendKey(x.from,x.to),x.status);
+    if(x.status==='accepted')accepted.add(other);
+    else if(x.status==='pending'){
+      const record={...sfFriendInfo(other),requestedAt:Number(x.createdAt)||0};
+      if(!record.id)continue;
+      if(x.to===mine)incomingMap.set(other,record);
+      else outgoingMap.set(other,record);
+    }
+  }
+  // Legado: seguem ambos => amizade confirmada anteriormente; seguem só um
+  // => solicitação pendente até que o destinatário escolha aceitar/recusar.
+  const previousFollowers=followerDocs.docs.map(d=>d.id).filter(sfFriendId);
+  const followerSet=new Set(previousFollowers);
+  for(const id of following){
+    if(!sfFriendId(id)||!sfFriendInfo(id))continue;
+    if(followerSet.has(id))accepted.add(id);
+    else if(!decisions.has(sfFriendKey(mine,id))&&!accepted.has(id))
+      outgoingMap.set(id,{...sfFriendInfo(id),requestedAt:0,legacy:true});
+  }
+  for(const id of previousFollowers){
+    if(id===mine||!sfFriendInfo(id))continue;
+    if(following.includes(id))accepted.add(id);
+    else if(!decisions.has(sfFriendKey(id,mine))&&!accepted.has(id))
+      incomingMap.set(id,{...sfFriendInfo(id),requestedAt:0,legacy:true});
+  }
+  for(const id of accepted){incomingMap.delete(id);outgoingMap.delete(id);}
+  return {
+    accepted:[...accepted].map(sfFriendInfo).filter(Boolean),
+    incoming:[...incomingMap.values()].sort((a,b)=>b.requestedAt-a.requestedAt),
+    outgoing:[...outgoingMap.values()].sort((a,b)=>b.requestedAt-a.requestedAt)
+  };
+}
+async function sfFriendMutual(me,otherId){
+  const mine=publicUserId(me),other=findSocialUser(otherId);
+  if(!other||other[0]===me)throw Error('Participante inválido');
+  const first=db.collection('socialFollowing').doc(mine);
+  const second=db.collection('socialFollowing').doc(otherId);
+  await db.runTransaction(async tx=>{
+    const [mineSnap,otherSnap]=await Promise.all([tx.get(first),tx.get(second)]);
+    const mineIds=Array.isArray(mineSnap.data()?.ids)?mineSnap.data().ids.filter(sfFriendId):[];
+    const otherIds=Array.isArray(otherSnap.data()?.ids)?otherSnap.data().ids.filter(sfFriendId):[];
+    if(mineIds.length>=100&&!mineIds.includes(otherId)||otherIds.length>=100&&!otherIds.includes(mine))
+      throw Error('Limite de 100 amigos alcançado');
+    tx.set(first,{ids:[...new Set([...mineIds,otherId])],updatedAt:Date.now()},{merge:true});
+    tx.set(second,{ids:[...new Set([...otherIds,mine])],updatedAt:Date.now()},{merge:true});
+  });
+  socialFollowing.delete(me);socialFollowing.delete(other[0]);
+}
+async function sfFriendDisconnect(me,otherId){
+  const mine=publicUserId(me),other=findSocialUser(otherId);
+  if(!other)throw Error('Participante inválido');
+  const first=db.collection('socialFollowing').doc(mine);
+  const second=db.collection('socialFollowing').doc(otherId);
+  await db.runTransaction(async tx=>{
+    const [a,b]=await Promise.all([tx.get(first),tx.get(second)]);
+    const aIds=Array.isArray(a.data()?.ids)?a.data().ids:[];
+    const bIds=Array.isArray(b.data()?.ids)?b.data().ids:[];
+    tx.set(first,{ids:aIds.filter(x=>x!==otherId),updatedAt:Date.now()},{merge:true});
+    tx.set(second,{ids:bIds.filter(x=>x!==mine),updatedAt:Date.now()},{merge:true});
+  });
+  socialFollowing.delete(me);socialFollowing.delete(other[0]);
+}
+async function sfFriendSend(me,target){
+  const sender=publicUserId(me),targetId=publicUserId(target[0]);
+  const current=await sfFriendState(me);
+  if(current.accepted.some(x=>x.id===targetId))return 'accepted';
+  if(current.incoming.some(x=>x.id===targetId))return 'incoming';
+  if(current.outgoing.some(x=>x.id===targetId))return 'pending';
+  const ref=sfFriendRequests.doc(sfFriendKey(sender,targetId)),snap=await ref.get();
+  if(snap.exists&&snap.data()?.status==='declined'&&Date.now()-Number(snap.data()?.updatedAt||0)<7*86400000)
+    throw Error('Aguarde alguns dias antes de enviar outro pedido a esta pessoa.');
+  await ref.set({from:sender,to:targetId,status:'pending',createdAt:Date.now(),updatedAt:Date.now()});
+  await sf15Notify(target[0],{
+    type:'follow',title:'Nova solicitação de amizade',
+    message:(users.get(me)?.nome||'Um participante')+' quer adicionar você como amigo.',
+    peerId:sender
+  }).catch(e=>console.error('friend request notification',e.message));
+  return 'pending';
+}
+app.get('/api/social/friend-requests',rateLimit(30,60000),async(req,res)=>{
   const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
-  try {
-    const ids=await getFollowing(me);
-    res.json(ids.map(id=>{
-      const found=findSocialUser(id);
-      return found && !found[1].banned ? {...profileSafe(found),online:socialOnline(found[0]),activity:publicActivity(found[0])} : null;
-    }).filter(Boolean));
-  }catch(e){res.status(503).json({error:'Serviço social indisponível'});}
+  try{res.set('Cache-Control','no-store').json(await sfFriendState(me));}
+  catch(e){console.error('friend requests',e.message);res.status(503).json({error:'Não foi possível carregar suas solicitações.'});}
 });
-// Pessoas que adicionaram a conta atual. Consulta os relacionamentos armazenados,
- // sem expor endereços de e-mail ou salas privadas.
+app.post('/api/social/friend-requests',rateLimit(24,60000),async(req,res)=>{
+  const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+  const otherId=req.body?.id,action=req.body?.action;
+  if(!sfFriendId(otherId)||!['accept','decline','cancel','remove'].includes(action))
+    return res.status(400).json({error:'Ação inválida'});
+  const target=findSocialUser(otherId),mine=publicUserId(me);
+  if(!target||target[0]===me||target[1].banned)return res.status(404).json({error:'Participante indisponível'});
+  try{
+    const state=await sfFriendState(me);
+    const incoming=state.incoming.some(x=>x.id===otherId),outgoing=state.outgoing.some(x=>x.id===otherId);
+    const accepted=state.accepted.some(x=>x.id===otherId);
+    if(action==='accept'||action==='decline'){
+      if(!incoming)return res.status(409).json({error:'Solicitação não está pendente.'});
+      const ref=sfFriendRequests.doc(sfFriendKey(otherId,mine));
+      await ref.set({from:otherId,to:mine,status:action==='accept'?'accepted':'declined',
+        updatedAt:Date.now(),resolvedAt:Date.now()},{merge:true});
+      if(action==='accept'){
+        await sfFriendMutual(me,otherId);
+        sf15Notify(target[0],{type:'follow',title:'Solicitação aceita',
+          message:(users.get(me)?.nome||'Um participante')+' aceitou sua amizade.',peerId:mine})
+          .catch(e=>console.error('friend accepted notification',e.message));
+      }else if(outgoing||accepted)await sfFriendDisconnect(me,otherId);
+    }else if(action==='cancel'){
+      if(!outgoing)return res.status(409).json({error:'Não há pedido enviado para cancelar.'});
+      await sfFriendRequests.doc(sfFriendKey(mine,otherId)).set({
+        from:mine,to:otherId,status:'cancelled',updatedAt:Date.now()
+      },{merge:true});
+    }else{
+      if(!accepted)return res.status(409).json({error:'Esta pessoa não está na sua lista de amigos.'});
+      await sfFriendDisconnect(me,otherId);
+      await Promise.all([
+        sfFriendRequests.doc(sfFriendKey(mine,otherId)).set({from:mine,to:otherId,status:'removed',updatedAt:Date.now()},{merge:true}),
+        sfFriendRequests.doc(sfFriendKey(otherId,mine)).set({from:otherId,to:mine,status:'removed',updatedAt:Date.now()},{merge:true})
+      ]);
+    }
+    res.json({success:true,action});
+  }catch(e){console.error('friend action',e.message);res.status(503).json({error:e.message==='Limite de 100 amigos alcançado'?e.message:'Não foi possível atualizar amizade.'});}
+});
+app.get('/api/social/following',async(req,res)=>{
+  const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+  try{res.set('Cache-Control','no-store').json((await sfFriendState(me)).accepted);}
+  catch(e){res.status(503).json({error:'Amigos indisponíveis'});}
+});
 app.get('/api/social/followers',rateLimit(25,60000),async(req,res)=>{
- const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
- try{
-  const mine=publicUserId(me);
-  const snap=await db.collection('socialFollowing').where('ids','array-contains',mine).limit(100).get();
-  const followers=snap.docs.map(doc=>{
-   const found=findSocialUser(doc.id);
-   if(!found||found[0]===me||found[1].banned)return null;
-   return {...profileSafe(found),online:socialOnline(found[0]),activity:publicActivity(found[0])};
-  }).filter(Boolean);
-  res.set('Cache-Control','no-store').json(followers);
- }catch(e){console.error('Erro ao carregar seguidores:',e.message);res.status(503).json({error:'Não foi possível consultar quem adicionou você.'});}
+  const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
+  try{res.set('Cache-Control','no-store').json((await sfFriendState(me)).incoming);}
+  catch(e){res.status(503).json({error:'Solicitações indisponíveis'});}
 });
 app.post('/api/social/follow',rateLimit(24,60000),async(req,res)=>{
   const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});
-  const id=String(req.body?.id||'');const found=findSocialUser(id);
-  if(!found||found[0]===me||found[1].banned)return res.status(400).json({error:'Usuário inválido'});
-  try {let ids=await getFollowing(me);const follow=req.body?.follow===true;
-    if(follow&&!ids.includes(id)){if(ids.length>=100)return res.status(400).json({error:'Limite de 100 pessoas'});ids=[...ids,id];}
-    if(!follow)ids=ids.filter(x=>x!==id);
-    await saveFollowing(me,ids);if(follow)sf15Notify(found[0],{type:'follow',title:'Novo amigo',message:(users.get(me)?.nome||'Um usuário')+' adicionou você no SonoraFan.',peerId:publicUserId(me)}).catch(err=>console.error('follow notification:',err.message));res.json({success:true,following:ids.includes(id)});
-  }catch(e){res.status(503).json({error:'Não foi possível salvar'});}
+  const id=req.body?.id,person=sfFriendId(id)?findSocialUser(id):null;
+  if(!person||person[0]===me||person[1].banned)return res.status(400).json({error:'Participante inválido'});
+  try{
+    if(req.body?.follow===true){
+      const status=await sfFriendSend(me,person);
+      res.json({success:true,status,following:status==='accepted'});
+    }else if(req.body?.follow===false){
+      const state=await sfFriendState(me),action=state.accepted.some(x=>x.id===id)?'remove':
+        state.outgoing.some(x=>x.id===id)?'cancel':null;
+      if(!action)return res.status(409).json({error:'Não há vínculo para remover.'});
+      if(action==='remove')await sfFriendDisconnect(me,id);
+      await sfFriendRequests.doc(sfFriendKey(publicUserId(me),id)).set({
+        from:publicUserId(me),to:id,status:action==='remove'?'removed':'cancelled',updatedAt:Date.now()
+      },{merge:true});
+      res.json({success:true,following:false});
+    }else res.status(400).json({error:'Informe uma ação válida.'});
+  }catch(e){res.status(503).json({error:e.message||'Não foi possível enviar solicitação.'});}
 });
 const eventClean=(v,n)=>String(v??'').replace(/[<>\u0000-\u001f]/g,' ').trim().slice(0,n);
 const publicEvent = e => ({ id:e.id,roomSlug:e.roomSlug,roomName:e.roomName,title:e.title,description:e.description,startAt:e.startAt,hostName:e.hostName,attendees:e.attendees.length,theme:e.theme||'indie',durationMinutes:e.durationMinutes||90 });
