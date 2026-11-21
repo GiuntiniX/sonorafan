@@ -116,3 +116,30 @@ test('moderation revokes SSE access immediately',async()=>{
  assert.equal(blocked.code,200);assert.equal(s.closed,true);
  const attempt=await m.stream('leo@exemplo.com',id);assert.equal(attempt.code,403);
 });
+
+
+test('room affiliation is discoverable only for public rooms already linked to Fan Clubs',async()=>{
+ const m=mock(),id=await create(m);
+ await m.call('post',`/api/fan-clubs/${id}/rooms`,{slug:'sala-indie'});
+ const publicRoom=await m.call('get','/api/fan-clubs/room/sala-indie');
+ assert.equal(publicRoom.code,200);
+ assert.equal(publicRoom.data.clubs.length,1);
+ assert.equal(publicRoom.data.clubs[0].id,id);
+ assert.ok(!JSON.stringify(publicRoom.data).includes('ana@exemplo.com'));
+ const privateRoom=await m.call('get','/api/fan-clubs/room/sala-privada');
+ assert.deepEqual(privateRoom.data.clubs,[]);
+});
+
+test('club administrators can invite users without automatically joining or bypassing blocks',async()=>{
+ const m=mock(),id=await create(m);
+ const leoId='b'.repeat(24);
+ const notOwner=await m.call('post',`/api/fan-clubs/${id}/invite`,{userId:'a'.repeat(24)},'leo@exemplo.com');
+ assert.equal(notOwner.code,403);
+ const invited=await m.call('post',`/api/fan-clubs/${id}/invite`,{userId:leoId});
+ assert.equal(invited.code,200);
+ assert.equal(m.notifications.some(n=>n.email==='leo@exemplo.com'&&n.fanClubId===id),true);
+ const view=await m.call('get',`/api/fan-clubs/${id}`,{},'leo@exemplo.com');
+ assert.equal(view.data.club.joined,false);
+ await m.call('post',`/api/fan-clubs/${id}/join`,{},'leo@exemplo.com');
+ assert.equal((await m.call('post',`/api/fan-clubs/${id}/invite`,{userId:leoId})).code,409);
+});
