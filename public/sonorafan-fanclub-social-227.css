@@ -221,3 +221,74 @@
 @media(max-width:650px){
  .sf5-community-layer.sf126-fan-layer #sf71ClubDetail .sf227-hero.sf228-reference-art{background-position:center center!important}
 }
+
+
+/* Fanclub 231 — enquete social responsiva (criar, editar, votar e resultados). */
+#sf71ClubDetail .sf231-polls-page{min-width:0}
+#sf71ClubDetail .sf231-polls-page .sf160-extra-head{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-bottom:16px}
+#sf71ClubDetail .sf231-polls-page .sf160-extra-head h4{font-size:clamp(16px,2vw,21px);margin:0 0 5px;color:#fff}
+#sf71ClubDetail .sf231-polls-page .sf160-extra-head p{font-size:12px;line-height:1.55;color:#c4b3cd;margin:0}
+#sf71ClubDetail .sf231-polls-page [data-sf160-create-poll]{min-height:42px;padding:10px 15px;border:0;border-radius:11px;background:#caff19;color:#1b1620;font-size:12px;font-weight:850;cursor:pointer}
+#sf71ClubDetail .sf231-poll-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px;align-items:start}
+#sf71ClubDetail .sf231-poll{background:linear-gradient(135deg,#2e193b,#1d1228);border:1px solid #805188;border-radius:15px;padding:16px;margin:0;min-width:0;box-shadow:0 8px 30px #0905124a}
+#sf71ClubDetail .sf231-poll-heading{display:flex;align-items:flex-start;gap:11px;margin-bottom:13px}
+#sf71ClubDetail .sf231-poll-icon{flex:none;display:grid;place-items:center;width:35px;height:35px;border-radius:10px;color:#d2ff4c;background:#65346f;font-size:19px}
+#sf71ClubDetail .sf231-poll-heading>div{min-width:0;flex:1}
+#sf71ClubDetail .sf231-poll-heading strong{display:block;font-size:14px;line-height:1.5;color:#fcf5ff;overflow-wrap:anywhere}
+#sf71ClubDetail .sf231-poll-heading small{display:block;color:#c6b4d0;margin-top:5px;font-size:10px}
+#sf71ClubDetail .sf231-poll-options{display:grid;grid-template-columns:1fr;gap:9px}
+#sf71ClubDetail .sf231-poll-options .sf231-poll-choice{
+ position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;justify-content:space-between;
+ min-width:0;width:100%;min-height:43px;margin:0;padding:10px 12px;text-align:left;white-space:normal;
+ background:#291a36;border:1px solid #775082;border-radius:11px;color:#f2e5f8;
+ font:700 12px/1.4 Inter,system-ui,sans-serif;cursor:pointer;opacity:1;transition:border-color .16s,background .16s;
+}
+#sf71ClubDetail .sf231-poll-options .sf231-poll-choice:hover:not(:disabled){border-color:#caff19;background:#3d234b}
+#sf71ClubDetail .sf231-poll-options .sf231-poll-choice:focus-visible{outline:2px solid #d6ff44;outline-offset:2px}
+#sf71ClubDetail .sf231-poll-options .sf231-poll-choice:disabled{cursor:default;opacity:1}
+#sf71ClubDetail .sf231-poll-options .sf231-poll-choice.sf231-selected{border-color:#caff19;background:#314121}
+#sf71ClubDetail .sf231-poll-options .sf231-poll-choice .sf231-poll-bar{
+ position:absolute;inset:0 auto 0 0;display:block;background:linear-gradient(90deg,#9acb284d,#caff1940);
+ border-radius:9px;pointer-events:none;transition:width .25s ease;
+}
+#sf71ClubDetail .sf231-poll-options .sf231-poll-choice .sf231-poll-text{position:relative;z-index:1;flex:1;min-width:0;overflow-wrap:anywhere}
+#sf71ClubDetail .sf231-poll-options .sf231-poll-choice small,
+#sf71ClubDetail .sf231-poll-options .sf231-choice-mark{position:relative;z-index:1;flex:none;color:#d1ff59;font-size:11px;white-space:nowrap}
+#sf71ClubDetail .sf231-poll-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-top:13px;padding-top:11px;border-top:1px solid #86508c55}
+#sf71ClubDetail .sf231-poll-footer>span{color:#bba9c5;font-size:11px}
+#sf71ClubDetail .sf231-poll-actions{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+#sf71ClubDetail .sf231-poll-actions button,
+#sf71ClubDetail .sf170-poll .sf231-poll-actions button{
+ width:auto;min-height:35px;margin:0;padding:8px 9px;border-radius:8px;border:1px solid #755384;background:#3a2447;
+ color:#f0dff5;font:750 11px/1.2 Inter,system-ui,sans-serif;cursor:pointer;white-space:normal;
+}
+#sf71ClubDetail .sf231-poll-actions .sf231-poll-delete{color:#ffc5ce;border-color:#8b4e64;background:#3d2434}
+#sf71ClubDetail .sf231-empty{font-size:13px;color:#beaacf;line-height:1.5}
+#sf71ClubDetail .sf170-poll.sf231-poll{padding:13px!important}
+#sf71ClubDetail .sf170-poll.sf231-poll .sf231-poll-heading strong{font-size:12px}
+#sf71ClubDetail .sf170-poll.sf231-poll .sf231-poll-options{gap:6px}
+#sf71ClubDetail .sf170-poll.sf231-poll .sf231-poll-choice{padding:8px 9px;min-height:39px;font-size:11px}
+#sf71Modal .sf231-help{margin:0 0 11px;color:#d8c3e4;font-size:12px;line-height:1.5}
+#sf71Modal .sf231-lock-hint{padding:10px 12px;border:1px solid #8a6898;background:#3e2950;border-radius:10px;color:#f0d3f4;font-size:12px;line-height:1.5}
+#sf71Modal .sf231-option-list{display:grid;gap:9px;min-width:0}
+#sf71Modal .sf231-option-row{display:flex;align-items:end;gap:7px;min-width:0}
+#sf71Modal .sf231-option-row label{flex:1;min-width:0}
+#sf71Modal .sf231-option-row input{font-size:16px;min-height:42px;min-width:0;width:100%}
+#sf71Modal .sf231-option-row [data-sf231-remove-option]{flex:none;display:grid;place-items:center;width:43px;min-height:43px;border:1px solid #915878;color:#ffb9cc;border-radius:10px;background:#3c253b;cursor:pointer}
+#sf71Modal .sf231-option-row [data-sf231-remove-option]:disabled{opacity:.35;cursor:not-allowed}
+#sf71Modal .sf231-add-option{margin:8px 0 2px;padding:10px 13px;min-height:43px;width:100%;text-align:center;border:1px dashed #b66aca;background:#3b2449;border-radius:10px;color:#e9caef;font-weight:750;cursor:pointer}
+#sf71Modal .sf231-add-option:disabled{opacity:.45;cursor:not-allowed}
+#sf71Modal .sf231-option-count{display:block;text-align:right;color:#c4abcf;font-size:11px}
+#sf71Modal .sf71-modal{max-height:min(90dvh,850px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#sf71Modal :is(input,select,textarea){font-size:16px;max-width:100%}
+@media(max-width:600px){
+ #sf71ClubDetail .sf231-poll-grid{grid-template-columns:minmax(0,1fr)}
+ #sf71ClubDetail .sf231-poll{padding:13px}
+ #sf71ClubDetail .sf231-polls-page [data-sf160-create-poll]{width:100%}
+ #sf71ClubDetail .sf231-poll-heading strong{font-size:13px}
+ #sf71Modal .sf71-modal{max-height:calc(100dvh - 24px);width:calc(100vw - 20px);margin:auto}
+}
+@media(prefers-reduced-motion:reduce){
+ #sf71ClubDetail .sf231-poll-options .sf231-poll-choice,
+ #sf71ClubDetail .sf231-poll-options .sf231-poll-bar{transition:none}
+}
