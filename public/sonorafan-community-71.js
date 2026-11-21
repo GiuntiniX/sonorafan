@@ -322,6 +322,10 @@
    const rooms=club.rooms||[],activity=state.posts.slice(0,3),tags=new Map();
    state.posts.forEach(post=>(post.tags||[]).forEach(tag=>{const key=String(tag).trim().slice(0,35);if(key)tags.set(key,(tags.get(key)||0)+1);}));
    const topTags=[...tags].sort((a,b)=>b[1]-a[1]).slice(0,5);
+   // A enquete mais recente fica acessível no mural, com o mesmo botão de voto da aba Enquetes.
+   // A API já retorna as enquetes pela data de criação; manter ordenação defensiva.
+   const featuredPoll=[...(state.polls||[])].sort((a,b)=>
+     Number(a.closed)-Number(b.closed)||Number(b.createdAt||0)-Number(a.createdAt||0))[0]||null;
    const card=(title,link,body)=>'<section class="sf227-widget"><header><h4>'+title+'</h4>'+link+'</header>'+body+'</section>';
    const goto=(pane,label)=>'<button type="button" data-sf160-pane="'+pane+'">'+label+' →</button>';
    left.innerHTML=
@@ -351,6 +355,13 @@
         '<span>✦</span><span><strong>'+esc((p.title||p.text||'Nova discussão').slice(0,78))+'</strong>'+
         '<small>'+esc(p.authorName||'Participante')+' · '+new Date(Number(p.createdAt)||Date.now()).toLocaleDateString('pt-BR')+'</small></span></button>').join(''):
         '<p class="sf227-empty">As novidades aparecerão conforme os fãs publicarem.</p>')+
+     card('🗳 Enquete em destaque',goto('polls','Ver todas'),
+       featuredPoll?
+         '<p class="sf232-poll-intro">'+(featuredPoll.closed?'Resultados da última enquete':'Vote sem sair do mural. Sua opinião conta!')+'</p>'+
+         pollCard(featuredPoll,true):
+         '<div class="sf232-poll-empty"><p>As enquetes da comunidade aparecerão aqui.</p>'+
+         (club.canModerate?'<button type="button" data-sf160-create-poll>＋ Criar enquete</button>':
+           goto('polls','Ver enquetes'))+'</div>')+
      card('↗ Tópicos em alta',goto('mural','Ver mais'),
        topTags.length?'<ol class="sf227-trending">'+topTags.map(([tag,count],i)=>
          '<li><span>'+String(i+1)+'</span><button type="button" data-sf600-tag="'+esc(tag)+'">#'+esc(tag)+'</button>'+
