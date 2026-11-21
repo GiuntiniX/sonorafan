@@ -59,6 +59,13 @@ const unique = values => Array.from(new Set(Array.isArray(values) ? values.filte
 function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser, gamification45, ranking60 }) {
   const coverRef = id => db.collection(COVERS).doc(id);
   const refFor = id => db.collection(CLUBS).doc(id);
+  // Índice reverso persistente: a sala conhece seus Fanclubs vinculados.
+  const roomClubRef = slug => db.collection('sonorafanFanclubRoomLinks').doc(slug);
+  const updateRoomIndex=(tx,ref,snap,id,add)=>{
+    const clubs=unique(snap.exists?snap.data()?.clubIds:[]);
+    const next=add?unique([...clubs,id]):clubs.filter(value=>value!==id);
+    tx.set(ref,{clubIds:next,updatedAt:Date.now()});
+  };
   // Streams are attached only after cookie-session and membership verification.
   // Never emit post content over a public Socket.IO room.
   const subscribers=new Map();
@@ -202,17 +209,28 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const room=rooms.get(clean(req.params.slug,100));
     if(!room||room.isPrivate||room.slug.toLowerCase()==='lobby')return res.json({clubs:[]});
     try{
-      // Consultar por array; em documentos legados, reconciliar pelo registro persistido.
-      let docs=[];
+      // Primeiro o índice reverso; consultas antigas continuam funcionando.
+      const index=await roomClubRef(room.slug).get();
+      const byId=new Map();
+      const indexed=unique(index.exists?index.data()?.clubIds:[]).filter(validateId);
+      if(indexed.length){
+        const snap=await db.getAll(...indexed.map(refFor));
+        for(const doc of snap){
+          if(doc.exists&&!doc.data()?.deleting&&unique(doc.data()?.roomSlugs).includes(room.slug))
+            byId.set(doc.id,doc);
+        }
+      }
+      // Busca também nas relações anteriores à criação do índice e reconcilia
+      // novas associações sem depender da tela do Fanclub.
       try{
         const direct=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).limit(100).get();
-        docs=direct.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug));
-      }catch(e){console.warn('[Fanclubs] room lookup using collection fallback:',e.message);}
-      if(!docs.length){
+        for(const doc of direct.docs)if(!doc.data()?.deleting&&unique(doc.data()?.roomSlugs).includes(room.slug))byId.set(doc.id,doc);
+      }catch(e){console.warn('[Fanclubs] fallback de índice:',e.message);}
+      if(!byId.size){
         const all=await db.collection(CLUBS).limit(500).get();
-        docs=all.docs.filter(d=>!d.data()?.deleting&&unique(d.data()?.roomSlugs).includes(room.slug));
+        for(const doc of all.docs)if(!doc.data()?.deleting&&unique(doc.data()?.roomSlugs).includes(room.slug))byId.set(doc.id,doc);
       }
-      const clubs=docs.map(d=>({...record(d.data(),d.id),primary:d.data().defaultRoomSlug===room.slug}))
+      const clubs=[...byId.values()].map(d=>({...record(d.data(),d.id),primary:d.data().defaultRoomSlug===room.slug}))
         .sort((a,b)=>Number(b.primary)-Number(a.primary)||String(a.title||'').localeCompare(String(b.title||''),'pt-BR'));
       res.set('Cache-Control','private, no-store');
       res.json({clubs});
@@ -1287,11 +1305,14 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(room.ownerEmail!==me.email)return res.status(403).json({error:'Somente salas criadas por você podem ser vinculadas.'});
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
-        const snap=await tx.get(ref);if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
+        const linkRef=roomClubRef(slug);
+        const [snap,linkSnap]=await Promise.all([tx.get(ref),tx.get(linkRef)]);
+        if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         const data=snap.data();if(!canModerate(data,me))throwHttp(403,'Somente administradores podem vincular salas.');
-        const slugs=unique(data.roomSlugs);if(slugs.includes(slug))return;
-        if(slugs.length>=3)throwHttp(409,'Limite de três salas por Fan Club.');
-        tx.update(ref,{roomSlugs:[...slugs,slug],updatedAt:Date.now()});
+        const slugs=unique(data.roomSlugs);
+        if(!slugs.includes(slug)&&slugs.length>=3)throwHttp(409,'Limite de três salas por Fan Club.');
+        if(!slugs.includes(slug))tx.update(ref,{roomSlugs:[...slugs,slug],updatedAt:Date.now()});
+        updateRoomIndex(tx,linkRef,linkSnap,req.params.id,true);
       });publish(req.params.id,'rooms');res.json({success:true});
     }catch(e){error(res,e);}
   });
@@ -1303,13 +1324,24 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     if(room.ownerEmail!==me.email)
       return res.status(403).json({error:'Você precisa administrar a nova sala.'});
     try{
-      const {ref,data}=await readClub(req.params.id);
-      if(!canModerate(data,me))throwHttp(403,'Sem permissão para trocar a sala do Fan Club.');
-      if(!unique(data.roomSlugs).includes(oldSlug))throwHttp(404,'Sala vinculada não encontrada.');
-      if(slug!==oldSlug&&unique(data.roomSlugs).includes(slug))throwHttp(409,'Essa sala já está vinculada.');
-      const slugs=unique(data.roomSlugs).map(x=>x===oldSlug?slug:x);
-      const defaultRoomSlug=data.defaultRoomSlug===oldSlug?slug:data.defaultRoomSlug||'';
-      await ref.update({roomSlugs:slugs,defaultRoomSlug,updatedAt:Date.now()});
+      await db.runTransaction(async tx=>{
+        const ref=refFor(req.params.id),oldRef=roomClubRef(oldSlug),newRef=roomClubRef(slug);
+        const [clubSnap,oldSnap,newSnap]=await Promise.all([tx.get(ref),tx.get(oldRef),slug===oldSlug?Promise.resolve(null):tx.get(newRef)]);
+        if(!clubSnap.exists||clubSnap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
+        const data=clubSnap.data();
+        if(!canModerate(data,me))throwHttp(403,'Sem permissão para trocar a sala do Fan Club.');
+        if(!unique(data.roomSlugs).includes(oldSlug))throwHttp(404,'Sala vinculada não encontrada.');
+        if(slug!==oldSlug&&unique(data.roomSlugs).includes(slug))throwHttp(409,'Essa sala já está vinculada.');
+        const slugs=unique(data.roomSlugs).map(x=>x===oldSlug?slug:x);
+        const defaultRoomSlug=data.defaultRoomSlug===oldSlug?slug:data.defaultRoomSlug||'';
+        tx.update(ref,{roomSlugs:slugs,defaultRoomSlug,updatedAt:Date.now()});
+        if(slug!==oldSlug){
+          updateRoomIndex(tx,oldRef,oldSnap,req.params.id,false);
+          updateRoomIndex(tx,newRef,newSnap,req.params.id,true);
+        }else updateRoomIndex(tx,oldRef,oldSnap,req.params.id,true);
+      });
+      const slugs=unique((await refFor(req.params.id).get()).data()?.roomSlugs);
+      const defaultRoomSlug=(await refFor(req.params.id).get()).data()?.defaultRoomSlug||'';
       publish(req.params.id,'rooms');
       res.json({success:true,roomSlugs:slugs,defaultRoomSlug});
     }catch(e){error(res,e);}
@@ -1318,10 +1350,13 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const me=identity(req,res);if(!me)return;
     try{const ref=refFor(req.params.id);if(!validateId(req.params.id))throwHttp(400,'Fan Club inválido.');
       await db.runTransaction(async tx=>{
-        const snap=await tx.get(ref);if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
+        const linkRef=roomClubRef(req.params.slug);
+        const [snap,linkSnap]=await Promise.all([tx.get(ref),tx.get(linkRef)]);
+        if(!snap.exists||snap.data()?.deleting)throwHttp(404,'Fan Club não encontrado.');
         if(!canModerate(snap.data(),me))throwHttp(403,'Sem permissão.');
         const slugs=unique(snap.data().roomSlugs).filter(x=>x!==req.params.slug);
         tx.update(ref,{roomSlugs:slugs,defaultRoomSlug:snap.data().defaultRoomSlug===req.params.slug?'':snap.data().defaultRoomSlug||'',updatedAt:Date.now()});
+        updateRoomIndex(tx,linkRef,linkSnap,req.params.id,false);
       });publish(req.params.id,'rooms');res.json({success:true});
     }catch(e){error(res,e);}
   });
