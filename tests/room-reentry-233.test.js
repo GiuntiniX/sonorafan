@@ -47,3 +47,13 @@ test('server cap remains 30 rooms and 50 participants',()=>{
  assert.equal(limits.MAX_ROOMS,30);
  assert.equal(limits.MAX_PEOPLE_PER_ROOM,50);
 });
+
+test('owner can see and reenter a private room, while strangers cannot',()=>{
+ const server=read('server.js');
+ const lobby=read('public/sonorafan-lobby-107.js');
+ assert.match(server,/!r\.isPrivate \|\| adm \|\| \(\(!!me && r\.ownerEmail === me\)\)/);
+ assert.match(server,/isMine: !!me && r\.ownerEmail === me/);
+ assert.match(lobby,/!r\.isPrivate\|\|r\.isMine/);
+ assert.match(lobby,/sf107-private-badge/);
+ assert.match(read('public/sonorafan-lobby-107.css'),/\.sf107-private-badge/);
+});
