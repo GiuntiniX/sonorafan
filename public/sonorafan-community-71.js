@@ -418,7 +418,25 @@
  function renderCommunityAside(){
  const aside=$('sf170CommunityAside');if(!aside)return;
  const c=state.detail?.club;if(!c?.joined&&!c?.owner){aside.innerHTML='<p>Participe para sugerir ideias e votar.</p>';return;}
- const active=state.polls.filter(p=>!p.closed).slice(0,2),ideas=state.ideas.slice(0,5);
+ if(state.activePane==='events'){
+   const rooms=c.rooms||[],mine=state.clubEvents.filter(e=>e.going);
+   aside.innerHTML=`<div class="sf202-event-aside">
+     <section class="sf202-side-panel"><h4>⚙ Gerenciamento do Fan Club</h4>
+     ${c.canModerate?`<label>Sala padrão para eventos
+       <select id="sf202DefaultRoom" aria-label="Sala padrão para eventos">
+       <option value="">Nenhuma sala padrão</option>
+       ${rooms.map(room=>`<option value="${esc(room.slug)}" ${room.slug===c.defaultRoomSlug?'selected':''}>${esc(room.name)}</option>`).join('')}</select></label>`:
+        `<p>Sala padrão: ${esc(rooms.find(room=>room.slug===c.defaultRoomSlug)?.name||'Não definida')}</p>`}
+     <button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Minhas notificações ativadas':'🔕 Ativar notificações do Fan Club'}</button>
+     <p>Ao confirmar presença, você recebe os dados do evento e da sala vinculada. Eventos futuros aparecem na sua agenda pessoal.</p>
+     </section>
+     <section class="sf202-side-panel"><header><h4>♧ Minha participação</h4><button type="button" data-sf170-global-events>Ver agenda geral ›</button></header>
+       ${mine.length?mine.map(e=>`<div class="sf202-joined-event"><strong>${esc(e.title)}</strong><small>▦ ${new Date(Number(e.startAt)).toLocaleString('pt-BR')}</small>
+       ${e.roomSlug?`<button type="button" data-sf141-club-room="${esc(e.roomSlug)}">♫ Entrar na sala</button>`:''}</div>`).join(''):'<p>Nenhum encontro confirmado ainda.</p>'}
+     </section></div>`;
+   return;
+  }
+  const active=state.polls.filter(p=>!p.closed).slice(0,2),ideas=state.ideas.slice(0,5);
  aside.innerHTML=`<div class="sf170-aside-title"><div><small>ESPAÇO DA COMUNIDADE</small><h4>💡 Ideias dos fãs</h4></div><button type="button" data-sf170-new-idea>＋ Sugerir</button></div>
  <p class="sf170-intro">O que podemos fazer juntos neste Fan Club?</p>
  <div class="sf170-ideas">${ideas.length?ideas.map(i=>`<article class="sf170-idea"><strong>${esc(i.title)}</strong><p>${esc(i.description||'')}</p><small>${esc(i.authorName)} · ${i.votes} apoios · ${i.status==='planned'?'Planejada':i.status==='done'?'Realizada':i.status==='closed'?'Encerrada':'Em discussão'}</small><div class="sf170-inline-actions"><button type="button" data-sf170-vote-idea="${esc(i.id)}" aria-pressed="${i.voted}" ${i.status!=='open'?'disabled':''}>${i.voted?'✓ Apoiada':'♡ Apoiar ideia'}</button>${i.canManage&&i.status==='open'?`<button type="button" data-sf170-plan-idea="${esc(i.id)}">Planejar</button>`:''}${i.canManage&&i.status==='planned'?`<button type="button" data-sf170-done-idea="${esc(i.id)}">Concluir</button>`:''}</div></article>`).join(''):'<p class="sf170-empty">Nenhuma ideia ainda. Seja o primeiro a sugerir!</p>'}</div>
@@ -467,7 +485,7 @@
  function switchPane(pane){
  state.activePane=pane;
  document.querySelectorAll('#sf71ClubDetail [data-sf160-pane]').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.sf160Pane===pane)));
- const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();
+ const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();renderCommunityAside();
  }
  async function openDetail(id){
    const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
@@ -845,6 +863,14 @@
        searchForum(state.activeId);
      }
      if(e.target.id==='sf170Topic')renderTopicPreview();
+      if(e.target.id==='sf202DefaultRoom'){
+        const slug=e.target.value,id=state.activeId;
+        if(!id)return;
+        post('/api/fan-clubs/'+encodeURIComponent(id)+'/default-room',{roomSlug:slug}).then(()=>{
+          if(state.detail?.club)state.detail.club.defaultRoomSlug=slug;
+          status('Sala padrão atualizada.');
+        }).catch(err=>{status(err.message,true);renderCommunityAside();});
+      }
    });
    window.sf71LoadFanClubs=()=>{showList();loadClubs();};
    window.sf71OpenFanClub=id=>{if(/^[a-f0-9-]{36}$/.test(String(id||'')))openDetail(id);};
