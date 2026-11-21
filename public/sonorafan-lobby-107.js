@@ -174,7 +174,7 @@
       <p>Assim que houver salas públicas, a que tiver mais ouvintes aparecerá em destaque.</p>
       <button class="sf107-join" type="button" data-sf107="create">＋ Criar uma sala</button></section>`;return;}
     const top=count(r.listenerCount)>0,t=r.currentTrack||{};
-    const media=coverImage(r),video=yt(t.id)?'https://img.youtube.com/vi/'+encodeURIComponent(t.id)+'/mqdefault.jpg':media.src;
+    const media=coverImage(r),video=media.src;
     const frame=coverFrame(r);
     host.innerHTML=`<section class="sf107-feature${top?' sf107-top':''}">
       <div class="sf107-feature-image"></div><div class="sf107-feature-content">
