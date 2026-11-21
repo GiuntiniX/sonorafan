@@ -625,6 +625,8 @@
     state.quoteTo=t.hasAttribute('data-sf600-quote')?replying:null;
     await loadComments(id,state.commentsOpen);
     $('sf71Posts')?.querySelector('form[data-sf160-comment-form] input[name=text]')?.focus();
+    const picker=themeOverlay.querySelector('[name=theme]'),sample=themeOverlay.querySelector('#sf208ThemePreview');
+    picker?.addEventListener('change',()=>{sample.className='sf208-theme-preview sf71-theme-'+picker.value;});
     return;
   }
   if(t.hasAttribute('data-sf600-cancel-reply')){
@@ -675,12 +677,14 @@
    const club=state.detail?.club;if(!club?.owner)return;
    const genreOpts=Object.entries(genres).map(([key,label])=>'<option value="'+esc(key)+'" '+(key===club.genre?'selected':'')+'>'+esc(label)+'</option>').join('');
    const themeOpts=Object.entries(themes).map(([key,label])=>'<option value="'+esc(key)+'" '+(key===club.theme?'selected':'')+'>'+esc(label)+'</option>').join('');
-   modal('Editar identidade do Fan Club',
+   const themePreview='<div class="sf208-theme-preview sf71-theme-'+esc(club.theme)+'" id="sf208ThemePreview"><span>♫ Estilo do Fan Club</span><strong>'+esc(club.title)+'</strong><small>Cores e detalhes do visual mudam, mantendo a foto de capa visível.</small></div>';
+   const themeOverlay=modal('Editar identidade do Fan Club',
      '<p>Atualize as informações que aparecem no lobby e na agenda.</p>'+
      '<label>Nome da comunidade<input name="title" maxlength="75" minlength="3" required value="'+esc(club.title)+'"></label>'+
      '<label>Artista ou banda<input name="artist" maxlength="65" minlength="2" required value="'+esc(club.artist)+'"></label>'+
      '<label>Gênero musical<select name="genre">'+genreOpts+'</select></label>'+
      '<label>Identidade visual<select name="theme">'+themeOpts+'</select></label>'+
+     themePreview+
      '<small>A imagem de capa pode ser alterada separadamente.</small>',
      async fd=>{
        await api('/api/fan-clubs/'+encodeURIComponent(id)+'/identity',{method:'PATCH',body:JSON.stringify({
@@ -1013,7 +1017,11 @@
        window.sf110ShowDetails?.('fanclubs');
        if(state.activeId!==match[1])await openDetail(match[1]);
        else if(state.focusPost?.id!==match[2])await openTopic(match[1],match[2],false);
-     }else if(state.focusPost)closeTopic(false);
+     }else{
+       const club=decodeURIComponent(location.hash).match(/^#fanclub\/([a-f0-9-]{36})$/);
+       if(club){window.sf125Navigate?.('clubs');if(state.activeId!==club[1])await openDetail(club[1]);}
+       else if(state.focusPost)closeTopic(false);
+     }
    };
    window.addEventListener('popstate',handleForumRoute);
    window.addEventListener('hashchange',handleForumRoute);
