@@ -520,12 +520,14 @@
        <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} ${'sf73-with-cover'}">${imageCover(c)}<div class="sf71-detail-symbol" aria-hidden="true">♫</div><div class="sf73-hero-info"><span>FAN CLUB NÃO OFICIAL</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${esc(genres[c.genre]||'Outros')} · ${c.memberCount} participantes</p></div></div>
        <p class="sf71-detail-desc">${esc(c.description||'Um lugar para reunir fãs, músicas e boas conversas.')}</p>
        ${c.canEditProfile?`<button type="button" class="sf180-edit-profile" data-sf180-edit-profile>✎ Editar bio e regras</button>`:''}
+        ${c.owner?'<button type="button" class="sf204-identity-button" data-sf204-edit-identity>⚙ Editar identidade</button>':''}
        ${c.profileUpdatedAt?`<small class="sf180-profile-updated">Informações atualizadas em ${new Date(c.profileUpdatedAt).toLocaleDateString('pt-BR')}</small>`:''}
        <details class="sf170-welcome"><summary>👋 Conheça esta comunidade</summary><div><p>Boas-vindas ao Fan Club de ${esc(c.artist)}! Aqui você pode conversar sobre o artista, tirar dúvidas, propor ideias e participar dos encontros.</p><p><strong>Comunidade:</strong> ${esc(c.title)} · ${Math.max(0,Number(c.memberCount)||0)} participantes</p><p><strong>Primeiros passos:</strong> leia as regras, participe do mural e confira ideias e enquetes ao lado. A fila musical continua nas salas do SonoraFan.</p></div></details>
        ${c.rules?`<details class="sf71-rule sf160-rules"><summary>📋 Regras da comunidade</summary><p>${esc(c.rules)}</p></details>`:''}
        <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['events','Agenda'],['mural','Mural'],['rooms','Salas vinculadas'],['members','Membros'],['polls','Enquetes']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='events'}">${label}</button>`).join('')}</nav>
         <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
          ${c.owner?'<button type="button" data-sf160-pane="members">👑 Administradores do Fan Club</button>':''}
+          ${c.canModerate?'<button type="button" data-sf160-pane="rooms">♫ Gerenciar salas</button>':''}
          <button type="button" class="sf202-club-agenda-link" data-sf170-show-events>▦ Agenda do Fan Club</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 Alterar capa</button><button type="button" data-sf73-remove-cover>Usar capa padrão</button>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
@@ -627,6 +629,25 @@
     state.replyTo=null;state.quoteTo=null;
     await loadComments(id,state.commentsOpen);return;
   }
+
+ 
+ if(t.hasAttribute('data-sf204-edit-identity')){
+   const club=state.detail?.club;if(!club?.owner)return;
+   const genreOpts=Object.entries(genres).map(([key,label])=>'<option value="'+esc(key)+'" '+(key===club.genre?'selected':'')+'>'+esc(label)+'</option>').join('');
+   const themeOpts=Object.entries(themes).map(([key,label])=>'<option value="'+esc(key)+'" '+(key===club.theme?'selected':'')+'>'+esc(label)+'</option>').join('');
+   modal('Editar identidade do Fan Club',
+     '<p>Atualize as informações que aparecem no lobby e na agenda.</p>'+
+     '<label>Nome da comunidade<input name="title" maxlength="75" minlength="3" required value="'+esc(club.title)+'"></label>'+
+     '<label>Artista ou banda<input name="artist" maxlength="65" minlength="2" required value="'+esc(club.artist)+'"></label>'+
+     '<label>Gênero musical<select name="genre">'+genreOpts+'</select></label>'+
+     '<label>Identidade visual<select name="theme">'+themeOpts+'</select></label>'+
+     '<small>A imagem de capa pode ser alterada separadamente.</small>',
+     async fd=>{
+       await api('/api/fan-clubs/'+encodeURIComponent(id)+'/identity',{method:'PATCH',body:JSON.stringify({
+         title:fd.get('title'),artist:fd.get('artist'),genre:fd.get('genre'),theme:fd.get('theme')})});return id;
+     },async ()=>{await openDetail(id);await loadClubs();window.sf107RefreshFanClubs?.();status('Identidade atualizada.');});
+   return;
+ }
 
  if(t.hasAttribute('data-sf180-edit-profile')){
    if(!state.detail?.club?.canEditProfile)return;
@@ -845,6 +866,25 @@
    if(t.hasAttribute('data-sf71-refresh')){await loadPosts(id);return;}
    if(t.hasAttribute('data-sf71-room')){const slug=t.dataset.sf71Room;document.querySelector('.sf5-community-layer .sf5-close')?.click();if(typeof joinRoom==='function')joinRoom(slug);return;}
    if(t.hasAttribute('data-sf71-addroom')){await chooseRoom();return;}
+
+   if(t.hasAttribute('data-sf204-replace-room')){await chooseRoom(t.dataset.sf204ReplaceRoom);return;}
+   if(t.hasAttribute('data-sf204-make-default')){
+     if(!state.detail?.club?.canModerate)return;
+     await action(async()=>{
+       await post('/api/fan-clubs/'+encodeURIComponent(id)+'/default-room',{roomSlug:t.dataset.sf204MakeDefault});
+       await refreshClubRooms(id);
+     },'Sala principal atualizada.');return;
+   }
+   if(t.hasAttribute('data-sf204-unlink-room')){
+     if(!state.detail?.club?.canModerate)return;
+     const slug=t.dataset.sf204UnlinkRoom,room=state.detail?.club?.rooms?.find(r=>r.slug===slug);
+     if(!confirm('Desvincular '+(room?.name||'esta sala')+' do Fan Club? Os eventos já criados continuarão registrados.'))return;
+     await action(async()=>{
+       await api('/api/fan-clubs/'+encodeURIComponent(id)+'/rooms/'+encodeURIComponent(slug),{method:'DELETE'});
+       await refreshClubRooms(id);
+     },'Sala desvinculada.');return;
+   }
+
    if(t.hasAttribute('data-sf71-join')){await action(async()=>{
      if(state.detail?.club.joined)await api('/api/fan-clubs/'+encodeURIComponent(id)+'/join',{method:'DELETE'});
      else await post('/api/fan-clubs/'+encodeURIComponent(id)+'/join',{});
