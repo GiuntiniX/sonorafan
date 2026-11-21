@@ -18,7 +18,7 @@ function crop(r){return {x:Math.min(100,Math.max(0,Number(r.coverX??50)||0)),y:M
 function pic(r,extra=''){const c=cover(r),p=crop(r);return '<div class="sf216-cover '+extra+'"><img src="'+esc(c.src)+'" data-fallback="'+esc(c.fallback)+'" data-art="'+esc(c.art)+'" alt="" loading="lazy" decoding="async" style="object-position:'+p.x+'% '+p.y+'%;transform-origin:'+p.x+'% '+p.y+'%;transform:scale('+(c.custom?p.zoom:1)+')"></div>';}
 function genre(r){const found=styles.find(x=>x[0]===r.genre);return found?found[1]:(r.genre||'Estilo não informado');}
 function roomTimestamp(r){const id=String(r.slug||'').split('-').pop()||'';const n=/^[0-9a-z]{7,12}$/i.test(id)?parseInt(id,36):0;return n>1577836800000&&n<Date.now()+86400000?n:0;}
-function all(){let list=state.rooms.slice();if(state.mode==='mine')list=list.filter(r=>r.isMine);else if(state.mode==='favorites')list=list.filter(r=>state.bookmarks.has(r.slug));if(state.style)list=list.filter(r=>r.genre===state.style);if(state.activity==='live')list=list.filter(r=>r.isPlaying);if(state.activity==='ready')list=list.filter(r=>!r.isPlaying);if(state.query){const q=norm(state.query);list=list.filter(r=>norm([r.name,r.description,r.genre,r.currentTrack?.title,r.currentTrack?.artist].join(' ')).includes(q));}
+function all(){let list=state.rooms.slice();if(state.mode==='mine'||state.mode==='manage')list=list.filter(r=>r.isMine);else if(state.mode==='favorites')list=list.filter(r=>state.bookmarks.has(r.slug));if(state.style)list=list.filter(r=>r.genre===state.style);if(state.activity==='live')list=list.filter(r=>r.isPlaying);if(state.activity==='ready')list=list.filter(r=>!r.isPlaying);if(state.query){const q=norm(state.query);list=list.filter(r=>norm([r.name,r.description,r.genre,r.currentTrack?.title,r.currentTrack?.artist].join(' ')).includes(q));}
 if(state.sort==='recent')list.sort((a,b)=>roomTimestamp(b)-roomTimestamp(a));else if(state.sort==='az')list.sort((a,b)=>String(a.name).localeCompare(String(b.name),'pt-BR'));else if(state.sort==='live')list.sort((a,b)=>Number(!!b.isPlaying)-Number(!!a.isPlaying)||Number(b.listenerCount||0)-Number(a.listenerCount||0));else list.sort((a,b)=>Number(b.listenerCount||0)-Number(a.listenerCount||0)||Number(!!b.isPlaying)-Number(!!a.isPlaying));return list;}
 function heart(r){return state.bookmarks.has(r.slug)?'♥':'♡';}
 function card(r,featured=false){const saved=state.bookmarks.has(r.slug),now=r.currentTrack?.title?'♫ '+r.currentTrack.title:'Sala pronta para receber músicas';
@@ -27,19 +27,34 @@ return '<article class="sf216-card'+(featured?' sf216-featured':'')+'">'+pic(r)+
 '<h3>'+esc(r.name||'Sala musical')+'</h3><p class="sf216-meta">'+esc(genre(r))+' · '+fmt(r.listenerCount)+' '+(Number(r.listenerCount)===1?'ouvinte':'ouvintes')+'</p>'+
 '<p class="sf216-track" title="'+esc(now)+'">'+esc(now)+'</p>'+
 '<div class="sf216-card-actions"><button type="button" data-sf216-fav="'+esc(r.slug)+'" aria-pressed="'+saved+'" aria-label="'+(saved?'Remover sala dos favoritos':'Favoritar sala')+'" title="'+(saved?'Desfavoritar':'Favoritar')+'">'+heart(r)+'</button>'+
-'<button class="sf216-join" type="button" data-sf216-join="'+esc(r.slug)+'">▶ Entrar</button></div></div></article>';}
+'<button class="sf216-join" type="button" '+(state.mode==='manage'&&r.isMine?'data-sf216-manage':'data-sf216-join')+'="'+esc(r.slug)+'">'+(state.mode==='manage'&&r.isMine?'⚙ Gerenciar':'▶ Entrar')+'</button></div></div></article>';}
 function renderProfile(){const name=String($('userDisplayName')?.textContent||'Sua experiência').trim();const label=$('sf216ProfileName');if(label)label.textContent=name==='Usuário'?'Sua experiência':name;const avatar=$('userAvatar'),dest=$('sf216Avatar');if(dest&&avatar){const img=avatar.querySelector('img');dest.replaceChildren();if(img?.src){const copy=document.createElement('img');copy.src=img.src;copy.alt='';dest.append(copy);}else dest.textContent=(name[0]||'♫').toUpperCase();}
 $('sf216CountFavorites').textContent=fmt(state.bookmarks.size);$('sf216CountMine').textContent=fmt(state.rooms.filter(r=>r.isMine).length);}
+function renderSideFavorites(){
+ const host=$('sf216SideFavorites');if(!host)return;
+ const rooms=state.rooms.filter(r=>state.bookmarks.has(r.slug)).slice(0,3);
+ host.innerHTML=rooms.map(r=>'<button type="button" data-sf216-join="'+esc(r.slug)+'">'+pic(r)+'<span><strong>'+esc(r.name)+'</strong><small>'+esc(genre(r))+'</small></span><span>▶</span></button>').join('')||'<p class="sf216-side-empty">Favorite salas para vê-las aqui.</p>';
+ attachImageFallback(host);
+}
+function renderHero(list){
+ const hero=$('sf216Hero');if(!hero)return;
+ const eligible=state.mode==='discover'&&!state.query&&!state.style&&state.activity==='all'&&list.length;
+ hero.hidden=!eligible;if(!eligible)return;
+ const r=list[0],saved=state.bookmarks.has(r.slug);
+ hero.innerHTML='<div class="sf216-hero-art">'+pic(r)+'</div><div class="sf216-hero-content"><span class="sf216-hero-kicker">♛ SALA EM DESTAQUE</span><h2>'+esc(r.name)+'</h2><p>'+esc(genre(r))+' · '+fmt(r.listenerCount)+' ouvintes</p><small>'+esc(r.currentTrack?.title?'♫ Tocando agora: '+r.currentTrack.title:'Entre na sala e escolha sua próxima música')+'</small><div class="sf216-hero-actions"><button type="button" data-sf216-join="'+esc(r.slug)+'">▶ Entrar na sala</button><button type="button" data-sf216-fav="'+esc(r.slug)+'" aria-pressed="'+saved+'" aria-label="'+(saved?'Remover dos favoritos':'Favoritar sala')+'">'+(saved?'♥':'♡')+'</button></div></div>';
+ attachImageFallback(hero);
+}
 function renderFilters(){const holder=$('sf216Styles');if(!holder)return;holder.innerHTML=styles.map(([id,label])=>'<button type="button" data-sf216-style="'+esc(id)+'" aria-pressed="'+(state.style===id)+'" class="'+(state.style===id?'is-active':'')+'">'+esc(label)+'</button>').join('');
 document.querySelectorAll('[data-sf216-mode]').forEach(el=>{const yes=el.dataset.sf216Mode===state.mode;el.classList.toggle('is-active',yes);el.setAttribute('aria-pressed',String(yes));});
 $('sf216Search').value=state.query;$('sf216Activity').value=state.activity;$('sf216Sort').value=state.sort;
-const heading=$('sf216ResultsTitle');if(heading)heading.textContent=state.mode==='mine'?'Minhas salas':state.mode==='favorites'?'Salas favoritas':'Descobrir salas';
+const heading=$('sf216ResultsTitle');if(heading)heading.textContent=state.mode==='mine'?'Minhas salas':state.mode==='manage'?'Gerenciar salas':state.mode==='favorites'?'Salas favoritas':'Descobrir salas';
 }
-function render(){if(!$('sf216Explorer'))return;renderFilters();renderProfile();const list=all(),host=$('sf216Cards'),count=$('sf216ResultCount');if(count)count.textContent=list.length+' '+(list.length===1?'sala encontrada':'salas encontradas');
+function render(){if(!$('sf216Explorer'))return;renderFilters();renderProfile();renderSideFavorites();const list=all(),host=$('sf216Cards'),count=$('sf216ResultCount');if(count)count.textContent=list.length+' '+(list.length===1?'sala encontrada':'salas encontradas');
 const status=$('sf216Status');if(status){status.textContent=state.loading?'Atualizando salas…':state.favoritesError||'';status.hidden=!status.textContent;}
 if(!host)return;
+renderHero(list);
 const visible=list.slice(0,state.limit);host.classList.toggle('sf216-list-mode',state.view==='list');
-host.innerHTML=visible.length?visible.map((r,i)=>card(r,i===0&&state.mode==='discover'&&!state.query&&!state.style&&state.activity==='all')).join(''):'<div class="sf216-empty"><strong>Nenhuma sala encontrada</strong><p>Experimente buscar outro nome ou limpar os filtros.</p><button type="button" data-sf216-clear>Limpar filtros</button></div>';
+host.innerHTML=visible.length?visible.map(r=>card(r,false)).join(''):'<div class="sf216-empty"><strong>Nenhuma sala encontrada</strong><p>Experimente buscar outro nome ou limpar os filtros.</p><button type="button" data-sf216-clear>Limpar filtros</button></div>';
 $('sf216More').hidden=list.length<=state.limit;
 attachImageFallback(host);}
 function attachImageFallback(host){host.querySelectorAll('img[data-fallback]').forEach(img=>img.addEventListener('error',()=>{if(!img.dataset.tried){img.dataset.tried='1';img.src=img.dataset.fallback;return;}if(!img.dataset.triedArt){img.dataset.triedArt='1';img.src=img.dataset.art;}}));}
@@ -51,10 +66,11 @@ try{const res=await fetch('/api/room-bookmarks',{method:'POST',credentials:'same
 catch(e){state.bookmarks=old;render();if(typeof window.toast==='function')window.toast(e.message,'error');else alert(e.message);}}
 function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});window.sf207SetActive?.('lobby');}
 function open(mode='discover'){const page=$('sf216Explorer');if(!page)return;if(!$('screen-lobby')?.classList.contains('active')&&typeof window.showScreen==='function')window.showScreen('lobby');window.sf207LeavePage?.();window.sf200CloseAgenda?.();
-state.mode=['discover','mine','favorites'].includes(mode)?mode:'discover';state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
+state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discover';state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
-function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile]');if(!node)return;
+function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage]');if(!node)return;
+if(node.hasAttribute('data-sf216-manage')){const slug=node.dataset.sf216Manage;if(valid(slug)){window.sf216ManageRoomAfterJoin=slug;close();window.joinRoom?.(slug);}return;}
 if(node.hasAttribute('data-sf216-join')){const slug=node.dataset.sf216Join;if(valid(slug)){close();window.joinRoom?.(slug);}return;}
 if(node.hasAttribute('data-sf216-fav'))return void toggleFavorite(node.dataset.sf216Fav);
 if(node.hasAttribute('data-sf216-mode')){state.mode=node.dataset.sf216Mode;state.limit=12;render();return;}
@@ -69,12 +85,13 @@ function build(){if($('sf216Explorer'))return;const main=document.querySelector(
 const page=document.createElement('section');page.id='sf216Explorer';page.className='sf216-page';page.hidden=true;page.setAttribute('aria-label','Explorar salas');
 page.innerHTML='<div class="sf216-shell"><aside class="sf216-aside" aria-label="Minha área de salas">'+
 '<div class="sf216-profile"><div class="sf216-avatar" id="sf216Avatar">♫</div><strong id="sf216ProfileName">Sua experiência</strong><small>Minha comunidade SonoraFan</small><div class="sf216-stats"><span><b id="sf216CountMine">0</b>salas criadas</span><span><b id="sf216CountFavorites">0</b>favoritas</span></div></div>'+
-'<div class="sf216-side-nav"><button type="button" data-sf216-mode="discover">◈ Descobrir salas</button><button type="button" data-sf216-mode="mine">♬ Minhas salas</button><button type="button" data-sf216-mode="favorites">♡ Favoritas</button><button type="button" data-sf216-profile>◉ Meu perfil</button><button type="button" data-sf216-create>＋ Criar sala</button><button type="button" data-sf216-close>← Voltar ao início</button></div></aside>'+
+'<section class="sf216-favorite-panel"><div class="sf216-panel-heading"><strong>♡ Favoritas</strong><button type="button" data-sf216-mode="favorites">Ver todas ›</button></div><div id="sf216SideFavorites" class="sf216-side-favorites"></div></section>'+
+'<div class="sf216-side-nav"><button type="button" data-sf216-mode="discover">◈ Descobrir salas</button><button type="button" data-sf216-mode="mine">♬ Minhas salas</button><button type="button" data-sf216-mode="manage">⚙ Gerenciar salas</button><button type="button" data-sf216-mode="favorites">♡ Favoritas</button><button type="button" data-sf216-profile>◉ Meu perfil</button><button type="button" data-sf216-create>＋ Criar sala</button><button type="button" data-sf216-close>← Voltar ao início</button></div></aside>'+
 '<main class="sf216-content"><div class="sf216-head"><div class="sf216-heading"><span class="sf216-kicker">SONORAFAN · COMUNIDADE</span><h1>▷ Minhas salas e descoberta</h1><p>Encontre uma sala, conheça novas músicas e compartilhe sua vibe.</p></div><button class="sf216-create" type="button" data-sf216-create>＋ Criar sala</button></div>'+
-'<div class="sf216-tabs" role="group" aria-label="Área de salas"><button type="button" data-sf216-mode="discover">◉ Descobrir salas</button><button type="button" data-sf216-mode="mine">▤ Minhas salas</button><button type="button" data-sf216-mode="favorites">♡ Favoritas</button></div>'+
+'<div class="sf216-tabs" role="group" aria-label="Área de salas"><button type="button" data-sf216-mode="discover">◉ Descobrir salas</button><button type="button" data-sf216-mode="mine">▤ Minhas salas</button><button type="button" data-sf216-mode="manage">⚙ Gerenciar salas</button></div>'+
 '<div class="sf216-search-row"><label class="sf216-search">⌕ <input id="sf216Search" type="search" maxlength="90" autocomplete="off" placeholder="Buscar por nome da sala, estilo, música ou artista…" aria-label="Buscar salas"></label><select id="sf216Activity" aria-label="Filtrar atividade"><option value="all">Qualquer atividade</option><option value="live">Tocando agora</option><option value="ready">Salas abertas</option></select><select id="sf216Sort" aria-label="Ordenação"><option value="popular">Mais populares</option><option value="live">Ao vivo primeiro</option><option value="recent">Mais recentes</option><option value="az">Nome (A–Z)</option></select></div>'+
 '<div class="sf216-style-label">Estilos musicais <span>Filtre pelo gênero da sala</span></div><div class="sf216-styles" id="sf216Styles"></div>'+
-'<div class="sf216-results-head"><div><h2 id="sf216ResultsTitle">Descobrir salas</h2><small id="sf216ResultCount" aria-live="polite"></small></div><div><button type="button" class="sf216-view" data-sf216-view aria-label="Alternar visualização">▦</button></div></div><p id="sf216Status" class="sf216-status" hidden></p><div class="sf216-cards" id="sf216Cards"></div><button id="sf216More" class="sf216-more" type="button" data-sf216-more hidden>Carregar mais salas ↓</button></main></div>';
+'<div id="sf216Hero" class="sf216-hero" hidden></div><div class="sf216-results-head"><div><h2 id="sf216ResultsTitle">Descobrir salas</h2><small id="sf216ResultCount" aria-live="polite"></small></div><div><button type="button" class="sf216-view" data-sf216-view aria-label="Alternar visualização">▦</button></div></div><p id="sf216Status" class="sf216-status" hidden></p><div class="sf216-cards" id="sf216Cards"></div><button id="sf216More" class="sf216-more" type="button" data-sf216-more hidden>Carregar mais salas ↓</button></main></div>';
 main.append(page);
 page.addEventListener('click',onClick);
 $('sf216Search').addEventListener('input',e=>{state.query=e.target.value.trim().slice(0,90);state.limit=12;render();});
@@ -88,6 +105,12 @@ window.sf125Navigate=function(area){if(area==='rooms'){open();return;}if(area===
 document.addEventListener('click',e=>{const el=e.target.closest('[data-sf107="scroll"],[data-sf107="more"]');if(el&&$('screen-lobby')?.classList.contains('active')){e.preventDefault();e.stopImmediatePropagation();open();}},true);
 window.sf216OpenRooms=open;window.sf216CloseRooms=close;
 const client=typeof window.socket!=='undefined'?window.socket:null;
+client?.on?.('roomState',data=>{
+  if(window.sf216ManageRoomAfterJoin&&data?.slug===window.sf216ManageRoomAfterJoin){
+    window.sf216ManageRoomAfterJoin=null;
+    setTimeout(()=>{if($('screen-room')?.classList.contains('active'))window.openRoomCfg?.();},350);
+  }
+});
 client?.on?.('roomsUpdate',list=>{if(Array.isArray(list)&&$('sf216Explorer')&&!$('sf216Explorer').hidden){state.rooms=list;render();}});
 setInterval(()=>{if(!$('sf216Explorer')?.hidden&&$('screen-lobby')?.classList.contains('active')&&!document.hidden)fetchRooms();},15000);
 }
