@@ -6,7 +6,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const n=v=>Math.max(0,Number(v)||0),num=v=>n(v).toLocaleString('pt-BR');
 const date=v=>{const d=new Date(Number(v));return Number.isFinite(d.getTime())?d.toLocaleString('pt-BR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Data não disponível';};
 const art={kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',mpb:'/art-33/poster-brasil.webp',festival:'/art-41/festival-noite.webp',stage:'/art-129/sonorafan-stage.svg'};
-const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0,inviteRooms:[],inviteRoom:'',invitingId:null};
+const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],followers:[],followersLoading:false,followersLoaded:0,friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0,inviteRooms:[],inviteRoom:'',invitingId:null};
 const isManager=c=>!!(c?.owner||c?.canModerate);
 const joined=()=>state.clubs.filter(c=>c.joined||c.owner);
 const managed=()=>state.clubs.filter(isManager);
@@ -139,6 +139,16 @@ async function fetchFriends(force=false) {
  }catch(err){state.friendsError=err.message;}
  finally{state.friendsLoading=false;if(state.section==='friends')render();}
 }
+async function fetchFollowers(force=false){
+ if(state.followersLoading||(!force&&Date.now()-state.followersLoaded<30000))return;
+ state.followersLoading=true;if(state.section==='friends')render();
+ try{
+  const data=await friendRequest('/api/social/followers');
+  state.followers=Array.isArray(data)?data.filter(x=>validFriendId(x.id)):[];
+  state.followersLoaded=Date.now();
+ }catch(err){state.friendsError=err.message;}
+ finally{state.followersLoading=false;if(state.section==='friends')render();}
+}
 function friendAvatar(person) {
  const value=String(person.avatar||'🎧').trim();
  // Avatares do serviço social são emojis, não URLs verificadas.
@@ -167,16 +177,16 @@ async function inviteFriend(id){
  }catch(err){state.friendsError=err.message;}
  finally{state.invitingId=null;render();}
 }
-function friendCard(person,added=true){
+function friendCard(person,added=true,received=false){
  const room=person.activity&&validRoomSlug(person.activity.roomSlug)?person.activity:null;
  const online=!!person.online,joined=room?.roomName||'';
- return '<article class="sf220-friend-card">'+friendAvatar(person)+
+ return '<article class="sf220-friend-card" data-sf220-user="'+esc(person.id)+'">'+friendAvatar(person)+
  '<div class="sf220-friend-info"><strong>'+esc(person.name||'Participante')+'</strong>'+
  '<small class="sf220-friend-status"><i class="'+(online?'is-online':'')+'"></i> '+(online?'Online':'Offline')+
  (room?' · '+esc(joined):'')+'</small>'+
  (person.bio?'<p>'+esc(person.bio)+'</p>':'')+'</div>'+
  '<div class="sf220-friend-actions">'+
- (added?'<button type="button" data-sf220-dm="'+esc(person.id)+'" data-sf220-name="'+esc(person.name||'Participante')+'">✉ Conversar</button>':'')+
+ (added||received?'<button type="button" data-sf220-dm="'+esc(person.id)+'" data-sf220-name="'+esc(person.name||'Participante')+'">✉ Conversar</button>':'')+
  (added&&room?'<button class="sf220-join" type="button" data-sf220-room="'+esc(room.roomSlug)+'">▶ Entrar na sala</button>':'')+
  (added&&state.inviteRoom?'<button type="button" data-sf220-invite="'+esc(person.id)+'"'+(state.invitingId===person.id?' disabled':'')+'>♬ '+(state.invitingId===person.id?'Enviando…':'Convidar')+'</button>':'')+
  '<button class="sf220-manage" type="button" data-sf220-follow="'+esc(person.id)+'" data-sf220-value="'+(added?'remove':'add')+'">'+(added?'Remover':'＋ Adicionar amigo')+'</button>'+
@@ -187,6 +197,7 @@ function friendsPanel(){
  if(state.friendsFilter==='online')friends=friends.filter(x=>x.online);
  if(state.friendsFilter==='inroom')friends=friends.filter(x=>x.activity&&validRoomSlug(x.activity.roomSlug));
  const online=state.friends.filter(x=>x.online).length;
+ const incoming=state.followers.filter(x=>!state.friends.some(f=>f.id===x.id));
  return '<section class="sf202-panel sf206-panel sf220-friends">'+
  '<header><div><h2>♡ Meus amigos</h2><p>Converse em particular ou encontre quem está ouvindo música agora.</p></div>'+
  '<span class="sf220-counter">'+state.friends.length+' adicionados · '+online+' online</span></header>'+
@@ -201,6 +212,11 @@ function friendsPanel(){
  (state.friendsLoading?'<p class="sf206-muted">Atualizando seus amigos…</p>':'')+
  '<div class="sf220-friend-list">'+(friends.length?friends.map(x=>friendCard(x)).join(''):
  '<div class="sf220-empty"><strong>Nenhum amigo nesta visualização</strong><p>Adicione pessoas pelo chat ou encontre alguém abaixo.</p></div>')+'</div>'+
+ '<section class="sf220-received"><header><h3>Quem me adicionou</h3><span>'+incoming.length+' pessoas</span></header>'+
+ (state.followersLoading?'<p class="sf206-muted">Consultando novos contatos…</p>':'')+
+ '<div class="sf220-friend-list">'+
+ (incoming.length?incoming.map(x=>friendCard(x,false,true)).join(''):'<p class="sf220-received-empty">Quem adicionar você aparecerá aqui. Se adicionar de volta, ficará em Meus amigos.</p>')+
+ '</div></section>'+
  '<form class="sf220-find-form" id="sf220FriendSearchForm"><label for="sf220FriendSearch">Encontrar pessoas</label>'+
  '<div><input id="sf220FriendSearch" maxlength="40" minlength="2" placeholder="Digite um nome ou nickname" value="'+esc(state.friendQuery)+'" autocomplete="off">'+
  '<button type="submit"'+(state.friendsSearchLoading?' disabled':'')+'>Buscar</button></div></form>'+
@@ -221,8 +237,8 @@ async function changeFriend(id,add) {
  if(!validFriendId(id))return;
  try{
   await friendRequest('/api/social/follow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,follow:add})});
-  state.friendsLoaded=0;
-  await fetchFriends(true);
+  state.friendsLoaded=0;state.followersLoaded=0;
+  await Promise.all([fetchFriends(true),fetchFollowers(true)]);
   state.friendResults=state.friendResults.filter(x=>add?x.id!==id:true);
   render();
  }catch(err){state.friendsError=err.message;render();}
@@ -292,7 +308,7 @@ function init(){
  host.addEventListener('click',e=>{
   const btn=e.target.closest('button');if(!btn)return;
   const d=btn.dataset;
-  if(d.sf206Section){state.section=d.sf206Section;render();if(state.section==='friends'){fetchFriends();loadInviteRooms();}return;}
+  if(d.sf206Section){state.section=d.sf206Section;render();if(state.section==='friends'){fetchFriends();fetchFollowers();loadInviteRooms();}return;}
   if(d.sf220Filter){state.friendsFilter=d.sf220Filter;render();return;}
   if('sf220Refresh'in d){fetchFriends(true);return;}
   if(d.sf220Invite&&validFriendId(d.sf220Invite)){inviteFriend(d.sf220Invite);return;}
@@ -322,6 +338,15 @@ function init(){
  },true);
  const photo=$('sf43ProfileAvatar');
  if(photo)new MutationObserver(()=>{if($('sf202ProfileOverview')&&!host.hidden)syncPhoto();}).observe(photo,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+ window.sf202OpenFriends=async(peerId=null)=>{
+  state.section='friends';state.friendsFilter='all';state.friendsError='';
+  render();
+  await Promise.allSettled([fetchFriends(true),fetchFollowers(true),loadInviteRooms()]);
+  if(validFriendId(peerId)){
+   const row=[...host.querySelectorAll('[data-sf220-user]')].find(el=>el.dataset.sf220User===peerId);
+   if(row){row.classList.add('sf220-highlight');row.scrollIntoView({block:'nearest',behavior:'auto'});}
+  }
+ };
  window.sf202RefreshProfile=(force=false)=>{if(force)state.lastLoad=0;load(force);};
  const modal=$('sf43ProfileModal');
  if(modal)new MutationObserver(()=>{
