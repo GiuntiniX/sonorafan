@@ -45,7 +45,7 @@
     ['anos80','★','Anos 80',art.record]];
   const state={rooms:null,events:[],clubs:[],notices:[],pinned:[],recent:[],search:'',genre:'',
     all:false,stylesExpanded:false,styleQuery:'',sort:'popular',signature:'',lastRooms:0,lastExtras:0,
-    clubState:'loading',clubError:'',clubsExpanded:false,lastClubs:0,clubFetching:false,clubNeedsRefresh:false};
+    clubState:'loading',clubError:'',clubsExpanded:false,clubGenre:'todos',clubQuery:'',clubSort:'members',lastClubs:0,clubFetching:false,clubNeedsRefresh:false};
   const allRooms=()=>Array.isArray(state.rooms)?state.rooms.filter(r=>r&&!r.isPrivate&&valid(r.slug)):[];
   const ranked=()=>allRooms().slice().sort((a,b)=>count(b.listenerCount)-count(a.listenerCount)||Number(!!b.isPlaying)-Number(!!a.isPlaying));
   const lead=()=>ranked()[0]||null;
@@ -173,50 +173,125 @@
       `<div class="sf107-inline-empty"><span>♫</span> As salas visitadas ou favoritas aparecerão aqui.
         <button type="button" data-sf107="scroll">Explorar salas ›</button></div>`;
   }
+  function clubGenre(c){
+    // Club themes are not always music genres. Do not infer genres from artwork or people's names.
+    const value=norm(String(c?.genre||c?.theme||'')).replace(/[\s_/-]+/g,'');
+    const aliases={
+      pop:'pop',kpop:'pop',rock:'rock',metal:'rock',punk:'rock',
+      indie:'indie',alternativo:'indie',alternative:'indie',
+      sertanejo:'sertanejo',funk:'funk',
+      mpb:'mpb',brasil:'mpb',brasileira:'mpb',
+      rap:'hiphop',hiphop:'hiphop',trap:'hiphop',
+      eletrônica:'eletronica',eletronica:'eletronica',electro:'eletronica',house:'eletronica',techno:'eletronica',
+      pagode:'pagode',samba:'pagode',forro:'forro',gospel:'gospel',reggae:'reggae'
+    };
+    return aliases[value]||'outros';
+  }
+  function clubGenreLabel(key){
+    return ({todos:'Todos os gêneros',pop:'Pop',rock:'Rock',indie:'Indie',sertanejo:'Sertanejo',
+      funk:'Funk',mpb:'MPB',hiphop:'Hip-Hop',eletronica:'Eletrônica',
+      pagode:'Pagode / Samba',forro:'Forró',gospel:'Gospel',reggae:'Reggae',outros:'Outros'})[key]||'Outros';
+  }
+  function renderClubFilters(){
+    const sidebar=$('sf191ClubFilters'),chips=$('sf191ClubChips'),search=$('sf191ClubSearch'),sort=$('sf191ClubSort');
+    if(!sidebar||!chips)return;
+    const counts=new Map();
+    for(const club of state.clubs){
+      const genre=clubGenre(club);
+      counts.set(genre,(counts.get(genre)||0)+1);
+    }
+    const order=['pop','rock','indie','sertanejo','funk','mpb','hiphop','eletronica','pagode','forro','gospel','reggae','outros'];
+    const categories=['todos',...order.filter(key=>counts.has(key))];
+    if(state.clubGenre!=='todos'&&!counts.has(state.clubGenre))state.clubGenre='todos';
+    const choice=(key,withCount=false)=>{
+      const selected=state.clubGenre===key;
+      const countValue=key==='todos'?state.clubs.length:counts.get(key)||0;
+      return `<button type="button" class="sf191-genre${selected?' selected':''}"
+        data-sf191-genre="${key}" aria-pressed="${selected?'true':'false'}">
+        <span>${key==='todos'?'▦':'♫'} ${esc(clubGenreLabel(key))}</span>${withCount?`<small>${countValue}</small>`:''}
+      </button>`;
+    };
+    sidebar.innerHTML=categories.map(key=>choice(key,true)).join('');
+    chips.innerHTML=categories.map(key=>choice(key,false)).join('');
+    if(search&&search.value!==state.clubQuery)search.value=state.clubQuery;
+    if(sort&&sort.value!==state.clubSort)sort.value=state.clubSort;
+  }
   function renderClubs(){
     const host=$('sf107Clubs'),caption=$('sf107ClubsCaption'),all=$('sf107ShowAllClubs');
     if(!host)return;
-    const total=state.clubs.length,limit=state.clubsExpanded?24:4;
-    if(caption)caption.textContent=state.clubState==='ready'?
-      total+' '+(total===1?'comunidade disponível':'comunidades disponíveis'):'';
-    if(all){
-      all.hidden=state.clubState!=='ready'||total<=4;
-      all.textContent=state.clubsExpanded?'Ver menos':'Ver todos ›';
-      all.setAttribute('aria-expanded',String(state.clubsExpanded));
-    }
+    renderClubFilters();
+    const total=state.clubs.length;
+    if(caption)caption.textContent=state.clubState==='ready'
+      ? `${total} ${total===1?'comunidade disponível':'comunidades disponíveis'} · Conheça fãs que compartilham sua música.`:'';
     if(state.clubState==='loading'){
       host.innerHTML='<div class="sf107-club-state" role="status">Buscando Fan Clubs disponíveis…</div>';
+      if(all)all.hidden=true;
       return;
     }
     if(state.clubState==='error'){
-      host.innerHTML=`<div class="sf107-club-state" role="alert">
-        <strong>Não foi possível carregar os Fan Clubs.</strong>
+      host.innerHTML=`<div class="sf107-club-state" role="alert"><strong>Não foi possível carregar os Fan Clubs.</strong>
         <span>${esc(state.clubError||'Verifique sua conexão e tente novamente.')}</span>
-        <button type="button" data-sf107="clubs-retry">↻ Tentar novamente</button>
-      </div>`;
+        <button type="button" data-sf107="clubs-retry">↻ Tentar novamente</button></div>`;
+      if(all)all.hidden=true;
       return;
     }
     if(!total){
       host.innerHTML=`<div class="sf107-club-state sf107-club-empty">
-        <span class="sf107-club-empty-icon" aria-hidden="true">♫</span>
-        <div><strong>Seu próximo Fan Club começa aqui</strong>
-        <small>Ainda não há comunidades disponíveis. Crie uma para reunir outros fãs.</small></div>
-        <button type="button" data-sf107="club-create">＋ Criar Fan Club</button>
-      </div>`;
+        <span class="sf107-club-empty-icon" aria-hidden="true">♫</span><div>
+          <strong>Seu próximo Fan Club começa aqui</strong>
+          <small>Ainda não há comunidades disponíveis. Crie uma para reunir outros fãs.</small>
+        </div><button type="button" data-sf107="club-create">＋ Criar Fan Club</button></div>`;
+      if(all)all.hidden=true;
       return;
     }
-    host.innerHTML=state.clubs.slice(0,limit).map((c,i)=>{
+    const query=norm(state.clubQuery);
+    const items=state.clubs.filter(c=>
+      (state.clubGenre==='todos'||clubGenre(c)===state.clubGenre)&&
+      (!query||norm([c.title,c.artist,c.description,c.ownerName,clubGenreLabel(clubGenre(c))].filter(Boolean).join(' ')).includes(query))
+    ).sort((a,b)=>{
+      if(state.clubSort==='new')return (Number(b.createdAt)||0)-(Number(a.createdAt)||0)||count(b.memberCount)-count(a.memberCount);
+      if(state.clubSort==='az')return String(a.title||a.artist||'').localeCompare(String(b.title||b.artist||''),'pt-BR');
+      return count(b.memberCount)-count(a.memberCount)||(Number(b.createdAt)||0)-(Number(a.createdAt)||0);
+    });
+    const limit=state.clubsExpanded?48:6;
+    if(all){
+      all.hidden=items.length<=6;
+      all.textContent=state.clubsExpanded?'Ver menos ↑':`Ver todos (${items.length}) ›`;
+      all.setAttribute('aria-expanded',String(state.clubsExpanded));
+    }
+    const status=$('sf191ClubResults');
+    if(status)status.textContent=`${items.length} ${items.length===1?'Fan Club encontrado':'Fan Clubs encontrados'}`;
+    if(!items.length){
+      host.innerHTML=`<div class="sf107-club-state sf107-club-empty">
+        <strong>Nenhum Fan Club encontrado</strong>
+        <span>Experimente outro gênero ou termo de busca.</span>
+        <button type="button" data-sf191-reset>Limpar filtros</button></div>`;
+      return;
+    }
+    host.innerHTML=items.slice(0,limit).map((c,i)=>{
       const id=/^[a-f0-9-]{36}$/i.test(String(c.id||''))?c.id:'';
-      const fallback=[art.indie,art.rock,art.crowd,art.record][i%4];
+      const genre=clubGenre(c);
+      const fallback=({pop:art.pop,rock:art.rock,indie:art.indie,mpb:art.brasil,
+        hiphop:art.brasil,funk:art.brasil,sertanejo:art.brasil,pagode:art.brasil,
+        eletronica:art.electro,forro:art.brasil,gospel:art.crowd,reggae:art.festival})[genre]||[art.indie,art.rock,art.crowd,art.record][i%4];
       const cover=c.coverVersion&&id?`/api/fan-clubs/${id}/cover?v=${encodeURIComponent(c.coverVersion)}`:fallback;
-      return `<button type="button" class="sf107-club" data-sf107-club="${id}"
-        aria-label="Abrir Fan Club ${esc(c.title||c.artist||'comunidade')}">
-        <img src="${cover}" data-sf107-fallback="${fallback}" alt="" loading="lazy" decoding="async">
-        <span><strong>${esc(c.title||c.artist||'Fan Club')}</strong>
-        <small>${esc(c.artist||'Comunidade de fãs')} · ${fmt(c.memberCount)}
-          ${count(c.memberCount)===1?'membro':'membros'}</small></span>
-        <b aria-hidden="true">›</b>
-      </button>`;
+      const name=esc(c.title||c.artist||'Fan Club');
+      const description=esc(c.description||`Comunidade de fãs de ${c.artist||'música'}. Compartilhe descobertas e participe.`);
+      return `<article class="sf191-club-card">
+        <div class="sf191-club-visual">
+          <img src="${cover}" alt="" loading="lazy" decoding="async" data-sf107-fallback="${fallback}">
+          <span class="sf191-club-tag">♫ ${esc(clubGenreLabel(genre))}</span>
+        </div>
+        <div class="sf191-club-copy">
+          <h3>${name}</h3>
+          <p>${description}</p>
+          <div class="sf191-club-bottom">
+            <span class="sf191-club-members">♧ ${fmt(c.memberCount)} ${count(c.memberCount)===1?'membro':'membros'}</span>
+            <button type="button" class="sf191-club-join" data-sf107-club="${id}"
+              aria-label="Abrir Fan Club ${name}">Entrar no clube ›</button>
+          </div>
+        </div>
+      </article>`;
     }).join('');
   }
   async function pullClubs(force=false){
@@ -440,6 +515,15 @@
     if(removeNotice){e.preventDefault();e.stopPropagation();window.sf15DismissNotification?.(removeNotice.dataset.sf111Dismiss);return;}
     const targetNotice=e.target.closest('[data-sf111-notice]');
     if(targetNotice){window.sf15OpenNotification?.(targetNotice.dataset.sf111Notice);return;}
+    const clubChoice=e.target.closest('[data-sf191-genre]');
+    if(clubChoice){
+      state.clubGenre=clubChoice.dataset.sf191Genre||'todos';
+      state.clubsExpanded=false;renderClubs();return;
+    }
+    if(e.target.closest('[data-sf191-reset]')){
+      state.clubGenre='todos';state.clubQuery='';state.clubsExpanded=false;
+      $('sf191ClubSearch').value='';renderClubs();return;
+    }
     const room=e.target.closest('[data-sf107-room]');
     if(room)return go(room.dataset.sf107Room);
     const club=e.target.closest('[data-sf107-club]');
@@ -498,7 +582,29 @@
                 <button type="button" data-sf107="clubs">Explorar ›</button>
               </div>
             </header>
-            <div class="sf107-club-grid" id="sf107Clubs" aria-live="polite"></div>
+            <div class="sf191-club-toolbar">
+              <label class="sf191-club-search">⌕ <input id="sf191ClubSearch" type="search"
+                placeholder="Buscar Fan Clubs, artistas ou comunidades..." aria-label="Buscar Fan Clubs"
+                autocomplete="off" maxlength="80"></label>
+              <label class="sf191-sort-label">Ordenar por
+                <select id="sf191ClubSort" aria-label="Ordenar Fan Clubs">
+                  <option value="members">Mais membros</option>
+                  <option value="new">Mais recentes</option>
+                  <option value="az">Nome (A–Z)</option>
+                </select>
+              </label>
+            </div>
+            <div class="sf191-club-discovery">
+              <aside class="sf191-club-filters" aria-label="Filtrar Fan Clubs por gênero">
+                <h3>Filtrar por gênero</h3>
+                <div id="sf191ClubFilters" class="sf191-filter-list"></div>
+              </aside>
+              <div class="sf191-club-main">
+                <div id="sf191ClubChips" class="sf191-filter-chips" aria-label="Gêneros dos Fan Clubs"></div>
+                <p id="sf191ClubResults" class="sf191-results" role="status" aria-live="polite"></p>
+                <div class="sf107-club-grid" id="sf107Clubs" aria-live="polite"></div>
+              </div>
+            </div>
           </section>
         </div>
         <aside class="sf107-side-col">
@@ -548,6 +654,18 @@
         </details>
       </div>`;
     old.after(top);
+    main.addEventListener('input',event=>{
+      if(event.target.id==='sf191ClubSearch'){
+        state.clubQuery=String(event.target.value||'').slice(0,80);
+        state.clubsExpanded=false;renderClubs();
+      }
+    });
+    main.addEventListener('change',event=>{
+      if(event.target.id==='sf191ClubSort'){
+        state.clubSort=['members','new','az'].includes(event.target.value)?event.target.value:'members';
+        state.clubsExpanded=false;renderClubs();
+      }
+    });
     main.addEventListener('click',handleClick);
     top.addEventListener('click',handleClick);
     $('sf107Search').addEventListener('input',e=>{
