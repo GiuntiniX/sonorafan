@@ -20,12 +20,12 @@ test('Overview does not clone the legacy avatar and preserves original editor',(
  new Function(overview);
  assert.doesNotMatch(overview,/cloneNode\(true\)/);
  assert.doesNotMatch(overview,/sf202-profile-avatar/);
- assert.match(overview,/sf112SwitchProfileTab\?\.\('profile'\)/);
+ assert.match(overview,/const move=tab=>\{window\.sf112SwitchProfileTab\?\.\(tab\);\}/);
  assert.match(tabs,/\['profile','◉ Editar perfil'\]/);
 });
 test('Club participation matches overview totals even for clubs you administer',()=>{
  const overview=file('public/sonorafan-profile-dashboard-202.js');
- assert.match(overview,/const member=\(\)=>state\.clubs\.filter\(c=>c\.joined\|\|c\.owner\)/);
+ assert.match(overview,/const joined=\(\)=>state\.clubs\.filter\(c=>c\.joined\|\|c\.owner\)/);
  assert.match(overview,/Fan Clubs que participo/);
  assert.match(overview,/Fan Clubs que administro/);
 });
@@ -35,5 +35,5 @@ test('Unified profile CSS isolates the overview and supports mobile',()=>{
  assert.match(css,/overflow:hidden!important;isolation:isolate/);
  assert.match(css,/@media\(max-width:680px\)/);
  assert.match(html,/sonorafan-community-profile-202\.css\?v=205\.1/);
- assert.match(html,/sonorafan-profile-dashboard-202\.js\?v=205\.1/);
+ assert.match(html,/sonorafan-profile-dashboard-202\.js\?v=206\.0/);
 });
