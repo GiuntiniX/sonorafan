@@ -293,7 +293,7 @@
           const block=!state.cfg?.blocked?.includes(id);
           if(confirm(block?'Bloquear '+nick+'?':'Desbloquear '+nick+'?'))changeBlock(id,block);
         }else if(a.dataset.sf53Nick==='follow'){
-          try{const r=await fetch('/api/social/follow',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,follow:true})});if(!r.ok)throw new Error('Não foi possível seguir.');toast(nick+' foi adicionado à sua lista de amigos.');}catch(err){tell(err.message,true);}
+          try{const r=await fetch('/api/social/follow',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,follow:true})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Não foi possível enviar a solicitação.');toast(data.status==='accepted'?'Vocês já são amigos.':data.status==='incoming'?'Essa pessoa já enviou uma solicitação para você. Veja em Meu Perfil → Amigos.':'Solicitação de amizade enviada para '+nick+'.');}catch(err){tell(err.message,true);}
         }
         return;
       }
