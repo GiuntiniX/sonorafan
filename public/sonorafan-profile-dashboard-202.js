@@ -25,13 +25,13 @@
  const managed=()=>state.clubs.filter(c=>c.canModerate||c.owner);
  const member=()=>state.clubs.filter(c=>c.joined||c.owner);
  const name=()=>String($('sf43ProfileName')?.textContent||$('userDisplayName')?.textContent||'Meu perfil').trim()||'Meu perfil';
- const goAgenda=()=>{window.sf43CloseProfile?.();window.sf200OpenAgenda?.();};
+ const goAgenda=()=>{window.sf43CloseProfile?.();if(typeof window.sf125Navigate==='function')window.sf125Navigate('agenda');else window.sf200OpenAgenda?.();};
  const clubBtn=(c,manage=false)=>'<button type="button" class="sf202-club-tile" data-sf202-club="'+esc(c.id)+'">'+image(c)+
   '<strong>'+esc(c.title)+'</strong><small>'+esc(c.artist||'Artista')+'</small><span>'+ (manage?'⚙ Gerenciar':'♧ Ver comunidade')+'</span></button>';
  const eventBtn=e=>'<article class="sf202-personal-event">'+image(e)+'<div class="sf202-personal-info"><span class="sf202-mini-badge">'+(e.type==='fanclub'?'♧ Fan Club':'♫ Sala')+'</span><h3>'+esc(e.title)+'</h3>'+
   '<p>▦ '+esc(when(Number(e.startAt)))+'</p><p>'+esc(e.type==='fanclub'?('Fan Club: '+e.clubName):('Sala: '+e.roomName))+
   (e.roomSlug?' · '+esc(e.roomName||'Sala vinculada'):'')+'</p></div>'+
-  '<div class="sf202-personal-actions"><button type="button" data-sf202-agenda>Ver evento</button>'+
+  '<div class="sf202-personal-actions"><button type="button" data-sf202-event="'+esc(e.type+':'+(e.clubId||e.roomSlug)+':'+e.id)+'">Ver evento</button>'+
   (e.roomSlug?'<button type="button" class="sf202-bright" data-sf202-room="'+esc(e.roomSlug)+'">♫ Entrar na sala</button>':'<button type="button" class="sf202-bright" data-sf202-agenda>Ver agenda</button>')+'</div></article>';
  function render(){
    const host=$('sf202ProfileOverview');if(!host)return;
@@ -96,6 +96,7 @@
    if(btn.hasAttribute('data-sf202-refresh')){load();return;}
    if(btn.hasAttribute('data-sf202-notices')){window.sf43CloseProfile?.();window.sf15OpenNotifications?.();return;}
    if(btn.hasAttribute('data-sf202-edit')){window.sf112SwitchProfileTab?.('profile');return;}
+   if(btn.hasAttribute('data-sf202-event')){goAgenda();window.sf200OpenEvent?.(btn.dataset.sf202Event);return;}
    if(btn.hasAttribute('data-sf202-agenda')){goAgenda();return;}
    if(btn.hasAttribute('data-sf202-room')){const slug=btn.dataset.sf202Room;window.sf43CloseProfile?.();window.joinRoom?.(slug);return;}
    if(btn.hasAttribute('data-sf202-club')){const id=btn.dataset.sf202Club;window.sf43CloseProfile?.();window.sf107OpenFanClub?.(id);return;}
