@@ -155,7 +155,13 @@ function installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, 
         const joined=[...io.sockets.sockets.values()].some(s=>s.userEmail===req.chat53Email && s.sfSocialRoom===roomSlug);
         if(!joined)return res.status(403).json({error:'Entre na sala para denunciar esta mensagem'});
       }
-      await db.collection('chatReports53').doc(crypto.randomUUID()).set({type,reporterId:req.chat53Id,otherId:validId(otherId)?otherId:null,roomSlug:type==='room'?roomSlug:null,messageId,reason:why,evidenceText:safeText(evidence.text,700),createdAt:Date.now(),status:'open'});
+      const reportedId=type==='dm'?(validId(evidence.from)&&evidence.from!==req.chat53Id?evidence.from:null):
+        (validId(evidence.userId)&&evidence.userId!==req.chat53Id?evidence.userId:null);
+      await db.collection('chatReports53').doc(crypto.randomUUID()).set({
+        type,reporterId:req.chat53Id,reportedId,otherId:validId(otherId)?otherId:null,
+        roomSlug:type==='room'?roomSlug:null,messageId,reason:why,
+        evidenceText:safeText(evidence.text,700),createdAt:Date.now(),status:'open'
+      });
       res.json({success:true});
     }catch(e){console.error('chat53 report',e.message);res.status(503).json({error:'Não foi possível registrar a denúncia'});}
   });
