@@ -44,16 +44,19 @@
    const chosen=find(personalOverride||sharedTheme);
    const variables=['--sf88-primary','--sf88-secondary','--sf88-panel','--sf88-label','--sf88-art'];
    if(chosen.id==='geral'){
-     // Mantém a identidade padrão do festival sem sobrescrever as cores do layout original.
-     screen.removeAttribute('data-room-theme');
-     variables.forEach(key=>screen.style.removeProperty(key));
+     // Evita mudanças de estilo quando o usuário apenas alterna abas.
+     if(screen.hasAttribute('data-room-theme'))screen.removeAttribute('data-room-theme');
+     variables.forEach(key=>{if(screen.style.getPropertyValue(key))screen.style.removeProperty(key);});
    }else{
-     screen.dataset.roomTheme=chosen.id;
-     screen.style.setProperty('--sf88-primary',chosen.primary);
-     screen.style.setProperty('--sf88-secondary',chosen.secondary);
-     screen.style.setProperty('--sf88-panel',chosen.bg);
-     screen.style.setProperty('--sf88-label',chosen.text);
-     screen.style.setProperty('--sf88-art','url("'+chosen.art+'")');
+     if(screen.dataset.roomTheme!==chosen.id)screen.dataset.roomTheme=chosen.id;
+     const values={
+       '--sf88-primary':chosen.primary,'--sf88-secondary':chosen.secondary,
+       '--sf88-panel':chosen.bg,'--sf88-label':chosen.text,
+       '--sf88-art':'url("'+chosen.art+'")'
+     };
+     Object.entries(values).forEach(([key,value])=>{
+       if(screen.style.getPropertyValue(key)!==value)screen.style.setProperty(key,value);
+     });
    }
    // O palco mostra a arte da atmosfera, não a miniatura da música atual.
    // O catálogo continua sendo a única fonte de imagem para cada tema.
