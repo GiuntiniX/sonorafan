@@ -6,7 +6,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const n=v=>Math.max(0,Number(v)||0),num=v=>n(v).toLocaleString('pt-BR');
 const date=v=>{const d=new Date(Number(v));return Number.isFinite(d.getTime())?d.toLocaleString('pt-BR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Data não disponível';};
 const art={kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',mpb:'/art-33/poster-brasil.webp',festival:'/art-41/festival-noite.webp',stage:'/art-129/sonorafan-stage.svg'};
-const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],followers:[],outgoing:[],followersLoading:false,followersLoaded:0,friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0,inviteRooms:[],inviteRoom:'',invitingId:null};
+const state={events:[],clubs:[],notices:[],profile:null,journey:null,recent:[],section:'overview',loading:false,lastLoad:0,error:'',request:0,photo:'',photoFallback:'♫',friends:[],followers:[],outgoing:[],followersLoading:false,followersLoaded:0,friendQuery:'',friendResults:[],friendsFilter:'all',friendsLoading:false,friendsSearchLoading:false,friendsError:'',friendsLoaded:0};
 const isManager=c=>!!(c?.owner||c?.canModerate);
 const joined=()=>state.clubs.filter(c=>c.joined||c.owner);
 const managed=()=>state.clubs.filter(isManager);
@@ -341,6 +341,13 @@ function init(){
    if(row){row.classList.add('sf220-highlight');row.scrollIntoView({block:'nearest',behavior:'auto'});}
   }
  };
+ // Com o perfil aberto, sincroniza novas solicitações sem exigir busca manual.
+ setInterval(()=>{
+  if(document.hidden||state.section!=='friends')return;
+  const profile=$('sf43ProfileModal');
+  if(!profile?.classList.contains('active'))return;
+  if(!state.followersLoading&&Date.now()-state.followersLoaded>40000)fetchFollowers(true);
+ },45000);
  window.sf202RefreshProfile=(force=false)=>{if(force)state.lastLoad=0;load(force);};
  const modal=$('sf43ProfileModal');
  if(modal)new MutationObserver(()=>{
