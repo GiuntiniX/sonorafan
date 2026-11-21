@@ -15,7 +15,7 @@ test('Legacy quick actions and redundant community card are removed at the sourc
 test('Page shell is mounted and keeps original profile data and tab handlers',()=>{
  const html=read('public/index.html'),shell=read('public/sonorafan-page-shell-207.js');
  new Function(shell);
- for(const value of ['/sonorafan-page-shell-207.js?v=207.1','/sonorafan-page-shell-207.css?v=207.1'])
+ for(const value of ['/sonorafan-page-shell-207.js?v=207.2','/sonorafan-page-shell-207.css?v=207.1'])
   assert.ok(html.includes(value),value);
  assert.match(shell,/sf207-profile-page/);
  assert.match(shell,/originalOpen/);
