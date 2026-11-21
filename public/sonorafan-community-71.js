@@ -619,7 +619,8 @@
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 Alterar capa</button><button type="button" data-sf73-remove-cover>Usar capa padrão</button>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
        <div class="sf71-detail-columns sf227-social-grid"><aside id="sf227Left" class="sf227-side sf227-left" aria-label="Membros, eventos e salas"></aside><section class="sf71-feed sf227-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Fórum da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
-         ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf600Title">Título da discussão<input id="sf600Title" name="title" maxlength="110" minlength="6" required placeholder="Resuma sua discussão em um título"></label>
+         ${c.joined?`<div class="sf227-composer-bar"><span class="sf227-composer-icon">♫</span><button type="button" data-sf227-compose>Compartilhar algo com a comunidade...</button><button type="button" aria-label="Publicar foto" data-sf227-photo>▧</button><button type="button" aria-label="Agenda" data-sf160-pane="events">▦</button><button type="button" aria-label="Enquetes" data-sf160-pane="polls">▤</button><button type="button" class="sf227-compose-main" data-sf227-compose>Publicar</button></div>`:''}
+         ${c.joined?`<form id="sf71PostForm" class="sf227-composer-collapsed"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf600Title">Título da discussão<input id="sf600Title" name="title" maxlength="110" minlength="6" required placeholder="Resuma sua discussão em um título"></label>
          <label for="sf600Tags">Tags (separadas por vírgula, até cinco)<input id="sf600Tags" name="tags" maxlength="140" placeholder="show, ingressos, turnê"></label>
          <label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImage">📷 Foto opcional (JPG, PNG ou WebP)</label><input id="sf170PostImage" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Foto da publicação"><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option><option value="active">Recentemente ativos</option><option value="unanswered">Dúvidas sem resposta</option><option value="saved">Meus favoritos</option><option value="unread">Não lidos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button>
          <button type="button" data-sf600-search>🔎 Buscar no histórico completo</button></div><div id="sf180ForumCounts" class="sf180-forum-counts" aria-label="Filtrar por categorias"></div><div id="sf180FeedSummary" class="sf180-feed-summary" aria-live="polite"></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
@@ -672,6 +673,14 @@
    },async id=>{await refreshClubRooms(id);status(replacing?'Sala substituída.':'Sala vinculada.');});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+  if(t.hasAttribute('data-sf227-compose')||t.hasAttribute('data-sf227-photo')){
+    const form=$('sf71PostForm');if(!form)return;
+    form.classList.remove('sf227-composer-collapsed');
+    if(t.hasAttribute('data-sf227-photo'))$('sf170PostImage')?.click();
+    else $('sf600Title')?.focus({preventScroll:true});
+    form.scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
   if(t.hasAttribute('data-sf227-member')){
     const peer=t.dataset.sf227Member;
     if(!memberId(peer))return;
@@ -1103,6 +1112,7 @@
         if(blob&&result.post?.id)await uploadPostPhoto(id,result.post.id,blob);
         $('sf71PostText').value='';if($('sf600Title'))$('sf600Title').value='';if($('sf600Tags'))$('sf600Tags').value='';
          if($('sf170PostImage'))$('sf170PostImage').value='';
+          $('sf71PostForm')?.classList.add('sf227-composer-collapsed');
         await loadPosts(id);
       }
      catch(err){status(err.message,true);}finally{submit.disabled=false;}
