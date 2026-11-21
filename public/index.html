@@ -3766,9 +3766,9 @@
           <p>Escolha uma imagem. Sem capa, a miniatura da música atual aparece automaticamente.</p>
           <div class="sf-cover-preview" id="${k}CoverPreview" aria-label="Prévia: arraste a imagem para enquadrar" onpointerdown="sfCoverDragStart(event,\'${k}\')" onpointermove="sfCoverDragMove(event,\'${k}\')" onpointerup="sfCoverDragEnd(event,\'${k}\')" onpointercancel="sfCoverDragEnd(event,\'${k}\')" onlostpointercapture="sfCoverDragEnd(event,\'${k}\')"><span class="sf-cover-empty">♫ Capa dinâmica</span><span class="sf-cover-hint" hidden>✥ Arraste para enquadrar</span></div>
           <small>Arraste a imagem dentro do quadrado para enquadrar. Ajuste o zoom se necessário e depois salve. Recomendado: 1500 × 1200 px.</small>
-          <div class="sf-cover-framing" role="group" aria-label="Enquadrar a imagem da capa">
-            <label>↔ Horizontal <input id="${k}CoverX" type="range" min="0" max="100" step="1" value="${Number.isFinite(+s.coverX)?Math.min(100,Math.max(0,+s.coverX)):50}" oninput="sfCoverFrame('${k}')"></label>
-            <label>↕ Vertical <input id="${k}CoverY" type="range" min="0" max="100" step="1" value="${Number.isFinite(+s.coverY)?Math.min(100,Math.max(0,+s.coverY)):50}" oninput="sfCoverFrame('${k}')"></label>
+          <div class="sf-cover-framing" role="group" aria-label="Zoom da capa">
+            <input id="${k}CoverX" type="hidden" value="${Number.isFinite(+s.coverX)?Math.min(100,Math.max(0,+s.coverX)):50}">
+            <input id="${k}CoverY" type="hidden" value="${Number.isFinite(+s.coverY)?Math.min(100,Math.max(0,+s.coverY)):50}">
             <label>＋ Zoom <input id="${k}CoverZoom" type="range" min="1" max="2" step="0.05" value="${Number.isFinite(+s.coverZoom)?Math.min(2,Math.max(1,+s.coverZoom)):1}" oninput="sfCoverFrame('${k}')"></label>
             <button type="button" onclick="sfCoverFrameReset('${k}')">Centralizar recorte</button>
           </div>
