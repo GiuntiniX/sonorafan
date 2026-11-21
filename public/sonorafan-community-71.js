@@ -308,6 +308,56 @@
    if(box){box.className='sf180-topic-preview sf180-type-'+type.css;
      box.innerHTML=`<strong>${type.icon} ${type.title}</strong><small>${type.description}</small>`;}
  }
+
+ function socialAvatar(m){
+   const name=String(m?.name||'Fã'),src=String(m?.avatarUrl||'');
+   const valid=/^\/api\/profile108\/photo\/[a-f0-9]{24}\?v=\d+$/.test(src)||/^\/avatars-108\/[a-z0-9-]{1,60}\.svg$/.test(src);
+   return valid?'<img src="'+esc(src)+'" loading="lazy" decoding="async" alt="Foto de '+esc(name)+'">':
+     '<span aria-hidden="true">'+esc(m?.avatar||'🎧')+'</span>';
+ }
+ function renderSocialWidgets(){
+   const club=state.detail?.club, left=$('sf227Left'),right=$('sf227Right');
+   if(!club||!left||!right)return;
+   const members=(club.members||[]),events=state.clubEvents.slice().filter(e=>Number(e.startAt)>=Date.now()-3600000).sort((a,b)=>Number(a.startAt)-Number(b.startAt));
+   const rooms=club.rooms||[],activity=state.posts.slice(0,3),tags=new Map();
+   state.posts.forEach(post=>(post.tags||[]).forEach(tag=>{const key=String(tag).trim().slice(0,35);if(key)tags.set(key,(tags.get(key)||0)+1);}));
+   const topTags=[...tags].sort((a,b)=>b[1]-a[1]).slice(0,5);
+   const card=(title,link,body)=>'<section class="sf227-widget"><header><h4>'+title+'</h4>'+link+'</header>'+body+'</section>';
+   const goto=(pane,label)=>'<button type="button" data-sf160-pane="'+pane+'">'+label+' →</button>';
+   left.innerHTML=
+    card('👥 Membros em destaque',goto('members','Ver todos'),
+     members.length?'<div class="sf227-avatar-strip">'+members.slice(0,4).map(m=>
+      '<button type="button" class="sf227-mini-member" data-sf227-member="'+esc(m.id)+'" title="Ver opções para '+esc(m.name)+'">'+
+      '<span class="sf227-mini-photo">'+socialAvatar(m)+'</span><small>'+esc(m.name)+'</small></button>').join('')+'</div>':
+      '<p class="sf227-empty">Nenhum perfil disponível ainda.</p>')+
+    card('▦ Próximos eventos',goto('events','Ver agenda'),
+      events.length?events.slice(0,3).map(ev=>'<button type="button" class="sf227-event-item" data-sf160-pane="events">'+
+       '<span class="sf227-event-date"><b>'+new Date(Number(ev.startAt)).toLocaleDateString('pt-BR',{day:'2-digit'})+'</b><small>'+new Date(Number(ev.startAt)).toLocaleDateString('pt-BR',{month:'short'}).replace('.','')+'</small></span>'+
+       '<span><strong>'+esc(ev.title)+'</strong><small>'+new Date(Number(ev.startAt)).toLocaleString('pt-BR')+'</small></span></button>').join(''):
+       '<p class="sf227-empty">Nenhum evento futuro agendado.</p>')+
+    card('♫ Salas de música',goto('rooms','Ver salas'),rooms.length?
+      rooms.slice(0,3).map(room=>'<div class="sf227-room-item"><span class="sf227-room-disc">♫</span>'+
+       '<span><strong>'+esc(room.name)+'</strong><small>'+Math.max(0,Number(room.listenerCount)||0)+' ouvintes</small></span>'+
+       '<button type="button" data-sf141-club-room="'+esc(room.slug)+'" aria-label="Entrar em '+esc(room.name)+'">▶</button></div>').join(''):
+       '<p class="sf227-empty">Este Fanclub ainda não vinculou salas.</p>');
+   right.innerHTML=
+     card('◉ Membros da comunidade',goto('members','Ver todos'),
+       '<div class="sf227-online-strip">'+(members.length?members.slice(0,6).map(m=>
+         '<button type="button" data-sf227-member="'+esc(m.id)+'" title="'+esc(m.name)+'">'+socialAvatar(m)+'</button>').join(''):
+          '<p class="sf227-empty">Aguardando membros.</p>')+'</div><small class="sf227-context">'+
+         Math.max(0,Number(club.memberCount)||0)+' membros · Presença online não disponível</small>')+
+     card('✦ Novidades do Fanclub',goto('mural','Ver mural'),
+       activity.length?activity.map(p=>'<button type="button" class="sf227-activity" data-sf600-open="'+esc(p.id)+'">'+
+        '<span>✦</span><span><strong>'+esc((p.title||p.text||'Nova discussão').slice(0,78))+'</strong>'+
+        '<small>'+esc(p.authorName||'Participante')+' · '+new Date(Number(p.createdAt)||Date.now()).toLocaleDateString('pt-BR')+'</small></span></button>').join(''):
+        '<p class="sf227-empty">As novidades aparecerão conforme os fãs publicarem.</p>')+
+     card('↗ Tópicos em alta',goto('mural','Ver mais'),
+       topTags.length?'<ol class="sf227-trending">'+topTags.map(([tag,count],i)=>
+         '<li><span>'+String(i+1)+'</span><button type="button" data-sf600-tag="'+esc(tag)+'">#'+esc(tag)+'</button>'+
+         '<small>'+count+' '+(count===1?'post':'posts')+'</small></li>').join('')+'</ol>':
+        '<p class="sf227-empty">As tags mais usadas aparecerão aqui.</p>');
+ }
+
  function renderFeed(){
    if(state.focusPost){renderFocusedPost();return;}
 
@@ -446,7 +496,7 @@
  state.detail?.club?.canModerate?api(prefix+'/insights'):Promise.resolve(null),api(prefix+'/contributors'),
  state.detail?.club?.canDelete?api(prefix+'/reports'):Promise.resolve({reports:[]})]);
  if(state.activeId!==id)return;state.polls=p.polls||[];state.ideas=ideas.ideas||[];state.clubEvents=events.events||[];state.insights=insights;
- state.contributors=contributors.ranking||[];state.reports=reports.reports||[];renderExtras();renderCommunityAside();
+ state.contributors=contributors.ranking||[];state.reports=reports.reports||[];renderExtras();renderCommunityAside();renderSocialWidgets();
  }catch(e){if(state.activeId===id&&$('sf160Extras'))$('sf160Extras').textContent='Não foi possível carregar as informações da comunidade.';}
  }
  function renderCommunityAside(){
@@ -545,21 +595,21 @@
  function switchPane(pane){
  state.activePane=pane;
  document.querySelectorAll('#sf71ClubDetail [data-sf160-pane]').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.sf160Pane===pane)));
- const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();renderCommunityAside();
+ const feed=$('sf160FeedArea');if(feed)feed.hidden=pane!=='mural';renderExtras();renderCommunityAside();renderSocialWidgets();
  }
  async function openDetail(id){
-   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='events';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
+   const freshClub=state.activeId!==id;stopLive();state.activeId=id;state.postCursor=null;state.postHasMore=false;state.activePane='mural';state.feedFilter='all';state.feedSearch='';state.commentsOpen=null;state.focusPost=null;state.forumSearch=false;state.forumSearchCursor=null;state.replyTo=null;state.quoteTo=null;const box=$('sf71ClubDetail');box.classList.remove('sf600-reading');box.hidden=false;$('sf71ClubList').hidden=true;if(freshClub)box.closest('.sf5-community-scroll')?.scrollTo({top:0,behavior:'instant'});box.innerHTML='<p class="sf71-empty">Carregando comunidade…</p>';
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
-       <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} ${'sf73-with-cover'}">${imageCover(c)}<div class="sf71-detail-symbol" aria-hidden="true">♫</div><div class="sf73-hero-info"><span>FAN CLUB NÃO OFICIAL</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${esc(genres[c.genre]||'Outros')} · ${c.memberCount} participantes</p></div></div>
+       <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} sf73-with-cover sf227-hero">${imageCover(c)}<div class="sf227-hero-mark" aria-hidden="true">♫</div><div class="sf73-hero-info"><span>SONORAFAN · COMUNIDADE DE FÃS</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${esc(genres[c.genre]||'Outros')}</p><div class="sf227-hero-meta"><b>♧ ${Math.max(0,Number(c.memberCount)||0)} membros</b><span>${c.joined||c.owner?'✓ Você faz parte':'♡ Participe da comunidade'}</span></div></div></div>
        <p class="sf71-detail-desc">${esc(c.description||'Um lugar para reunir fãs, músicas e boas conversas.')}</p>
        ${c.canEditProfile?`<button type="button" class="sf180-edit-profile" data-sf180-edit-profile>✎ Editar bio e regras</button>`:''}
         ${c.owner?'<button type="button" class="sf204-identity-button" data-sf204-edit-identity>⚙ Editar identidade</button>':''}
        ${c.profileUpdatedAt?`<small class="sf180-profile-updated">Informações atualizadas em ${new Date(c.profileUpdatedAt).toLocaleDateString('pt-BR')}</small>`:''}
        <details class="sf170-welcome"><summary>👋 Conheça esta comunidade</summary><div><p>Boas-vindas ao Fan Club de ${esc(c.artist)}! Aqui você pode conversar sobre o artista, tirar dúvidas, propor ideias e participar dos encontros.</p><p><strong>Comunidade:</strong> ${esc(c.title)} · ${Math.max(0,Number(c.memberCount)||0)} participantes</p><p><strong>Primeiros passos:</strong> leia as regras, participe do mural e confira ideias e enquetes ao lado. A fila musical continua nas salas do SonoraFan.</p></div></details>
        ${c.rules?`<details class="sf71-rule sf160-rules"><summary>📋 Regras da comunidade</summary><p>${esc(c.rules)}</p></details>`:''}
-       <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['events','Agenda'],['mural','Mural'],['rooms','Salas vinculadas'],['members','Membros'],['polls','Enquetes']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='events'}">${label}</button>`).join('')}</nav>
+       <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['mural','▣ Mural'],['members','♧ Membros'],['rooms','♫ Salas'],['events','▦ Agenda'],['polls','▤ Enquetes']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='mural'}">${label}</button>`).join('')}</nav>
         <div class="sf71-detail-actions">${c.owner?'<span class="sf71-owner">★ Você administra este Fan Club</span>':`<button type="button" class="sf71-action-primary" data-sf71-join>${c.joined?'Sair do Fan Club':'Participar do Fan Club'}</button>`}
          ${c.owner?'<button type="button" data-sf160-pane="members">👑 Administradores do Fan Club</button>':''}
           ${c.canModerate?'<button type="button" data-sf160-pane="rooms">♫ Gerenciar salas</button>':''}
@@ -568,12 +618,12 @@
          <button type="button" class="sf202-club-agenda-link" data-sf170-show-events>▦ Agenda do Fan Club</button>${c.joined?`<button type="button" data-sf170-notifications data-enabled="${!c.notificationsEnabled}">${c.notificationsEnabled?'🔔 Notificações ativadas':'🔕 Notificações silenciadas'}</button>`:''}
          ${c.owner?`<button type="button" data-sf73-change-cover>🖼 Alterar capa</button><button type="button" data-sf73-remove-cover>Usar capa padrão</button>`:''}
          ${c.canDelete?'<button type="button" class="sf75-delete-club" data-sf75-delete-club>🗑 Excluir Fan Club</button>':''}</div>
-       <div class="sf71-detail-columns"><section class="sf71-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Fórum da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
+       <div class="sf71-detail-columns sf227-social-grid"><aside id="sf227Left" class="sf227-side sf227-left" aria-label="Membros, eventos e salas"></aside><section class="sf71-feed sf227-feed"><div id="sf160FeedArea"><div class="sf71-rooms-head"><h4>Fórum da comunidade</h4>${c.joined?'<span class="sf72-live-label" id="sf72ClubLiveStatus">Conectando…</span>':''}</div>
          ${c.joined?`<form id="sf71PostForm"><div class="sf140-post-tools"><small>Compartilhe uma novidade, opinião ou pergunta com a comunidade.</small></div><label for="sf600Title">Título da discussão<input id="sf600Title" name="title" maxlength="110" minlength="6" required placeholder="Resuma sua discussão em um título"></label>
          <label for="sf600Tags">Tags (separadas por vírgula, até cinco)<input id="sf600Tags" name="tags" maxlength="140" placeholder="show, ingressos, turnê"></label>
          <label for="sf71PostText" class="sf71-sr-only">Publicar no Fan Club</label><label for="sf170Topic" class="sf71-sr-only">Assunto da publicação</label><select id="sf170Topic" aria-label="Assunto da publicação"><option value="conversa">Conversa</option><option value="duvida">Dúvida</option><option value="novidade">Novidade</option><option value="evento">Evento</option><option value="ideia">Ideia</option></select><div class="sf180-topic-preview" id="sf180TopicPreview" aria-live="polite"><strong>💬 Conversa</strong><small>Um papo livre com outros fãs.</small></div><textarea id="sf71PostText" maxlength="600" minlength="3" rows="3" placeholder="Sobre o que você quer conversar com os fãs?" required></textarea><label class="sf170-photo-label" for="sf170PostImage">📷 Foto opcional (JPG, PNG ou WebP)</label><input id="sf170PostImage" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Foto da publicação"><button type="submit" class="sf71-action-primary">Publicar</button></form><div class="sf160-feed-tools"><label for="sf160FeedSearch" class="sf71-sr-only">Buscar publicações</label><input id="sf160FeedSearch" type="search" placeholder="Buscar publicação ou autor…" autocomplete="off"><label for="sf160FeedFilter" class="sf71-sr-only">Filtrar publicações</label><select id="sf160FeedFilter"><option value="all">Todos os posts</option><option value="conversa">💬 Conversas</option><option value="duvida">❔ Dúvidas</option><option value="novidade">✨ Novidades</option><option value="evento">📅 Eventos</option><option value="ideia">💡 Ideias</option><option value="pinned">📌 Fixados</option><option value="popular">Mais curtidos</option><option value="active">Recentemente ativos</option><option value="unanswered">Dúvidas sem resposta</option><option value="saved">Meus favoritos</option><option value="unread">Não lidos</option></select><button type="button" data-sf180-clear-filter>Limpar filtros</button>
          <button type="button" data-sf600-search>🔎 Buscar no histórico completo</button></div><div id="sf180ForumCounts" class="sf180-forum-counts" aria-label="Filtrar por categorias"></div><div id="sf180FeedSummary" class="sf180-feed-summary" aria-live="polite"></div><div id="sf71Posts" aria-live="polite">Carregando conversa…</div>`:'<p class="sf71-empty">Participe do Fan Club para ler e publicar no mural.</p>'}
-       </div><div id="sf160Extras" aria-live="polite"></div></section><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div>`;
+       </div><div id="sf160Extras" aria-live="polite"></div></section><div class="sf227-side sf227-right"><aside id="sf227Right" aria-label="Novidades e assuntos em destaque"></aside><aside id="sf170CommunityAside" class="sf71-room-list sf170-community-aside" aria-label="Ideias e enquetes da comunidade"><p>Carregando ideias e enquetes…</p></aside></div></div>`;
      if(c.joined){
          const feedArea=$('sf160FeedArea');if(feedArea)feedArea.hidden=true;
           await loadPosts(id);await loadExtras(id);
@@ -620,6 +670,15 @@
    },async id=>{await refreshClubRooms(id);status(replacing?'Sala substituída.':'Sala vinculada.');});
  }
  async function onDetailClick(e){const t=e.target.closest('button');if(!t)return;const id=state.activeId;if(!id)return;
+  if(t.hasAttribute('data-sf227-member')){
+    const peer=t.dataset.sf227Member;
+    if(!memberId(peer))return;
+    switchPane('members');
+    const card=$('sf160Extras')?.querySelector('.sf226-member-card [data-sf226-dm="'+peer+'"]')?.closest('.sf226-member-card');
+    card?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+
   if(t.hasAttribute('data-sf226-dm')){
     const peer=t.dataset.sf226Dm;
     if(!memberId(peer)||!state.detail?.club?.members?.some(m=>m.id===peer&&!m.isSelf))return;
