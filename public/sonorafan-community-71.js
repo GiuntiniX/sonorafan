@@ -34,7 +34,9 @@
  };
  const byId=id=>state.clubs.find(c=>c.id===id);
  const coverUrl=club=>club?.coverType==='gallery'?(gallery[club.coverGalleryId]||fallback(club)):club?.coverType==='external'?(safeUrl(club.coverImageUrl)||fallback(club)):club?.coverVersion?'/api/fan-clubs/'+encodeURIComponent(club.id)+'/cover?v='+encodeURIComponent(String(club.coverVersion)):fallback(club);
- const imageCover=(club,small=false)=>`<img class="sf73-cover-img" src="${esc(coverUrl(club))}" data-sf192-fallback="${esc(fallback(club))}" referrerpolicy="no-referrer" alt="Capa do Fan Club ${esc(club.title)}" ${small?'loading="lazy"':''} decoding="async">`;
+ const badgeUrl=club=>safeUrl(club?.badgeImageUrl);
+  const badgeMark=club=>badgeUrl(club)?'<img src="'+esc(badgeUrl(club))+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Imagem do Fanclub">':'♫';
+  const imageCover=(club,small=false)=>`<img class="sf73-cover-img" src="${esc(coverUrl(club))}" data-sf192-fallback="${esc(fallback(club))}" referrerpolicy="no-referrer" alt="Capa do Fan Club ${esc(club.title)}" ${small?'loading="lazy"':''} decoding="async">`;
  document.addEventListener('error',event=>{const img=event.target;if(img?.matches?.('img.sf73-cover-img')&&img.dataset.sf192Fallback&&img.src!==new URL(img.dataset.sf192Fallback,location.href).href){img.src=img.dataset.sf192Fallback;}},true);
  async function compressCover(file){
    if(!file)return null;
@@ -711,16 +713,17 @@
    try{const d=await api('/api/fan-clubs/'+encodeURIComponent(id));state.detail=d;
      const c=d.club;
      box.innerHTML=`<button type="button" class="sf71-back" data-sf71-back>← Voltar aos Fan Clubs</button>
-       <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} sf73-with-cover sf227-hero ${!['gallery','external','legacy'].includes(c.coverType)&&!c.coverVersion?'sf228-reference-art':''}">${imageCover(c)}<div class="sf227-hero-mark" aria-hidden="true">♫</div><div class="sf73-hero-info"><span>SONORAFAN · COMUNIDADE DE FÃS</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${esc(genres[c.genre]||'Outros')}</p><div class="sf227-hero-meta"><b>♧ ${Math.max(0,Number(c.memberCount)||0)} membros</b><span>${c.joined||c.owner?'✓ Você faz parte':'♡ Participe da comunidade'}</span></div></div><div class="sf228-hero-actions">
+       <div class="sf71-detail-hero sf71-theme-${esc(c.theme)} sf73-with-cover sf227-hero ${!['gallery','external','legacy'].includes(c.coverType)&&!c.coverVersion?'sf228-reference-art':''}">${imageCover(c)}<div class="sf227-hero-mark" aria-label="Imagem do Fanclub">${badgeMark(c)}</div><div class="sf73-hero-info"><span>SONORAFAN · COMUNIDADE DE FÃS</span><h3>${esc(c.title)}</h3><p>Para fãs de ${esc(c.artist)} · ${esc(genres[c.genre]||'Outros')}</p><div class="sf227-hero-meta"><b>♧ ${Math.max(0,Number(c.memberCount)||0)} membros</b><span>${c.joined||c.owner?'✓ Você faz parte':'♡ Participe da comunidade'}</span></div></div><div class="sf228-hero-actions">
 ${c.joined||c.owner?'<span class="sf228-following">✓ Membro</span>':'<button type="button" data-sf71-join class="sf228-join">♡ Participar</button>'}
 <button type="button" class="sf228-hero-share" data-sf208-share aria-label="Compartilhar Fanclub">Compartilhar</button>
+ ${c.owner?'<button type="button" class="sf228-join" data-sf204-edit-identity>✎ Editar Fanclub</button>':''}
 ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join" data-sf141-club-room="'+esc(c.rooms.find(r=>r.slug===c.defaultRoomSlug)?.slug||c.rooms[0].slug)+'">♫ Entrar na sala</button>':''}
 </div></div>
        <nav class="sf160-tabs" role="tablist" aria-label="Áreas do Fan Club">${[['mural','▣ Mural'],['members','♧ Membros'],['rooms','♫ Salas'],['events','▦ Agenda'],['polls','▤ Enquetes']].map(([id,label])=>`<button type="button" role="tab" data-sf160-pane="${id}" aria-selected="${id==='mural'}">${label}</button>`).join('')}</nav>
        <details class="sf228-settings"><summary>⚙ Opções, regras e administração do Fanclub</summary><div class="sf228-settings-content">
        <p class="sf71-detail-desc">${esc(c.description||'Um lugar para reunir fãs, músicas e boas conversas.')}</p>
        ${c.canEditProfile?`<button type="button" class="sf180-edit-profile" data-sf180-edit-profile>✎ Editar bio e regras</button>`:''}
-        ${c.owner?'<button type="button" class="sf204-identity-button" data-sf204-edit-identity>⚙ Editar identidade</button>':''}
+        ${c.owner?'<button type="button" class="sf204-identity-button" data-sf204-edit-identity>⚙ Editar identidade e imagem</button>':''}
        ${c.profileUpdatedAt?`<small class="sf180-profile-updated">Informações atualizadas em ${new Date(c.profileUpdatedAt).toLocaleDateString('pt-BR')}</small>`:''}
        <details class="sf170-welcome"><summary>👋 Conheça esta comunidade</summary><div><p>Boas-vindas ao Fan Club de ${esc(c.artist)}! Aqui você pode conversar sobre o artista, tirar dúvidas, propor ideias e participar dos encontros.</p><p><strong>Comunidade:</strong> ${esc(c.title)} · ${Math.max(0,Number(c.memberCount)||0)} participantes</p><p><strong>Primeiros passos:</strong> leia as regras, participe do mural e confira ideias e enquetes ao lado. A fila musical continua nas salas do SonoraFan.</p></div></details>
        ${c.rules?`<details class="sf71-rule sf160-rules"><summary>📋 Regras da comunidade</summary><p>${esc(c.rules)}</p></details>`:''}
@@ -931,10 +934,14 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
      '<label>Gênero musical<select name="genre">'+genreOpts+'</select></label>'+
      '<label>Identidade visual<select name="theme">'+themeOpts+'</select></label>'+
      themePreview+
-     '<small>A imagem de capa pode ser alterada separadamente.</small>',
+     '<label>Segunda imagem · ícone quadrado (URL HTTPS)<input type="url" name="badgeImageUrl" maxlength="500" placeholder="https://exemplo.com/icone.webp" value="'+esc(club.badgeImageUrl||'')+'"></label>'+
+      '<small>Substitui a nota musical no topo do Fanclub. Deixe vazio para restaurar o ícone original. A capa principal continua independente.</small>',
      async fd=>{
        await api('/api/fan-clubs/'+encodeURIComponent(id)+'/identity',{method:'PATCH',body:JSON.stringify({
-         title:fd.get('title'),artist:fd.get('artist'),genre:fd.get('genre'),theme:fd.get('theme')})});return id;
+         title:fd.get('title'),artist:fd.get('artist'),genre:fd.get('genre'),theme:fd.get('theme')})});
+        const raw=String(fd.get('badgeImageUrl')||'').trim();
+        if(raw&&!safeUrl(raw))throw Error('A segunda imagem precisa de um endereço HTTPS público válido.');
+        await api('/api/fan-clubs/'+encodeURIComponent(id)+'/badge-image',{method:'PATCH',body:JSON.stringify({badgeImageUrl:raw})});return id;
      },async ()=>{await openDetail(id);await loadClubs();window.sf107RefreshFanClubs?.();status('Identidade atualizada.');});
    const picker=themeOverlay.querySelector('[name=theme]'),sample=themeOverlay.querySelector('#sf208ThemePreview');
    picker?.addEventListener('change',()=>{if(sample)sample.className='sf208-theme-preview sf71-theme-'+picker.value;});
