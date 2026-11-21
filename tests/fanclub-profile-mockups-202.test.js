@@ -16,7 +16,7 @@ test('profile dashboard and Fan Club agenda are included in main platform',()=>{
 test('Fan Club events validate linked public rooms and expose room name',()=>{
  const server=file('fan-clubs-71.js');
  assert.match(server,/Escolha uma sala pública vinculada a este Fan Club/);
- assert.match(server,/roomSlug,attendeeIds:/);
+ assert.match(server,/roomSlug,notifyMembers,sendRoomLink,remindStart,attendeeIds:/);
  assert.match(server,/roomName:clean\(rooms\.get\(d\.data\(\)\.roomSlug\)/);
  assert.match(server,/app\.post\('\/api\/fan-clubs\/:id\/default-room'/);
  assert.match(server,/roomSlug:details\.roomSlug/);
