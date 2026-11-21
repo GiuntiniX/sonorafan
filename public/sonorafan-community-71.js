@@ -5,7 +5,10 @@
  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const state={query:'',mine:false,clubs:[],activeId:null,detail:null,busy:false,searchTimer:null,previousFocus:null,stream:null,poll:null,refreshTimer:null,feedFilter:'all',feedSearch:'',posts:[],postCursor:null,postHasMore:false,forumSearch:false,forumSearching:false,focusPost:null,related:[],replyTo:null,quoteTo:null,forumSearchCursor:null,forumSearchHasMore:false,activePane:'mural',polls:[],ideas:[],clubEvents:[],insights:null,contributors:[],reports:[],commentsOpen:null};
  const status=(s='',error=false)=>{const el=$('sf71ClubStatus');if(el){el.textContent=s;el.classList.toggle('is-error',!!error);}};
- const themes={vinyl:'Vinil',stage:'Palco',cassette:'Cassete',waves:'Ondas'};
+ const roomThemeData=[["geral","Festival padrão","#7c3aed","#180f25","#ff6b35"],["indie","Indie e festival","#c256e7","#170e27","#fb8074"],["metal","Heavy metal","#ed3a39","#130b0c","#ff9035"],["emo","Emo","#ef54a5","#101014","#f3e6ec"],["mpb","MPB","#efb34f","#182d23","#7aca88"],["eletronica","Eletrônica","#15d7f8","#0c1027","#b34dff"],["rock","Rock clássico","#f04b42","#1f1213","#edbb57"],["pop","Pop","#f264d7","#271127","#ffb654"],["rap","Rap e hip-hop","#f8a434","#1c1721","#ec6667"],["funk","Funk","#ff4ba9","#1a1030","#27d3d4"],["pagode","Pagode e samba","#f5bb55","#122b27","#52ca9c"],["sertanejo","Sertanejo","#ee9850","#342019","#deb96c"],["reggae","Reggae","#e7c742","#14271f","#48b875"],["jazz","Jazz e blues","#d4ad72","#131c2b","#7ba2cf"],["forro","Forró","#ed8b4c","#322019","#efca6a"],["bts","BTS · Palco roxo","#a975ff","#0d0926","#f5a8ff"],["kpop","K-pop · Seul neon","#ff60bd","#130d30","#6cddff"],["jpop","J-pop · Luzes de Tóquio","#ff8962","#10182f","#75d6f5"],["trap","Trap · Cidade noturna","#f8d347","#0e0b1c","#a073ff"],["lofi","Lo-fi · Luar","#8da8f2","#151b37","#edb5ba"],["cor-preto","Preto · Meia-noite","#9da3b2","#090b12","#53586c"],["cor-vermelho","Vermelho · Inferno","#ff4c61","#200b15","#ff9a54"],["cor-azul","Azul · Elétrico","#4d9aff","#09162c","#54d8ff"],["cor-verde","Verde · Aurora","#5ee3a6","#08231c","#c4f46b"],["cor-roxo","Roxo · Nebulosa","#ad73ff","#180c2f","#ff80dd"],["cor-rosa","Rosa · Doce","#ff6db8","#2e1026","#ffa2d9"],["cor-dourado","Dourado · Holofotes","#f1c16c","#24180e","#ff935b"],["kpop-sakura-arena","K-pop · Arena Sakura","#fd60c6","#101039","#46d6ff"],["bts-purple-monument","BTS · Monumento roxo","#a25dff","#120829","#e5a7ff"],["jpop-tokyo-night","J-pop · Noite em Tóquio","#ed65e5","#0a1b45","#57bfff"],["trap-crown-stage","Trap · Palco da coroa","#f6a339","#210c27","#ba5dff"],["lofi-golden-listening","Lo-fi · Audição dourada","#ffc06c","#1a1530","#ba79dd"],["lofi-moonlight-live","Lo-fi · Luar ao vivo","#bd96f6","#131d36","#ffb674"],["kpop-cherry-city","K-pop · Cidade das cerejeiras","#ff70dc","#0c153c","#47d7ed"],["bts-lights-festival","BTS · Festival de luzes","#aa6cff","#170a35","#e9adff"],["jpop-fuji-stage","J-pop · Festival Fuji","#f38ac9","#122a4e","#75c9ff"],["trap-street-crown","Trap · Coroa das ruas","#ffb34d","#241126","#ba61f8"],["lofi-riverside","Lo-fi · Luar à beira-rio","#f7be85","#101d3d","#a886fa"],["lofi-acoustic-garden","Lo-fi · Jardim acústico","#ffba77","#171b32","#a89aff"]];
+  const themes=Object.fromEntries(roomThemeData.map(([id,label])=>[id,label]));
+  const themeOptions=(selected='geral')=>roomThemeData.map(([id,label])=>'<option value="'+esc(id)+'" '+(id===selected?'selected':'')+'>'+esc(label)+'</option>').join('');
+  const themeName=id=>themes[id]||themes.geral;
  const genres={kpop:'K-Pop',pop:'Pop',rock:'Rock',indie:'Indie / Alternativo',sertanejo:'Sertanejo',funk:'Funk',mpb:'MPB',hiphop:'Hip-Hop',eletronica:'Eletrônica',pagode:'Pagode',samba:'Samba',forro:'Forró',gospel:'Gospel',reggae:'Reggae',metal:'Metal',punk:'Punk',jazz:'Jazz',blues:'Blues',rnb:'R&B',lofi:'Lo-fi',latina:'Música Latina',classica:'Clássica',outros:'Outros'};
  const gallery={stage:'/art-129/sonorafan-stage.svg',kpop:'/art-132/sonorafan-room-kpop.avif',pop:'/art-33/poster-electro.webp',rock:'/art-33/poster-rock.webp',indie:'/art-33/poster-indie.webp',brasil:'/art-33/poster-brasil.webp',electronic:'/art-33/poster-electro.webp',festival:'/art-40/poster-festival.svg'};
  const preferred={kpop:'kpop',pop:'pop',rock:'rock',metal:'rock',punk:'rock',indie:'indie',eletronica:'electronic',funk:'brasil',mpb:'brasil',hiphop:'brasil',pagode:'brasil',samba:'brasil',forro:'brasil',sertanejo:'brasil',latina:'brasil'};
@@ -154,7 +157,7 @@
  }
  const showList=()=>{stopLive();$('sf71ClubList').hidden=false;$('sf71ClubDetail').hidden=true;state.activeId=null;state.detail=null;window.sf235ShowHome?.();};
  function clubCard(c){return `<article class="sf71-club-card" data-sf71-id="${esc(c.id)}">
-   <div class="sf71-club-art sf71-theme-${esc(c.theme)} ${'sf73-with-cover'}">${imageCover(c,true)}<span aria-hidden="true">${c.theme==='stage'?'♫':c.theme==='cassette'?'▣':c.theme==='waves'?'〰':'◉'}</span></div>
+   <div class="sf71-club-art sf71-theme-${esc(c.theme)} ${'sf73-with-cover'}">${imageCover(c,true)}<span aria-hidden="true">♫</span></div>
    <div class="sf71-club-copy"><small>FAN CLUB · NÃO OFICIAL</small><strong>${esc(c.title)}</strong><span>Para fãs de ${esc(c.artist)}</span>
     <p>${esc(c.description||'Converse, conheça outros fãs e compartilhe músicas.')}</p>
     <div class="sf71-club-meta"><span>👥 ${Number(c.memberCount)||0} membros</span><span>♫ ${Number(c.roomCount)||0} salas</span><span>${esc(genres[c.genre]||'Outros')}</span>${c.joined?'<span>✓ Participando</span>':''}</div>
@@ -209,8 +212,8 @@
    <label>Descrição<textarea name="description" maxlength="280" rows="2"></textarea></label>
    <label>Regras da comunidade<textarea name="rules" maxlength="300" rows="2"></textarea></label>
    <label>Gênero musical<select name="genre" required>${opts}</select></label>
-   <label>Identidade visual · escolha o estilo da comunidade<select name="theme"><option value="vinyl">Vinil</option><option value="stage">Palco</option><option value="cassette">Cassete</option><option value="waves">Ondas</option></select></label>
-   <div id="sf208CreateThemePreview" class="sf208-theme-preview sf71-theme-vinyl"><span>♫ Prévia da identidade</span><strong>Seu Fan Club</strong><small>Escolha um estilo; suas cores mudam sem cobrir a imagem.</small></div>
+   <label>Identidade visual · cores das salas<select name="theme">${themeOptions()}</select></label>
+   <div id="sf208CreateThemePreview" class="sf208-theme-preview sf71-theme-geral"><span>♫ Prévia da identidade</span><strong>Seu Fan Club</strong><small>Escolha um estilo; suas cores mudam sem cobrir a imagem.</small></div>
    ${coverForm()}<small class="sf71-unofficial">Fan Club criado por fãs, sem associação oficial ao artista.</small>`,async fd=>{
      const payload={};for(const key of ['artist','title','description','rules','theme','genre'])payload[key]=fd.get(key)||'';
      Object.assign(payload,chosenCover(fd));const d=await post('/api/fan-clubs',payload);return {id:d.club.id};
@@ -925,14 +928,14 @@ ${(c.joined||c.owner)&&c.rooms?.length?'<button type="button" class="sf228-join"
  if(t.hasAttribute('data-sf204-edit-identity')){
    const club=state.detail?.club;if(!club?.owner)return;
    const genreOpts=Object.entries(genres).map(([key,label])=>'<option value="'+esc(key)+'" '+(key===club.genre?'selected':'')+'>'+esc(label)+'</option>').join('');
-   const themeOpts=Object.entries(themes).map(([key,label])=>'<option value="'+esc(key)+'" '+(key===club.theme?'selected':'')+'>'+esc(label)+'</option>').join('');
+   const themeOpts=themeOptions(club.theme);
    const themePreview='<div class="sf208-theme-preview sf71-theme-'+esc(club.theme)+'" id="sf208ThemePreview"><span>♫ Estilo do Fan Club</span><strong>'+esc(club.title)+'</strong><small>Cores e detalhes do visual mudam, mantendo a foto de capa visível.</small></div>';
    const themeOverlay=modal('Editar identidade do Fan Club',
      '<p>Atualize as informações que aparecem no lobby e na agenda.</p>'+
      '<label>Nome da comunidade<input name="title" maxlength="75" minlength="3" required value="'+esc(club.title)+'"></label>'+
      '<label>Artista ou banda<input name="artist" maxlength="65" minlength="2" required value="'+esc(club.artist)+'"></label>'+
      '<label>Gênero musical<select name="genre">'+genreOpts+'</select></label>'+
-     '<label>Identidade visual<select name="theme">'+themeOpts+'</select></label>'+
+     '<label>Identidade visual · temas das salas<select name="theme">'+themeOpts+'</select></label>'+
      themePreview+
      '<label>Segunda imagem · ícone quadrado (URL HTTPS)<input type="url" name="badgeImageUrl" maxlength="500" placeholder="https://exemplo.com/icone.webp" value="'+esc(club.badgeImageUrl||'')+'"></label>'+
       '<small>Substitui a nota musical no topo do Fanclub. Deixe vazio para restaurar o ícone original. A capa principal continua independente.</small>',
