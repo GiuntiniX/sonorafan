@@ -55,13 +55,14 @@ const card=(e,small=false)=>`<article class="sf200-event-card ${small?'sf200-eve
 const calendar=events=>{
  const m=state.month.getMonth(),year=state.month.getFullYear(),first=new Date(year,m,1),offset=first.getDay();
  const days=new Date(year,m+1,0).getDate(),cells=Math.ceil((offset+days)/7)*7;
- const countMap=new Map();for(const e of events){const k=key(new Date(e.startAt));countMap.set(k,(countMap.get(k)||0)+1);}
+ const countMap=new Map();for(const e of events){const k=key(new Date(e.startAt)),current=countMap.get(k)||{club:0,room:0};current[e.type==='fanclub'?'club':'room']++;countMap.set(k,current);}
  let html='<div class="sf200-calendar-days">'+['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(s=>'<span>'+s+'</span>').join('')+'</div><div class="sf200-calendar-grid">';
  for(let i=0;i<cells;i++){
   const day=i-offset+1;
   if(day<1||day>days){html+='<span class="sf200-calendar-blank"></span>';continue;}
-  const k=key(new Date(year,m,day)),n=countMap.get(k)||0,selected=k===state.day;
-  html+=`<button type="button" data-sf200-date="${k}" class="${selected?'selected':''}" aria-pressed="${selected}" aria-label="${day} de ${monthTitle(state.month)}: ${n} eventos"><span>${day}</span>${n?'<i aria-hidden="true">'+(n>1?'••':'•')+'</i>':''}</button>`;
+  const k=key(new Date(year,m,day)),entry=countMap.get(k)||{club:0,room:0},n=entry.club+entry.room,selected=k===state.day;
+  const markers=(entry.club?'<i class="sf201-dot-club"></i>':'')+(entry.room?'<i class="sf201-dot-room"></i>':'');
+  html+=`<button type="button" data-sf200-date="${k}" class="${selected?'selected':''}" aria-pressed="${selected}" aria-label="${day} de ${monthTitle(state.month)}: ${n} eventos"><span>${day}</span>${n?'<small class="sf201-calendar-dots" aria-hidden="true">'+markers+'</small>':''}</button>`;
  }
  return html+'</div>';
 };
@@ -110,7 +111,7 @@ function render(){
    <aside class="sf200-right">
     <section class="sf200-month">
      <header><button type="button" data-sf200-month="-1" aria-label="Mês anterior">‹</button><h2>${esc(mon)}</h2><button type="button" data-sf200-month="1" aria-label="Próximo mês">›</button></header><button type="button" class="sf201-today" data-sf201-today>▦ Ir para hoje</button>
-     ${calendar(ev)}<div class="sf200-legend"><span>● Dia com evento</span><span>● Data selecionada</span></div>
+     ${calendar(ev)}<div class="sf200-legend"><span>● Fan Club</span><span>● Sala</span><span>● Data selecionada</span></div>
     </section>
     <section class="sf200-day-events"><header><h2>▦ Eventos de ${esc(fmt(day,{day:'numeric',month:'long'}))}</h2><small>${selected.length} ${selected.length===1?'evento':'eventos'}</small></header>
       <div class="sf200-day-list">${selected.length?selected.map(e=>card(e,true)).join(''):'<p class="sf200-empty">Nenhum evento nesta data. Selecione outro dia no calendário.</p>'}</div>
