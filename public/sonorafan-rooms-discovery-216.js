@@ -10,9 +10,7 @@ const state={rooms:[],bookmarks:new Set(),mode:'discover',query:'',style:'',acti
 const styles=[['','Todos'],['kpop','K-pop'],['pop','Pop'],['jpop','J-pop'],['trap','Trap'],['lofi','Lo-fi'],['indie','Indie'],['rock','Rock'],['mpb','MPB'],['eletronica','Eletrônica'],['funk','Funk'],['rap','Rap'],['sertanejo','Sertanejo'],['pagode','Pagode'],['reggae','Reggae'],['forro','Forró'],['jazz','Jazz'],['metal','Metal'],['samba','Samba']];
 function fallback(r){const theme=String(r.roomTheme||'');const set={geral:'/themes/final-172/indie.webp',indie:'/themes/final-164/indie.webp',kpop:'/themes/festival-214/kpop.svg',bts:'/themes/festival-214/bts.svg',jpop:'/themes/festival-214/jpop.svg',trap:'/themes/festival-214/trap.svg',lofi:'/themes/festival-214/lofi.svg',rock:'/themes/final-164/rock.webp',pop:'/themes/final-164/pop.webp',reggae:'/themes/final-170/reggae.webp',jazz:'/themes/final-170/jazz.webp'};return set[theme]||'/themes/final-172/indie.webp';}
 function cover(r){
-const custom=typeof r.coverUrl==='string'&&/^https:\/\//i.test(r.coverUrl)?r.coverUrl:'';
-const id=r.currentTrack?.id,video=typeof id==='string'&&/^[a-z0-9_-]{11}$/i.test(id)?'https://img.youtube.com/vi/'+id+'/hqdefault.jpg':'';
-return {src:custom||video||fallback(r),fallback:video||fallback(r),art:fallback(r),custom:!!custom};
+return window.sf261RoomCover?.(r)||{src:fallback(r),fallback:fallback(r),art:fallback(r),custom:false};
 }
 function crop(r){return {x:Math.min(100,Math.max(0,Number(r.coverX??50)||0)),y:Math.min(100,Math.max(0,Number(r.coverY??50)||0)),zoom:Math.min(2,Math.max(1,Number(r.coverZoom??1)||1))};}
 function pic(r,extra=''){const c=cover(r),p=crop(r);return '<div class="sf216-cover '+extra+'"><img src="'+esc(c.src)+'" data-fallback="'+esc(c.fallback)+'" data-art="'+esc(c.art)+'" alt="" loading="lazy" decoding="async" style="object-position:'+p.x+'% '+p.y+'%;transform-origin:'+p.x+'% '+p.y+'%;transform:scale('+(c.custom?p.zoom:1)+')"></div>';}
