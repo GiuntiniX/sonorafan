@@ -31,8 +31,11 @@
     }
     const cooldown = typeof COOLDOWN !== 'undefined' ? COOLDOWN : 30000;
     const last = typeof lastAddTime !== 'undefined' ? lastAddTime : 0;
-    if (Date.now() - last < cooldown) {
-      throw error('Aguarde ' + Math.ceil((cooldown - (Date.now() - last)) / 1000) + 's para adicionar outra música.');
+    const serverRemaining = window.sfCooldown?.remainingMs?.() || 0;
+    if (serverRemaining > 0 || Date.now() - last < cooldown) {
+      const ms = Math.max(serverRemaining, cooldown - (Date.now() - last));
+      window.sfCooldown?.show?.();
+      throw error('Aguarde ' + Math.ceil(ms / 1000) + 's para adicionar outra música. Você pode preparar sua próxima faixa.');
     }
     const payload = {
       id: track.id,
@@ -70,8 +73,8 @@
       try {
         client.emit('addSong', payload, response => {
           if (!response || typeof response.ok !== 'boolean') return;
-          if (response.ok) done(null, { source: 'ack', placement: response.placement });
-          else done(error(response.error || 'A sala não aceitou a música.'));
+          if (response.ok) done(null, { source: 'ack', placement: response.placement, remainingMs: response.remainingMs });
+          else { if (Number.isFinite(response.remainingMs)) window.sfCooldown?.setRemaining?.(response.remainingMs, response.durationMs); done(error(response.error || 'A sala não aceitou a música.')); }
         });
       } catch (_) { done(error('Não foi possível enviar a música. Reconecte-se e tente novamente.')); }
     });
@@ -79,6 +82,7 @@
     try {
       const result = await request;
       if (typeof lastAddTime !== 'undefined') lastAddTime = Date.now();
+      window.sfCooldown?.setRemaining?.(result.remainingMs ?? cooldown, cooldown);
       if (typeof startCooldown === 'function') startCooldown();
       return result;
     } finally {
