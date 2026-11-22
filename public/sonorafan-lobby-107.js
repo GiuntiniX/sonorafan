@@ -62,9 +62,7 @@
   }
   // Ordem de prioridade: capa personalizada, vídeo em reprodução, arte ilustrativa.
   function coverImage(r,i=0) {
-    const custom=typeof r.coverUrl==='string' && /^https:\/\//i.test(r.coverUrl) ? r.coverUrl : '';
-    const video=yt(r.currentTrack?.id)?'https://img.youtube.com/vi/'+r.currentTrack.id+'/hqdefault.jpg':'';
-    return {src:custom||video||imageFor(r,i),fallback:video||imageFor(r,i),art:imageFor(r,i),custom:!!custom};
+    return window.sf261RoomCover?.(r)||{src:imageFor(r,i),fallback:imageFor(r,i),art:imageFor(r,i),custom:false};
   }
   const coverFrame=r=>({
     x:Math.min(100,Math.max(0,Number(r.coverX ?? 50)||0)),
