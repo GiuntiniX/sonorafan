@@ -74,7 +74,9 @@
     const main=qs('.sf28-lobby-main',app);
     main?.classList.add('sf125-main');
     const hero=document.createElement('section');hero.id='sf125LobbyHero';hero.className='sf125-lobby-hero';
-    hero.innerHTML='<div class="sf125-hero-copy"><span class="sf125-kicker">BEM-VINDO(A) AO SONORAFAN</span>'+
+    // Imagem aprovada: parte do componente, não depende de CSS de temas antigos.
+    hero.innerHTML='<img class="sf268-lobby-background" src="/art-267/sonorafan-festival-hero.webp?v=268.0" alt="" aria-hidden="true" decoding="async" fetchpriority="high">' +
+      '<div class="sf125-hero-copy"><span class="sf125-kicker">BEM-VINDO(A) AO SONORAFAN</span>'+
       '<h1>Descubra salas,<br>conecte-se com fãs<br>e viva <em>a música juntos.</em></h1>'+
       '<p>Ouça e compartilhe em tempo real com uma comunidade apaixonada por música.</p>'+
       '<div class="sf125-hero-actions">'+
