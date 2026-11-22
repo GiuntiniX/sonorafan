@@ -355,8 +355,9 @@
           <div class="sf264-style-row">${styles.slice(0,3).map(st=>`<span class="sf264-style">${escapeHtml(st)}</span>`).join('')}<button type="button" data-sf264-style="${escapeHtml(t.id)}" aria-label="Editar estilos musicais de ${escapeHtml(decodeTitle(t.title))}">${styles.length?'✎ Estilos':'＋ Estilos'}</button></div>
           <label class="sf76-assign sf264-assign"><span>Coleção</span><select data-sf76-assign="${escapeHtml(t.id)}" aria-label="Mudar coleção de ${escapeHtml(t.title||'música')}"><option value="" ${!known.has(t.genreId)?'selected':''}>Sem coleção</option>${selectOptions}</select></label>
         </div>
-        <div class="sf76-track-actions"><button type="button" data-sf76-add="${escapeHtml(t.id)}" ${inQueue?'disabled':''} aria-label="Adicionar ${escapeHtml(t.title||'música')} à fila">${inQueue?'✓ Na fila':'＋ Adicionar'}</button>
-          <details class="sf264-menu"><summary aria-label="Mais opções">⋯</summary><button type="button" class="sf76-remove" data-sf76-remove="${escapeHtml(t.id)}">♡ Remover favorita</button></details>
+        <div class="sf76-track-actions">
+          <button type="button" class="sf264-add" data-sf76-add="${escapeHtml(t.id)}" ${inQueue?'disabled':''} aria-label="Adicionar ${escapeHtml(decodeTitle(t.title||'música'))} à fila">${inQueue?'✓ Na fila':'＋ Adicionar'}</button>
+          <button type="button" class="sf264-remove" data-sf76-remove="${escapeHtml(t.id)}" aria-label="Excluir ${escapeHtml(decodeTitle(t.title||'música'))} dos favoritos">✕ Excluir</button>
         </div>
       </article>`;
     }).join('');
