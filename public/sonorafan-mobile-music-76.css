@@ -196,3 +196,31 @@
  .sf76-sheet .sf264-track .sf76-track-actions .sf264-add,
  .sf76-sheet .sf264-track .sf76-track-actions .sf264-remove{width:auto;min-width:0;flex:1 1 0;padding:8px 5px}
 }
+
+/* SonoraFan 269 — busca da fila dentro do seletor, nunca na lista principal. */
+#sf76MusicSheet .sf76-switch{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+#sf76MusicSheet .sf76-switch button{min-width:0!important;white-space:normal!important;font-size:clamp(10px,1.1vw,13px)!important;line-height:1.25!important}
+#sf76MusicSheet #sf76QueuePane{min-width:0;padding:5px 0 18px}
+#sf76MusicSheet .sf269-queue-tools{display:grid;gap:9px;padding:7px 0 14px}
+#sf76MusicSheet .sf269-queue-tools label{font-size:12px;font-weight:800;color:var(--sf-text,#f6f1fb)}
+#sf76MusicSheet .sf269-queue-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,155px);gap:9px;min-width:0}
+#sf76MusicSheet .sf269-queue-fields :is(input,select){height:44px;box-sizing:border-box;min-width:0;width:100%;padding:9px 12px;border-radius:11px;border:1px solid var(--sf-border-soft,#5d3150);background:var(--sf-surface-2,#24112d);color:var(--sf-text,#f6f1fb);font:inherit;font-size:13px}
+#sf76MusicSheet .sf269-queue-fields :is(input,select):focus-visible{outline:2px solid var(--sf-orange,#ff9300);outline-offset:2px}
+#sf76MusicSheet #sf269QueueCount{color:var(--sf-text-secondary,#cdb9da);font-size:11px}
+#sf76MusicSheet .sf269-queue-list{display:grid;gap:8px;min-width:0}
+#sf76MusicSheet .sf269-queue-track{display:flex;align-items:center;gap:10px;min-width:0;padding:10px;border:1px solid var(--sf-border-soft,#5d3150);border-radius:12px;background:var(--sf-surface-2,#24112d)}
+#sf76MusicSheet .sf269-queue-track img{width:62px;height:47px;object-fit:cover;border-radius:8px;flex-shrink:0}
+#sf76MusicSheet .sf269-queue-copy{flex:1;min-width:0;display:grid;gap:3px}
+#sf76MusicSheet .sf269-queue-copy strong{color:var(--sf-text,#f6f1fb);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sf76MusicSheet .sf269-queue-copy small{color:var(--sf-text-secondary,#cdb9da);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sf76MusicSheet .sf269-queue-copy span{font-size:10px;font-weight:750;color:var(--sf-lime,#c8ff00)}
+#sf76MusicSheet .sf269-queue-track button{flex-shrink:0;background:transparent;border:1px solid var(--sf-border-soft,#5d3150);color:var(--sf-danger,#ff6b6b);padding:8px 9px;border-radius:8px;font-size:11px;font-weight:750;cursor:pointer}
+#sf76MusicSheet .sf269-queue-track button:disabled{opacity:.5;cursor:wait}
+@media(max-width:490px){
+ #sf76MusicSheet .sf76-switch{padding-inline:10px!important;gap:5px!important}
+ #sf76MusicSheet .sf76-switch button{padding:9px 3px!important;font-size:11px!important}
+ #sf76MusicSheet .sf269-queue-fields{grid-template-columns:minmax(0,1fr) minmax(96px,120px)}
+ #sf76MusicSheet .sf269-queue-track img{width:48px;height:43px}
+ #sf76MusicSheet .sf269-queue-track{gap:7px;padding:8px}
+ #sf76MusicSheet .sf269-queue-track button{padding:7px 5px;font-size:10px}
+}
