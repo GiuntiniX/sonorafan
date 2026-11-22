@@ -124,6 +124,8 @@
     (window.sf125Navigate||go)(btn.dataset.sf125Go);
   }
   function roomArt(room){
+    const consistent=window.sf261RoomCover?.(room);
+    if(consistent)return consistent.src;
     const g=String(room.genre||room.name||'').toLowerCase();
     if(/rock|metal/.test(g))return art.rock;
     if(/indie/.test(g))return art.indie;
@@ -143,9 +145,10 @@
         .filter(x=>x&&!x.isPrivate&&validRoom(x.slug)).sort((a,b)=>(Number(b.listenerCount)||0)-(Number(a.listenerCount)||0)).slice(0,3);
       $('sf125LiveRooms').innerHTML=rooms.length?rooms.map(room=>
         '<button class="sf125-rail-room" type="button" data-sf125-slug="'+esc(room.slug)+'">'+
-        '<img src="'+roomArt(room)+'" alt="" loading="lazy"><span><strong>'+esc(room.name||'Sala musical')+'</strong>'+
+        '<img src="'+esc(roomArt(room))+'" data-sf261-rail-cover="'+esc(room.slug)+'" alt="" loading="lazy"><span><strong>'+esc(room.name||'Sala musical')+'</strong>'+
         '<small>'+(room.isPlaying?'● Ao vivo · ':'')+fmt(room.listenerCount)+' ouvindo</small></span><i>▷</i></button>'
       ).join(''):'<p class="sf125-muted">Ainda não há salas públicas. Que tal criar a primeira?</p>';
+      $('sf125LiveRooms')?.querySelectorAll('img[data-sf261-rail-cover]').forEach(img=>{const room=rooms.find(r=>r.slug===img.dataset.sf261RailCover);const cv=window.sf261RoomCover?.(room);if(!cv)return;img.addEventListener('error',()=>{if(img.dataset.sf261Retry)return;img.dataset.sf261Retry='1';img.src=cv.fallback;},{once:true});});
     }catch(e){$('sf125LiveRooms').innerHTML='<p class="sf125-muted">Não foi possível consultar salas agora.</p>';}
     try{
       const response=await fetch('/api/gamification/leaderboard',{credentials:'include',cache:'no-store'});
