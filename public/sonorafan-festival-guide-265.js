@@ -8,12 +8,38 @@
  const stored=(()=>{try{return localStorage.getItem(key)}catch(_){return null}})();
  let palette=palettes.has(stored)?stored:'festival';
  let room=null, slug='', lastAlert='', statsFrame=0;
+ // The legacy applyTheme() sets inline CSS variables on <html>.
+ // CSS rules alone cannot override inline variables; use important priority for Festival.
+ const tokens={
+   '--bg':'#161616','--bg-elevated':'#1c1c1c','--bg-card':'#222222',
+   '--bg-hover':'#2c2c2c','--border':'#383838','--border-hover':'#555555',
+   '--text':'#f7f7f7','--text-secondary':'#bcbcbc','--text-muted':'#929292',
+   '--accent':'#ff8000','--accent2':'#b3fa1b','--success':'#b3fa1b',
+   '--accent-glow':'rgba(255,128,0,.24)','--accent2-glow':'rgba(179,250,27,.18)',
+   '--glass':'rgba(0,0,0,.5)'
+ };
+ function applyTokens(){
+   if(palette==='festival'){
+     Object.entries(tokens).forEach(([name,value])=>root.style.setProperty(name,value,'important'));
+     root.style.setProperty('color-scheme','dark','important');
+   }else{
+     Object.keys(tokens).forEach(name=>{
+       if(root.style.getPropertyPriority(name)==='important')root.style.removeProperty(name);
+     });
+     if(root.style.getPropertyPriority('color-scheme')==='important')root.style.removeProperty('color-scheme');
+     // Restore the original theme's inline variables on the legacy UI.
+     if(typeof applyTheme==='function')applyTheme();
+   }
+ }
  function setPalette(next){
    palette=palettes.has(next)?next:'festival';
    root.dataset.sfGuide=palette;
+   applyTokens();
    try{localStorage.setItem(key,palette)}catch(_){}
    const toggle=$('sf265GuideSwitch');
-   if(toggle){toggle.textContent=palette==='festival'?'🎨 Festival Dark':'🎨 Roxo original';toggle.title='Alternar a paleta visual; não altera o tema artístico da sala';}
+   if(toggle){toggle.textContent=palette==='festival'?'🎨 Festival Dark':'🎨 Roxo original';toggle.title='Alternar cores do SonoraFan; não altera a arte da sala';}
+   const meta=document.querySelector('meta[name="theme-color"]');
+   if(meta)meta.content=palette==='festival'?'#161616':'#7c3aed';
  }
  setPalette(palette);
  const duration=t=>{const n=Number(t?.duration);return Number.isFinite(n)&&n>0?n:null};
@@ -44,7 +70,8 @@
    const b=document.createElement('button');b.type='button';b.className='sf265-queue-action';b.textContent=text;b.setAttribute('aria-label',label);b.addEventListener('click',click);return b;
  }
  function build(){
-   const tracks=$('queueList'),host=document.querySelector('#screen-room .sf128-queue-tracks');
+   const tracks=$('queueList');
+   const host=tracks?.closest('.sf128-queue-tracks, .sf34-queue, .queue-column') || tracks?.parentElement;
    if(!host||!tracks||$('sf265QueueSummary'))return;
    const wrap=document.createElement('div');wrap.id='sf265QueueSummary';wrap.innerHTML=
     '<div class="sf265-queue-head"><span class="sf265-queue-label">♫ Seu palco colaborativo</span><button class="sf265-guide-switch" id="sf265GuideSwitch" type="button" title="Alternar cores da plataforma"></button></div>'+
@@ -113,8 +140,8 @@
    build();
    const socketClient=typeof socket!=='undefined'?socket:null;
    socketClient?.on('roomState',data=>{room=data;schedule()});
-   document.addEventListener('visibilitychange',()=>{if(!document.hidden)schedule()});
-   setInterval(()=>{if(!document.hidden)schedule()},15000);
+   document.addEventListener('visibilitychange',()=>{if(!document.hidden){applyTokens();schedule()}});
+   setInterval(()=>{if(!document.hidden){if(palette==='festival')applyTokens();schedule()}},10000);
    const list=$('queueList');if(list)new MutationObserver(schedule).observe(list,{childList:true});
    schedule();
  }
