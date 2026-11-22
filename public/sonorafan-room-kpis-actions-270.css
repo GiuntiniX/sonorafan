@@ -155,3 +155,70 @@
 @media(prefers-reduced-motion:reduce){
   #screen-room.sf113-room .sf117-control-row .sf30-player-actions>button{transition:none!important;transform:none!important}
 }
+
+/* v272 — compact session metrics, not large dashboard cards.
+   Keep the live counters and their accessible labels, reduce visual footprint. */
+#screen-room .sf55-session:has(> #sf265QueueSummary) {
+  grid-template-columns:minmax(0,1fr) minmax(225px,290px)!important;
+  gap:6px 12px!important;
+}
+#screen-room .sf55-session:has(> #sf265QueueSummary)>#sf265QueueSummary.sf270-session-stats{
+  justify-self:end!important;
+  width:min(100%,290px)!important;
+  max-width:290px!important;
+  gap:4px!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-head{
+  margin:0!important;
+  line-height:1!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-label{
+  font-size:9px!important;
+  letter-spacing:.03em!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-summary{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:5px!important;
+  width:100%!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-stat{
+  display:flex!important;
+  flex-direction:row!important;
+  gap:5px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:34px!important;
+  height:34px!important;
+  padding:4px 6px!important;
+  border-radius:9px!important;
+  border-color:var(--sf-border-soft,#5d3150)!important;
+  background:rgba(36,17,45,.65)!important;
+  box-sizing:border-box!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-stat strong{
+  font-size:13px!important;
+  font-weight:850!important;
+  line-height:1!important;
+  flex:none!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-stat span{
+  font-size:9px!important;
+  line-height:1.1!important;
+  font-weight:550!important;
+  text-align:left!important;
+  white-space:normal!important;
+}
+@media(max-width:1000px){
+  #screen-room .sf55-session:has(> #sf265QueueSummary)>#sf265QueueSummary.sf270-session-stats{
+    justify-self:start!important;width:min(100%,290px)!important;
+  }
+}
+@media(max-width:520px){
+  #screen-room .sf55-session:has(> #sf265QueueSummary)>#sf265QueueSummary.sf270-session-stats{
+    width:min(100%,290px)!important;
+  }
+  #screen-room #sf265QueueSummary .sf265-queue-stat{padding:4px!important;min-height:32px!important;height:32px!important}
+  #screen-room #sf265QueueSummary .sf265-queue-stat strong{font-size:12px!important}
+  #screen-room #sf265QueueSummary .sf265-queue-stat span{font-size:8px!important}
+}
