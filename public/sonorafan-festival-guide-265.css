@@ -58,3 +58,25 @@
 .sf265-inline-notice{position:relative;display:block;border:1px solid #556e29;color:#dbfca8;background:#28311d;border-radius:9px;padding:7px 9px;font-size:11px;margin:5px 0}
 @media(max-width:540px){.sf265-queue-head{flex-wrap:wrap}.sf265-guide-switch{font-size:10px}.sf265-queue-stat{padding:8px 5px}.sf265-queue-stat strong{font-size:16px}.sf265-queue-summary{gap:5px}}
 @media(prefers-reduced-motion:reduce){.sf265-queue-action{transition:none!important}}
+
+/* v265.1 — stronger, visible integration with legacy inline-themed pages */
+:root[data-sf-guide="festival"] body,
+:root[data-sf-guide="festival"] #screen-lobby,
+:root[data-sf-guide="festival"] #screen-room,
+:root[data-sf-guide="festival"] #landingScreen,
+:root[data-sf-guide="festival"] .main-layout{
+  --bg:#161616!important;--bg-card:#222222!important;--bg-hover:#2c2c2c!important;
+  --border:#383838!important;--text:#f7f7f7!important;
+  --accent:#ff8000!important;--accent2:#b3fa1b!important;
+}
+:root[data-sf-guide="festival"] body{background-color:#161616!important}
+:root[data-sf-guide="festival"] #screen-lobby .room-card,
+:root[data-sf-guide="festival"] #screen-lobby .lobby-room-card,
+:root[data-sf-guide="festival"] #screen-room .queue-item{border-color:#414141!important}
+:root[data-sf-guide="festival"] #screen-room .queue-item.current{border-left-color:#b3fa1b!important}
+:root[data-sf-guide="festival"] #screen-room .queue-item.current .pos{color:#b3fa1b!important}
+:root[data-sf-guide="festival"] #screen-room .sf265-queue-summary .sf265-queue-stat{background:#222!important;border-color:#414141!important}
+:root[data-sf-guide="festival"] #screen-room #sf265GuideSwitch{border-color:#ff8000!important;color:#ffad53!important}
+:root[data-sf-guide="festival"] #screen-room .progress-fill{background:linear-gradient(90deg,#ff8000,#b3fa1b)!important}
+:root[data-sf-guide="festival"] .sf76-sheet .sf76-switch [aria-selected="true"]{background:#33280f!important;border-color:#ff8000!important;color:#ffdba5!important}
+:root[data-sf-guide="festival"] .sf76-sheet .sf76-genres button[aria-pressed="true"]{background:#ff8000!important;color:#161616!important}
