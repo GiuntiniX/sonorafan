@@ -6,7 +6,7 @@
   const ctx = () => typeof currentRoom !== 'undefined' ? String(currentRoom || '') : '';
   const sock = () => typeof socket !== 'undefined' ? socket : null;
   let room = '', deadline = 0, pendingTrack = null, submitting = false, lastSync = 0;
-  const cacheKey = slug => 'sf263:cooldown:' + slug;
+  const cacheKey = slug => 'sf263:cooldown:' + (typeof currentUser !== 'undefined' ? (currentUser?.uid || currentUser?.email || '') : '') + ':' + slug;
   const remainingMs = () => Math.max(0, deadline - Date.now());
   const fmt = ms => '00:' + String(Math.ceil(ms / 1000)).padStart(2, '0');
   function save() {
