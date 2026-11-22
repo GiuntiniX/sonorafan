@@ -80,9 +80,32 @@
       '<h1>Descubra salas,<br>conecte-se com fãs<br>e viva <em>a música juntos.</em></h1>'+
       '<p>Ouça e compartilhe em tempo real com uma comunidade apaixonada por música.</p>'+
       '<div class="sf125-hero-actions">'+
-      '<button type="button" data-sf125-go="rooms" class="sf125-cta">▷ Explorar salas →</button>'+
-      '<button type="button" data-sf125-go="create" class="sf125-outline">♧ Criar uma sala</button></div></div>';
+      '<button type="button" data-sf125-go="rooms" class="sf125-cta sf271-hero-primary"><span aria-hidden="true">▶</span><span>Explorar salas</span><span aria-hidden="true">→</span></button>'+
+      '<button type="button" data-sf125-go="create" class="sf125-outline sf271-hero-secondary"><span aria-hidden="true">＋</span><span>Criar uma sala</span></button>'+ 
+      '<button type="button" data-sf125-go="clubs" class="sf125-outline sf271-hero-tertiary"><span aria-hidden="true">♧</span><span>Encontrar Fan Clubs</span></button></div></div>';
     dashboard.prepend(hero);
+    const heroActions=hero.querySelector('.sf125-hero-actions');
+    let cleanupQueued=false;
+    function cleanHero(){
+      cleanupQueued=false;
+      if(!heroActions?.isConnected)return;
+      let foundClub=false;
+      Array.from(heroActions.querySelectorAll('button,a')).forEach(control=>{
+        const title=String(control.textContent||'').normalize('NFD').toLowerCase();
+        if(title.includes('entrar com codigo')||title.includes('acessar com codigo')){
+          control.remove();return;
+        }
+        if(control.dataset.sf125Go==='clubs'||title.includes('encontrar fan clubs')){
+          if(foundClub)control.remove();
+          else foundClub=true;
+        }
+      });
+    }
+    new MutationObserver(()=>{
+      if(cleanupQueued)return;
+      cleanupQueued=true;requestAnimationFrame(cleanHero);
+    }).observe(heroActions,{childList:true,subtree:true});
+    cleanHero();
     const features=document.createElement('section');
     features.className='sf125-lobby-pillars';features.setAttribute('aria-label','Principais recursos');
     features.innerHTML=[
