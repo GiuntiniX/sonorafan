@@ -3966,7 +3966,7 @@ function openRoomCfg() {
       if(sfCoverBusy.e)return toast('Aguarde o envio da capa terminar','error');
       let coverUrl;try{coverUrl=sfCoverValue('e');}catch(e){return toast(e.message,'error');}
       const cfg=readCfg('e');
-      if(cfg.name.length<2||cfg.name.length>40||/[<>\\u0000-\\u001f\\u007f]/.test(cfg.name))return toast('O nome da sala deve ter entre 2 e 40 caracteres válidos.','error');
+      if(cfg.name.length<2||cfg.name.length>40||Array.from(cfg.name).some(ch=>ch.charCodeAt(0)<32||ch.charCodeAt(0)===127||ch==='<'||ch==='>'))return toast('O nome da sala deve ter entre 2 e 40 caracteres válidos.','error');
       cfg.coverUrl=coverUrl;cfg.roomTheme=window.sf88GetEditTheme?.()||currentRoomData?.roomTheme||'indie';
       socket.emit('updateRoomSettings',cfg);$('roomCfgModal').classList.remove('active');toast('Sala atualizada!','success');
     }
