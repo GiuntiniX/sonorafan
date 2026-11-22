@@ -172,3 +172,17 @@
 @keyframes sf235Cycle{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes sf235Appear{from{opacity:.25}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){#sf235Home .sf235-hero-progress>span,#sf235Home .sf235-hero-art img{animation:none}}
+
+/* Fanclubs 260: abas sempre acessíveis em todas as visualizações. */
+#sf235Home[data-sf235-view="events"] .sf235-layout{display:flex!important;flex-direction:column;gap:14px}
+#sf235Home[data-sf235-view="events"] .sf235-main{display:contents!important}
+#sf235Home[data-sf235-view="events"] .sf235-feed{display:none!important}
+#sf235Home[data-sf235-view="events"] .sf235-tabs{display:flex!important;width:100%;flex:none;order:0}
+#sf235Home[data-sf235-view="events"] .sf235-right{display:block!important;width:100%;order:1}
+#sf235Home[data-sf235-view="events"] #sf235Events{display:block!important;width:100%;min-height:210px}
+#sf235Home[data-sf235-view="posts"] .sf235-main{display:grid!important;gap:14px}
+#sf235Home[data-sf235-view="posts"] .sf235-tabs{display:flex!important;width:100%;order:0}
+#sf235Home[data-sf235-view="posts"] #sf235Feed{display:block!important;order:1}
+#sf235Home[data-sf235-view="all"] .sf235-tabs,#sf235Home[data-sf235-view="mine"] .sf235-tabs{display:flex!important}
+#sf235Home .sf235-tabs{position:relative;z-index:3;scroll-margin-top:16px}
+#sf235Home .sf235-tabs button:focus-visible{outline:2px solid #dfff55;outline-offset:2px}
