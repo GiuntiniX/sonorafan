@@ -284,8 +284,8 @@
       ...tracks.map((track,i)=>({track,position:i,waiting:false})),
       ...waiting.map(track=>({track,position:tracks.length,waiting:true}))
     ];
-    const query=String(state.queueQuery||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
-    const normalize=value=>String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
+    const query=String(state.queueQuery||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+    const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
     const mine=track=>Boolean(window.sf95Queue?.isMine?.(track));
     const filtered=entries.filter(item=>{
       const owns=mine(item.track);
