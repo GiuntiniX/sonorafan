@@ -223,10 +223,20 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   }
 
   // Fonte de verdade: vínculos persistidos nos documentos dos Fanclubs.
-  // O índice por sala é uma otimização, nunca a única origem do selo.
+  // Cache curto evita scans repetidos e é invalidado a cada alteração.
+  const roomClubCache=new Map();
+  const normalizedRoomSlug=value=>String(value||'').trim().toLocaleLowerCase('pt-BR');
+  const invalidateRoomClubCache=slugs=>{
+    for(const slug of unique(slugs))roomClubCache.delete(normalizedRoomSlug(slug));
+  };
   async function findRoomFanclubs(slug){
-    const room=rooms.get(String(slug||''));
-    if(!room||room.isPrivate||room.slug.toLowerCase()==='lobby')return [];
+    const cacheKey=normalizedRoomSlug(slug);
+    const cached=roomClubCache.get(cacheKey);
+    if(cached&&Date.now()-cached.at<12000)return cached.clubs;
+    const room=rooms.get(String(slug||''))||
+      [...rooms.values()].find(item=>normalizedRoomSlug(item?.slug)===cacheKey);
+    if(!room||room.isPrivate||cacheKey==='lobby')return [];
+    const matchesRoom=value=>normalizedRoomSlug(value)===normalizedRoomSlug(room.slug);
     const byId=new Map();
     let queryFailed=false;
     try{
@@ -234,33 +244,36 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const ids=unique(idx.exists?idx.data()?.clubIds:[]).filter(validateId);
       const snaps=await Promise.all(ids.map(id=>refFor(id).get()));
       for(const snap of snaps){
-        if(snap.exists&&!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).includes(room.slug))
+        if(snap.exists&&!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).some(matchesRoom))
           byId.set(snap.id,snap);
       }
     }catch(e){queryFailed=true;console.warn('[Fanclubs] Índice de sala indisponível:',e.message);}
     try{
       const direct=await db.collection(CLUBS).where('roomSlugs','array-contains',room.slug).get();
       for(const snap of direct.docs){
-        if(!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).includes(room.slug))
+        if(!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).some(matchesRoom))
           byId.set(snap.id,snap);
       }
     }catch(e){queryFailed=true;console.warn('[Fanclubs] Consulta por sala indisponível:',e.message);}
-    // Quando um índice falha, examinar os vínculos persistidos sem limite arbitrário.
-    // Se a consulta Firestore por roomSlugs funcionou e retornou vazio, a sala
-    // realmente não tem vínculos; não fazer leitura integral a cada polling.
-    if(queryFailed){
+    // Documentos antigos ou vínculos fora de sincronia podem não ser encontrados
+    // pela consulta exata. Reconciliação integral apenas em resultado vazio
+    // ou erro, com cache curto para não repetir leituras a cada polling.
+    if(queryFailed||!byId.size){
       const all=await db.collection(CLUBS).get();
       for(const snap of all.docs){
-        if(!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).includes(room.slug))
+        if(!snap.data()?.deleting&&unique(snap.data()?.roomSlugs).some(matchesRoom))
           byId.set(snap.id,snap);
       }
     }
-    return [...byId.values()].map(doc=>({
-      ...record(doc.data(),doc.id),primary:doc.data().defaultRoomSlug===room.slug
+    const clubs=[...byId.values()].map(doc=>({
+      ...record(doc.data(),doc.id),primary:matchesRoom(doc.data().defaultRoomSlug)
     })).sort((a,b)=>Number(b.primary)-Number(a.primary)||
       String(a.title||'').localeCompare(String(b.title||''),'pt-BR'));
+    roomClubCache.set(cacheKey,{at:Date.now(),clubs});
+    return clubs;
   }
   async function notifyRoomFanclubs(slugs){
+    invalidateRoomClubCache(slugs);
     if(!io)return;
     await Promise.allSettled(unique(slugs).filter(slug=>slug&&slug.toLowerCase()!=='lobby')
       .map(async slug=>{
