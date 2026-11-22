@@ -2134,6 +2134,14 @@ io.on('connection', (socket) => {
       const room = currentRoom && rooms.get(currentRoom);
       if (!room || !socket.isAdmin) return;
       const cfg = sanitize(input, room);
+      // Renomear não altera o identificador, convites ou vínculos do Fanclub.
+      if (input.name !== undefined) {
+        if (typeof input.name !== 'string') return socket.emit('error', 'Nome da sala inválido.');
+        const name = input.name.normalize('NFC').trim();
+        if (name.length < 2 || name.length > 40 || /[<>\u0000-\u001f\u007f]/.test(name))
+          return socket.emit('error', 'O nome da sala deve ter entre 2 e 40 caracteres válidos.');
+        room.name = name;
+      }
       Object.assign(room, { color: cfg.color, emoji: cfg.emoji, description: cfg.description, slowMode: cfg.slowMode, addMode: cfg.addMode });
       if (input.addMode !== undefined) {
         room.musicMode = cfg.addMode === 'owner' ? 'owner' : 'fair';
