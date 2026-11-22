@@ -48,10 +48,20 @@
     return el;
   }
   function mount() {
-    const host = $('sf10RequestCard') || $('sf128AddTitle')?.parentElement;
-    if (host && !host.querySelector('.sf263-cooldown')) host.appendChild(html());
-    const foot = document.querySelector('#sf76MusicSheet .sf76-foot');
-    if (foot && !foot.querySelector('.sf263-cooldown')) foot.prepend(html());
+    const sheet = $('sf76MusicSheet');
+    const modalOpen = !!sheet && !sheet.hidden;
+    const destination = modalOpen
+      ? sheet.querySelector('.sf76-foot')
+      : (window.matchMedia('(min-width: 769px)').matches ? $('sf10RequestCard') : null);
+    // Existe apenas UM indicador, transferido ao local ativo. Nunca duplicar.
+    const found = Array.from(document.querySelectorAll('.sf263-cooldown'));
+    const indicator = found.shift() || (destination ? html() : null);
+    found.forEach(extra => extra.remove());
+    if (!indicator) return;
+    if (!destination) { indicator.remove(); return; }
+    if (indicator.parentElement !== destination) {
+      destination.insertBefore(indicator, destination.firstChild);
+    }
   }
   function render() {
     mount();
@@ -59,6 +69,7 @@
     const active = rem > 0;
     const ready = !active && !!pendingTrack;
     document.querySelectorAll('.sf263-cooldown').forEach(el => {
+      el.hidden = !active && !pendingTrack;
       el.classList.toggle('sf263-active', active);
       el.classList.toggle('sf263-ready', ready);
       el.querySelector('[data-sf263-label]').textContent = active ? 'Próxima música em' : (ready ? 'Sua próxima música está pronta!' : 'Pronto para adicionar');
