@@ -7,8 +7,9 @@ test('Fanclub badge: legacy links, indexed links, live updates and ownership',as
  const A='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
  const B='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
  const C='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+ const D='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
  const CLUBS='sonorafanFanClubs71',INDEX='sonorafanFanclubRoomLinks';
- const rock='hoje-e-dia-do-rock',army='bts-army';
+ const rock='hoje-e-dia-do-rock',army='bts-army',legacy='noite-do-metal';
  const docs=new Map(),events=[],routes=new Map();
  const key=(col,id)=>col+':'+id;
  function ref(col,id){
@@ -51,10 +52,13 @@ test('Fanclub badge: legacy links, indexed links, live updates and ownership',as
   ownerId:'owner',memberIds:['owner'],genre:'kpop'});
  docs.set(key(CLUBS,C),{id:C,title:'Outro Fanclub',artist:'Rock',roomSlugs:[],
   ownerId:'owner',memberIds:['owner'],genre:'rock'});
+ docs.set(key(CLUBS,D),{id:D,title:'Metal Underground',artist:'Metal',roomSlugs:['NOITE-DO-METAL'],
+  ownerId:'owner',memberIds:['owner'],genre:'metal'});
  docs.set(key(INDEX,army),{clubIds:[B]});
  const rooms=new Map([[rock,{slug:rock,name:'Hoje é dia do Rock, bebê!',
   ownerEmail:'dono@example.com',isPrivate:false}],
   [army,{slug:army,name:'BTS Army',ownerEmail:'dono@example.com',isPrivate:false}],
+  [legacy,{slug:legacy,name:'Noite do Metal',ownerEmail:'dono@example.com',isPrivate:false}],
   ['lobby',{slug:'lobby',isPrivate:false}]]);
  const app={};
  for(const method of ['get','post','patch','delete'])
@@ -80,6 +84,10 @@ test('Fanclub badge: legacy links, indexed links, live updates and ownership',as
  await t.test('BTS index renders same badge contract',async()=>{
   const r=await request('GET','/api/fan-clubs/room/:slug',{slug:army});
   assert.equal(r.code,200);assert.equal(r.body.clubs[0].title,'ARMYS');
+ });
+ await t.test('Legacy Fanclub still renders when stored slug has different casing and no index',async()=>{
+  const r=await request('GET','/api/fan-clubs/room/:slug',{slug:legacy});
+  assert.equal(r.code,200);assert.deepEqual(r.body.clubs.map(c=>c.id),[D]);
  });
  await t.test('lobby cannot have a badge',async()=>{
   const r=await request('GET','/api/fan-clubs/room/:slug',{slug:'lobby'});
