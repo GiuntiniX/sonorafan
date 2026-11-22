@@ -50,6 +50,12 @@
     submit.id='sf81QuickSubmit';
     submit.addEventListener('click',async()=>{
       if(busy||submit.disabled)return;
+      if(window.sfCooldown?.remainingMs?.()>0){
+        window.sfCooldown.prepare(chosen);
+        status('✓ Música preparada. Confirme no contador quando estiver liberado.');
+        submit.textContent='✓ Preparada para a próxima vez';
+        return;
+      }
       busy=true;submit.disabled=true;back.disabled=true;
       submit.textContent='⏳ Enviando…';
       status('Aguardando confirmação da sala…');
