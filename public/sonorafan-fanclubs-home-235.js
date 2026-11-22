@@ -273,8 +273,9 @@ function init(){
    state.tab=tab;
    if(tab==='mine')state.search='';
    render();
-   const section=tab==='posts'?'sf235Feed':tab==='events'?'sf235Events':'sf235Discover';
-   $(section)?.scrollIntoView({block:'start',behavior:'smooth'});
+   // A navegação deve permanecer alcançável após a troca de seção.
+   // Rolar diretamente até Eventos/Publicações escondia a barra de abas.
+   home.querySelector('.sf235-tabs')?.scrollIntoView({block:'nearest',behavior:'instant'});
    return;
   }
   if(b.hasAttribute('data-sf235-scroll')){const id={discover:'sf235Discover',feed:'sf235Feed',events:'sf235Events'}[b.dataset.sf235Scroll];$(id)?.scrollIntoView({block:'start',behavior:'smooth'});}
