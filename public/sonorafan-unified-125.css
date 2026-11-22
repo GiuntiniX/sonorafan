@@ -979,3 +979,10 @@ body.sf125-global :is(.sf63-panel,.sf92-account-panel,.sf95-panel) :is(h2,h3,str
    grid-column:1/-1!important;
  }
 }
+
+/* v275: remove deprecated experience-126 secondary hero CTAs if present
+   in a pre-existing DOM or loaded from a stale JavaScript bundle. */
+#screen-lobby.sf125-platform #sf125LobbyHero .sf126-hero-extra,
+#screen-lobby.sf125-platform #sf125LobbyHero .sf126-hero-link{
+  display:none!important;
+}
