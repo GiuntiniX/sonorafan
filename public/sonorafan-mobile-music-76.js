@@ -11,7 +11,7 @@
     node.textContent=message;
     node.classList.toggle('is-error',Boolean(isError));
   };
-  const state={tab:'search',genres:[],favorites:[],filter:'all',search:'',sort:'recent',selected:new Set(),busy:false,lastFocus:null,originalHolder:null,pending:null,searchRequest:0};
+  const state={tab:'search',genres:[],favorites:[],filter:'all',search:'',sort:'recent',selected:new Set(),queueQuery:'',queueMode:'all',queueRoom:null,busy:false,lastFocus:null,originalHolder:null,pending:null,searchRequest:0};
   const originalFindSong=window.sf34FindSong;
   const roomName=()=>typeof currentRoom!=='undefined'&&currentRoom ? currentRoom : '';
   const socketClient=()=>typeof socket!=='undefined' ? socket : null;
@@ -32,6 +32,7 @@
         <div class="sf76-switch" role="tablist" aria-label="Escolher origem da música">
           <button type="button" data-sf76-tab="search" role="tab" aria-selected="true" aria-controls="sf76SearchPane">⌕ Buscar música</button>
           <button type="button" data-sf76-tab="favorites" role="tab" aria-selected="false" aria-controls="sf76FavoritesPane">♡ Minhas favoritas</button>
+          <button type="button" data-sf76-tab="queue" role="tab" aria-selected="false" aria-controls="sf76QueuePane">♫ Na fila</button>
         </div>
         <div class="sf76-content" id="sf76MusicContent">
           <section id="sf76SearchPane" role="tabpanel" aria-label="Buscar música">
@@ -56,6 +57,21 @@
             <div class="sf76-list" id="sf76FavoritesList" aria-live="polite"></div>
             <div class="sf264-batch" id="sf264Batch" hidden><span id="sf264BatchCount"></span><button type="button" id="sf264PrepareBatch">Preparar seleção</button><button type="button" id="sf264ClearBatch">Limpar</button></div>
           </section>
+          <section id="sf76QueuePane" role="tabpanel" aria-label="Pesquisar músicas que estão na fila" hidden>
+            <div class="sf269-queue-tools">
+              <label for="sf269QueueSearch">Encontrar na fila</label>
+              <div class="sf269-queue-fields">
+                <input id="sf269QueueSearch" type="search" placeholder="Música, artista ou DJ…" autocomplete="off">
+                <select id="sf269QueueMode" aria-label="Filtrar músicas da fila">
+                  <option value="all">Todas</option>
+                  <option value="next">Próximas</option>
+                  <option value="mine">Minhas</option>
+                </select>
+              </div>
+              <small id="sf269QueueCount" role="status" aria-live="polite"></small>
+            </div>
+            <div id="sf269QueueList" class="sf269-queue-list"></div>
+          </section>
         </div>
         <footer class="sf76-foot">
           <span id="sf76MusicStatus" role="status" aria-live="polite">Pronto para colaborar com a sala.</span>
@@ -67,6 +83,20 @@
     layer.querySelectorAll('[data-sf76-tab]').forEach(button=>button.addEventListener('click',()=>switchTab(button.dataset.sf76Tab)));
     $('sf76ViewQueue').addEventListener('click',()=>{close();if(typeof setTab==='function')setTab('queue');document.querySelector('#screen-room .room-layout')?.scrollTo({top:0,behavior:'instant'});});
     $('sf76FavoriteSearch').addEventListener('input',e=>{state.search=e.target.value;drawFavorites();});
+    $('sf269QueueSearch').addEventListener('input',e=>{state.queueQuery=e.target.value;renderQueueTab();});
+    $('sf269QueueMode').addEventListener('change',e=>{state.queueMode=e.target.value;renderQueueTab();});
+    $('sf269QueueList').addEventListener('click',async e=>{
+      const button=e.target.closest('[data-sf269-remove]');if(!button)return;
+      const id=button.dataset.sf269Remove;
+      if(!window.confirm('Retirar sua música da fila colaborativa?'))return;
+      button.disabled=true;
+      try{
+        if(!window.sf95Queue?.removeOwnById)throw Error('Não foi possível localizar a sala.');
+        await window.sf95Queue.removeOwnById(id);
+        status('Música retirada da fila.');
+        renderQueueTab();
+      }catch(err){status(err.message||'Não foi possível retirar a música.',true);button.disabled=false;}
+    });
     $('sf264Sort').value=state.sort;
     $('sf264Sort').addEventListener('change',e=>{state.sort=e.target.value;drawFavorites();});
     $('sf264ClearBatch').addEventListener('click',()=>{state.selected.clear();drawFavorites();});
@@ -203,7 +233,7 @@
     const head=layer.querySelector('.sf76-head small');
     if(head)head.textContent=$('screen-room')?.classList.contains('sf129-owner-mode')?'PLAYLIST DO ANFITRIÃO':'A PRÓXIMA ESCOLHA É SUA';
     switchTab(tab);
-    status(tab==='search' ? 'Busque uma música e toque em adicionar para colocá-la na fila.' : 'Escolha uma faixa favorita para enviar à fila.');
+    status(tab==='search' ? 'Busque uma música e toque em adicionar para colocá-la na fila.' : tab==='favorites' ? 'Escolha uma faixa favorita para enviar à fila.' : 'Encontre músicas na fila e gerencie suas escolhas.');
   }
   function close(){
     const layer=$('sf76MusicSheet');if(!layer||layer.hidden)return;
@@ -215,11 +245,12 @@
     state.lastFocus=null;
   }
   function switchTab(tab){
-    if(!['search','favorites'].includes(tab))tab='search';
+    if(!['search','favorites','queue'].includes(tab))tab='search';
     state.tab=tab;
-    const search=$('sf76SearchPane'),favorites=$('sf76FavoritesPane');
+    const search=$('sf76SearchPane'),favorites=$('sf76FavoritesPane'),queue=$('sf76QueuePane');
     if(search)search.hidden=tab!=='search';
     if(favorites)favorites.hidden=tab!=='favorites';
+    if(queue)queue.hidden=tab!=='queue';
     document.querySelectorAll('#sf76MusicSheet [data-sf76-tab]').forEach(button=>{
       const selected=button.dataset.sf76Tab===tab;
       button.setAttribute('aria-selected',String(selected));button.classList.toggle('is-active',selected);
@@ -227,6 +258,10 @@
     if(tab==='favorites') {
       window.sf78CloseInline?.();
       loadFavorites();
+    } else if(tab==='queue'){
+      window.sf78CloseInline?.();
+      renderQueueTab();
+      requestAnimationFrame(()=>$('sf269QueueSearch')?.focus({preventScroll:true}));
     } else {
       requestAnimationFrame(()=>{
         const target=smallScreen() ? $('sf138SearchQuery') : $('songUrl');
@@ -238,6 +273,43 @@
     document.querySelectorAll('#sf76MusicSheet .song-preview-confirm').forEach(b=>b.disabled=!!locked);
     const info=$('sf76MusicStatus');if(locked&&info)status('🔒 Somente o anfitrião pode adicionar músicas nesta sala.',true);
   }
+  function renderQueueTab(){
+    const container=$('sf269QueueList'),counter=$('sf269QueueCount');
+    if(!container||!counter)return;
+    const data=window.sf95Queue?.getRoom?.()||currentRoomState();
+    const tracks=Array.isArray(data?.queue)?data.queue:[];
+    const waiting=Array.isArray(data?.waitingQueue)?data.waitingQueue:[];
+    const index=Math.max(0,Number(data?.currentIndex)||0);
+    const entries=[
+      ...tracks.map((track,i)=>({track,position:i,waiting:false})),
+      ...waiting.map(track=>({track,position:tracks.length,waiting:true}))
+    ];
+    const query=String(state.queueQuery||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
+    const normalize=value=>String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
+    const mine=track=>Boolean(window.sf95Queue?.isMine?.(track));
+    const filtered=entries.filter(item=>{
+      const owns=mine(item.track);
+      if(state.queueMode==='mine'&&!owns)return false;
+      if(state.queueMode==='next'&&!item.waiting&&item.position<=index)return false;
+      return !query||normalize([item.track.title,item.track.artist,item.track.dj].join(' ')).includes(query);
+    });
+    counter.textContent=filtered.length+' de '+entries.length+' músicas';
+    if(!filtered.length){
+      container.innerHTML='<p class="sf76-empty">Nenhuma música encontrada nesse filtro.</p>';return;
+    }
+    container.innerHTML=filtered.map(({track,position,waiting})=>{
+      const owns=mine(track),canRemove=owns&&(waiting||position>index),current=!waiting&&position===index;
+      return `<article class="sf269-queue-track">
+        <img src="https://img.youtube.com/vi/${encodeURIComponent(track.id||'')}/mqdefault.jpg" alt="" loading="lazy">
+        <div class="sf269-queue-copy"><strong>${escapeHtml(decodeTitle(track.title||'Música'))}</strong>
+          <small>${escapeHtml(decodeTitle(track.artist||'Artista'))} · DJ ${escapeHtml(track.dj||'participante')}</small>
+          <span>${waiting?'Aguardando entrada':current?'Tocando agora':position<index?'Já tocou':'Posição '+(position+1)}</span>
+        </div>
+        ${canRemove&&validId(track.id)?`<button type="button" data-sf269-remove="${escapeHtml(track.id)}" aria-label="Retirar ${escapeHtml(decodeTitle(track.title||'música'))} da fila">✕ Retirar</button>`:''}
+      </article>`;
+    }).join('');
+  }
+
   async function favoritesApi(url,options={}){
     const response=await fetch(url,{credentials:'include',...options,headers:{...(options.body?{'Content-Type':'application/json'}:{}),...(options.headers||{})}});
     const data=await response.json().catch(()=>({}));
@@ -404,6 +476,7 @@
     buildSheet();
     window.sf76OpenMusic=open;
     window.sf76CloseMusic=close;
+    socketClient()?.on('roomState',()=>{if(state.tab==='queue'&&!$('sf76MusicSheet')?.hidden)renderQueueTab();});
     $('songUrl')?.addEventListener('input',updateSearchButton);
     $('songUrl')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitSearchText(e);},true);
     $('addBtn')?.addEventListener('click',submitSearchText,true);
