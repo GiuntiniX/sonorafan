@@ -162,10 +162,24 @@
 .sf76-sheet .sf264-assign{display:flex;gap:6px;align-items:center;margin-top:5px;font-size:10px;color:#cbb3db;min-width:0}
 .sf76-sheet .sf264-assign span{flex:none}
 .sf76-sheet .sf264-assign select{flex:1;min-width:0;max-width:200px;padding:6px 8px!important;min-height:31px!important;border-radius:8px!important;border:1px solid #6b4a7a;background:#21132c;color:#eee;font-size:11px}
-.sf76-sheet .sf264-menu{position:relative;text-align:right}
-.sf76-sheet .sf264-menu summary{list-style:none;cursor:pointer;border:1px solid #65436f;border-radius:8px;background:#2c1b38;color:#dfc3e8;padding:4px 10px;font-size:18px;line-height:1}
-.sf76-sheet .sf264-menu summary::-webkit-details-marker{display:none}
-.sf76-sheet .sf264-menu[open] button{background:#321d42;border:1px solid #875c92;border-radius:8px;color:#ffd9e2;padding:8px;cursor:pointer;margin-top:5px;white-space:nowrap;font-size:11px}
+/* Ações diretas: adicionar e excluir, sem submenu. */
+.sf76-sheet .sf264-track .sf76-track-actions{min-width:105px;gap:7px}
+.sf76-sheet .sf264-track .sf76-track-actions .sf264-add,
+.sf76-sheet .sf264-track .sf76-track-actions .sf264-remove{
+  width:100%;min-height:36px;flex:1 1 auto;
+  border-radius:10px;padding:8px 10px;font-size:11px;
+  font-weight:800;line-height:1.25;white-space:nowrap;cursor:pointer
+}
+.sf76-sheet .sf264-track .sf76-track-actions .sf264-add{
+  color:#fff;border:1px solid #bc72d4;
+  background:linear-gradient(125deg,#a04bcf,#e07a95)
+}
+.sf76-sheet .sf264-track .sf76-track-actions .sf264-remove{
+  color:#ffd9e2;border:1px solid #80516e;background:#2d1b39
+}
+.sf76-sheet .sf264-track .sf76-track-actions .sf264-remove:hover{background:#412848}
+.sf76-sheet .sf264-track .sf76-track-actions .sf264-add:disabled{opacity:.55;cursor:default}
+.sf76-sheet .sf264-track .sf76-track-actions button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .sf76-sheet .sf264-batch{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0;padding:12px;border-radius:12px;background:#3b2051;border:1px solid #8856a6}
 .sf76-sheet .sf264-batch[hidden]{display:none!important}
 .sf76-sheet .sf264-batch span{margin-right:auto;color:#fff;font-size:12px}
@@ -176,4 +190,9 @@
 .sf76-sheet .sf264-track .sf76-track-actions{grid-column:3;flex-direction:row!important;align-items:center;justify-content:flex-end;width:100%}
 .sf76-sheet .sf264-assign select{max-width:145px}
 .sf76-sheet .sf264-toolbar select{max-width:125px}
+}
+
+@media(max-width:540px){
+ .sf76-sheet .sf264-track .sf76-track-actions .sf264-add,
+ .sf76-sheet .sf264-track .sf76-track-actions .sf264-remove{width:auto;min-width:0;flex:1 1 0;padding:8px 5px}
 }
