@@ -4491,6 +4491,11 @@ function openRoomCfg() {
       const chosen = { ...songData };
       const btn = document.querySelector('.song-preview-confirm');
       if (btn?.disabled) return;
+      if (window.sfCooldown?.remainingMs?.() > 0) {
+        window.sfCooldown.prepare(chosen);
+        toast('🎵 Música preparada! Confirme quando o tempo acabar.', 'success');
+        return;
+      }
       if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando…'; }
       try {
         await window.sf80QueueSong(chosen);
@@ -5220,5 +5225,7 @@ function openRoomCfg() {
   <script defer src="/sonorafan-mobile-room-136.js?v=140.0"></script>
   <script defer src="/sonorafan-signup-reference-184.js?v=188.0"></script>
   <script defer src="/sonorafan-signup-scroll-190.js?v=190.0"></script>
+  <link rel="stylesheet" href="/sonorafan-cooldown-263.css?v=263.0">
+  <script defer src="/sonorafan-cooldown-263.js?v=263.0"></script>
 </body>
 </html>
