@@ -893,3 +893,89 @@ body.sf125-global :is(.sf63-panel,.sf92-account-panel,.sf95-panel) :is(h2,h3,str
    transition:none!important;transform:none!important;
  }
 }
+
+/* v273 — definitive lobby action layout (legacy toolbar disabled).
+   Source is the primary sf125 hero only; existing navigation actions remain operational. */
+#screen-lobby.sf125-platform #sf107Dashboard>.sf107-quick,
+#screen-lobby.sf125-platform #sf107Dashboard>.sf109-quick-clean,
+#screen-lobby.sf125-platform .sf107-quick.sf109-quick-clean{
+  display:none!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions{
+  display:flex!important;
+  flex-flow:row wrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  column-gap:10px!important;
+  row-gap:10px!important;
+  width:min(100%,650px)!important;
+  max-width:650px!important;
+  margin:20px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions>button{
+  appearance:none!important;
+  display:inline-flex!important;
+  flex:0 1 auto!important;
+  align-items:center!important;
+  justify-content:center!important;
+  vertical-align:middle!important;
+  gap:9px!important;
+  width:auto!important;
+  min-height:45px!important;
+  height:auto!important;
+  margin:0!important;
+  padding:11px 17px!important;
+  border-radius:12px!important;
+  font:800 13px/1.2 Inter,system-ui,sans-serif!important;
+  text-transform:none!important;
+  letter-spacing:0!important;
+  text-shadow:none!important;
+  white-space:nowrap!important;
+  transform:none;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions>.sf271-hero-primary{
+  order:1!important;
+  background:#c8ff00!important;
+  border:1px solid #c8ff00!important;
+  color:#15110d!important;
+  box-shadow:0 5px 16px #c8ff001a!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions>.sf271-hero-secondary{
+  order:2!important;
+  background:#24112d!important;
+  border:1px solid #8d6e9b!important;
+  color:#f6f1fb!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions>.sf271-hero-tertiary{
+  order:3!important;
+  background:#170c1ddd!important;
+  border:1px solid #e768bc!important;
+  color:#f6f1fb!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions>button:hover:not(:disabled){
+  filter:brightness(1.09)!important;
+  transform:translateY(-1px)!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions>button:focus-visible{
+  outline:2px solid #ff9300!important;
+  outline-offset:3px!important;
+}
+@media(max-width:750px){
+ #screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions{
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+   gap:8px!important;width:100%!important;
+ }
+ #screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions>button{
+   width:100%!important;
+   min-width:0!important;
+   font-size:12px!important;
+   white-space:normal!important;
+   padding:10px 8px!important;
+ }
+ #screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-actions>.sf271-hero-primary{
+   grid-column:1/-1!important;
+ }
+}
