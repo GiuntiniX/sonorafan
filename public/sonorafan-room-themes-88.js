@@ -155,7 +155,7 @@
    grid.replaceChildren(
      heading('🎪 Atmosferas ilustradas','Cenários musicais e festivais com arte própria'),
      ...illustrated.map(t=>card(t,modalMode)),
-     heading('🎨 Temas por cor','Escolha uma paleta para chat, fila e player'),
+     heading('🎨 Wallpapers por cor','Cenários de cor; interface SonoraFan permanece padrão'),
      ...colors.map(t=>card(t,modalMode))
    );
    updateSelection();
@@ -172,8 +172,8 @@
    }
    const caption=$('sf88ThemeCaption');
    if(caption)caption.textContent=modalMode==='room'?
-     (mayEdit?'Aplicar para todos altera a sala em tempo real. Aplicar só para mim não muda a experiência dos outros.':'A escolha pessoal não muda o tema dos demais ouvintes.') :
-     'Este visual modifica imagens, fundos e cores. As músicas, o chat e a fila continuam iguais.';
+     (mayEdit?'Aplicar para todos muda a atmosfera da sala. As cores de cada pessoa são uma preferência individual.':'O wallpaper pessoal não altera a experiência dos demais ouvintes.') :
+     'Este tema muda o wallpaper e as artes. As cores da página são opcionais no seletor acima.';
  }
  function open(mode='room'){
    if(!['room','create','edit'].includes(mode))mode='room';
