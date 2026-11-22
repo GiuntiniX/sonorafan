@@ -40,22 +40,9 @@
    const popular=$('sf107Popular');
    if(main&&popular&&main.firstElementChild!==popular)main.prepend(popular);
    popular?.classList.add('sf126-popular');
-   const existing=q('.sf126-hero-extra',hero);
-   if(!existing){
-     const row=make('div','sf126-hero-extra');
-     row.innerHTML=
-       '<button type="button" class="sf126-hero-link" data-sf126-action="clubs">♧ Encontrar Fan Clubs</button>'+
-       '<button type="button" class="sf126-hero-link" data-sf126-action="invite">⌗ Entrar com código</button>';
-     hero.querySelector('.sf125-hero-actions')?.after(row);
-     row.addEventListener('click',e=>{
-       const btn=e.target.closest('[data-sf126-action]');if(!btn)return;
-       if(btn.dataset.sf126Action==='clubs')window.sf126OpenClubs?.();
-       if(btn.dataset.sf126Action==='invite'){
-         const area=$('sf107Invite'),field=$('sf107InviteCode');
-         if(area){area.hidden=false;field?.focus();}
-       }
-     });
-   }
+   // A versão atual do lobby possui três CTAs próprios no sf125.
+   // Remover elementos antigos eventualmente mantidos durante a sessão.
+   q('.sf126-hero-extra',hero)?.remove();
    const recent=$('sf107Recent');
    const recentModule=recent?.closest('.sf107-module');
    if(recentModule){recentModule.classList.add('sf126-recent');}
