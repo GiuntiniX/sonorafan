@@ -785,3 +785,37 @@ body.sf125-global :is(.sf63-panel,.sf92-account-panel,.sf95-panel) :is(h2,h3,str
    background-position:center,62% center!important;
  }
 }
+
+/* SonoraFan 268 — imagem oficial do lobby colocada diretamente no hero.
+   Não depender de --sf125-hero ou de outro tema para renderizar o banner. */
+#screen-lobby.sf125-platform #sf125LobbyHero.sf125-lobby-hero{
+  position:relative!important;isolation:isolate!important;
+  background:#100813!important;overflow:hidden!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf268-lobby-background{
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;
+  object-fit:cover!important;object-position:61% 53%!important;
+  opacity:1!important;z-index:-2!important;pointer-events:none!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero::before{
+  content:""!important;position:absolute!important;inset:0!important;
+  z-index:-1!important;transform:none!important;
+  background:linear-gradient(90deg,rgba(15,6,21,.80) 0%,rgba(15,6,21,.67) 22%,rgba(15,6,21,.18) 46%,transparent 76%)!important;
+  opacity:1!important;pointer-events:none!important;
+  text-shadow:none!important;filter:none!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero::after{
+  display:none!important;content:none!important;
+}
+#screen-lobby.sf125-platform #sf125LobbyHero .sf125-hero-copy{
+  position:relative!important;z-index:2!important;
+}
+@media(max-width:700px){
+  #screen-lobby.sf125-platform #sf125LobbyHero .sf268-lobby-background{
+    object-position:68% center!important;
+  }
+  #screen-lobby.sf125-platform #sf125LobbyHero::before{
+    background:linear-gradient(90deg,rgba(15,6,21,.88),rgba(15,6,21,.58) 70%,rgba(15,6,21,.34))!important;
+  }
+}
