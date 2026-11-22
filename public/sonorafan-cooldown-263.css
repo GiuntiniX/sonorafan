@@ -1,0 +1,17 @@
+/* SonoraFan 263 — indicador de intervalo para desktop e modal mobile */
+.sf263-cooldown{display:none;flex-direction:column;gap:9px;padding:12px 14px;margin-top:12px;border:1px solid rgba(167,139,250,.25);border-radius:14px;background:linear-gradient(120deg,rgba(124,58,237,.13),rgba(16,17,28,.94));color:var(--text,#f4f4fa);min-width:0}
+#screen-room.active .sf263-cooldown,.sf76-sheet:not([hidden]) .sf263-cooldown{display:flex}
+.sf263-row,.sf263-status,.sf263-actions,.sf263-prepared-title{display:flex;align-items:center;gap:8px}
+.sf263-row{justify-content:space-between;font-size:12px}
+.sf263-status{font-weight:700;min-width:0}.sf263-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0}
+.sf263-active .sf263-dot{background:#c4a5ff}.sf263-row strong{font:700 18px/1 'Space Grotesk',Inter,sans-serif;font-variant-numeric:tabular-nums;color:#d8b9ff}
+.sf263-bar{height:5px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}.sf263-bar>span{display:block;width:100%;height:100%;background:linear-gradient(90deg,#8b5cf6,#ddacff);border-radius:inherit;transition:width .3s linear}
+.sf263-help{font-size:11px;line-height:1.5;color:var(--text-secondary,#a8a8b8);margin:0}
+.sf263-prepared{padding-top:8px;border-top:1px solid rgba(167,139,250,.2);display:grid;gap:8px}
+.sf263-prepared[hidden]{display:none!important}.sf263-prepared-title{font-size:12px;font-weight:650;min-width:0}.sf263-prepared-title span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sf263-actions{gap:8px}.sf263-actions button{min-height:36px;border:1px solid rgba(167,139,250,.36);border-radius:10px;padding:8px 12px;background:rgba(124,58,237,.24);color:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.sf263-actions [data-sf263-confirm]{background:linear-gradient(90deg,#7c3aed,#a855f7);color:#fff;flex:1}.sf263-actions button:disabled{opacity:.48;cursor:not-allowed}
+.sf263-actions button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.sf76-foot .sf263-cooldown{width:100%;margin:0 0 8px;flex:1 0 100%}
+@media(max-width:768px){#sf10RequestCard>.sf263-cooldown{display:none!important}.sf76-foot{flex-wrap:wrap}.sf76-foot .sf263-cooldown{padding:10px 12px;gap:6px}.sf263-row strong{font-size:16px}.sf263-help{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.sf263-bar>span{transition:none}}
