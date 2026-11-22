@@ -26,28 +26,10 @@
   function build() {
     const header=document.querySelector('#screen-room .sf34-queue .queue-header');
     const list=$('queueList');
-    if(header&&list&&!$('sf95FilterBar')){
-      const trigger=document.createElement('button');
-      trigger.id='sf95FilterTrigger';trigger.type='button';trigger.className='sf95-icon-button';
-      trigger.textContent='⌕';trigger.title='Buscar ou filtrar músicas na fila';
-      trigger.setAttribute('aria-label',trigger.title);
-      trigger.setAttribute('aria-controls','sf95FilterBar');
-      trigger.setAttribute('aria-expanded','false');
-      trigger.addEventListener('click',()=>filterOpen?closeFilter():openFilter());
-      (header.querySelector('div')||header).append(trigger);
-      const bar=document.createElement('div');
-      bar.id='sf95FilterBar';bar.className='sf95-filter-bar';bar.hidden=true;
-      bar.innerHTML='<input id="sf95FilterInput" type="search" placeholder="Música, artista ou DJ…" aria-label="Buscar na fila">'+
-        '<select id="sf95FilterMode" aria-label="Exibir músicas"><option value="all">Todas</option>'+
-        '<option value="next">Próximas</option><option value="mine">Minhas</option></select>'+
-        '<small id="sf95FilterCount" aria-live="polite"></small>';
-      list.before(bar);
-      $('sf95FilterInput').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLowerCase('pt-BR');schedule();});
-      $('sf95FilterInput').addEventListener('keydown',e=>{if(e.key==='Escape')closeFilter();});
-      $('sf95FilterMode').addEventListener('change',e=>{mode=e.target.value;schedule();});
-      // Evita loop: a decoração muda conteúdo interno das linhas.
-      new MutationObserver(schedule).observe(list,{childList:true});
-    }
+    // The search/ownership filters now live in the unified Add Music dialog.
+    // Clean up legacy controls on existing long-running sessions.
+    $('sf95FilterTrigger')?.remove();
+    $('sf95FilterBar')?.remove();
     const mini=$('premiumMiniPlayer');
     if(mini&&!$('sf95CompactVideo')){
       const btn=document.createElement('button');
@@ -72,21 +54,9 @@
   }
   function openFilter() {
     if(!roomActive())return;
-    build();
-    filterOpen=true;
-    if($('sf95FilterBar'))$('sf95FilterBar').hidden=false;
-    $('sf95FilterTrigger')?.setAttribute('aria-expanded','true');
-    $('sf95FilterInput')?.focus({preventScroll:true});
-    schedule();
+    if(typeof window.sf76OpenMusic==='function')window.sf76OpenMusic('queue');
   }
-  function closeFilter() {
-    filterOpen=false;query='';mode='all';
-    if($('sf95FilterBar'))$('sf95FilterBar').hidden=true;
-    if($('sf95FilterInput'))$('sf95FilterInput').value='';
-    if($('sf95FilterMode'))$('sf95FilterMode').value='all';
-    $('sf95FilterTrigger')?.setAttribute('aria-expanded','false');
-    schedule();
-  }
+  function closeFilter(){ filterOpen=false;query='';mode='all';schedule(); }
   function schedule(){
     if(queued)return;
     queued=true;requestAnimationFrame(()=>{queued=false;decorate();});
@@ -121,10 +91,10 @@
       }
       const matched=(!query||(String(song.title||'')+' '+String(song.artist||'')+' '+String(song.dj||'')).toLocaleLowerCase('pt-BR').includes(query)) &&
         (mode==='all'||mode==='next'&&i>index||mode==='mine'&&own(song));
-      row.classList.toggle('sf95-row-hidden',filterOpen&&!matched);
+      row.classList.remove('sf95-row-hidden');
       if(matched)visible++;
       let remove=row.querySelector('.sf95-remove-track');
-      const canRemove=filterOpen&&mode==='mine'&&own(song)&&i>index;
+      const canRemove=own(song)&&i>index;
       if(!canRemove&&remove)remove.remove();
       if(canRemove&&!remove){
         const holder=row.querySelector('.queue-votes');
@@ -138,7 +108,7 @@
         }
       }
     });
-    if($('sf95FilterCount'))$('sf95FilterCount').textContent=filterOpen?visible+' de '+tracks.length+' músicas':'';
+
   }
   async function removeOwn(event){
     const button=event.currentTarget,id=button.dataset.id;
@@ -156,6 +126,11 @@
       setUserId:id=>{userId=typeof id==='string'?id:'';schedule();},
       openFilter,
       getRoom:()=>room,
+      isMine:own,
+      removeOwnById:async id=>{
+        if(!/^[A-Za-z0-9_-]{11}$/.test(id))throw Error('Música inválida.');
+        return ack('sf95:removeOwnSong',{id});
+      },
       update:()=>{build();schedule();}
     };
     requestAnimationFrame(build);
