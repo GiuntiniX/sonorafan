@@ -4520,11 +4520,9 @@ function openRoomCfg() {
     }
 
     function startCooldown() {
-      const text = $('cooldownText');
-      let remaining = COOLDOWN / 1000;
-      text.textContent = `Aguarde ${Math.floor(remaining/60)}m${remaining%60}s`;
-      text.classList.remove('hidden');
-      const interval = setInterval(() => { remaining--; if (remaining > 0) text.textContent = `Aguarde ${Math.floor(remaining/60)}m${remaining%60}s`; else { clearInterval(interval); text.classList.add('hidden'); } }, 1000);
+      // O painel SonoraFan 263 usa a confirmação do servidor.
+      $('cooldownText')?.classList.add('hidden');
+      window.sfCooldown?.refresh?.();
     }
 
     function copyQueueIds() {
