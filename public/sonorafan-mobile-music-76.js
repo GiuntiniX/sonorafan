@@ -288,6 +288,7 @@
       drawFavorites();
     }catch(e){if(sequence===state.searchRequest){list.innerHTML='<p class="sf76-empty" role="alert">Falha ao carregar favoritas. Toque em Minhas favoritas para tentar de novo.</p>';status(e.message,true);}}
   }
+  const decodeTitle=value=>String(value||'').replace(/&(?:quot|#34|#x22);/gi,'"').replace(/&(?:apos|#39|#x27);/gi,"'").replace(/&(?:amp|#38);/gi,'&').replace(/&(?:lt|#60);/gi,'<').replace(/&(?:gt|#62);/gi,'>');
   const fold=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
   const suggestions=[
     {test:/linkin park|limp bizkit|korn|slipknot|system of a down/i,styles:['Rock','Nu Metal','Alternativo']},
@@ -334,11 +335,11 @@
     const q=fold(state.search);
     const visible=all.filter(t=>{
       const genre=known.has(t.genreId)?t.genreId:'none';
-      return (state.filter==='all'||genre===state.filter)&&(!q||fold((t.title||'')+' '+(t.artist||'')+' '+(t.styles||[]).join(' ')).includes(q));
+      return (state.filter==='all'||genre===state.filter)&&(!q||fold(decodeTitle(t.title)+' '+decodeTitle(t.artist)+' '+(t.styles||[]).join(' ')).includes(q));
     });
     const nameOf=t=>state.genres.find(g=>g.id===t.genreId)?.name||'';
-    if(state.sort==='title')visible.sort((a,b)=>fold(a.title).localeCompare(fold(b.title),'pt-BR'));
-    if(state.sort==='artist')visible.sort((a,b)=>fold(a.artist).localeCompare(fold(b.artist),'pt-BR'));
+    if(state.sort==='title')visible.sort((a,b)=>fold(decodeTitle(a.title)).localeCompare(fold(decodeTitle(b.title)),'pt-BR'));
+    if(state.sort==='artist')visible.sort((a,b)=>fold(decodeTitle(a.artist)).localeCompare(fold(decodeTitle(b.artist)),'pt-BR'));
     if(state.sort==='collection')visible.sort((a,b)=>nameOf(a).localeCompare(nameOf(b),'pt-BR'));
     $('sf264VisibleCount').textContent=visible.length+' de '+all.length+' músicas';
     if(!visible.length){list.innerHTML='<p class="sf76-empty">Nenhuma música neste filtro. Experimente outro termo ou coleção.</p>';renderBatch();return;}
@@ -349,8 +350,8 @@
       return `<article class="sf76-track sf264-track" data-sf76-track="${escapeHtml(t.id)}">
         <input class="sf264-check" type="checkbox" data-sf264-check="${escapeHtml(t.id)}" aria-label="Selecionar ${escapeHtml(t.title||'música')}" ${state.selected.has(t.id)?'checked':''}>
         <img src="https://img.youtube.com/vi/${encodeURIComponent(t.id)}/mqdefault.jpg" alt="" loading="lazy">
-        <div class="sf76-track-copy"><strong title="${escapeHtml(t.title||'Música')}">${escapeHtml(t.title||'Música')}</strong><small>${escapeHtml(t.artist||'Artista')}</small>
-          <div class="sf264-style-row">${styles.slice(0,3).map(st=>`<span class="sf264-style">${escapeHtml(st)}</span>`).join('')}<button type="button" data-sf264-style="${escapeHtml(t.id)}" aria-label="Editar estilos musicais de ${escapeHtml(t.title)}">${styles.length?'✎ Estilos':'＋ Estilos'}</button></div>
+        <div class="sf76-track-copy"><strong title="${escapeHtml(decodeTitle(t.title||'Música'))}">${escapeHtml(t.title||'Música')}</strong><small>${escapeHtml(decodeTitle(t.artist||'Artista'))}</small>
+          <div class="sf264-style-row">${styles.slice(0,3).map(st=>`<span class="sf264-style">${escapeHtml(st)}</span>`).join('')}<button type="button" data-sf264-style="${escapeHtml(t.id)}" aria-label="Editar estilos musicais de ${escapeHtml(decodeTitle(t.title))}">${styles.length?'✎ Estilos':'＋ Estilos'}</button></div>
           <label class="sf76-assign sf264-assign"><span>Coleção</span><select data-sf76-assign="${escapeHtml(t.id)}" aria-label="Mudar coleção de ${escapeHtml(t.title||'música')}"><option value="" ${!known.has(t.genreId)?'selected':''}>Sem coleção</option>${selectOptions}</select></label>
         </div>
         <div class="sf76-track-actions"><button type="button" data-sf76-add="${escapeHtml(t.id)}" ${inQueue?'disabled':''} aria-label="Adicionar ${escapeHtml(t.title||'música')} à fila">${inQueue?'✓ Na fila':'＋ Adicionar'}</button>
@@ -393,6 +394,7 @@
       if(typeof window.sf80QueueSong!=='function')throw new Error('Fila indisponível. Atualize a página.');
       await window.sf80QueueSong(song);
       status('✓ Música adicionada à fila! Use “Ver fila” para acompanhar.');
+      drawFavorites();
     }catch(e){status(e.message||'Erro ao adicionar música.',true);}
     finally{state.busy=false;buttons.forEach(b=>b.disabled=false);}
   }
