@@ -230,12 +230,14 @@ function init(){
  if(!panel||!list||!home||state.bootstrapped)return;
  state.bootstrapped=true;
  home.hidden=true;
- home.addEventListener('click',event=>{
-  const b=event.target.closest('a[data-sf235-topic],button[data-sf235-open],button[data-sf235-autoplay],button[data-sf235-retry],button[data-sf235-create],button[data-sf235-notifications],button[data-sf235-tab],button[data-sf235-scroll]');
-  if(!b||!home.contains(b))return;
+ window.addEventListener('click',event=>{
+  const b=event.target.closest('a[data-sf235-topic],button[data-sf235-open],button[data-sf235-autoplay],button[data-sf235-retry],button[data-sf235-create],button[data-sf235-notifications],button[data-sf235-tab],button[data-sf235-scroll],[data-sf235-item]');
+  if(!b||!home.contains(b)||home.hidden||state.detail)return;
   // Evita que o menu e os delegadores antigos da área de comunidade
   // consumam o mesmo clique e desmontem a home.
-  event.stopPropagation();
+  // Captura antes de delegadores globais que desmontam a página.
+  event.preventDefault();
+  event.stopImmediatePropagation();
   if(b.hasAttribute('data-sf235-autoplay')){
    state.autoplay=!state.autoplay;render();return;
   }
@@ -243,17 +245,15 @@ function init(){
    const clubId=b.dataset.sf235Club,postId=b.dataset.sf235Topic;
    if(!valid(clubId)||!/^[A-Za-z0-9_-]{1,100}$/.test(postId||''))return;
    // Mantém o link permanente acessível mesmo se o JS da comunidade falhar.
-   if(typeof window.sf71OpenFanClubTopic==='function'){
-    event.preventDefault();
-    window.sf71OpenFanClubTopic(clubId,postId);
-   }
+   if(typeof window.sf71OpenFanClubTopic==='function')window.sf71OpenFanClubTopic(clubId,postId);
+   else location.hash='#fanclub/'+encodeURIComponent(clubId)+'/topic/'+encodeURIComponent(postId);
    return;
   }
-  if(b.hasAttribute('data-sf235-open')){
-   const id=b.dataset.sf235Open;
+  if(b.hasAttribute('data-sf235-open')||b.hasAttribute('data-sf235-item')){
+   const id=b.dataset.sf235Open||b.dataset.sf235Item;
    if(!valid(id))return;
    if(typeof window.sf71OpenFanClub==='function')window.sf71OpenFanClub(id);
-   else{state.error='A abertura do Fanclub não está disponível. Atualize a página.';render();}
+   else location.hash='#fanclub/'+encodeURIComponent(id);
    return;
   }
   if(b.hasAttribute('data-sf235-retry')){state.error='';loadIndependent();return;}
@@ -262,7 +262,11 @@ function init(){
    if(!create){state.error='O cadastro de Fanclubs está indisponível. Atualize a página.';render();return;}
    create.click();return;
   }
-  if(b.hasAttribute('data-sf235-notifications')){window.sf15OpenNotifications?.();return;}
+  if(b.hasAttribute('data-sf235-notifications')){
+   if(typeof window.sf15OpenNotifications==='function')window.sf15OpenNotifications();
+   else{state.error='O painel de notificações não está disponível neste momento.';render();}
+   return;
+  }
   if(b.hasAttribute('data-sf235-tab')){
    const tab=b.dataset.sf235Tab;
    if(!['all','mine','posts','events'].includes(tab))return;
@@ -274,7 +278,7 @@ function init(){
    return;
   }
   if(b.hasAttribute('data-sf235-scroll')){const id={discover:'sf235Discover',feed:'sf235Feed',events:'sf235Events'}[b.dataset.sf235Scroll];$(id)?.scrollIntoView({block:'start',behavior:'smooth'});}
- });
+ },true);
  home.addEventListener('input',event=>{if(event.target.id!=='sf235Search')return;const input=event.target;state.search=input.value.slice(0,60);const pos=input.selectionStart;render();const next=$('sf235Search');next?.focus({preventScroll:true});next?.setSelectionRange(pos,pos);});
  window.sf235UpdateFanclubs=update;window.sf235ShowHome=show;window.sf235HideHome=hide;
  // A página pode ser exibida antes da inicialização do módulo de Fanclubs.
