@@ -225,3 +225,93 @@
  :root[data-sf-brand="official"] #screen-room .chat-column{min-width:0}
 }
 @media(prefers-reduced-motion:reduce){:root[data-sf-brand="official"] *{scroll-behavior:auto!important}}
+
+/* v266.1 — override legacy chat-neon 124 specificity without changing layout geometry */
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon{
+ --sf124-bg:var(--sf-brand-chat);--sf124-panel:var(--bg-elevated);
+ --sf124-panel-raised:var(--bg-card);--sf124-stroke:var(--sf-border-soft);
+ --sf124-text:var(--text);--sf124-muted:var(--text-secondary);
+ --sf124-lime:var(--accent2);--sf124-orange:var(--accent);
+ --sf124-pink:var(--sf-purple-soft);
+ background:var(--sf-brand-chat)!important;border-color:var(--sf-border)!important;
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon :is(.chat-panel,.chat-messages,.chat-messages-inner){
+ background-color:var(--sf-brand-chat)!important;background-image:none!important;
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .premium-chat-heading{
+ background:var(--bg-card)!important;background-image:none!important;
+ border-image:none!important;border-bottom:1px solid var(--sf-border-soft)!important;
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon :is(.premium-presence,.users-panel){
+ background:var(--bg-elevated)!important;border-color:var(--sf-border-soft)!important;color:var(--text)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages{
+ background:var(--sf-brand-chat)!important;background-image:none!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-messages-inner{
+ background:transparent!important;scrollbar-color:var(--sf-border-soft) transparent!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg:not(.msg-system):not(.msg-music){
+ background:var(--sf-brand-other)!important;border-color:var(--sf-border-soft)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg.mine:not(.msg-system),
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg.is-mine:not(.msg-system){
+ background:var(--sf-brand-mine)!important;border-color:#6a436d!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-system{
+ background:var(--bg-card)!important;border:1px dashed var(--sf-border-soft)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-music{
+ background:var(--bg-card)!important;border-color:var(--sf-border-soft)!important;border-left-color:var(--accent2)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon :is(.msg-user,.sf51-user-link,.premium-online-dot){
+ color:var(--accent2)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .msg-time{color:var(--text-muted)!important}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar{
+ background:var(--bg-elevated)!important;border-color:var(--sf-border-soft)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar #chatInput{
+ background:var(--bg-card)!important;border-color:var(--sf-border-soft)!important;color:var(--text)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar #chatInput:focus{
+ border-color:var(--accent)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 20%,transparent)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar > .emoji-btn{
+ background:var(--bg-hover)!important;border-color:var(--sf-border-soft)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .chat-input-bar > button:not(.emoji-btn){
+ background:var(--accent)!important;border-color:var(--accent)!important;color:#160b11!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .sf53-inbox-shortcut,
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .sf53-reply-preview:not([hidden]){
+ background:var(--bg-card)!important;border-color:var(--sf-border-soft)!important;color:var(--text)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .new-msg-pill{
+ background:var(--accent)!important;color:#160b11!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .typing-indicator{
+ background:var(--bg-card)!important;color:var(--accent2)!important;border-color:var(--sf-border-soft)!important
+}
+:root[data-sf-brand="official"] #screen-room.sf113-room .sf34-chat.sf124-chat-neon .emoji-panel{
+ background:var(--bg-card)!important;border-color:var(--sf-border-soft)!important
+}
+/* Shared notification drawer (DMs, mentions, chat alerts) */
+:root[data-sf-brand="official"] .sf15-overlay{background:rgba(12,4,19,.82)!important}
+:root[data-sf-brand="official"] .sf15-panel{
+ background:var(--bg-elevated)!important;color:var(--text)!important;border-color:var(--sf-border)!important
+}
+:root[data-sf-brand="official"] :is(.sf15-head,.sf15-toolbar){
+ background:var(--bg-card)!important;border-color:var(--sf-border-soft)!important;color:var(--text)!important
+}
+:root[data-sf-brand="official"] .sf15-item{background:var(--bg-card)!important;border-color:var(--sf-border-soft)!important}
+:root[data-sf-brand="official"] .sf15-unread{border-color:var(--accent)!important;background:color-mix(in srgb,var(--accent) 10%,var(--bg-card))!important}
+:root[data-sf-brand="official"] :is(.sf15-send,.sf15-invite){
+ background:var(--accent)!important;color:#160b11!important
+}
+:root[data-sf-brand="official"] .sf15-panel :is(input,select,textarea){
+ color:var(--text)!important;background:var(--bg-card)!important;border-color:var(--sf-border-soft)!important
+}
+:root[data-sf-brand="official"] .sf15-panel :is(button,input,select,textarea):focus-visible{
+ outline:2px solid var(--accent)!important;outline-offset:2px
+}
