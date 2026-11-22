@@ -15,3 +15,36 @@
 .sf76-foot .sf263-cooldown{width:100%;margin:0 0 8px;flex:1 0 100%}
 @media(max-width:768px){#sf10RequestCard>.sf263-cooldown{display:none!important}.sf76-foot{flex-wrap:wrap}.sf76-foot .sf263-cooldown{padding:10px 12px;gap:6px}.sf263-row strong{font-size:16px}.sf263-help{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.sf263-bar>span{transition:none}}
+/* 263.1 — um único indicador e rodapé do modal sem vazamentos */
+.sf263-cooldown[hidden],.sf76-sheet .sf263-cooldown[hidden],#screen-room.active .sf263-cooldown[hidden]{display:none!important}
+.sf76-sheet .sf76-foot{
+  box-sizing:border-box!important;display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;gap:10px 12px!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  flex-wrap:unset!important;overflow:hidden!important;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))!important;
+}
+.sf76-sheet .sf76-foot>.sf263-cooldown{
+  grid-column:1 / -1!important;grid-row:1;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  margin:0!important;box-sizing:border-box!important;flex:none!important;
+}
+.sf76-sheet .sf76-foot>#sf76MusicStatus{
+  grid-column:1;min-width:0!important;width:auto!important;
+  flex:none!important;overflow-wrap:anywhere;
+  font-size:11px!important;line-height:1.4!important;
+}
+.sf76-sheet .sf76-foot>#sf76ViewQueue{
+  grid-column:2;justify-self:end;flex:none!important;
+  max-width:100%!important;white-space:nowrap!important;
+}
+.sf76-sheet .sf76-panel{min-width:0;overflow:hidden!important}
+.sf76-sheet .sf76-content{min-width:0;min-height:0;overflow-x:hidden!important;overflow-y:auto!important}
+.sf76-sheet .sf76-moved-request .sf263-cooldown{display:none!important}
+.sf76-sheet .sf76-foot .sf263-cooldown{padding:10px 12px!important}
+@media(max-width:768px){
+  .sf76-sheet .sf76-foot{gap:8px!important;padding-left:12px!important;padding-right:12px!important}
+  .sf76-sheet .sf76-foot>#sf76MusicStatus{font-size:10px!important}
+  .sf76-sheet .sf76-foot>#sf76ViewQueue{padding:9px 10px!important}
+}
