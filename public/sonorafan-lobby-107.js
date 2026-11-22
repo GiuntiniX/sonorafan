@@ -585,12 +585,6 @@
     for(const child of [...host.children])child.classList.add('sf107-legacy');
     const main=document.createElement('div');main.id='sf107Dashboard';main.className='sf107-dashboard';
     main.innerHTML=`
-      <div class="sf107-quick sf109-quick-clean">
-        <strong>ϟ Acesso rápido</strong>
-        <button type="button" class="sf107-quick-primary" data-sf107="create">＋ Criar sala</button>
-        <button type="button" data-sf107="invite">⌗ Entrar com código</button>
-        <span class="sf109-quick-message">Encontre sua próxima vibe nas categorias abaixo.</span>
-      </div>
       <div class="sf107-content">
         <div class="sf107-main-col">
           <section class="sf107-module">
