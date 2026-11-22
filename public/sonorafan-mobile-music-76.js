@@ -297,7 +297,8 @@
     const allTracks=[...(current?.queue||[]),...(current?.waitingQueue||[])];
     if(allTracks.some(song=>song.id===favorite.id)){status('Essa música já está na fila da sala.',true);return;}
     const since=typeof lastAddTime!=='undefined'?Date.now()-lastAddTime:Infinity;
-    if(since>=0&&since<30000){status(`Aguarde ${Math.ceil((30000-since)/1000)}s antes de adicionar outra música.`,true);return;}
+    const wait=Math.max(window.sfCooldown?.remainingMs?.()||0, since>=0?Math.max(0,30000-since):0);
+    if(wait>0){window.sfCooldown?.prepare?.({id:favorite.id,title:favorite.title,artist:favorite.artist});status('✓ Música preparada. Confirme quando o contador terminar.');return;}
     state.busy=true;
     const id=favorite.id;
     const buttons=Array.from(document.querySelectorAll('#sf76FavoritesList [data-sf76-add]'));
