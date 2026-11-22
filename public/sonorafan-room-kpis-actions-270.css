@@ -1,0 +1,157 @@
+/* SonoraFan 270 — move room KPIs into the player session, refine action buttons.
+   The JS keeps the original live data and buttons; CSS only changes placement/appearance. */
+#screen-room .sf55-session:has(> #sf265QueueSummary){
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(245px,33%)!important;
+  align-items:start!important;
+  gap:7px 14px!important;
+  min-width:0!important;
+  container-type:inline-size;
+}
+#screen-room .sf55-session:has(> #sf265QueueSummary)>.sf55-session-head{
+  grid-column:1/-1!important;
+  grid-row:1!important;
+  min-width:0!important;
+}
+#screen-room .sf55-session:has(> #sf265QueueSummary)>.sf55-session-tracks{
+  grid-column:1!important;
+  grid-row:2!important;
+  min-width:0!important;
+  grid-template-columns:minmax(0,1fr)!important;
+}
+#screen-room .sf55-session:has(> #sf265QueueSummary)>.sf55-session-tracks .sf55-session-track{
+  min-width:0!important;
+}
+#screen-room .sf55-session:has(> #sf265QueueSummary)>.sf55-session-tracks .sf55-session-track:not(:first-child){
+  display:none!important;
+}
+#screen-room .sf55-session:has(> #sf265QueueSummary)>#sf265QueueSummary.sf270-session-stats{
+  grid-column:2!important;
+  grid-row:2!important;
+  min-width:0!important;
+  align-self:center!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:5px!important;
+  padding:0!important;
+  margin:0!important;
+  background:transparent!important;
+  border:0!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-head{margin:0 0 1px!important;min-height:0!important}
+#screen-room #sf265QueueSummary .sf265-queue-label{
+  font-size:9px!important;
+  letter-spacing:.07em!important;
+  color:var(--sf-text-secondary,#cdb9da)!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-summary{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:6px!important;
+  margin:0!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-stat{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:8px 4px!important;
+  min-width:0!important;
+  border:1px solid var(--sf-border-soft,#5d3150)!important;
+  border-radius:12px!important;
+  background:var(--sf-surface-2,#24112d)!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-stat strong{
+  color:var(--sf-text,#f6f1fb)!important;
+  font-weight:900!important;
+  font-size:clamp(15px,1.15vw,19px)!important;
+  line-height:1.1!important;
+  white-space:nowrap!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-stat span{
+  font-size:10px!important;
+  color:var(--sf-text-secondary,#cdb9da)!important;
+  line-height:1.3!important;
+  white-space:nowrap!important;
+}
+#screen-room #sf265QueueSummary .sf265-queue-note{display:none!important}
+#screen-room .sf55-session:has(> #sf265QueueSummary)>.sf55-session-add{
+  grid-column:1/-1!important;
+  grid-row:3!important;
+}
+#screen-room .sf128-queue-tracks>#sf265QueueSummary,
+#screen-room .queue-column>#sf265QueueSummary{display:none!important}
+/* Action dock: Favorite is neutral, Skip has prominent vote accent,
+   destructive removal is visually distinct without competing with music CTA. */
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions,
+#screen-room.sf113-room .sf118-controls-dock .sf30-player-actions{
+  display:flex!important;align-items:center!important;justify-content:flex-end!important;
+  flex-wrap:wrap!important;gap:7px!important;min-width:0!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>button{
+  appearance:none!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  gap:7px!important;min-height:37px!important;padding:7px 13px!important;
+  font-size:11px!important;font-weight:800!important;line-height:1.25!important;
+  white-space:nowrap!important;border-radius:11px!important;
+  border:1px solid var(--sf-border-soft,#5d3150)!important;
+  color:var(--sf-text,#f6f1fb)!important;
+  background:var(--sf-surface-2,#24112d)!important;
+  box-shadow:none!important;cursor:pointer!important;
+  transition:background .16s ease,border-color .16s ease,transform .16s ease!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>button:hover:not(:disabled){
+  transform:translateY(-1px)!important;background:var(--sf-surface-3,#2d1735)!important;
+  border-color:var(--sf-orange,#ff9300)!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>#favCurrentBtn{
+  color:var(--sf-text,#f6f1fb)!important;border-color:#70506c!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>#skipBtn{
+  border-color:var(--sf-orange,#ff9300)!important;
+  background:rgba(255,147,0,.13)!important;
+  color:#ffd49a!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>#skipBtn.voting{
+  color:#120616!important;background:var(--sf-orange,#ff9300)!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>#adminRemoveBtn{
+  border-color:#965169!important;background:rgba(255,107,107,.08)!important;
+  color:#ffabb5!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>#adminRemoveBtn[style*="display:none"],
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>#adminRemoveBtn[style*="display: none"]{
+  display:none!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>button:disabled{
+  opacity:.45!important;cursor:not-allowed!important;transform:none!important;
+}
+#screen-room.sf113-room .sf117-control-row .sf30-player-actions>button:focus-visible{
+  outline:2px solid var(--sf-lime,#c8ff00)!important;outline-offset:2px!important;
+}
+@container (max-width:700px){
+  #screen-room .sf55-session:has(> #sf265QueueSummary){
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #screen-room .sf55-session:has(> #sf265QueueSummary)>#sf265QueueSummary.sf270-session-stats{
+    grid-column:1!important;grid-row:3!important;
+  }
+  #screen-room .sf55-session:has(> #sf265QueueSummary)>.sf55-session-add{grid-row:4!important}
+}
+@media(max-width:1000px){
+ #screen-room .sf55-session:has(> #sf265QueueSummary){
+   grid-template-columns:minmax(0,1fr)!important;
+ }
+ #screen-room .sf55-session:has(> #sf265QueueSummary)>#sf265QueueSummary.sf270-session-stats{
+   grid-column:1!important;grid-row:3!important;
+ }
+ #screen-room .sf55-session:has(> #sf265QueueSummary)>.sf55-session-add{grid-row:4!important}
+}
+@media(max-width:520px){
+  #screen-room.sf113-room .sf117-control-row .sf30-player-actions{width:100%!important;justify-content:stretch!important}
+  #screen-room.sf113-room .sf117-control-row .sf30-player-actions>button{flex:1 1 auto!important;padding:8px 7px!important;font-size:10px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #screen-room.sf113-room .sf117-control-row .sf30-player-actions>button{transition:none!important;transform:none!important}
+}
