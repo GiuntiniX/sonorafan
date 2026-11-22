@@ -35,13 +35,21 @@
  }
  function build(){
    const tracks=$('queueList');
-   const host=tracks?.closest('.sf128-queue-tracks, .sf34-queue, .queue-column') || tracks?.parentElement;
-   if(!host||!tracks||$('sf265QueueSummary'))return;
+   // The metrics belong beside "Rolando na sala", not in the queue column.
+   const host=$('sf55Session');
+   if(!host||!tracks)return;
+   const existing=$('sf265QueueSummary');
+   if(existing){
+     if(existing.parentElement!==host)host.append(existing);
+     existing.classList.add('sf270-session-stats');
+     return;
+   }
    const wrap=document.createElement('div');wrap.id='sf265QueueSummary';wrap.innerHTML=
     '<div class="sf265-queue-head"><span class="sf265-queue-label">♫ Seu palco colaborativo</span></div>'+
     '<div class="sf265-queue-summary" aria-label="Resumo da fila"><div class="sf265-queue-stat"><strong id="sf265TrackCount">0</strong><span>Músicas</span></div><div class="sf265-queue-stat"><strong id="sf265DjCount">0</strong><span>DJs</span></div><div class="sf265-queue-stat"><strong id="sf265QueueDuration">—</strong><span>Tempo estimado</span></div></div>'+
     '<p class="sf265-queue-note" id="sf265QueueNote">A fila é construída por todos.</p>';
-   tracks.before(wrap);
+   wrap.classList.add('sf270-session-stats');
+   host.append(wrap);
  }
  function decorate(){
    build();
