@@ -222,3 +222,53 @@
   #screen-room #sf265QueueSummary .sf265-queue-stat strong{font-size:12px!important}
   #screen-room #sf265QueueSummary .sf265-queue-stat span{font-size:8px!important}
 }
+
+/* v274: desktop — lock summary into the right column of the player session.
+   Previous @container fallback wrongly moved stats below the empty queue. */
+@media (min-width:769px){
+ #screen-room.sf113-room #sf55Session.sf55-session:has(> #sf265QueueSummary){
+   display:grid!important;
+   grid-template-columns:minmax(0,1fr) minmax(230px,290px)!important;
+   grid-template-rows:auto minmax(50px,auto) auto!important;
+   column-gap:14px!important;
+   row-gap:7px!important;
+   align-items:center!important;
+ }
+ #screen-room.sf113-room #sf55Session.sf55-session>.sf55-session-head{
+   grid-column:1/-1!important;
+   grid-row:1!important;
+ }
+ #screen-room.sf113-room #sf55Session.sf55-session>.sf55-session-tracks{
+   grid-column:1!important;
+   grid-row:2!important;
+   min-width:0!important;
+   align-self:center!important;
+ }
+ #screen-room.sf113-room #sf55Session.sf55-session>#sf265QueueSummary.sf270-session-stats{
+   grid-column:2!important;
+   grid-row:2!important;
+   justify-self:end!important;
+   align-self:center!important;
+   width:100%!important;
+   max-width:290px!important;
+   margin:0!important;
+ }
+ #screen-room.sf113-room #sf55Session.sf55-session>.sf55-session-add{
+   grid-column:1!important;
+   grid-row:3!important;
+   justify-self:start!important;
+ }
+}
+@media (max-width:768px){
+ #screen-room.sf113-room #sf55Session.sf55-session:has(> #sf265QueueSummary){
+   display:flex!important;
+   flex-direction:column!important;
+   align-items:stretch!important;
+ }
+ #screen-room.sf113-room #sf55Session.sf55-session>#sf265QueueSummary.sf270-session-stats{
+   align-self:flex-end!important;
+   width:min(100%,290px)!important;
+   max-width:290px!important;
+   margin:0!important;
+ }
+}
