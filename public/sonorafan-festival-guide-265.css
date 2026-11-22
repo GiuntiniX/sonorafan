@@ -1,0 +1,60 @@
+/* SonoraFan · Festival Dark — guide 265
+   Based on the Terra Sonora visual reference provided by the project owner.
+   Independent of room artwork/themes: this controls UI chrome only. */
+:root[data-sf-guide="festival"]{
+  --bg:#161616;--bg-elevated:#1c1c1c;--bg-card:#222222;--bg-hover:#2c2c2c;
+  --border:#383838;--border-hover:#555555;--text:#f7f7f7;
+  --text-secondary:#bcbcbc;--text-muted:#929292;
+  --accent:#ff8000;--accent2:#b3fa1b;--success:#b3fa1b;
+  --accent-glow:rgba(255,128,0,.24);--accent2-glow:rgba(179,250,27,.18);
+  --sf265-orange:#ff8000;--sf265-lime:#b3fa1b;--sf265-black:#161616;--sf265-panel:#222;
+  color-scheme:dark;
+}
+:root[data-sf-guide="purple"]{
+  --sf265-orange:#a65de3;--sf265-lime:#c7a5fc;--sf265-black:#1a1124;--sf265-panel:#271735;
+}
+:root[data-sf-guide="festival"] body{background-color:var(--bg);color:var(--text)}
+:root[data-sf-guide="festival"] #screen-room .sf128-queue-tracks,
+:root[data-sf-guide="festival"] #screen-room .sf128-add-panel,
+:root[data-sf-guide="festival"] #screen-room .queue-item,
+:root[data-sf-guide="festival"] #screen-room .sf34-queue,
+:root[data-sf-guide="festival"] .sf76-sheet .sf76-panel{background-color:#222!important;border-color:#383838!important}
+:root[data-sf-guide="festival"] #screen-room .sf39-queue-insight,
+:root[data-sf-guide="festival"] #screen-room .premium-queue-summary,
+:root[data-sf-guide="festival"] #screen-room #sf95FilterBar{background:#252525!important;border-color:#383838!important}
+:root[data-sf-guide="festival"] #screen-room .sf128-tracks-title,
+:root[data-sf-guide="festival"] #screen-room .sf113-now-kicker,
+:root[data-sf-guide="festival"] #screen-room .sf5-hero-badge{color:#b3fa1b!important}
+:root[data-sf-guide="festival"] #screen-room .sf113-add-song,
+:root[data-sf-guide="festival"] .sf76-sheet .sf264-add,
+:root[data-sf-guide="festival"] .sf76-sheet .sf76-create-genre button,
+:root[data-sf-guide="festival"] .sf76-sheet .sf264-batch button{background:#ff8000!important;color:#171717!important;border-color:#ff8000!important;font-weight:800}
+:root[data-sf-guide="festival"] .sf76-sheet .sf264-remove{background:#292929!important;color:#f6c4c4!important;border-color:#5c4949!important}
+:root[data-sf-guide="festival"] .sf76-sheet .sf264-track,
+:root[data-sf-guide="festival"] .sf76-sheet .sf76-track,
+:root[data-sf-guide="festival"] .sf76-sheet .sf264-manage,
+:root[data-sf-guide="festival"] .sf76-sheet .sf264-batch{background:#252525!important;border-color:#414141!important}
+:root[data-sf-guide="festival"] .sf76-sheet .sf76-foot,
+:root[data-sf-guide="festival"] .sf76-sheet .sf76-head{background:#1c1c1c!important;border-color:#383838!important}
+:root[data-sf-guide="festival"] .sf76-sheet .sf76-genres button[aria-pressed="true"]{background:#ff8000!important;border-color:#ff8000!important;color:#151515!important}
+:root[data-sf-guide="festival"] .sf76-sheet .sf264-style{background:#303d1c!important;border-color:#5e7b2c!important;color:#d3ff85!important}
+:root[data-sf-guide="festival"] .sf263-cooldown{background:#222!important;border-color:#484848!important}
+:root[data-sf-guide="festival"] .sf263-bar>span{background:linear-gradient(90deg,#ff8000,#b3fa1b)!important}
+:root[data-sf-guide="festival"] .sf263-row strong{color:#b3fa1b!important}
+.sf265-queue-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 10px;min-width:0}
+.sf265-queue-label{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--sf265-lime);text-transform:uppercase}
+.sf265-guide-switch{appearance:none;border:1px solid #525252;background:var(--sf265-panel);color:#f6f6f6;border-radius:99px;padding:7px 11px;font-size:11px;cursor:pointer;font-weight:750;white-space:nowrap}
+.sf265-guide-switch:focus-visible,.sf265-queue-action:focus-visible{outline:2px solid var(--sf265-lime);outline-offset:2px}
+.sf265-queue-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 10px}
+.sf265-queue-stat{border:1px solid #414141;background:var(--sf265-panel);padding:9px 8px;border-radius:12px;text-align:center;min-width:0}
+.sf265-queue-stat strong{display:block;font-size:18px;color:#f7f7f7;line-height:1.3;font-variant-numeric:tabular-nums}
+.sf265-queue-stat span{font-size:10px;color:#bbb}
+.sf265-queue-note{font-size:11px;color:#bdbdbd;line-height:1.45;margin:0 0 10px}
+.sf265-queue-notice{color:var(--sf265-lime)!important;font-weight:750}
+.sf265-queue-action{appearance:none;border:1px solid #555;background:#2b2b2b;border-radius:8px;color:#ededed;padding:5px 8px;font-size:11px;cursor:pointer}
+.sf265-queue-action[disabled]{opacity:.5;cursor:default}
+.sf265-queue-actions{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:6px 0 0}
+.sf265-eta{font-size:11px!important;color:var(--sf265-lime)!important;line-height:1.5}
+.sf265-inline-notice{position:relative;display:block;border:1px solid #556e29;color:#dbfca8;background:#28311d;border-radius:9px;padding:7px 9px;font-size:11px;margin:5px 0}
+@media(max-width:540px){.sf265-queue-head{flex-wrap:wrap}.sf265-guide-switch{font-size:10px}.sf265-queue-stat{padding:8px 5px}.sf265-queue-stat strong{font-size:16px}.sf265-queue-summary{gap:5px}}
+@media(prefers-reduced-motion:reduce){.sf265-queue-action{transition:none!important}}
