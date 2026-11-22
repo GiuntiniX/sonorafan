@@ -33,6 +33,7 @@
    panel.id='sf208RoomClubs';
    panel.classList.add('sf208-room-clubs');
    panel.setAttribute('aria-label','Fanclubs vinculados a esta sala');
+   panel.setAttribute('aria-live','polite');
    panel.hidden=true;
    panel.addEventListener('error',e=>{
     const img=e.target;
@@ -106,6 +107,7 @@
    apply(requested,data.clubs);
   }catch(e){
    if(token!==revision||requested!==slug)return;
+   console.warn('[Fanclub na sala] Não foi possível consultar o vínculo:',requested,e.message);
    // Falhas de rede não apagam o último selo válido.
    later(hasBadge?15000:7000);
   }finally{if(token===revision)inflight=false;}
