@@ -3781,7 +3781,7 @@
     let sf233JoinTimer = null;
     function sf233ClearJoinTimer(){ if(sf233JoinTimer){clearTimeout(sf233JoinTimer);sf233JoinTimer=null;} }
     function renderCfg(boxId, k, v) {
-      const s = cfgState[k] = Object.assign({ emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', coverUrl: '', coverX: 50, coverY: 50, coverZoom: 1, isPrivate: false, allowLong: false, allowLive: false }, v || {});
+      const s = cfgState[k] = Object.assign({ name: '', emoji: '🎧', color: '#7c3aed', addMode: 'all', slowMode: 0, description: '', welcome: '', coverUrl: '', coverX: 50, coverY: 50, coverZoom: 1, isPrivate: false, allowLong: false, allowLive: false }, v || {});
       const pick = (key, val) => `cfgPick('${boxId}','${k}','${key}','${val}')`;
       $(boxId).innerHTML = `
         <div class="cfg-lbl">Ícone da sala</div><div class="cfg-row">${CFG_EMOJIS.map(e => `<button type="button" class="cfg-e ${s.emoji === e ? 'on' : ''}" onclick="${pick('emoji', e)}">${e}</button>`).join('')}</div>
@@ -3805,6 +3805,7 @@
           </div>
           <small id="${k}CoverStatus" aria-live="polite">Imagens JPG, PNG, WebP ou GIF, até 2 MB.</small>
         </div>
+        ${k === 'e' ? `<label class="cfg-lbl" for="${k}Name">Nome da sala</label><input class="cfg-in" id="${k}Name" type="text" minlength="2" maxlength="40" autocomplete="off" placeholder="Nome da sala" value="${escapeHtml(s.name || '')}" aria-label="Nome da sala" required>` : ''}
         <input class="cfg-in" id="${k}Desc" maxlength="80" placeholder="Descrição curta (opcional)" value="${escapeHtml(s.description || '')}">
         <input class="cfg-in" id="${k}Welcome" maxlength="200" placeholder="Boas-vindas ou regras" value="${escapeHtml(s.welcome || '')}">
         <div class="sf129-mode-intro"><span aria-hidden="true">${s.addMode === 'owner' ? '🔒' : '🎧'}</span><div><strong>${s.addMode === 'owner' ? 'Playlist do anfitrião' : 'Todo mundo é DJ!'}</strong><small>${s.addMode === 'owner' ? 'Só quem criou a sala adiciona músicas e controla os pulos. Os convidados podem ouvir e conversar.' : 'Os participantes escolhem músicas e constroem a fila juntos.'}</small></div></div>
@@ -3945,6 +3946,7 @@ function sfCoverPreview(k) {
     }
     function readCfg(k) {
       const s = cfgState[k], out = { emoji: s.emoji, color: s.color, addMode: s.addMode === 'owner' ? 'owner' : 'all', isPrivate: !!s.isPrivate, description: $(k + 'Desc').value, welcome: $(k + 'Welcome').value, slowMode: +$(k + 'Slow').value, allowLong: !!s.allowLong, allowLive: !!s.allowLive };
+      if(k === 'e')out.name = $(k+'Name')?.value.trim() || '';
       out.coverUrl = $(k+'CoverUrl')?.value.trim()||'';
       out.coverX=sfCoverValueNumber(k,'X',50,0,100);
       out.coverY=sfCoverValueNumber(k,'Y',50,0,100);
@@ -3956,14 +3958,16 @@ function cfgPick(boxId, k, key, val) { const boolKeys = ['isPrivate', 'allowLong
 function openRoomCfg() {
       const d = currentRoomData || {};
       window.sf88OpenEditor?.(d.roomTheme);
-      renderCfg('editCfg', 'e', { isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, coverUrl: d.coverUrl || '', coverX: d.coverX ?? 50, coverY: d.coverY ?? 50, coverZoom: d.coverZoom ?? 1, welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
+      renderCfg('editCfg', 'e', { name: d.name, isPrivate: d.isPrivate, emoji: d.emoji, color: d.color, description: d.description, coverUrl: d.coverUrl || '', coverX: d.coverX ?? 50, coverY: d.coverY ?? 50, coverZoom: d.coverZoom ?? 1, welcome: d.pinnedMessage ? d.pinnedMessage.text : '', slowMode: d.slowMode, addMode: d.addMode });
       sfCoverPreview('e');
       $('roomCfgModal').classList.add('active');
     }
     function saveRoomCfg() {
       if(sfCoverBusy.e)return toast('Aguarde o envio da capa terminar','error');
       let coverUrl;try{coverUrl=sfCoverValue('e');}catch(e){return toast(e.message,'error');}
-      const cfg=readCfg('e');cfg.coverUrl=coverUrl;cfg.roomTheme=window.sf88GetEditTheme?.()||currentRoomData?.roomTheme||'indie';
+      const cfg=readCfg('e');
+      if(cfg.name.length<2||cfg.name.length>40||/[<>\\u0000-\\u001f\\u007f]/.test(cfg.name))return toast('O nome da sala deve ter entre 2 e 40 caracteres válidos.','error');
+      cfg.coverUrl=coverUrl;cfg.roomTheme=window.sf88GetEditTheme?.()||currentRoomData?.roomTheme||'indie';
       socket.emit('updateRoomSettings',cfg);$('roomCfgModal').classList.remove('active');toast('Sala atualizada!','success');
     }
     async function emitJoin(slug) {
