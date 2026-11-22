@@ -2025,6 +2025,17 @@ io.on('connection', (socket) => {
     });
   });
 
+  // Tempo pessoal de adição: calculado na sala atual e nunca exposto aos demais.
+  socket.on('songCooldownStatus', (acknowledge) => {
+    if (typeof acknowledge !== 'function') return;
+    const room = currentRoom && rooms.get(currentRoom);
+    const identity = socket.userEmail || socket.userName;
+    const last = room && identity ? (room.lastAddTime.get(identity) || 0) : 0;
+    const durationMs = 30000;
+    const remainingMs = Math.max(0, durationMs - (Date.now() - last));
+    acknowledge({ remainingMs, durationMs, room: currentRoom || null, serverNow: Date.now() });
+  });
+
   socket.on('addSong', (song, acknowledge) => {
     const reply = (ok, details = {}) => {
       if(ok)musicOps.queueAccepted++;else musicOps.queueRejected++;
@@ -2052,7 +2063,7 @@ io.on('connection', (socket) => {
       }
       const now = Date.now();
       const lastAdd = room.lastAddTime.get(socket.userEmail || socket.userName) || 0;
-      if (now - lastAdd < 30000) { const wait = Math.ceil((30000 - (now - lastAdd)) / 1000); refuse(`Aguarde ${wait}s`); return; }
+      if (now - lastAdd < 30000) { const remainingMs = 30000 - (now - lastAdd); const wait = Math.ceil(remainingMs / 1000); socket.emit('error', `Aguarde ${wait}s`); reply(false, { error: `Aguarde ${wait}s`, remainingMs, durationMs: 30000 }); return; }
       const userSongs = room.queue.filter(t => t.dj === socket.userName).length + room.waitingQueue.filter(t => t.dj === socket.userName).length;
       if (room.listenerCount > 1 && userSongs >= 5) { refuse('Para manter a fila colaborativa, aguarde uma de suas 5 músicas pendentes tocar.'); return; }
       if (userSongs >= MAX_SONGS_PER_USER) { refuse(`Você já tem ${MAX_SONGS_PER_USER} músicas na fila/espera. Aguarde outras serem tocadas.`); return; }
@@ -2067,7 +2078,7 @@ io.on('connection', (socket) => {
         io.to(currentRoom).emit('playSound', 'waiting');
         addSystemMsg(currentRoom, `⏳ "${song.title}" entrou na fila de espera (${room.waitingQueue.length} músicas aguardando)`);
         broadcastState(currentRoom);
-        reply(true, { placement: 'waiting' });
+        reply(true, { placement: 'waiting', remainingMs: 30000, durationMs: 30000 });
         return;
       }
       song.dj = socket.userName; song.addedByUserId = publicUserId(socket.userEmail); room.queue.push(song); sf95.onAddedSong(socket.userEmail,room,song); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2, 'song', currentRoom + ':' + song.id);
@@ -2075,7 +2086,7 @@ io.on('connection', (socket) => {
       if (room.votePriority) sf95.applyPriority(room,getRoomVotes(currentRoom));
       if (!room.isPlaying && room.queue.length === 1) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); addSystemMsg(currentRoom, `▶ ${song.title} — ${song.artist}`); }
       broadcastState(currentRoom);
-      reply(true, { placement: 'queue' });
+      reply(true, { placement: 'queue', remainingMs: 30000, durationMs: 30000 });
       if (room.discordWebhook) { const msg = `🎵 **${song.title}** por ${song.artist} foi adicionada por ${socket.userName} na sala **${room.name}**`; sendDiscordWebhook(room.discordWebhook, msg); }
     } catch (e) {
       console.error('❌ CRASH AO ADICIONAR MÚSICA:', e.message);
