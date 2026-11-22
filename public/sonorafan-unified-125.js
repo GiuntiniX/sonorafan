@@ -111,11 +111,20 @@
     // Keep the existing logo and account controls. Older horizontal navigation
     // is hidden by CSS; no duplicate brand or search field is created.
     toolbar.setAttribute('aria-label','SonoraFan: busca, notificações e conta');
-    let last=0;
-    const poll=()=>{if(!lobby.classList.contains('active')||document.hidden)return;
-      if(Date.now()-last<55000)return;last=Date.now();refreshData();};
-    poll();document.addEventListener('visibilitychange',poll);
-    setInterval(poll,60000);
+    // Atualizações independentes: o Ranking não bloqueia Agora ao vivo.
+    const refreshVisible=(force=false)=>{
+      if(!lobby.classList.contains('active')||document.hidden)return;
+      refreshLive(force);refreshLeaders(force);
+    };
+    refreshVisible(true);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshVisible(true);});
+    new MutationObserver(()=>{if(lobby.classList.contains('active'))refreshVisible(true);})
+      .observe(lobby,{attributes:true,attributeFilter:['class']});
+    setInterval(()=>refreshVisible(false),5000);
+    const realtime=typeof socket!=='undefined'?socket:null;
+    realtime?.on('roomState',()=>refreshLive(false));
+    realtime?.on('roomList',()=>refreshLive(false));
+    realtime?.on('gamificationUpdate',()=>refreshLeaders(true));
   }
   function onNavClick(event){
     const btn=event.target.closest('[data-sf125-go]');
@@ -134,31 +143,45 @@
     if(/mpb|brasil|sertanejo|samba/.test(g))return art.brazil;
     return art.crowd;
   }
-  async function refreshData(){
-    if(!$('sf125LiveRooms'))return;
-    // Read-only, with the same credentials as the existing app. Never fake live users.
+  let liveInFlight=false,leaderInFlight=false,lastLive=0,lastLeader=0,lastLiveSuccess=false,lastLeaderSuccess=false;
+  async function refreshLive(force=false){
+    if(liveInFlight||!$('sf125LiveRooms')||document.hidden||!$('screen-lobby')?.classList.contains('active'))return;
+    const now=Date.now();if(now-lastLive<(force?1500:10000))return;
+    lastLive=now;liveInFlight=true;
     try{
-      const response=await fetch('/api/rooms',{credentials:'include',cache:'no-store'});
-      if(!response.ok)throw Error('salas');
-      const json=await response.json();
-      const rooms=(Array.isArray(json)?json:Array.isArray(json.rooms)?json.rooms:[])
-        .filter(x=>x&&!x.isPrivate&&validRoom(x.slug)).sort((a,b)=>(Number(b.listenerCount)||0)-(Number(a.listenerCount)||0)).slice(0,3);
-      $('sf125LiveRooms').innerHTML=rooms.length?rooms.map(room=>
-        '<button class="sf125-rail-room" type="button" data-sf125-slug="'+esc(room.slug)+'">'+
-        '<img src="'+esc(roomArt(room))+'" data-sf261-rail-cover="'+esc(room.slug)+'" alt="" loading="lazy"><span><strong>'+esc(room.name||'Sala musical')+'</strong>'+
-        '<small>'+(room.isPlaying?'● Ao vivo · ':'')+fmt(room.listenerCount)+' ouvindo</small></span><i>▷</i></button>'
-      ).join(''):'<p class="sf125-muted">Ainda não há salas públicas. Que tal criar a primeira?</p>';
-      $('sf125LiveRooms')?.querySelectorAll('img[data-sf261-rail-cover]').forEach(img=>{const room=rooms.find(r=>r.slug===img.dataset.sf261RailCover);const cv=window.sf261RoomCover?.(room);if(!cv)return;img.addEventListener('error',()=>{if(img.dataset.sf261Retry)return;img.dataset.sf261Retry='1';img.src=cv.fallback;},{once:true});});
-    }catch(e){$('sf125LiveRooms').innerHTML='<p class="sf125-muted">Não foi possível consultar salas agora.</p>';}
+      // Read-only, with the same credentials as the existing app. Never fake live users.
+      try{
+        const response=await fetch('/api/rooms',{credentials:'include',cache:'no-store'});
+        if(!response.ok)throw Error('salas');
+        const json=await response.json();
+        const rooms=(Array.isArray(json)?json:Array.isArray(json.rooms)?json.rooms:[])
+          .filter(x=>x&&!x.isPrivate&&validRoom(x.slug)).sort((a,b)=>(Number(b.listenerCount)||0)-(Number(a.listenerCount)||0)).slice(0,3);
+        $('sf125LiveRooms').innerHTML=rooms.length?rooms.map(room=>
+          '<button class="sf125-rail-room" type="button" data-sf125-slug="'+esc(room.slug)+'">'+
+          '<img src="'+esc(roomArt(room))+'" data-sf261-rail-cover="'+esc(room.slug)+'" alt="" loading="lazy"><span><strong>'+esc(room.name||'Sala musical')+'</strong>'+
+          '<small>'+(room.isPlaying?'● Ao vivo · ':'')+fmt(room.listenerCount)+' ouvindo</small></span><i>▷</i></button>'
+        ).join(''):'<p class="sf125-muted">Ainda não há salas públicas. Que tal criar a primeira?</p>';
+        lastLiveSuccess=true;
+        $('sf125LiveRooms')?.querySelectorAll('img[data-sf261-rail-cover]').forEach(img=>{const room=rooms.find(r=>r.slug===img.dataset.sf261RailCover);const cv=window.sf261RoomCover?.(room);if(!cv)return;img.addEventListener('error',()=>{if(img.dataset.sf261Retry)return;img.dataset.sf261Retry='1';img.src=cv.fallback;},{once:true});});
+      }catch(e){if(!lastLiveSuccess)$('sf125LiveRooms').innerHTML='<p class="sf125-muted">Não foi possível consultar salas agora.</p>';}
+    }finally{liveInFlight=false;}
+  }
+  async function refreshLeaders(force=false){
+    if(leaderInFlight||!$('sf125Leaders')||document.hidden||!$('screen-lobby')?.classList.contains('active'))return;
+    const now=Date.now();if(now-lastLeader<(force?1500:20000))return;
+    lastLeader=now;leaderInFlight=true;
     try{
-      const response=await fetch('/api/gamification/leaderboard',{credentials:'include',cache:'no-store'});
-      if(!response.ok)throw Error('ranking');
-      const json=await response.json();const items=Array.isArray(json.items)?json.items.slice(0,3):[];
-      $('sf125Leaders').innerHTML=items.length?items.map((x,i)=>
-        '<div class="sf125-rail-leader"><span class="sf125-leader-rank">'+(i+1)+'º</span>'+
-        '<strong>'+esc(x.nome||'Ouvinte')+'</strong><small>'+fmt(x.points)+' XP</small></div>'
-      ).join(''):'<p class="sf125-muted">O ranking aparecerá conforme os fãs participarem.</p>';
-    }catch(e){$('sf125Leaders').innerHTML='<p class="sf125-muted">Ranking temporariamente indisponível.</p>';}
+      try{
+        const response=await fetch('/api/gamification/leaderboard',{credentials:'include',cache:'no-store'});
+        if(!response.ok)throw Error('ranking');
+        const json=await response.json();const items=Array.isArray(json.items)?json.items.slice(0,3):[];
+        lastLeaderSuccess=true;
+        $('sf125Leaders').innerHTML=items.length?items.map((x,i)=>
+          '<div class="sf125-rail-leader"><span class="sf125-leader-rank">'+(i+1)+'º</span>'+
+          '<strong>'+esc(x.nome||'Ouvinte')+'</strong><small>'+fmt(x.points)+' XP</small></div>'
+        ).join(''):'<p class="sf125-muted">O ranking aparecerá conforme os fãs participarem.</p>';
+      }catch(e){if(!lastLeaderSuccess)$('sf125Leaders').innerHTML='<p class="sf125-muted">Ranking temporariamente indisponível.</p>';}
+    }finally{leaderInFlight=false;}
   }
   function buildRanking(){
     const modal=$('lbModal'),list=$('lbList');
