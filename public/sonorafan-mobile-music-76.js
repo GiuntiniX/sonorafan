@@ -11,7 +11,7 @@
     node.textContent=message;
     node.classList.toggle('is-error',Boolean(isError));
   };
-  const state={tab:'search',genres:[],favorites:[],filter:'all',search:'',busy:false,lastFocus:null,originalHolder:null,pending:null,searchRequest:0};
+  const state={tab:'search',genres:[],favorites:[],filter:'all',search:'',sort:'recent',selected:new Set(),busy:false,lastFocus:null,originalHolder:null,pending:null,searchRequest:0};
   const originalFindSong=window.sf34FindSong;
   const roomName=()=>typeof currentRoom!=='undefined'&&currentRoom ? currentRoom : '';
   const socketClient=()=>typeof socket!=='undefined' ? socket : null;
@@ -49,9 +49,12 @@
           <section id="sf76FavoritesPane" role="tabpanel" aria-label="Músicas favoritas" hidden>
             <label class="sf76-search-label" for="sf76FavoriteSearch">Encontre uma favorita</label>
             <input type="search" id="sf76FavoriteSearch" placeholder="Música ou artista..." autocomplete="off">
-            <form class="sf76-create-genre" id="sf76CreateGenre"><label for="sf76NewGenre">Nova coleção ou gênero</label><div><input id="sf76NewGenre" maxlength="28" type="text" placeholder="Ex.: Indie, MPB..." required><button type="submit">＋ Criar</button></div></form>
-            <div class="sf76-genres" id="sf76FavoriteGenres" role="group" aria-label="Filtrar favoritas por gênero"></div>
+            <details class="sf264-collection-create"><summary>＋ Nova coleção</summary><form class="sf76-create-genre" id="sf76CreateGenre"><label for="sf76NewGenre">Nome da coleção</label><div><input id="sf76NewGenre" maxlength="28" type="text" placeholder="Ex.: Academia, meus hits..." required><button type="submit">Criar</button></div></form></details>
+            <div class="sf76-genres" id="sf76FavoriteGenres" role="group" aria-label="Filtrar favoritas por coleção"></div>
+            <div class="sf264-toolbar"><span id="sf264VisibleCount" aria-live="polite"></span><label>Ordenar <select id="sf264Sort"><option value="recent">Recentes</option><option value="title">Música A–Z</option><option value="artist">Artista A–Z</option><option value="collection">Coleção</option></select></label></div>
+            <div id="sf264Manage" class="sf264-manage" hidden></div>
             <div class="sf76-list" id="sf76FavoritesList" aria-live="polite"></div>
+            <div class="sf264-batch" id="sf264Batch" hidden><span id="sf264BatchCount"></span><button type="button" id="sf264PrepareBatch">Preparar seleção</button><button type="button" id="sf264ClearBatch">Limpar</button></div>
           </section>
         </div>
         <footer class="sf76-foot">
@@ -64,15 +67,43 @@
     layer.querySelectorAll('[data-sf76-tab]').forEach(button=>button.addEventListener('click',()=>switchTab(button.dataset.sf76Tab)));
     $('sf76ViewQueue').addEventListener('click',()=>{close();if(typeof setTab==='function')setTab('queue');document.querySelector('#screen-room .room-layout')?.scrollTo({top:0,behavior:'instant'});});
     $('sf76FavoriteSearch').addEventListener('input',e=>{state.search=e.target.value;drawFavorites();});
+    $('sf264Sort').value=state.sort;
+    $('sf264Sort').addEventListener('change',e=>{state.sort=e.target.value;drawFavorites();});
+    $('sf264ClearBatch').addEventListener('click',()=>{state.selected.clear();drawFavorites();});
+    $('sf264PrepareBatch').addEventListener('click',()=>{
+      const queue=state.favorites.filter(t=>state.selected.has(t.id));
+      if(!queue.length)return;
+      const song=queue[0];
+      if(window.sfCooldown?.prepare?.(song)){
+        status(queue.length===1?'Música preparada. Confirme no contador.':`Primeira de ${queue.length} músicas preparada. Confirme uma por vez, respeitando o intervalo da sala.`);
+        state.selected.delete(song.id);drawFavorites();
+      }
+    });
+    $('sf264Manage').addEventListener('click',async e=>{
+      const action=e.target.closest('[data-sf264-manage]')?.dataset.sf264Manage;
+      const genre=state.genres.find(g=>g.id===state.filter);
+      if(!genre||!action)return;
+      if(action==='rename'){
+        const name=prompt('Novo nome da coleção:',genre.name)?.trim();
+        if(!name||name===genre.name)return;
+        await mutateFavorite(async()=>{const result=await favoritesApi('/api/favorite-genres/'+encodeURIComponent(genre.id),{method:'PATCH',body:JSON.stringify({name})});genre.name=result.genre.name;},'Coleção renomeada.');
+      }else if(action==='delete'){
+        if(!confirm('Excluir esta coleção? Suas músicas favoritas serão preservadas.'))return;
+        await mutateFavorite(async()=>{await favoritesApi('/api/favorite-genres/'+encodeURIComponent(genre.id),{method:'DELETE'});state.genres=state.genres.filter(g=>g.id!==genre.id);state.favorites.forEach(t=>{if(t.genreId===genre.id)t.genreId='';});state.filter='none';},'Coleção excluída sem apagar as músicas.');
+      }
+    });
     $('sf76FavoriteGenres').addEventListener('click',e=>{const btn=e.target.closest('[data-sf76-genre]');if(!btn)return;state.filter=btn.dataset.sf76Genre;drawFavorites();});
     $('sf76FavoritesList').addEventListener('click',e=>{
-      const button=e.target.closest('[data-sf76-add],[data-sf76-remove]');if(!button||state.busy)return;
-      const entry=state.favorites.find(x=>x.id===(button.dataset.sf76Add||button.dataset.sf76Remove));
+      const button=e.target.closest('[data-sf76-add],[data-sf76-remove],[data-sf264-style]');if(!button||state.busy)return;
+      const entry=state.favorites.find(x=>x.id===(button.dataset.sf76Add||button.dataset.sf76Remove||button.dataset.sf264Style));
       if(!entry)return;
       if(button.hasAttribute('data-sf76-add'))submitFavorite(entry);
+      else if(button.hasAttribute('data-sf264-style'))editStyles(entry);
       else if(confirm('Remover esta música dos favoritos?'))removeFavoriteFromSheet(entry);
     });
     $('sf76FavoritesList').addEventListener('change',e=>{
+      const check=e.target.closest('[data-sf264-check]');
+      if(check){if(check.checked)state.selected.add(check.dataset.sf264Check);else state.selected.delete(check.dataset.sf264Check);renderBatch();return;}
       const field=e.target.closest('[data-sf76-assign]');if(!field||state.busy)return;
       const entry=state.favorites.find(x=>x.id===field.dataset.sf76Assign);
       if(entry)assignFavoriteGenre(entry,field.value);
@@ -82,7 +113,7 @@
       const field=$('sf76NewGenre'),name=field.value.trim();if(!name)return;
       mutateFavorite(async()=>{
         const data=await favoritesApi('/api/favorite-genres',{method:'POST',body:JSON.stringify({name})});
-        state.genres.push(data.genre);state.filter=data.genre.id;field.value='';
+        state.genres.push(data.genre);state.filter=data.genre.id;field.value='';$('sf76CreateGenre')?.closest('details')?.removeAttribute('open');
       },'Coleção criada. Em Todas, escolha o gênero de cada música.');
     });
     const runMobileSearch=(immediate=false)=>{
@@ -224,7 +255,7 @@
   async function removeFavoriteFromSheet(entry){
     await mutateFavorite(async()=>{
       await favoritesApi('/api/favorites/'+encodeURIComponent(entry.id),{method:'DELETE'});
-      state.favorites=state.favorites.filter(song=>song.id!==entry.id);
+      state.favorites=state.favorites.filter(song=>song.id!==entry.id);state.selected.delete(entry.id);
       const shared=cachedFavorites();if(Array.isArray(shared))shared.splice(0,shared.length,...state.favorites);
     },'Música removida dos favoritos.');
   }
@@ -251,41 +282,83 @@
       const tracks=await favoritesResponse.json();
       const genres=genresResponse.ok?await genresResponse.json().catch(()=>({})):{};
       if(sequence!==state.searchRequest)return;
-      state.favorites=(Array.isArray(tracks)?tracks:[]).filter(t=>validId(t?.id));
+      state.favorites=(Array.isArray(tracks)?tracks:[]).filter(t=>validId(t?.id));state.selected=new Set([...state.selected].filter(id=>state.favorites.some(t=>t.id===id)));
       state.genres=Array.isArray(genres?.genres)?genres.genres.filter(g=>g&&typeof g.id==='string'&&typeof g.name==='string'):[];
       const shared=cachedFavorites();if(Array.isArray(shared)){shared.splice(0,shared.length,...state.favorites);}
       drawFavorites();
     }catch(e){if(sequence===state.searchRequest){list.innerHTML='<p class="sf76-empty" role="alert">Falha ao carregar favoritas. Toque em Minhas favoritas para tentar de novo.</p>';status(e.message,true);}}
   }
+  const fold=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+  const suggestions=[
+    {test:/linkin park|limp bizkit|korn|slipknot|system of a down/i,styles:['Rock','Nu Metal','Alternativo']},
+    {test:/falling in reverse|bring me the horizon|bad omens/i,styles:['Rock','Metalcore']},
+    {test:/metallica|megadeth|iron maiden/i,styles:['Metal','Rock']},
+    {test:/coldplay|imagine dragons/i,styles:['Pop Rock','Alternativo']},
+    {test:/daft punk|avicii|alok|calvin harris/i,styles:['Eletrônica']},
+    {test:/anitta|ludmilla/i,styles:['Pop','Brasil']},
+    {test:/sertanejo|marilia mendonca|jorge e mateus/i,styles:['Sertanejo','Brasil']}
+  ];
+  function suggestedStyles(track){
+    const input=fold((track.artist||'')+' '+(track.title||''));
+    return suggestions.find(x=>x.test.test(input))?.styles||[];
+  }
+  async function editStyles(entry){
+    const current=Array.isArray(entry.styles)?entry.styles:[];
+    const recommendation=suggestedStyles(entry);
+    const value=prompt('Estilos musicais separados por vírgula (até 6). Sugestão: '+(recommendation.join(', ')||'nenhuma'),current.join(', ')||recommendation.join(', '));
+    if(value===null)return;
+    const styles=[...new Set(value.split(',').map(t=>t.trim()).filter(Boolean))].slice(0,6);
+    await mutateFavorite(async()=>{
+      await favoritesApi('/api/favorites/'+encodeURIComponent(entry.id)+'/styles',{method:'PATCH',body:JSON.stringify({styles})});
+      entry.styles=styles;
+    },'Estilos musicais atualizados.');
+  }
+  function renderBatch(){
+    const batch=$('sf264Batch'),count=$('sf264BatchCount');
+    if(!batch||!count)return;
+    batch.hidden=!state.selected.size;
+    count.textContent=state.selected.size+' selecionada(s)';
+  }
   function drawFavorites(){
     const chips=$('sf76FavoriteGenres'),list=$('sf76FavoritesList');if(!chips||!list)return;
-    const all=state.favorites;
-    if(state.filter!=='all'&&state.filter!=='none'&&!state.genres.some(g=>g.id===state.filter))state.filter='all';
-    const options=[{id:'all',name:'Todas'},{id:'none',name:'Sem gênero'},...state.genres];
-    const known=new Set(state.genres.map(g=>g.id));
+    const all=state.favorites,known=new Set(state.genres.map(g=>g.id));
+    if(state.filter!=='all'&&state.filter!=='none'&&!known.has(state.filter))state.filter='all';
+    const options=[{id:'all',name:'Todas'},{id:'none',name:'Sem coleção'},...state.genres];
     chips.innerHTML=options.map(g=>{
       const count=all.filter(t=>g.id==='all'||(g.id==='none'?(!known.has(t.genreId)):t.genreId===g.id)).length;
       return `<button type="button" data-sf76-genre="${escapeHtml(g.id)}" aria-pressed="${state.filter===g.id}">${escapeHtml(g.name)} <span>${count}</span></button>`;
     }).join('');
-    const q=String(state.search||'').trim().toLocaleLowerCase('pt-BR');
+    const manage=$('sf264Manage'),current=state.genres.find(g=>g.id===state.filter);
+    manage.hidden=!current;
+    manage.innerHTML=current?`<span>Coleção: <b>${escapeHtml(current.name)}</b></span><button type="button" data-sf264-manage="rename">Renomear</button><button type="button" data-sf264-manage="delete">Excluir</button>`:'';
+    const q=fold(state.search);
     const visible=all.filter(t=>{
       const genre=known.has(t.genreId)?t.genreId:'none';
-      return (state.filter==='all'||genre===state.filter) && (!q||`${t.title||''} ${t.artist||''}`.toLocaleLowerCase('pt-BR').includes(q));
+      return (state.filter==='all'||genre===state.filter)&&(!q||fold((t.title||'')+' '+(t.artist||'')+' '+(t.styles||[]).join(' ')).includes(q));
     });
-    if(!visible.length){list.innerHTML='<p class="sf76-empty">Nenhuma música nesta seleção. Você pode buscar outra faixa na aba Buscar música.</p>';return;}
-    list.innerHTML=visible.map(t=>`<article class="sf76-track" data-sf76-track="${escapeHtml(t.id)}">
-      <img src="https://img.youtube.com/vi/${encodeURIComponent(t.id)}/mqdefault.jpg" alt="" loading="lazy">
-      <div class="sf76-track-copy"><strong>${escapeHtml(t.title||'Música')}</strong><small>${escapeHtml(t.artist||'Artista')}</small>
-        <label class="sf76-assign"><span>Gênero / coleção</span><select data-sf76-assign="${escapeHtml(t.id)}" aria-label="Mudar gênero de ${escapeHtml(t.title||'música')}">
-          <option value="" ${!known.has(t.genreId)?'selected':''}>Sem gênero</option>
-          ${state.genres.map(g=>`<option value="${escapeHtml(g.id)}" ${t.genreId===g.id?'selected':''}>${escapeHtml(g.name)}</option>`).join('')}
-        </select></label>
-      </div>
-      <div class="sf76-track-actions">
-        <button type="button" data-sf76-add="${escapeHtml(t.id)}" aria-label="Adicionar ${escapeHtml(t.title||'música')} à fila">＋ Adicionar</button>
-        <button type="button" class="sf76-remove" data-sf76-remove="${escapeHtml(t.id)}" aria-label="Remover ${escapeHtml(t.title||'música')} dos favoritos">♡ Remover</button>
-      </div>
-    </article>`).join('');
+    const nameOf=t=>state.genres.find(g=>g.id===t.genreId)?.name||'';
+    if(state.sort==='title')visible.sort((a,b)=>fold(a.title).localeCompare(fold(b.title),'pt-BR'));
+    if(state.sort==='artist')visible.sort((a,b)=>fold(a.artist).localeCompare(fold(b.artist),'pt-BR'));
+    if(state.sort==='collection')visible.sort((a,b)=>nameOf(a).localeCompare(nameOf(b),'pt-BR'));
+    $('sf264VisibleCount').textContent=visible.length+' de '+all.length+' músicas';
+    if(!visible.length){list.innerHTML='<p class="sf76-empty">Nenhuma música neste filtro. Experimente outro termo ou coleção.</p>';renderBatch();return;}
+    const room=currentRoomState(),queued=new Set([...(room?.queue||[]),...(room?.waitingQueue||[])].map(t=>t.id));
+    list.innerHTML=visible.map(t=>{
+      const inQueue=queued.has(t.id),styles=Array.isArray(t.styles)?t.styles:[];
+      const selectOptions=state.genres.map(g=>`<option value="${escapeHtml(g.id)}" ${t.genreId===g.id?'selected':''}>${escapeHtml(g.name)}</option>`).join('');
+      return `<article class="sf76-track sf264-track" data-sf76-track="${escapeHtml(t.id)}">
+        <input class="sf264-check" type="checkbox" data-sf264-check="${escapeHtml(t.id)}" aria-label="Selecionar ${escapeHtml(t.title||'música')}" ${state.selected.has(t.id)?'checked':''}>
+        <img src="https://img.youtube.com/vi/${encodeURIComponent(t.id)}/mqdefault.jpg" alt="" loading="lazy">
+        <div class="sf76-track-copy"><strong title="${escapeHtml(t.title||'Música')}">${escapeHtml(t.title||'Música')}</strong><small>${escapeHtml(t.artist||'Artista')}</small>
+          <div class="sf264-style-row">${styles.slice(0,3).map(st=>`<span class="sf264-style">${escapeHtml(st)}</span>`).join('')}<button type="button" data-sf264-style="${escapeHtml(t.id)}" aria-label="Editar estilos musicais de ${escapeHtml(t.title)}">${styles.length?'✎ Estilos':'＋ Estilos'}</button></div>
+          <label class="sf76-assign sf264-assign"><span>Coleção</span><select data-sf76-assign="${escapeHtml(t.id)}" aria-label="Mudar coleção de ${escapeHtml(t.title||'música')}"><option value="" ${!known.has(t.genreId)?'selected':''}>Sem coleção</option>${selectOptions}</select></label>
+        </div>
+        <div class="sf76-track-actions"><button type="button" data-sf76-add="${escapeHtml(t.id)}" ${inQueue?'disabled':''} aria-label="Adicionar ${escapeHtml(t.title||'música')} à fila">${inQueue?'✓ Na fila':'＋ Adicionar'}</button>
+          <details class="sf264-menu"><summary aria-label="Mais opções">⋯</summary><button type="button" class="sf76-remove" data-sf76-remove="${escapeHtml(t.id)}">♡ Remover favorita</button></details>
+        </div>
+      </article>`;
+    }).join('');
+    renderBatch();
   }
   async function submitFavorite(favorite){
     if(state.busy)return;
