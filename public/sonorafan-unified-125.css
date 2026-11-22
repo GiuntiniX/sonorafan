@@ -9,7 +9,7 @@
  --sf125-stroke:#404047;--sf125-lime:#c4ff00;
  --sf125-orange:#ff8200;--sf125-pink:#ef3cdb;
  --sf125-yellow:#ffe000;--sf125-purple:#a73bed;
- --sf125-hero:url('/art-44/festival-crowd.webp');
+ --sf125-hero:url('/art-267/sonorafan-festival-hero.webp');
 }
 body.sf125-global{
  --bg:#0d0d0f;--background:#0d0d0f;
@@ -769,3 +769,19 @@ body.sf125-global :is(.sf63-panel,.sf92-account-panel,.sf95-panel) :is(h2,h3,str
  color:#101011!important;
 }
 #screen-lobby.sf125-platform .sf107-style.selected b{color:#141414!important}
+
+/* SonoraFan 267 — artwork approved for the lobby. Preserve text-safe left side. */
+#screen-lobby.sf125-platform .sf125-lobby-hero{
+ background-image:linear-gradient(90deg,rgba(12,5,18,.92) 0%,rgba(12,5,18,.76) 24%,rgba(12,5,18,.39) 42%,rgba(12,5,18,0) 69%),
+   url('/art-267/sonorafan-festival-hero.webp')!important;
+ background-position:center center,center 54%!important;
+ background-size:cover,cover!important;
+ background-repeat:no-repeat!important;
+}
+@media(max-width:700px){
+ #screen-lobby.sf125-platform .sf125-lobby-hero{
+   background-image:linear-gradient(90deg,rgba(12,5,18,.95),rgba(12,5,18,.62) 76%,rgba(12,5,18,.42)),
+   url('/art-267/sonorafan-festival-hero.webp')!important;
+   background-position:center,62% center!important;
+ }
+}
