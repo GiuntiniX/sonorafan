@@ -73,6 +73,25 @@ function installFavoriteGenres67({ app, db, sessionEmail }) {
       });res.json({success:true});
     }catch(e){if(e.status)res.status(e.status).json({error:e.message});else fail(res,e);}
   });
+  // Estilos musicais independentes das coleções pessoais (legado genreId).
+  app.patch('/api/favorites/:id/styles', async (req,res)=>{
+    const ref=authorized(req,res);if(!ref)return;
+    const raw=req.body?.styles;
+    if(!Array.isArray(raw)||raw.length>6)return res.status(400).json({error:'Selecione até seis estilos.'});
+    const styles=[...new Set(raw.map(cleanName))].filter(Boolean);
+    if(styles.length!==raw.length && raw.length>0 && styles.length===0)return res.status(400).json({error:'Estilos inválidos.'});
+    try {
+      const item=await db.runTransaction(async tx=>{
+        const doc=await tx.get(ref),data=doc.data()||{},items=Array.isArray(data.items)?data.items:[],id=req.params.id;
+        const index=items.findIndex(x=>x.id===id);
+        if(index<0)throw Object.assign(new Error('Favorita não encontrada.'),{status:404});
+        const updated=items.map((track,i)=>i===index?{...track,styles}:track);
+        tx.set(ref,{items:updated},{merge:true});return updated[index];
+      });
+      res.json({success:true,item});
+    }catch(e){if(e.status)res.status(e.status).json({error:e.message});else fail(res,e);}
+  });
+
   app.patch('/api/favorites/:id/genre',async (req,res)=>{
     const ref=authorized(req,res);if(!ref)return;
     const id=req.params.id, genreId=req.body?.genreId;
