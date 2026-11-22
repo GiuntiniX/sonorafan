@@ -338,6 +338,7 @@
       return (state.filter==='all'||genre===state.filter)&&(!q||fold(decodeTitle(t.title)+' '+decodeTitle(t.artist)+' '+(t.styles||[]).join(' ')).includes(q));
     });
     const nameOf=t=>state.genres.find(g=>g.id===t.genreId)?.name||'';
+    if(state.sort==='recent')visible.reverse();
     if(state.sort==='title')visible.sort((a,b)=>fold(decodeTitle(a.title)).localeCompare(fold(decodeTitle(b.title)),'pt-BR'));
     if(state.sort==='artist')visible.sort((a,b)=>fold(decodeTitle(a.artist)).localeCompare(fold(decodeTitle(b.artist)),'pt-BR'));
     if(state.sort==='collection')visible.sort((a,b)=>nameOf(a).localeCompare(nameOf(b),'pt-BR'));
