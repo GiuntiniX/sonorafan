@@ -3220,6 +3220,9 @@
       document.querySelectorAll('.theme-opt').forEach(b => b.classList.toggle('active', b.dataset.theme === currentTheme));
       document.querySelectorAll('#themeBtn, #themeBtnRoom').forEach(b => { if(!b) return; const icon=b.querySelector('.sf30-theme-icon'); if(icon) { icon.textContent = t.btn; } else { b.textContent = t.btn; } });
       localStorage.setItem('sonoraTheme', currentTheme);
+      // A identidade SonoraFan 266 é independente do tema legado.
+      // Reaplique a escolha pessoal após qualquer mudança de wallpaper/tema.
+      window.sf266Appearance?.refresh?.();
     }
     const THEME_UI = {
       dark: ['Escuro', 'Dark', 'Oscuro', '#050508', '#ff6b35', '#7c3aed'], ocean: ['Oceano', 'Ocean', 'Océano', '#e8f0fe', '#1a73e8', '#0d47a1'],
@@ -5194,7 +5197,7 @@ function openRoomCfg() {
   
   <script defer src="/sonorafan-pwa-83.js?v=142.0"></script>
   <script defer src="/sonorafan-theme-bootstrap-226.js?v=226.0"></script>
-  <script defer src="/sonorafan-room-themes-88.js?v=226.0"></script>
+  <script defer src="/sonorafan-room-themes-88.js?v=266.0"></script>
   <script defer src="/sonorafan-room-menu-167.js?v=168.0"></script>
   <script defer src="/sonorafan-lobby-account-92.js?v=92"></script>
   <script defer src="/sonorafan-room-ux-93.js?v=93"></script>
