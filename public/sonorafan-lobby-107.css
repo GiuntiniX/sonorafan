@@ -692,3 +692,48 @@
 @media(max-width:600px){
  #screen-lobby .sf107-room-card .sf107-private-badge{font-size:9px;padding:4px 6px}
 }
+
+/* v279 — Agora Agenda Musical no lobby usa os mesmos eventos da agenda.
+   Capa opcional, Fan Club ou sala, layouts compactos e acessíveis. */
+#screen-lobby #sf107Events{display:grid;gap:9px;min-width:0}
+#screen-lobby #sf107Events .sf279-event{
+ display:flex;align-items:center;gap:10px;width:100%;
+ min-height:71px;padding:9px;
+ border:1px solid var(--sf-border-soft,#5d3150);
+ border-radius:11px;background:var(--sf-surface-2,#24112d);
+ color:var(--sf-text,#f6f1fb);text-align:left;cursor:pointer;
+}
+#screen-lobby #sf107Events .sf279-event:hover{
+ border-color:var(--sf-orange,#ff9300);
+ background:var(--sf-surface-3,#2d1735);
+}
+#screen-lobby #sf107Events .sf279-event:focus-visible{
+ outline:2px solid var(--sf-lime,#c8ff00);outline-offset:2px;
+}
+#screen-lobby #sf107Events .sf279-event-cover{
+ display:block;width:65px;height:54px;flex:0 0 65px;object-fit:cover;
+ border-radius:8px;background:#190c20;border:1px solid #62416d;
+}
+#screen-lobby #sf107Events .sf279-event-info{
+ display:grid;align-content:center;gap:4px;flex:1;min-width:0;
+}
+#screen-lobby #sf107Events .sf279-event-info strong{
+ color:var(--sf-text,#f6f1fb);font-size:12px;line-height:1.3;
+ white-space:normal;overflow-wrap:anywhere;
+}
+#screen-lobby #sf107Events .sf279-event-info small{
+ color:var(--sf-text-secondary,#cdb9da);font-size:10px;line-height:1.3;
+}
+#screen-lobby #sf107Events .sf279-event-info .sf279-event-kind{
+ color:var(--sf-lime,#c8ff00);font-weight:750;
+}
+#screen-lobby #sf107Events .sf279-event>b:last-child{
+ flex:none;color:var(--sf-lime,#c8ff00);font-size:18px;
+}
+#screen-lobby #sf107Events .sf279-event .sf107-event-day{
+ flex:0 0 52px;min-height:52px;border-radius:8px;
+}
+@media(max-width:650px){
+ #screen-lobby #sf107Events .sf279-event{padding:8px;gap:8px}
+ #screen-lobby #sf107Events .sf279-event-cover{width:52px;height:48px;flex-basis:52px}
+}
