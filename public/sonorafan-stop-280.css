@@ -111,3 +111,6 @@ body.sf280-open{overflow:hidden!important}
 #sf280Content .sf280-weekly>div>b{font-weight:900;color:#caff00;min-width:27px}
 #sf280Content .sf280-weekly>div>strong{flex:1;min-width:0;overflow-wrap:anywhere}
 #sf280Content .sf280-weekly>div>span{font-variant-numeric:tabular-nums;color:#d7bee7;font-weight:800;font-size:12px}
+
+#sf280Content .sf280-awards{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+#sf280Content .sf280-awards span{border:1px solid #ac883e;background:#49381f;color:#fff1b4;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:850}
