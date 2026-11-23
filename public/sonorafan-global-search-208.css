@@ -86,3 +86,51 @@
 @media(prefers-reduced-motion:reduce){
  #sf208SearchResults.sf282-search-results *{animation:none!important;transition:none!important}
 }
+
+/* Shared search in the live room — same public index as the lobby and agenda. */
+#screen-room.sf113-room > .app > .header .sf282-room-search{
+ display:flex!important;align-items:center!important;gap:9px!important;
+ width:clamp(180px,30vw,390px)!important;max-width:390px!important;
+ height:43px!important;min-height:43px!important;min-width:0!important;
+ margin:0 auto!important;padding:6px 13px!important;
+ border:1px solid #62506c!important;border-radius:999px!important;
+ color:#cdb9da!important;background:#201428!important;
+ flex:0 1 390px!important;
+}
+#screen-room.sf113-room .sf282-room-search:focus-within{
+ border-color:#ff9300!important;box-shadow:0 0 0 2px #ff93002c!important;
+}
+#screen-room.sf113-room .sf282-room-search input{
+ display:block!important;flex:1!important;width:100%!important;min-width:0!important;
+ color:#f6f1fb!important;background:transparent!important;border:0!important;outline:0!important;
+ font:500 12px Inter,system-ui,sans-serif!important;
+}
+#screen-room.sf113-room .sf282-room-search input::placeholder{color:#cdb9da!important}
+#screen-room.sf113-room .sf282-room-search-toggle{display:none!important}
+@media(min-width:769px) and (max-width:1100px){
+ #screen-room.sf113-room > .app > .header .sf282-room-search{
+  flex:0 1 240px!important;width:min(27vw,240px)!important;
+ }
+}
+@media(max-width:768px){
+ #screen-room.sf113-room > .app > .header .sf282-room-search-toggle{
+  display:grid!important;place-items:center!important;
+  width:35px!important;height:35px!important;min-width:35px!important;
+  padding:0!important;flex:0 0 35px!important;
+  background:#24112d!important;color:#f6f1fb!important;
+  border:1px solid #62506c!important;border-radius:11px!important;
+  font-size:22px!important;cursor:pointer!important;
+ }
+ #screen-room.sf113-room > .app > .header .sf282-room-search{
+  display:none!important;
+  position:absolute!important;z-index:100!important;
+  top:calc(100% + 5px)!important;left:8px!important;right:8px!important;
+  width:calc(100% - 16px)!important;max-width:none!important;
+  padding:7px 12px!important;height:48px!important;
+  background:#24112d!important;
+  box-shadow:0 12px 35px #0009!important;
+ }
+ #screen-room.sf113-room > .app > .header .sf282-room-search.is-open{
+  display:flex!important;
+ }
+}
