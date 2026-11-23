@@ -26,7 +26,7 @@ test('letras são verificadas ignorando acentos e capitalização',()=>{
 test('o jogo usa namespace próprio e evita expor e-mails',()=>{
  const source=fs.readFileSync(path.join(__dirname,'..','stop-games-280.js'),'utf8');
  assert.match(source,/io\.of\('\/stop'\)/);
- assert.match(source,/sessions\.get\(getCookie\(socket\)\)/);
+ assert.match(source,/const emailOf=s=>sessions\.get\(getCookie\(s\)\)/);
  assert.match(source,/publicId\(email\)/);
  assert.match(source,/connected\.has\(socket\.id\)/);
 });
