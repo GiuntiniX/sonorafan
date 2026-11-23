@@ -1,0 +1,93 @@
+/* SonoraFan 276 — event cover, creation preview and organizer gallery.
+ * Uses official SonoraFan brand palette. */
+#screen-lobby .sf200-agenda .sf276-managed-section{
+ display:grid;gap:14px;padding:18px 0 23px;margin:0 0 22px;
+ border-bottom:1px solid var(--sf-border-soft,#5d3150);
+}
+#screen-lobby .sf200-agenda .sf276-managed-section>header{
+ display:flex;align-items:center;justify-content:space-between;gap:13px;flex-wrap:wrap;
+}
+#screen-lobby .sf200-agenda .sf276-section-eyebrow{
+ display:block;color:var(--sf-lime,#c8ff00);letter-spacing:.1em;font-size:10px;font-weight:900;margin-bottom:4px;
+}
+#screen-lobby .sf200-agenda .sf276-managed-section h2{
+ margin:0;font-size:clamp(18px,1.8vw,24px);line-height:1.3;font-weight:900;color:var(--sf-text,#f6f1fb);
+}
+#screen-lobby .sf200-agenda .sf276-managed-section p{
+ margin:4px 0 0;font-size:12px;color:var(--sf-text-secondary,#cdb9da);
+}
+#screen-lobby .sf200-agenda .sf276-managed-section>header>button{
+ appearance:none;border:1px solid var(--sf-border-soft,#5d3150);border-radius:10px;
+ padding:9px 13px;min-height:35px;background:#24112d;color:#f6f1fb;
+ font-size:11px;font-weight:800;cursor:pointer;
+}
+#screen-lobby .sf200-agenda .sf276-managed-gallery{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+}
+#screen-lobby .sf200-agenda .sf276-managed-card{
+ display:flex;flex-direction:column;min-width:0;overflow:hidden;
+ border:1px solid var(--sf-border-soft,#5d3150);border-radius:15px;
+ background:var(--sf-surface-2,#24112d);
+}
+#screen-lobby .sf200-agenda .sf276-managed-card>img{
+ display:block;width:100%;height:155px;object-fit:cover;background:#16091d;aspect-ratio:16 / 9;
+}
+#screen-lobby .sf200-agenda .sf276-managed-details{display:grid;gap:8px;padding:13px;min-width:0;flex:1}
+#screen-lobby .sf200-agenda .sf276-managed-details>small{
+ color:var(--sf-lime,#c8ff00);font-size:11px;font-weight:750;
+}
+#screen-lobby .sf200-agenda .sf276-managed-details>strong{
+ color:var(--sf-text,#f6f1fb);font-size:14px;font-weight:850;line-height:1.3;
+ overflow-wrap:anywhere;
+}
+#screen-lobby .sf200-agenda .sf276-managed-details>span{
+ color:var(--sf-text-secondary,#cdb9da);font-size:11px;
+ overflow-wrap:anywhere;
+}
+#screen-lobby .sf200-agenda .sf276-managed-details>div{
+ margin-top:auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+}
+#screen-lobby .sf200-agenda .sf276-managed-details button{
+ appearance:none;background:#372044;border:1px solid #6b4677;
+ border-radius:9px;min-height:36px;padding:8px 10px;
+ color:#f6f1fb;font-size:11px;font-weight:800;cursor:pointer;
+}
+#screen-lobby .sf200-agenda .sf276-managed-details button:first-child{
+ background:var(--sf-lime,#c8ff00);color:#171019;border-color:var(--sf-lime,#c8ff00);
+}
+.sf201-create-dialog .sf276-cover-field small{
+ color:var(--sf-text-secondary,#cdb9da);font-size:11px;font-weight:500;line-height:1.5;
+}
+.sf201-create-dialog .sf276-cover-field input:invalid:not(:placeholder-shown){
+ border-color:#ff6b6b!important;
+}
+.sf201-create-dialog #sf202PreviewArt{
+ width:100%;aspect-ratio:16 / 9;max-height:260px;object-fit:cover;
+ border-radius:12px;border:1px solid var(--sf-border-soft,#5d3150);
+ background:#180b20;
+}
+#screen-lobby .sf200-agenda .sf200-event-card>.sf200-photo{
+ object-position:center;object-fit:cover;
+}
+#screen-lobby .sf200-agenda button[data-sf276-created].active{
+ color:#15110d!important;background:#c8ff00!important;border-color:#c8ff00!important;
+}
+#screen-lobby .sf200-agenda .sf276-managed-details button:focus-visible,
+#screen-lobby .sf200-agenda [data-sf276-created]:focus-visible{
+ outline:2px solid #ff9300;outline-offset:3px;
+}
+@media(max-width:1200px){
+ #screen-lobby .sf200-agenda .sf276-managed-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+ #screen-lobby .sf200-agenda .sf276-managed-gallery{grid-template-columns:minmax(0,1fr)}
+ #screen-lobby .sf200-agenda .sf276-managed-card{display:grid;grid-template-columns:112px minmax(0,1fr)}
+ #screen-lobby .sf200-agenda .sf276-managed-card>img{height:100%;min-height:160px;aspect-ratio:auto}
+ #screen-lobby .sf200-agenda .sf276-managed-details{padding:10px}
+ #screen-lobby .sf200-agenda .sf276-managed-details>strong{font-size:13px}
+ #screen-lobby .sf200-agenda .sf276-managed-section>header{align-items:flex-start}
+}
+@media(max-width:380px){
+ #screen-lobby .sf200-agenda .sf276-managed-card{display:flex}
+ #screen-lobby .sf200-agenda .sf276-managed-card>img{height:145px}
+}
