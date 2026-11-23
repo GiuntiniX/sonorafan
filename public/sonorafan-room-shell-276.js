@@ -38,6 +38,43 @@
    '<div class="sf276-divider"></div><span class="sf276-section">Criar</span>'+
    '<nav aria-label="Criar" class="sf276-nav sf276-create">'+create.map(button).join('')+'</nav>'+
    '<div class="sf276-ambient" aria-hidden="true"></div>';
+  // Busca global também disponível durante a reprodução, sem tocar no player.
+  const roomHeader=app.querySelector(':scope > .header');
+  if(roomHeader&&!$('sf282RoomSearch')){
+    const searchLabel=document.createElement('label');
+    searchLabel.className='sf282-room-search sf282-unified-search';
+    searchLabel.innerHTML='<span aria-hidden="true">⌕</span><input type="search" id="sf282RoomSearch" maxlength="90" autocomplete="off" placeholder="Buscar em todo o SonoraFan…" aria-label="Buscar em todo o SonoraFan">';
+    const searchToggle=document.createElement('button');
+    searchToggle.type='button';searchToggle.id='sf282RoomSearchToggle';
+    searchToggle.className='sf282-room-search-toggle';
+    searchToggle.textContent='⌕';searchToggle.setAttribute('aria-label','Abrir busca global');
+    searchToggle.setAttribute('aria-expanded','false');
+    searchToggle.setAttribute('aria-controls','sf282RoomSearch');
+    roomHeader.insertBefore(searchLabel,roomHeader.querySelector('.header-right')||null);
+    roomHeader.insertBefore(searchToggle,searchLabel);
+    searchToggle.addEventListener('click',()=>{
+      const expanded=!searchLabel.classList.contains('is-open');
+      searchLabel.classList.toggle('is-open',expanded);
+      searchToggle.setAttribute('aria-expanded',String(expanded));
+      if(expanded)searchLabel.querySelector('input')?.focus({preventScroll:true});
+      else window.sf282GlobalSearch?.close?.();
+    });
+    searchLabel.querySelector('input')?.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&searchLabel.classList.contains('is-open')){
+        searchLabel.classList.remove('is-open');
+        searchToggle.setAttribute('aria-expanded','false');
+        window.sf282GlobalSearch?.close?.();
+        searchToggle.focus({preventScroll:true});
+      }
+    });
+    document.addEventListener('pointerdown',event=>{
+      if(!searchLabel.contains(event.target)&&event.target!==searchToggle&&
+        !document.getElementById('sf208SearchResults')?.contains(event.target)){
+        searchLabel.classList.remove('is-open');
+        searchToggle.setAttribute('aria-expanded','false');
+      }
+    });
+  }
   aside.addEventListener('click',e=>{
     const control=e.target.closest('button[data-sf276-to]');if(!control)return;
     const destination=control.dataset.sf276To;
