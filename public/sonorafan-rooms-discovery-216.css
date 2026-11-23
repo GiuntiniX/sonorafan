@@ -202,11 +202,12 @@
  url('/themes/final-172/indie.webp') center 44%/cover no-repeat!important;
 }
 @media(min-width:769px) and (max-width:1160px){
+ /* Match the existing standard desktop sidebar (text labels stay readable). */
  #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-app.sf125-app{
-  grid-template-columns:68px minmax(0,1fr)!important;
+  grid-template-columns:248px minmax(0,1fr)!important;
  }
  #screen-lobby.sf125-platform.sf216-explore-mode #sf125Sidebar{
-  display:flex!important;padding:12px 7px!important;
+  display:flex!important;
  }
  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-page{
   padding:16px 18px 55px!important;
