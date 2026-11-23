@@ -72,8 +72,9 @@ function enterRoom(slug,manage=false){
  try{join(slug);}catch(error){window.sf216ManageRoomAfterJoin=null;showError('Erro ao entrar na sala. Tente novamente.');console.error('sf216 enterRoom:',error);open(state.mode);}
 }
 function showError(message){const node=$('sf216Status');if(node){node.textContent=message;node.hidden=false;}else if(typeof window.toast==='function')window.toast(message,'error');}
-function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});window.sf207SetActive?.('lobby');}
+function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');const globalSearch=$('sf107Search');if(globalSearch){globalSearch.placeholder='Buscar salas, estilos ou artistas';globalSearch.value='';globalSearch.dispatchEvent(new Event('input',{bubbles:true}));}document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});window.sf207SetActive?.('lobby');}
 function open(mode='discover'){const page=$('sf216Explorer');if(!page)return;if(!$('screen-lobby')?.classList.contains('active')&&typeof window.showScreen==='function')window.showScreen('lobby');window.sf207LeavePage?.();window.sf200CloseAgenda?.();
+const search=$('sf107Search');if(search){search.placeholder='Buscar salas e estilos musicais';search.value=state.query;}
 state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discover';state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
@@ -100,12 +101,21 @@ page.innerHTML='<div class="sf216-shell">'+
 '<div id="sf216Hero" class="sf216-hero" hidden></div><div class="sf216-results-head"><div><h2 id="sf216ResultsTitle">Descobrir salas</h2><small id="sf216ResultCount" aria-live="polite"></small></div><div><button type="button" class="sf216-view" data-sf216-view aria-label="Alternar visualização">▦</button></div></div><p id="sf216Status" class="sf216-status" hidden></p><div class="sf216-cards" id="sf216Cards"></div><button id="sf216More" class="sf216-more" type="button" data-sf216-more hidden>Carregar mais salas ↓</button></main></div>';
 main.append(page);
 page.addEventListener('click',onClick);
-$('sf216Search').addEventListener('input',e=>{state.query=e.target.value.trim().slice(0,90);state.limit=12;render();});
+$('sf216Search').addEventListener('input',e=>{state.query=e.target.value.trim().slice(0,90);state.limit=12;render();const global=$('sf107Search');if(global&&global.value!==e.target.value)global.value=e.target.value;});
 $('sf216Activity').addEventListener('change',e=>{state.activity=e.target.value;state.limit=12;render();});
 $('sf216Sort').addEventListener('change',e=>{state.sort=e.target.value;render();});
 render();
 }
 function init(){build();if(!$('sf216Explorer'))return;
+const globalSearch=$('sf107Search');
+if(globalSearch)globalSearch.addEventListener('input',e=>{
+ if(!$('screen-lobby')?.classList.contains('sf216-explore-mode'))return;
+ const value=String(e.target.value||'').slice(0,90);
+ if(state.query===value.trim())return;
+ state.query=value.trim();state.limit=12;
+ const inner=$('sf216Search');if(inner&&inner.value!==value)inner.value=value;
+ render();
+});
 const orig=window.sf125Navigate;
 window.sf125Navigate=function(area){if(area==='rooms'){open();return;}if(area==='lobby'){close();if(typeof orig==='function')return orig.apply(this,arguments);return;}if(typeof orig==='function'){close();return orig.apply(this,arguments);}};
 document.addEventListener('click',e=>{const el=e.target.closest('[data-sf107="scroll"],[data-sf107="more"]');if(el&&$('screen-lobby')?.classList.contains('active')){e.preventDefault();e.stopImmediatePropagation();open();}},true);
