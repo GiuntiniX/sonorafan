@@ -1,0 +1,143 @@
+/* SonoraFan 276 — Meu Perfil mobile, preservando fluxo e identidade desktop. */
+@media (max-width: 820px) {
+  /* Quando o perfil é uma página do lobby, não aplicar o bloqueio de scroll do modal. */
+  body:has(#screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page) {
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+  #screen-lobby.sf207-profile-page,
+  #screen-lobby.sf207-profile-page .sf28-lobby-main,
+  #screen-lobby.sf207-profile-page .sf28-lobby-content.sf207-profile-content {
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  #screen-lobby.sf207-profile-page .sf28-lobby-content.sf207-profile-content {
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page,
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf43-profile-modal,
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf43-profile-shell {
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    height:auto!important;max-height:none!important;overflow:visible!important;
+    border-radius:0!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf43-profile-body.sf108-ready {
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    height:auto!important;max-height:none!important;min-height:0!important;
+    overflow:visible!important;
+    padding:12px 12px calc(100px + env(safe-area-inset-bottom,0px))!important;
+    gap:12px!important;scroll-padding-top:12px;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page :is(
+    .sf202-profile-overview,.sf202-profile-columns,.sf202-profile-aside,
+    .sf206-layout,.sf206-main,.sf206-aside,.sf206-panel,
+    .sf112-library,.sf600-community,.sf108-studio,
+    .sf108-card,.sf112-section,.sf202-panel
+  ) {min-width:0!important;max-width:100%!important;}
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page :is(
+    .sf202-profile-columns,.sf202-profile-aside,.sf206-layout,.sf206-club-columns,
+    .sf112-dna-cols,.sf112-bottom,.sf108-duo
+  ) {grid-template-columns:minmax(0,1fr)!important;}
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page :is(
+    img,video,iframe
+  ) {max-width:100%;}
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page :is(
+    h1,h2,h3,p,strong,small,span
+  ) {overflow-wrap:anywhere;}
+  /* Navegação em linha: não consumir várias fileiras de altura. */
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page:not(.sf112-tab-overview) .sf112-tabs {
+    display:flex!important;flex-wrap:nowrap!important;
+    width:100%!important;max-width:100%!important;overflow-x:auto!important;
+    overflow-y:hidden!important;overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;scrollbar-width:thin;
+    gap:7px!important;padding:8px 54px 8px 8px!important;
+    position:sticky!important;top:0!important;z-index:30!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page:not(.sf112-tab-overview) .sf112-tabs button {
+    flex:0 0 auto!important;min-width:104px!important;max-width:none!important;
+    min-height:44px!important;font-size:12px!important;
+    white-space:nowrap!important;padding:9px 12px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf43-profile-close {
+    position:sticky!important;top:6px!important;right:8px!important;
+    float:right!important;margin:6px 6px -52px auto!important;
+    width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+    z-index:55!important;display:grid!important;place-items:center!important;
+    border-radius:12px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page.sf112-tab-overview .sf43-profile-close {
+    display:none!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf108-footer {
+    position:static!important;bottom:auto!important;box-shadow:none!important;
+    flex-wrap:wrap!important;width:100%!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page :is(input,textarea,select) {
+    min-width:0!important;max-width:100%!important;font-size:16px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page :is(button,[role="button"]) {
+    touch-action:manipulation;
+  }
+}
+@media (max-width: 560px) {
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf43-profile-body.sf108-ready {
+    padding:9px 9px calc(100px + env(safe-area-inset-bottom,0px))!important;
+    gap:10px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page :is(
+    .sf206-panel,.sf202-panel,.sf108-card,.sf112-section
+  ) {padding:12px!important;border-radius:14px!important;}
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-hero {
+    min-height:0!important;padding:13px!important;
+    grid-template-columns:minmax(0,1fr)!important;gap:12px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-hero .sf206-person h1 {
+    font-size:clamp(21px,6vw,27px)!important;line-height:1.16!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-hero .sf206-stats {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-nav {
+    display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;
+    overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+    width:100%!important;max-width:100%!important;gap:7px!important;
+    padding:4px 1px 9px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-nav button {
+    flex:0 0 auto!important;min-height:44px!important;white-space:nowrap!important;
+    font-size:12px!important;padding:9px 13px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-quick>div {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-suggestion-grid,
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf112-mix-grid,
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf112-genre-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-event {
+    flex-direction:column!important;align-items:stretch!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-event-buttons {
+    display:flex!important;flex-wrap:wrap!important;width:100%!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-event-buttons button {
+    min-height:44px!important;flex:1 1 120px!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf108-avatar-grid {
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+}
+@media (max-width: 370px) {
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf206-suggestion-grid,
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf112-mix-grid {
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #screen-lobby.sf207-profile-page #sf43ProfileModal.sf207-in-page .sf108-avatar-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
