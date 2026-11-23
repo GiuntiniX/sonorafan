@@ -9,7 +9,7 @@ const cats={
  music:['Artista ou banda','Música','Álbum','Festival','Instrumento','Gênero musical'],
  festival:['Nome','Cidade','Animal','Comida','Artista ou banda','Música','Festival']
 };
-const s={socket:null,id:'',me:'',game:null,list:[],answers:{},error:'',visible:false};
+const s={socket:null,id:'',me:'',game:null,list:[],answers:{},error:'',visible:false,weekly:[],weeklyStamp:'',lastWeekly:0};
 let overlay;
 const inRoom=()=>$('screen-room')?.classList.contains('active');
 const slug=()=>inRoom()?String(window.sf100PlayerSnapshot?.()?.currentRoomData?.slug||''):'';
@@ -25,6 +25,11 @@ function api(action,data={}){
 }
 function issue(error){s.error=error?.message||String(error);render();}
 function reset(){s.id='';s.me='';s.game=null;s.answers={};try{sessionStorage.removeItem('sf280stop')}catch(_){}}
+async function weekly(){
+ if(!s.socket?.connected||Date.now()-s.lastWeekly<10000)return;
+ s.lastWeekly=Date.now();
+ try{const result=await api('stop:ranking');s.weekly=result.items||[];s.weeklyStamp=result.week||'';render();}catch(_){/* O ranking não pode impedir a partida. */}
+}
 async function list(){
  try{const res=await api('stop:list');s.list=res.games||[];render()}catch(err){issue(err)}
 }
@@ -36,6 +41,8 @@ function connect(){
   s.error='';
   if(s.id){try{const v=await api('stop:join',{id:s.id});s.me=v.playerId}catch(e){reset();issue(e);return}}
   else list();
+  weekly();
+  if(game.phase==='results')setTimeout(()=>{s.lastWeekly=0;weekly()},1100);
   render();
  });
  s.socket.on('connect_error',e=>issue(e));
@@ -87,7 +94,8 @@ function lobby(){
  '<div class="sf280-buttons"><button class="sf280-primary" data-stop="create">＋ Criar partida</button>'+
  (slug()?'<button data-stop="create-room">♫ Jogar nesta sala</button><button data-stop="find-room">Encontrar partida da sala</button>':'')+'</div>'+
  '<div class="sf280-code"><label>Código para entrar</label><div><input id="sf280Code" placeholder="Código de 6 caracteres" maxlength="6"><button data-stop="join-code">Entrar</button></div></div>'+
- '<h3>Partidas públicas</h3><div class="sf280-public">'+(s.list.length?s.list.map(x=>'<button data-stop-join="'+esc(x.id)+'"><strong>'+esc(modes[x.mode])+'</strong><small>#'+esc(x.id)+' · '+x.count+'/10 · '+esc(x.phase)+'</small><b>Entrar →</b></button>').join(''):'<p>Nenhuma partida aberta. Crie a primeira!</p>')+'</div>';
+ '<h3>Partidas públicas</h3><div class="sf280-public">'+(s.list.length?s.list.map(x=>'<button data-stop-join="'+esc(x.id)+'"><strong>'+esc(modes[x.mode])+'</strong><small>#'+esc(x.id)+' · '+x.count+'/10 · '+esc(x.phase)+'</small><b>Entrar →</b></button>').join(''):'<p>Nenhuma partida aberta. Crie a primeira!</p>')+'</div>'+
+ '<h3>🏆 Ranking semanal de Stop</h3><div class="sf280-weekly">'+(s.weekly.length?s.weekly.map((p,i)=>'<div><b>'+(i+1)+'º</b><strong>'+esc(p.name)+'</strong><span>'+p.points+' pts</span></div>').join(''):'<p>A classificação aparece depois das partidas concluídas.</p>')+'</div>';
 }
 function players(g){
  return '<div class="sf280-players">'+g.players.map(p=>'<span>'+esc(p.name)+(p.id===g.host?' 👑':'')+(p.submitted?' ✓':'')+'</span>').join('')+'</div>';
