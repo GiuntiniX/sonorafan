@@ -19,7 +19,19 @@ const genreLabel={kpop:'K-Pop',pop:'Pop',rock:'Rock',indie:'Indie',metal:'Metal'
  sertanejo:'Sertanejo',funk:'Funk',mpb:'MPB',hiphop:'Hip-Hop',rap:'Rap',trap:'Trap',eletronica:'Eletrônica',
  pagode:'Pagode',samba:'Samba',forro:'Forró',gospel:'Gospel',reggae:'Reggae',
  jazz:'Jazz',blues:'Blues',rnb:'R&B',lofi:'Lo-fi',latina:'Música Latina',classica:'Clássica',outros:'Outros'};
+const validEventImageUrl=value=>{
+ try{
+  if(!value||typeof value!=='string'||value.length>1500)return '';
+  const u=new URL(value.trim());
+  if(u.protocol!=='https:'||u.username||u.password||u.port||!u.hostname.includes('.')||
+    /(^|\\.)(localhost|local|internal|test|invalid)$/.test(u.hostname)||
+    /^\\d+(?:\\.\\d+){3}$/.test(u.hostname)||u.hostname.includes(':'))return '';
+  return u.href;
+ }catch(_){return '';}
+};
 const artFor=e=>{
+ const cover=validEventImageUrl(e.coverEventImageUrl);
+ if(cover)return cover;
  if(e.type==='fanclub'){
    if(e.coverType==='gallery'&&gallery[e.coverGalleryId])return gallery[e.coverGalleryId];
    if(e.coverType==='external'){
@@ -33,7 +45,7 @@ const artFor=e=>{
 };
 const fallback=e=>gallery[String(e.genre||'').toLowerCase()]||gallery.festival;
 const state={events:[],type:'all',genre:'all',q:'',month:new Date(today().getFullYear(),today().getMonth(),1),
- day:key(today()),loading:false,error:'',open:false,request:0,lastLoad:0,onlyMine:false,toast:'',modalBusy:false,pendingOpenKey:''};
+ day:key(today()),loading:false,error:'',open:false,request:0,lastLoad:0,onlyMine:false,onlyCreated:false,toast:'',modalBusy:false,pendingOpenKey:''};
 const localeDate=v=>fmt(v,{day:'2-digit',month:'short',year:'numeric'});
 const img=(e,extra='')=>`<img class="sf200-photo" src="${esc(artFor(e))}" data-sf200-fallback="${esc(fallback(e))}" referrerpolicy="no-referrer" loading="lazy" decoding="async" alt="" ${extra}>`;
 const isLive=e=>e.type==='room'&&Number(e.startAt)<=now()&&now()<Number(e.startAt)+(Number(e.durationMinutes)||90)*60000;
@@ -46,6 +58,7 @@ const eventKey=e=>e.type+':'+(e.clubId||e.roomSlug)+':'+e.id;
 const choose=()=>state.events.filter(e=>(state.type==='all'||e.type===state.type)
  &&(state.genre==='all'||String(e.genre||'outros')===state.genre)
  &&(!state.onlyMine||e.going)
+ &&(!state.onlyCreated||e.canManage)
  &&(!state.q||[e.title,e.description,e.clubName,e.artist,e.roomName,e.hostName,e.genre].join(' ').toLocaleLowerCase('pt-BR').includes(state.q.toLocaleLowerCase('pt-BR'))));
 const card=(e,small=false)=>`<article class="sf200-event-card ${small?'sf200-event-small':''}">
   ${img(e)}<div class="sf200-event-body">${tag(e)}<h3>${esc(e.title)}</h3>
@@ -80,6 +93,7 @@ async function load(force=false,refreshServer=false){
 function render(){
  const host=$('sf200Agenda');if(!host)return;
  const ev=choose(),upcoming=ev.filter(eligible),featured=upcoming[0],hasAny=state.events.length>0;
+ const managed=state.events.filter(e=>e.canManage&&eligible(e));
  const availableGenres=[...new Set(state.events.map(e=>String(e.genre||'outros')))].filter(Boolean).sort((a,b)=>(genreLabel[a]||a).localeCompare(genreLabel[b]||b,'pt-BR'));
  const selected=ev.filter(e=>key(new Date(e.startAt))===state.day);
  const [day,mon]=[fromKey(state.day),monthTitle(state.month)];
@@ -93,11 +107,13 @@ function render(){
  </div>
  <label class="sf200-genre-label">Estilo <select id="sf200Genre" aria-label="Filtrar por gênero"><option value="all">Todos os estilos</option>${availableGenres.map(g=>`<option value="${esc(g)}" ${state.genre===g?'selected':''}>${esc(genreLabel[g]||g)}</option>`).join('')}</select></label>
  <button type="button" class="sf201-mine ${state.onlyMine?'active':''}" data-sf201-mine aria-pressed="${state.onlyMine}">☆ Confirmados</button>
+ <button type="button" class="sf201-mine ${state.onlyCreated?'active':''}" data-sf276-created aria-pressed="${state.onlyCreated}">▦ Meus eventos ${managed.length}</button>
  <label class="sf200-search">⌕ <input id="sf200Search" type="search" aria-label="Buscar eventos" placeholder="Buscar evento, artista ou sala..." maxlength="90" value="${esc(state.q)}"></label>
  </div>
  ${state.loading&&state.events.length===0?'<p class="sf200-empty" role="status">Carregando a agenda musical…</p>':''}
  ${state.error?`<div class="sf200-empty" role="alert">${esc(state.error)} <button type="button" data-sf200-refresh>Tentar novamente</button></div>`:''}
  ${state.toast?`<div class="sf201-flash" role="status">✓ ${esc(state.toast)} <button type="button" data-sf201-dismiss-toast aria-label="Fechar aviso">✕</button></div>`:''}
+ ${managed.length?'<section class="sf276-managed-section"><header><div><span class="sf276-section-eyebrow">SUA PROGRAMAÇÃO</span><h2>Eventos que você organiza</h2><p>Visualize, edite e acompanhe seus eventos publicados.</p></div><button type="button" data-sf276-created aria-pressed="'+state.onlyCreated+'">'+(state.onlyCreated?'Ver agenda completa':'Ver somente os meus')+'</button></header><div class="sf276-managed-gallery">'+managed.slice(0,6).map(e=>'<article class="sf276-managed-card">'+img(e)+'<div class="sf276-managed-details"><small>'+esc(localeDate(e.startAt))+' · '+esc(hour(e.startAt))+'</small><strong>'+esc(e.title)+'</strong><span>'+esc(origin(e))+'</span><div><button type="button" data-sf200-details="'+esc(eventKey(e))+'">Ver evento</button><button type="button" data-sf203-edit="'+esc(eventKey(e))+'">Editar</button></div></div></article>').join('')+'</div></section>':''}
  <div class="sf200-content">
    <div class="sf200-left">
     <section class="sf200-featured ${featured?'sf201-has-event':'sf201-no-event'}">
@@ -204,6 +220,7 @@ async function createEvent(preferredClub='',editing=null){
   '<label class="sf202-room-link" hidden>Em qual sala será o evento?<select name="clubRoom"><option value="">Sem sala vinculada</option></select><small>Somente salas públicas vinculadas ao Fan Club. O convite identificará a sala.</small></label>'+ 
    '<label>Título do evento<input name="title" maxlength="90" minlength="5" required placeholder="Ex.: Noite dos maiores hits do BTS"></label>'+
   '<label>Descrição<textarea name="description" rows="3" maxlength="240" placeholder="Conte aos fãs o que vai acontecer..."></textarea></label>'+
+  '<label class="sf276-cover-field">Imagem de capa do evento (HTTPS)<input type="url" name="coverImageUrl" inputmode="url" maxlength="1500" placeholder="https://exemplo.com/capa-do-evento.jpg" autocomplete="url"><small>Cole um endereço HTTPS público. Deixe vazio para usar a arte padrão. A prévia será atualizada.</small></label>'+
   '<div class="sf201-create-two"><label>Data e horário<input name="startAt" type="datetime-local" required></label>'+
   '<label>Duração<select name="durationMinutes"><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 hora</option><option value="90" selected>1h30</option><option value="120">2 horas</option><option value="180">3 horas</option></select></label></div>'+
   '<label class="sf201-theme-label">Clima musical<select name="theme"><option value="indie">Indie</option><option value="pop">Pop</option>'+
@@ -244,6 +261,7 @@ async function createEvent(preferredClub='',editing=null){
  if(editing){
   form.elements.title.value=editing.title||'';
   form.elements.description.value=editing.description||'';
+  form.elements.coverImageUrl.value=editing.coverEventImageUrl||'';
   form.elements.startAt.value=localStamp(new Date(editing.startAt));
   form.elements.durationMinutes.value=String(editing.durationMinutes||90);
   if(editing.type==='fanclub'){
@@ -260,7 +278,11 @@ async function createEvent(preferredClub='',editing=null){
    const type=form.elements.type.value,chosen=select.selectedOptions?.[0]?.textContent;
    const title=form.elements.title.value.trim(),date=form.elements.startAt.value;
    const artist=type==='fanclub'?previewClub?.artist:'';
-   const img=$('sf202PreviewArt');if(img){const candidate=type==='fanclub'&&previewClub?artFor({...previewClub,type:'fanclub',clubId:previewClub.id}):'/art-44/festival-crowd.webp';if(img.getAttribute('src')!==candidate)img.src=candidate;}
+   const img=$('sf202PreviewArt');if(img){
+    const custom=validEventImageUrl(form.elements.coverImageUrl.value);
+    const candidate=custom||(type==='fanclub'&&previewClub?artFor({...previewClub,type:'fanclub',clubId:previewClub.id}):'/art-44/festival-crowd.webp');
+    if(img.getAttribute('src')!==candidate)img.src=candidate;
+   }
    $('sf202PreviewType').textContent=type==='fanclub'?'♧ Fan Club':'♫ Sala';
    $('sf202PreviewTitle').textContent=title||'Seu próximo encontro musical';
    $('sf202PreviewOrigin').textContent=(chosen&&!chosen.startsWith('Selecione')?chosen:'Escolha '+(type==='fanclub'?'um Fan Club':'uma sala'))+(artist?' · '+artist:'');
@@ -318,21 +340,27 @@ async function createEvent(preferredClub='',editing=null){
    error.textContent='Escolha uma data entre 5 minutos e 90 dias no futuro.';error.hidden=false;return;
   }
   const title=form.elements.title.value.trim(),description=form.elements.description.value.trim();
+  const requestedCover=form.elements.coverImageUrl.value.trim(),coverImageUrl=validEventImageUrl(requestedCover);
+  if(requestedCover&&!coverImageUrl){error.textContent='Cole uma URL HTTPS pública válida para a imagem de capa.';error.hidden=false;form.elements.coverImageUrl.focus();return;}
   if(title.length<(type==='fanclub'?5:3)){
    error.textContent='Informe um título válido.';error.hidden=false;return;
   }
   state.modalBusy=true;submit.disabled=true;submit.textContent='Publicando...';
   try{
    const durationMinutes=Number(form.elements.durationMinutes.value);
-   if(type==='fanclub')await apiPost('/api/fan-clubs/'+encodeURIComponent(target)+'/events'+(editing?'/'+encodeURIComponent(editing.id):''),
-    {title,description,startAt:start,durationMinutes,roomSlug:roomSelector.value,notifyMembers:form.elements.notifyMembers.checked,sendRoomLink:form.elements.sendRoomLink.checked,remindStart:form.elements.remindStart.checked},editing?'PATCH':'POST');
-   else await apiPost('/api/social/events'+(editing?'/'+encodeURIComponent(editing.id):''),
-    {roomSlug:target,title,description,startAt:new Date(start).toISOString(),durationMinutes,theme:form.elements.theme.value},editing?'PATCH':'POST');
+   let createdEvent;
+   if(type==='fanclub')createdEvent=await apiPost('/api/fan-clubs/'+encodeURIComponent(target)+'/events'+(editing?'/'+encodeURIComponent(editing.id):''),
+    {title,description,coverImageUrl,startAt:start,durationMinutes,roomSlug:roomSelector.value,notifyMembers:form.elements.notifyMembers.checked,sendRoomLink:form.elements.sendRoomLink.checked,remindStart:form.elements.remindStart.checked},editing?'PATCH':'POST');
+   else createdEvent=await apiPost('/api/social/events'+(editing?'/'+encodeURIComponent(editing.id):''),
+    {roomSlug:target,title,description,coverImageUrl,startAt:new Date(start).toISOString(),durationMinutes,theme:form.elements.theme.value},editing?'PATCH':'POST');
    closeModal();state.day=key(new Date(start));state.month=new Date(new Date(start).getFullYear(),new Date(start).getMonth(),1);
-   state.type='all';state.genre='all';state.q='';state.onlyMine=false;state.lastLoad=0;
-   state.toast=editing?'Evento atualizado com sucesso. Presenças mantidas.':'Evento criado com sucesso! Ele já aparece no calendário.';
+   state.type='all';state.genre='all';state.q='';state.onlyMine=false;state.onlyCreated=true;state.lastLoad=0;
+   state.toast=editing?'Evento atualizado com sucesso. Presenças mantidas.':'Evento publicado! Ele aparece agora em Meus eventos e no calendário.';
    if(editing?.type==='fanclub')document.dispatchEvent(new CustomEvent('sf203:event-updated',{detail:{clubId:editing.clubId,eventId:editing.id}}));
    await load(true,true);
+   const savedId=editing?.id||createdEvent?.id||createdEvent?.event?.id;
+   const saved=state.events.find(e=>e.id===savedId&&e.type===type);
+   if(saved)detail(saved);
   }catch(err){error.textContent=err.message||'Não foi possível publicar.';error.hidden=false;}
   finally{state.modalBusy=false;submit.disabled=false;submit.textContent=editing?'Salvar alterações':'＋ Publicar evento';}
  });
@@ -380,8 +408,9 @@ function handle(event){
  if(btn.hasAttribute('data-sf201-create')){createEvent();return;}
  if(btn.hasAttribute('data-sf201-dismiss-toast')){state.toast='';render();return;}
  if(btn.hasAttribute('data-sf201-today')){state.month=new Date(today().getFullYear(),today().getMonth(),1);state.day=key(today());render();return;}
- if(btn.hasAttribute('data-sf201-mine')){state.onlyMine=!state.onlyMine;render();return;}
- if(btn.hasAttribute('data-sf201-clear')){state.type='all';state.genre='all';state.q='';state.onlyMine=false;render();return;}
+ if(btn.hasAttribute('data-sf201-mine')){state.onlyMine=!state.onlyMine;if(state.onlyMine)state.onlyCreated=false;render();return;}
+ if(btn.hasAttribute('data-sf276-created')){state.onlyCreated=!state.onlyCreated;if(state.onlyCreated)state.onlyMine=false;render();return;}
+ if(btn.hasAttribute('data-sf201-clear')){state.type='all';state.genre='all';state.q='';state.onlyMine=false;state.onlyCreated=false;render();return;}
  if(btn.hasAttribute('data-sf201-source')){close();window.sf107OpenFanClub?.();return;}
  if(btn.hasAttribute('data-sf200-type')){state.type=btn.dataset.sf200Type;render();return;}
  if(btn.hasAttribute('data-sf200-month')){
