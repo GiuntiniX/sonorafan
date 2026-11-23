@@ -9,6 +9,7 @@
  const items=[
   ['lobby','⌂','Início'],
   ['rooms','♫','Salas'],
+  ['current','▶','Sala atual'],
   ['clubs','♧','Fan Clubs'],
   ['agenda','▦','Agenda Musical'],
   ['ranking','♜','Ranking'],
@@ -23,11 +24,11 @@
   aside.className='sf276-room-sidebar';
   aside.setAttribute('aria-label','Navegação principal SonoraFan');
   const button=([action,icon,label])=>
-   '<button type="button" data-sf276-to="'+action+'" title="'+label+'" aria-label="'+label+'"><span aria-hidden="true" class="sf276-icon">'+icon+'</span><span class="sf276-label">'+label+'</span></button>';
+   '<button type="button" data-sf276-to="'+action+'"'+(action==='current'?' class="is-active" aria-current="page"':'')+' title="'+label+'" aria-label="'+label+'"><span aria-hidden="true" class="sf276-icon">'+icon+'</span><span class="sf276-label">'+label+'</span></button>';
   aside.innerHTML=
    '<div class="sf276-brand"><img src="/brand-144/sonorafan-logo.svg" alt="SonoraFan" decoding="async"></div>'+
    '<nav aria-label="Páginas do SonoraFan" class="sf276-nav">'+items.map(button).join('')+
-   '<button type="button" class="is-active" aria-current="page" data-sf276-to="current" title="Sala atual" aria-label="Sala atual"><span class="sf276-icon" aria-hidden="true">▶</span><span class="sf276-label">Sala atual</span></button></nav>'+
+   '</nav>'+
    '<div class="sf276-divider"></div><span class="sf276-section">Criar</span>'+
    '<nav aria-label="Criar" class="sf276-nav sf276-create">'+create.map(button).join('')+'</nav>'+
    '<div class="sf276-ambient" aria-hidden="true"></div>';
