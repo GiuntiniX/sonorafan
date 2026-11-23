@@ -1,6 +1,6 @@
 /* SonoraFan 216 · Descoberta de salas. Isolada do lobby, perfil e player. */
 #sf216Explorer[hidden]{display:none!important}
-#screen-lobby.sf216-explore-mode .sf28-lobby-main > :not(#sf216Explorer){display:none!important}
+#screen-lobby.sf216-explore-mode .sf28-lobby-main > :not(#sf216Explorer):not(.sf107-top.sf125-toolbar){display:none!important}
 #screen-lobby.sf216-explore-mode .sf28-lobby-main{min-width:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#8646a4 transparent}
 #screen-lobby .sf216-page{display:block;min-width:0;width:100%;padding:24px clamp(12px,2vw,30px) 50px;color:#f9f0ff;font-family:Inter,system-ui,sans-serif;background:radial-gradient(ellipse 70% 20% at 85% 4%,rgba(168,61,152,.12),transparent 80%),#110b19;box-sizing:border-box;min-height:100%}
 #screen-lobby .sf216-page *{box-sizing:border-box}
@@ -224,4 +224,72 @@
   padding:12px 12px 96px!important;
  }
  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-tabs>button{flex:1 1 calc(50% - 6px)!important}
+}
+
+/* SonoraFan 281 — Rooms discovery reuses the exact shared lobby toolbar. */
+#screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main > .sf107-top.sf125-toolbar{
+  display:flex!important;
+  position:sticky!important;
+  top:0!important;
+  z-index:120!important;
+  flex:0 0 72px!important;
+  width:100%!important;
+  min-height:72px!important;
+  max-height:72px!important;
+  visibility:visible!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main > #sf216Explorer{
+  display:block!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf216-search-row{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(160px,1fr))!important;
+  gap:10px!important;
+  align-items:stretch!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf216-search-row > .sf216-search{
+  display:none!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf216-search-row > select{
+  min-height:43px!important;
+  border-radius:11px!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf125-toolbar #sf107Search{
+  display:block!important;
+}
+@media(max-width:768px){
+ #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main > .sf107-top.sf125-toolbar{
+   position:relative!important;
+   min-height:60px!important;
+   max-height:none!important;
+   flex-basis:auto!important;
+   padding:8px 12px!important;
+ }
+ #screen-lobby.sf125-platform.sf216-explore-mode .sf125-toolbar .sf107-top-actions{
+   gap:7px!important;
+ }
+ #screen-lobby.sf125-platform.sf216-explore-mode .sf125-toolbar .sf107-search{
+   min-width:0!important;
+   flex:1 1 auto!important;
+   padding:7px 10px!important;
+ }
+ #screen-lobby.sf125-platform.sf216-explore-mode .sf125-toolbar .sf107-search input{
+   min-width:0!important;
+   font-size:12px!important;
+ }
+ #screen-lobby.sf125-platform.sf216-explore-mode .sf216-search-row{
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:460px){
+ #screen-lobby.sf125-platform.sf216-explore-mode .sf125-toolbar .sf107-profile #sf107ProfileLabel{
+   display:none!important;
+ }
+ #screen-lobby.sf125-platform.sf216-explore-mode .sf125-toolbar .sf107-more summary span{
+   display:none!important;
+ }
 }
