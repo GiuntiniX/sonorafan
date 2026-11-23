@@ -18,11 +18,17 @@
  const create=[['create','＋','Criar Sala'],['create-club','♧','Criar Fan Club'],['create-event','▦','Criar Evento']];
  function build(){
   const app=screen.querySelector(':scope > .app');
-  if(!app||$('sf276RoomSidebar'))return;
-  const aside=document.createElement('aside');
-  aside.id='sf276RoomSidebar';
-  aside.className='sf276-room-sidebar';
-  aside.setAttribute('aria-label','Navegação principal SonoraFan');
+  if(!app)return;
+  let aside=$('sf276RoomSidebar');
+  if(!aside){
+    aside=document.createElement('aside');
+    aside.id='sf276RoomSidebar';
+    aside.className='sf276-room-sidebar';
+    aside.setAttribute('aria-label','Navegação principal SonoraFan');
+    app.insertBefore(aside,app.firstElementChild);
+  }
+  if(aside.dataset.sf276Built==='true')return;
+  aside.dataset.sf276Built='true';
   const button=([action,icon,label])=>
    '<button type="button" data-sf276-to="'+action+'"'+(action==='current'?' class="is-active" aria-current="page"':'')+' title="'+label+'" aria-label="'+label+'"><span aria-hidden="true" class="sf276-icon">'+icon+'</span><span class="sf276-label">'+label+'</span></button>';
   aside.innerHTML=
@@ -32,7 +38,6 @@
    '<div class="sf276-divider"></div><span class="sf276-section">Criar</span>'+
    '<nav aria-label="Criar" class="sf276-nav sf276-create">'+create.map(button).join('')+'</nav>'+
    '<div class="sf276-ambient" aria-hidden="true"></div>';
-  app.insertBefore(aside,app.firstElementChild);
   aside.addEventListener('click',e=>{
     const control=e.target.closest('button[data-sf276-to]');if(!control)return;
     const destination=control.dataset.sf276To;
