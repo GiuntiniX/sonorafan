@@ -24,8 +24,8 @@ const validEventImageUrl=value=>{
   if(!value||typeof value!=='string'||value.length>1500)return '';
   const u=new URL(value.trim());
   if(u.protocol!=='https:'||u.username||u.password||u.port||!u.hostname.includes('.')||
-    /(^|\\.)(localhost|local|internal|test|invalid)$/.test(u.hostname)||
-    /^\\d+(?:\\.\\d+){3}$/.test(u.hostname)||u.hostname.includes(':'))return '';
+    /(^|\.)(localhost|local|internal|test|invalid)$/.test(u.hostname)||
+    /^\d+(?:\.\d+){3}$/.test(u.hostname)||u.hostname.includes(':'))return '';
   return u.href;
  }catch(_){return '';}
 };
