@@ -953,7 +953,19 @@ app.post('/api/social/follow',rateLimit(24,60000),async(req,res)=>{
   }catch(e){res.status(String(e.message||'').startsWith('Aguarde alguns dias')?409:503).json({error:e.message||'Não foi possível enviar solicitação.'});}
 });
 const eventClean=(v,n)=>String(v??'').replace(/[<>\u0000-\u001f]/g,' ').trim().slice(0,n);
-const publicEvent = e => ({ id:e.id,roomSlug:e.roomSlug,roomName:e.roomName,title:e.title,description:e.description,startAt:e.startAt,hostName:e.hostName,attendees:e.attendees.length,theme:e.theme||'indie',durationMinutes:e.durationMinutes||90 });
+const normalizeEventCover = value => {
+  if(value === undefined || value === null || value === '') return '';
+  if(typeof value !== 'string' || value.length > 1500) return null;
+  try{
+    const url=new URL(value.trim()),host=url.hostname.toLowerCase();
+    if(url.protocol !== 'https:' || url.username || url.password || url.port ||
+      !host.includes('.') || host === 'localhost' ||
+      /(^|\\.)(local|internal|test|invalid)$/.test(host) ||
+      /^\\d+(?:\\.\\d+){3}$/.test(host) || host.includes(':')) return null;
+    return url.href;
+  }catch(_){return null;}
+};
+const publicEvent = e => ({ id:e.id,roomSlug:e.roomSlug,roomName:e.roomName,title:e.title,description:e.description,coverImageUrl:e.coverImageUrl||'',startAt:e.startAt,hostName:e.hostName,attendees:e.attendees.length,theme:e.theme||'indie',durationMinutes:e.durationMinutes||90 });
 async function initSocialEvents(){try{const snap=await db.collection('socialEvents').get();snap.forEach(d=>{const e=d.data();if(e&&e.id&&Array.isArray(e.attendees))socialEvents.set(e.id,e);});}catch(e){console.error('social events load',e.message);}}
 initSocialEvents();
 app.get('/api/social/my-rooms', (req,res)=>{const me=sessionEmail(req);if(!me)return res.status(401).json({error:'Faça login'});res.json([...rooms.values()].filter(r=>!r.isPrivate&&r.ownerEmail===me&&r.slug.toLowerCase()!=='lobby').map(r=>({slug:r.slug,name:r.name})));});
@@ -969,9 +981,11 @@ app.post('/api/social/events',rateLimit(8,60000),async(req,res)=>{
   const title=eventClean(req.body?.title,70),description=eventClean(req.body?.description,240),startAt=Date.parse(req.body?.startAt);
   if(title.length<3||!Number.isFinite(startAt)||startAt<Date.now()+5*60000||startAt>Date.now()+90*86400000)return res.status(400).json({error:'Informe título e data futura (5 min a 90 dias)'});
   if([...socialEvents.values()].filter(e=>e.roomSlug===slug&&e.startAt>Date.now()).length>=10)return res.status(400).json({error:'Limite de 10 eventos futuros por sala'});
+  const coverImageUrl=normalizeEventCover(req.body?.coverImageUrl);
+  if(coverImageUrl===null)return res.status(400).json({error:'A imagem do evento precisa ser uma URL HTTPS pública válida.'});
   const theme=['indie','rock2000','discoveries','pop','electronic'].includes(req.body?.theme)?req.body.theme:'indie';
    const durationMinutes=[45,60,90,120,180].includes(Number(req.body?.durationMinutes))?Number(req.body.durationMinutes):90;
-   const e={id:crypto.randomUUID(),roomSlug:slug,roomName:room.name,title,description,startAt,theme,durationMinutes,hostId:publicUserId(me),hostName:users.get(me)?.nome||room.admin,attendees:[],createdAt:Date.now()};
+   const e={id:crypto.randomUUID(),roomSlug:slug,roomName:room.name,title,description,coverImageUrl,startAt,theme,durationMinutes,hostId:publicUserId(me),hostName:users.get(me)?.nome||room.admin,attendees:[],createdAt:Date.now()};
   try{await db.collection('socialEvents').doc(e.id).set(e);socialEvents.set(e.id,e);res.json(publicEvent(e));}
   catch(err){res.status(503).json({error:'Falha ao agendar evento'});}
 });
@@ -998,6 +1012,8 @@ app.patch('/api/social/events/:id',rateLimit(12,60000),async(req,res)=>{
  if(title.length<3||!Number.isFinite(startAt)||startAt<Date.now()+300000||startAt>Date.now()+90*86400000||
    ![45,60,90,120,180].includes(durationMinutes))
    return res.status(400).json({error:'Título, data futura (5 minutos a 90 dias) ou duração inválidos'});
+ const coverImageUrl=req.body?.coverImageUrl===undefined?(original.coverImageUrl||''):normalizeEventCover(req.body.coverImageUrl);
+ if(coverImageUrl===null)return res.status(400).json({error:'A imagem do evento precisa ser uma URL HTTPS pública válida.'});
  const theme=['indie','rock2000','discoveries','pop','electronic'].includes(req.body?.theme)?req.body.theme:(original.theme||'indie');
  // Mover para outra sala só é permitido a quem administra ambas.
  const slug=String(req.body?.roomSlug||original.roomSlug);
@@ -1007,7 +1023,7 @@ app.patch('/api/social/events/:id',rateLimit(12,60000),async(req,res)=>{
    return res.status(403).json({error:'Você precisa administrar a sala selecionada'});
  if(slug!==original.roomSlug&&[...socialEvents.values()].filter(e=>e.id!==original.id&&e.roomSlug===slug&&e.startAt>Date.now()).length>=10)
    return res.status(409).json({error:'Limite de eventos futuros na sala selecionada'});
- const updated={...original,title,description,startAt,durationMinutes,theme,roomSlug:slug,roomName:target.name,updatedAt:Date.now()};
+ const updated={...original,title,description,coverImageUrl,startAt,durationMinutes,theme,roomSlug:slug,roomName:target.name,updatedAt:Date.now()};
  try{
    await db.collection('socialEvents').doc(original.id).set(updated);
    socialEvents.set(original.id,updated);
