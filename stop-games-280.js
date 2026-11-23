@@ -19,6 +19,7 @@ function installStopGames(io,{sessions,users,rooms}){
  const getCookie=socket=>{const raw=socket.handshake.headers.cookie||'';const match=raw.match(/(?:^|;\s*)sessionToken=([^;]+)/);return match?decodeURIComponent(match[1]):'';};
  const emailOf=s=>sessions.get(getCookie(s));
  const roomKey=g=>'stop:'+g.id;
+ const publicId=email=>crypto.createHash('sha256').update(String(email)).digest('hex').slice(0,14);
  const publicGame=g=>({id:g.id,kind:g.kind,roomSlug:g.roomSlug||null,mode:g.mode,
   categories:g.categories,round:g.round,maxRounds:g.maxRounds,duration:g.duration,
   phase:g.phase,letter:g.letter,deadline:g.deadline,stopAt:g.stopAt,
@@ -98,7 +99,7 @@ function installStopGames(io,{sessions,users,rooms}){
    const duration=[60,90,120].includes(Number(options.duration))?Number(options.duration):90;
    let id;
    do{id=crypto.randomBytes(3).toString('hex').toUpperCase();}while(games.has(id));
-   const p={id:email,name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:[],ready:false,submitted:false};
+   const p={id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:[],ready:false,submitted:false};
    const g={id,kind,roomSlug,mode,categories:[...MODES[mode].categories],round:0,maxRounds,duration,phase:'lobby',letter:'',deadline:0,stopAt:0,host:email,players:new Map([[email,p]]),review:[],scores:[],timer:null,createdAt:Date.now()};
    games.set(id,g);connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id});broadcast(g);
   });
@@ -108,7 +109,7 @@ function installStopGames(io,{sessions,users,rooms}){
    if(connected.has(socket.id)&&connected.get(socket.id)!==id)return ackError(ack,'Saia da outra partida primeiro.');
    if(!g.players.has(email)&&g.players.size>=capacities.max)return ackError(ack,'Partida cheia (até 10 jogadores).');
    if(!g.players.has(email)&&g.phase!=='lobby'&&g.phase!=='results')return ackError(ack,'Aguarde a próxima rodada para entrar.');
-   if(!g.players.has(email))g.players.set(email,{id:email,name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:g.categories.map(()=>''),ready:false,submitted:false});
+   if(!g.players.has(email))g.players.set(email,{id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:g.categories.map(()=>''),ready:false,submitted:false});
    connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id});broadcast(g);
   });
   socket.on('stop:list',(ack)=>{
@@ -137,7 +138,7 @@ function installStopGames(io,{sessions,users,rooms}){
   socket.on('stop:vote',(data={},ack)=>{
    const g=own();if(!g||g.phase!=='review')return ackError(ack,'Não há respostas para conferir.');
    const row=g.review[Number(data.index)],item=row?.items.find(x=>x.playerId===data.playerId);
-   if(!item||item.playerId===email)return ackError(ack,'Voto inválido.');
+   if(!item||item.playerId===publicId(email))return ackError(ack,'Voto inválido.');
    if(!item.voters)item.voters=new Map();
    if(item.voters.has(email))return ackError(ack,'Você já avaliou esta resposta.');
    const valid=Boolean(data.valid);item.voters.set(email,valid);
