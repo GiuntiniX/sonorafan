@@ -293,3 +293,53 @@
    display:none!important;
  }
 }
+
+/* SonoraFan 284 — navegação sem salto horizontal ou vertical ao abrir Salas.
+   Mantém o mesmo shell do Lobby: toolbar fora da área rolável. */
+#screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-app.sf125-app{
+  grid-template-columns:248px minmax(0,1fr)!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main.sf125-main{
+  display:flex!important;
+  flex-direction:column!important;
+  min-width:0!important;
+  min-height:0!important;
+  height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  scrollbar-width:none!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main > .sf107-top.sf125-toolbar{
+  position:relative!important;
+  inset:auto!important;
+  flex:0 0 72px!important;
+  height:72px!important;
+  min-height:72px!important;
+  max-height:72px!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main > #sf216Explorer{
+  display:block!important;
+  flex:1 1 0%!important;
+  min-width:0!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+}
+@media(max-width:768px){
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-app.sf125-app{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main > .sf107-top.sf125-toolbar{
+    flex:0 0 auto!important;
+    height:auto!important;
+    min-height:60px!important;
+    max-height:none!important;
+  }
+}
