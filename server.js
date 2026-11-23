@@ -1673,7 +1673,7 @@ app.get('/api/video-info', rateLimit(40, 60000), async (req, res) => {
 });
 
 // SonoraFan Games: namespace isolado, autenticação por sessão existente.
-require('./stop-games-280').installStopGames(io,{sessions,users,rooms});
+require('./stop-games-280').installStopGames(io,{sessions,users,rooms,db});
 
 // ========== SOCKET ==========
 io.on('connection', (socket) => {
