@@ -960,8 +960,8 @@ const normalizeEventCover = value => {
     const url=new URL(value.trim()),host=url.hostname.toLowerCase();
     if(url.protocol !== 'https:' || url.username || url.password || url.port ||
       !host.includes('.') || host === 'localhost' ||
-      /(^|\\.)(local|internal|test|invalid)$/.test(host) ||
-      /^\\d+(?:\\.\\d+){3}$/.test(host) || host.includes(':')) return null;
+      /(^|\.)(local|internal|test|invalid)$/.test(host) ||
+      /^\d+(?:\.\d+){3}$/.test(host) || host.includes(':')) return null;
     return url.href;
   }catch(_){return null;}
 };
