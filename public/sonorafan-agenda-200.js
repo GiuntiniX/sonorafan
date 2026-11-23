@@ -239,6 +239,12 @@ async function createEvent(preferredClub='',editing=null){
  '<p id="sf202PreviewRoom">♫ Sala ainda não selecionada</p>'+
  '<div class="sf202-preview-button">♫ Participar do evento</div></aside></section>';
  document.body.append(layer);
+ // Some image hosts block hotlinking; keep the editor usable with a safe fallback.
+ const previewArt=$('sf202PreviewArt');
+ previewArt?.addEventListener('error',()=>{
+  if(previewArt.getAttribute('src')!=='/art-44/festival-crowd.webp')
+   previewArt.src='/art-44/festival-crowd.webp';
+ });
  const previous=document.activeElement,form=$('sf201CreateForm'),select=form.elements.target,help=$('sf201CreateHelp');
  const closeModal=()=>{layer.remove();previous?.focus?.({preventScroll:true});};
  layer.addEventListener('click',event=>{if(event.target===layer||event.target.closest('[data-sf201-dismiss]')){closeModal();return;}
