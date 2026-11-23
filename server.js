@@ -88,7 +88,7 @@ app.use((req,res,next)=>{
 });
 app.get('/api/client-version',(req,res)=>{
   res.set('Cache-Control','no-store');
-  res.json({mobile:'186.3',commit:process.env.RENDER_GIT_COMMIT||null});
+  res.json({mobile:'186.3',ui:'277.0',features:{roomSidebar:true,eventCoverHttps:true,createdEventsGallery:true},commit:process.env.RENDER_GIT_COMMIT||null});
 });
 // Compatibilidade com páginas/atalhos ainda em cache das marcas v54/v64.
 // Os binários obsoletos podem ser retirados sem quebrar URLs legadas.
