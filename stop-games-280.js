@@ -95,12 +95,15 @@ function installStopGames(io,{sessions,users,rooms}){
     if(!joined)return ackError(ack,'Entre na sala musical antes de criar a partida.');
     if([...games.values()].some(g=>g.kind==='room'&&g.roomSlug===roomSlug))return ackError(ack,'Esta sala já tem uma partida. Entre na existente.');
    }
+   const allowed=MODES[mode].categories;
+   const requested=Array.isArray(options.categories)?[...new Set(options.categories.filter(x=>allowed.includes(x)))]:allowed;
+   const categories=requested.length>=4?requested:allowed;
    const maxRounds=Math.min(10,Math.max(1,Math.trunc(Number(options.rounds)||5)));
    const duration=[60,90,120].includes(Number(options.duration))?Number(options.duration):90;
    let id;
    do{id=crypto.randomBytes(3).toString('hex').toUpperCase();}while(games.has(id));
    const p={id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:[],ready:false,submitted:false};
-   const g={id,kind,roomSlug,mode,categories:[...MODES[mode].categories],round:0,maxRounds,duration,phase:'lobby',letter:'',deadline:0,stopAt:0,host:email,players:new Map([[email,p]]),review:[],scores:[],timer:null,createdAt:Date.now()};
+   const g={id,kind,roomSlug,mode,categories:[...categories],round:0,maxRounds,duration,phase:'lobby',letter:'',deadline:0,stopAt:0,host:email,players:new Map([[email,p]]),review:[],scores:[],timer:null,createdAt:Date.now()};
    games.set(id,g);connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id,playerId:publicId(email)});broadcast(g);
   });
   socket.on('stop:join',(input={},ack)=>{
