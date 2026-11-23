@@ -23,7 +23,8 @@ function close(){
  if(source?.isConnected)source.setAttribute('aria-expanded','false');
 }
 function reposition(){
- if(!visible||!panel||!source?.isConnected)return;
+ if(source&&!source.isConnected){source=$(source.id)||null;}
+ if(!visible||!panel||!source?.isConnected){if(visible)close();return;}
  const r=source.getBoundingClientRect();
  if(r.width<30||r.bottom<0||r.top>innerHeight){close();return;}
  const width=Math.min(Math.max(r.width,330),Math.max(280,innerWidth-16));
@@ -48,7 +49,7 @@ function show(message){
 }
 function labelFields(){
  for(const id of MAIN_IDS){
-  const input=$(id);if(!input)return;
+  const input=$(id);if(!input)continue;
   input.setAttribute('aria-label','Buscar em todo o SonoraFan');
   input.setAttribute('aria-autocomplete','list');
   input.setAttribute('aria-controls','sf208SearchResults');
@@ -102,6 +103,7 @@ async function search(term){
   '/api/favorites'
  ];
  const settled=await Promise.allSettled(calls.map(path=>json(path,signal)));
+ if(source&&!source.isConnected)source=$(source.id)||null;
  if(request!==seq||signal.aborted||!source?.isConnected)return;
  const [r,c,e,p,f]=settled;
  const rooms=r.status==='fulfilled'?(Array.isArray(r.value)?r.value:r.value?.rooms||[]):[];
