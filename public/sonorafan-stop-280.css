@@ -105,3 +105,9 @@ body.sf280-open{overflow:hidden!important}
 #sf280Categories label{display:flex;gap:9px;align-items:center;padding:9px 10px;min-width:0;background:#362443;border:1px solid #664676;border-radius:10px;cursor:pointer;line-height:1.35;overflow-wrap:anywhere}
 #sf280Categories input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;min-height:18px;padding:0;accent-color:#caff00}
 @media(max-width:390px){#sf280Categories{grid-template-columns:minmax(0,1fr)}}
+
+#sf280Content .sf280-weekly{display:grid;gap:7px;margin:8px 0 5px}
+#sf280Content .sf280-weekly>div{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #68427d;border-radius:10px;background:#251834}
+#sf280Content .sf280-weekly>div>b{font-weight:900;color:#caff00;min-width:27px}
+#sf280Content .sf280-weekly>div>strong{flex:1;min-width:0;overflow-wrap:anywhere}
+#sf280Content .sf280-weekly>div>span{font-variant-numeric:tabular-nums;color:#d7bee7;font-weight:800;font-size:12px}
