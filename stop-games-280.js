@@ -26,7 +26,7 @@ function installStopGames(io,{sessions,users,rooms,db}){
   phase:g.phase,letter:g.letter,deadline:g.deadline,stopAt:g.stopAt,
   host:publicId(g.host),players:[...g.players.values()].map(p=>({id:p.id,name:p.name,ready:p.ready,score:p.score,submitted:p.submitted})),
   review:g.phase==='review'?g.review.map(row=>({category:row.category,items:row.items.map(item=>({...item,voters:undefined}))})):[],
-  scores:g.scores||[],updatedAt:Date.now()});
+  scores:g.scores||[],awards:g.phase==='results'?g.awards||[]:[],updatedAt:Date.now()});
  const broadcast=g=>ns.to(roomKey(g)).emit('stop:state',publicGame(g));
  const weekId=()=>{
   const now=new Date(),day=now.getUTCDay()||7;
@@ -41,9 +41,10 @@ function installStopGames(io,{sessions,users,rooms,db}){
    const player=[...g.players.values()].find(p=>p.id===x.id);
    if(!player)return;
    const data={name:player.name,points:FieldValue.increment(x.roundPoints),rounds:FieldValue.increment(1),updatedAt:Date.now()};
+   const earned=g.awards.filter(a=>a.playerId===x.id).map(a=>a.badge);
    await Promise.all([
     weekly.doc(x.id).set(data,{merge:true}),
-    global.doc(x.id).set(data,{merge:true})
+    global.doc(x.id).set({...data,...(earned.length?{badges:FieldValue.arrayUnion(...earned)}:{})},{merge:true})
    ]);
   }));
  };
@@ -68,7 +69,7 @@ function installStopGames(io,{sessions,users,rooms,db}){
  function startRound(g){
   if(g.phase!=='lobby'&&g.phase!=='results')return;
   if(g.players.size<2)return;
-  g.round+=1;g.phase='playing';g.scores=[];
+  g.round+=1;g.phase='playing';g.scores=[];g.awards=[];g.stopBy=null;
   const candidates=LETTERS.split('').filter(letter=>letter!==g.letter);
   g.letter=candidates[crypto.randomInt(candidates.length)];
   for(const p of g.players.values()){p.answers=g.categories.map(()=>'');p.submitted=false;p.ready=false;}
@@ -87,6 +88,10 @@ function installStopGames(io,{sessions,users,rooms,db}){
    p.score+=gained;roundScores.push({id:p.id,name:p.name,roundPoints:gained,total:p.score});
   }
   g.scores=roundScores.sort((a,b)=>b.total-a.total);
+  g.awards=[];
+  if(g.stopBy&&g.players.has(g.stopBy))g.awards.push({playerId:publicId(g.stopBy),name:g.players.get(g.stopBy).name,badge:'⚡ STOP Relâmpago'});
+  for(const p of roundScores)if(p.roundPoints>=50)g.awards.push({playerId:p.id,name:p.name,badge:'📚 Dicionário Vivo'});
+  if(g.round>=g.maxRounds&&g.scores.length)g.awards.push({playerId:g.scores[0].id,name:g.scores[0].name,badge:'🏆 Campeão do Stop'});
   g.phase='results';broadcast(g);
   saveScores(g,roundScores).catch(e=>console.error('Stop: falha no ranking persistente:',e.message));
  }
@@ -124,7 +129,7 @@ function installStopGames(io,{sessions,users,rooms,db}){
    let id;
    do{id=crypto.randomBytes(3).toString('hex').toUpperCase();}while(games.has(id));
    const p={id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:[],ready:false,submitted:false};
-   const g={id,kind,roomSlug,mode,categories:[...categories],round:0,maxRounds,duration,phase:'lobby',letter:'',deadline:0,stopAt:0,host:email,players:new Map([[email,p]]),review:[],scores:[],timer:null,pending:new Map(),createdAt:Date.now()};
+   const g={id,kind,roomSlug,mode,categories:[...categories],round:0,maxRounds,duration,phase:'lobby',letter:'',deadline:0,stopAt:0,host:email,players:new Map([[email,p]]),review:[],scores:[],awards:[],stopBy:null,timer:null,pending:new Map(),createdAt:Date.now()};
    games.set(id,g);connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id,playerId:publicId(email)});broadcast(g);
   });
   socket.on('stop:join',(input={},ack)=>{
@@ -163,7 +168,7 @@ function installStopGames(io,{sessions,users,rooms,db}){
   socket.on('stop:submit',(_,ack)=>{
    const g=own();if(!g||g.phase!=='playing')return ackError(ack,'Sem rodada ativa.');
    const p=g.players.get(email);p.submitted=true;
-   if(!g.stopAt){g.stopAt=Math.min(g.deadline,Date.now()+10000);schedule(g,Math.max(0,g.stopAt-Date.now()),()=>finishRound(g));}
+   if(!g.stopAt){g.stopBy=email;g.stopAt=Math.min(g.deadline,Date.now()+10000);schedule(g,Math.max(0,g.stopAt-Date.now()),()=>finishRound(g));}
    respond(ack,{});broadcast(g);
   });
   socket.on('stop:vote',(data={},ack)=>{
