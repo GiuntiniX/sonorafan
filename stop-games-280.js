@@ -23,7 +23,7 @@ function installStopGames(io,{sessions,users,rooms}){
  const publicGame=g=>({id:g.id,kind:g.kind,roomSlug:g.roomSlug||null,mode:g.mode,
   categories:g.categories,round:g.round,maxRounds:g.maxRounds,duration:g.duration,
   phase:g.phase,letter:g.letter,deadline:g.deadline,stopAt:g.stopAt,
-  host:g.host,players:[...g.players.values()].map(p=>({id:p.id,name:p.name,ready:p.ready,score:p.score,submitted:p.submitted})),
+  host:publicId(g.host),players:[...g.players.values()].map(p=>({id:p.id,name:p.name,ready:p.ready,score:p.score,submitted:p.submitted})),
   review:g.phase==='review'?g.review.map(row=>({category:row.category,items:row.items.map(item=>({...item,voters:undefined}))})):[],
   scores:g.scores||[],updatedAt:Date.now()});
  const broadcast=g=>ns.to(roomKey(g)).emit('stop:state',publicGame(g));
@@ -101,7 +101,7 @@ function installStopGames(io,{sessions,users,rooms}){
    do{id=crypto.randomBytes(3).toString('hex').toUpperCase();}while(games.has(id));
    const p={id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:[],ready:false,submitted:false};
    const g={id,kind,roomSlug,mode,categories:[...MODES[mode].categories],round:0,maxRounds,duration,phase:'lobby',letter:'',deadline:0,stopAt:0,host:email,players:new Map([[email,p]]),review:[],scores:[],timer:null,createdAt:Date.now()};
-   games.set(id,g);connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id});broadcast(g);
+   games.set(id,g);connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id,playerId:publicId(email)});broadcast(g);
   });
   socket.on('stop:join',(input={},ack)=>{
    const id=clean(input.id,20).toUpperCase(),g=games.get(id);const err=access(socket,g);
@@ -110,7 +110,7 @@ function installStopGames(io,{sessions,users,rooms}){
    if(!g.players.has(email)&&g.players.size>=capacities.max)return ackError(ack,'Partida cheia (até 10 jogadores).');
    if(!g.players.has(email)&&g.phase!=='lobby'&&g.phase!=='results')return ackError(ack,'Aguarde a próxima rodada para entrar.');
    if(!g.players.has(email))g.players.set(email,{id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:g.categories.map(()=>''),ready:false,submitted:false});
-   connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id});broadcast(g);
+   connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id,playerId:publicId(email)});broadcast(g);
   });
   socket.on('stop:list',(ack)=>{
    const result=[...games.values()].filter(g=>g.kind==='standalone').map(g=>({id:g.id,mode:g.mode,phase:g.phase,count:g.players.size,max:capacities.max}));
