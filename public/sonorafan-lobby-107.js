@@ -45,7 +45,7 @@
     ['anos80','★','Anos 80',art.record]];
   const state={rooms:null,events:[],clubs:[],notices:[],pinned:[],recent:[],search:'',genre:'',
     all:false,stylesExpanded:false,styleQuery:'',sort:'popular',signature:'',lastRooms:0,lastExtras:0,
-    clubState:'loading',clubError:'',clubsExpanded:false,clubGenre:'todos',clubQuery:'',clubSort:'members',lastClubs:0,clubFetching:false,clubNeedsRefresh:false};
+    agendaError:'',clubState:'loading',clubError:'',clubsExpanded:false,clubGenre:'todos',clubQuery:'',clubSort:'members',lastClubs:0,clubFetching:false,clubNeedsRefresh:false};
   const allRooms=()=>Array.isArray(state.rooms)?state.rooms.filter(r=>r&&valid(r.slug)&&(!r.isPrivate||r.isMine)):[];
   const ranked=()=>allRooms().slice().sort((a,b)=>count(b.listenerCount)-count(a.listenerCount)||Number(!!b.isPlaying)-Number(!!a.isPlaying));
   const lead=()=>ranked()[0]||null;
@@ -386,15 +386,30 @@
   }
   function renderEvents(){
     const host=$('sf107Events');if(!host)return;
-    const e=state.events.find(x=>Number(x.startAt)>Date.now()-3600000);
-    if(!e){host.innerHTML=`<div class="sf107-side-empty">Nenhum evento agendado.
-      <button type="button" data-sf107="events">Ver agenda ›</button></div>`;return;}
-    const d=new Date(e.startAt);
-    host.innerHTML=`<button type="button" class="sf107-event" data-sf107="events">
-      <span class="sf107-event-day"><small>${esc(d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','').toUpperCase())}</small>
-      <strong>${d.getDate()}</strong></span><span><strong>${esc(e.title)}</strong>
-      <small>${esc(e.roomName||'Sala')} · ${esc(d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}))}</small>
-      </span><b aria-hidden="true">›</b></button>`;
+    const upcoming=state.events.filter(e=>Number(e.startAt)>Date.now()-3600000)
+      .sort((a,b)=>Number(a.startAt)-Number(b.startAt)).slice(0,2);
+    if(!upcoming.length){
+      host.innerHTML=state.agendaError
+        ?'<div class="sf107-side-empty" role="status">Não foi possível atualizar os eventos. <button type="button" data-sf107="events-retry">Tentar novamente</button></div>'
+        :'<div class="sf107-side-empty">Nenhum evento próximo na agenda. <button type="button" data-sf107="events">Ver agenda ›</button></div>';
+      return;
+    }
+    const validCover=value=>{
+      try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password?u.href:'';}catch(_){return ''}
+    };
+    host.innerHTML=upcoming.map(e=>{
+      const d=new Date(Number(e.startAt));
+      const img=validCover(e.coverEventImageUrl);
+      const origin=e.type==='fanclub'?(e.clubName||'Fan Club'):(e.roomName||'Sala');
+      const id=[e.type,e.clubId||e.roomSlug,e.id].join(':');
+      return `<button type="button" class="sf107-event sf279-event" data-sf107-event="${esc(id)}" aria-label="Ver evento: ${esc(e.title||'Evento')}">
+       ${img?'<img class="sf279-event-cover" src="'+esc(img)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':
+       '<span class="sf107-event-day"><small>'+esc(d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','').toUpperCase())+'</small><strong>'+d.getDate()+'</strong></span>'}
+       <span class="sf279-event-info"><strong>${esc(e.title||'Evento musical')}</strong>
+       <small>${esc(origin)} · ${esc(d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'}))} às ${esc(d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}))}</small>
+       <small class="sf279-event-kind">${e.type==='fanclub'?'♧ Fan Club':'♫ Sala musical'}</small></span><b aria-hidden="true">›</b>
+      </button>`;
+    }).join('');
   }
   function renderNotices(){
     const host=$('sf107Notices');if(!host)return;
@@ -454,13 +469,16 @@
     if(!active()||!force&&Date.now()-state.lastExtras<75000)return;
     state.lastExtras=Date.now();
     const jobs=[
-      ['/api/social/events',data=>state.events=Array.isArray(data)?data:[]],
+      ['/api/music-agenda',data=>{
+        if(!Array.isArray(data?.events))throw Error('Resposta da agenda inválida.');
+        state.events=data.events;state.agendaError='';
+      }],
       ['/api/social/notifications',data=>state.notices=Array.isArray(data)?data:[]],
       ['/api/experience95/profile',data=>state.pinned=Array.isArray(data.pinnedRooms)?data.pinnedRooms:[]]
     ];
     await Promise.all(jobs.map(async([url,fn])=>{try{
-      const r=await fetch(url,{credentials:'include',cache:'no-store'});if(r.ok)fn(await r.json());
-    }catch(_){}}));
+      const r=await fetch(url,{credentials:'include',cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);fn(await r.json());
+    }catch(err){if(url.startsWith('/api/music-agenda'))state.agendaError='Não foi possível carregar a agenda.';}}));
     renderRecent();renderEvents();renderNotices();
   }
   function scrollTo(id){
@@ -523,6 +541,7 @@
       }
       case 'community':return community('friends');
       case 'events':return typeof window.sf200OpenAgenda==='function'?window.sf200OpenAgenda():community('events');
+      case 'events-retry':state.lastExtras=0;return pullExtras(true);
       case 'notices':return window.sf15OpenNotifications?.();
       case 'profile':return typeof window.sf112OpenProfile==='function'?window.sf112OpenProfile('overview'):window.sf5OpenProfile?.();
       case 'account':return window.sf92OpenAccount?.();
@@ -698,6 +717,25 @@
         state.clubsExpanded=false;renderClubs();
       }
     });
+    main.addEventListener('click',e=>{
+      const button=e.target.closest('[data-sf107-event]');if(!button)return;
+      e.preventDefault();e.stopImmediatePropagation();
+      const eventKey=button.dataset.sf107Event;
+      if(typeof window.sf200OpenEvent==='function')window.sf200OpenEvent(eventKey);
+      else action('events');
+    },true);
+    main.addEventListener('error',e=>{
+      const img=e.target;
+      if(img?.matches?.('.sf279-event-cover')){
+        const item=img.closest('.sf279-event'),key=item?.dataset.sf107Event;
+        const event=state.events.find(v=>[v.type,v.clubId||v.roomSlug,v.id].join(':')===key);
+        const date=event?new Date(Number(event.startAt)):new Date();
+        const calendar=document.createElement('span');calendar.className='sf107-event-day';
+        const day=document.createElement('strong');day.textContent=String(date.getDate());
+        const weekday=document.createElement('small');weekday.textContent=date.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','').toUpperCase();
+        calendar.append(weekday,day);img.replaceWith(calendar);
+      }
+    },true);
     main.addEventListener('click',handleClick);
     top.addEventListener('click',handleClick);
     $('sf107Search').addEventListener('input',e=>{
@@ -797,6 +835,8 @@
     document.addEventListener('sf71:created',()=>{
       state.lastClubs=0;pullClubs(true);
     });
+    document.addEventListener('sf279:agenda-updated',()=>{state.lastExtras=0;pullExtras(true);});
+    window.sf107RefreshAgenda=()=>{state.lastExtras=0;return pullExtras(true);};
     window.sf107OpenFanClub=openClubs;
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
     setInterval(poll,22000);poll();
