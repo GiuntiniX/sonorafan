@@ -143,3 +143,45 @@
 @media(max-width:768px){
  body #screen-room.sf113-room > .app > #sf276RoomSidebar{display:none!important}
 }
+
+/* SonoraFan 283 — Cabeçalho da sala alinhado ao toolbar global.
+   A busca e a altura não devem mudar ao navegar entre Lobby e Sala. */
+@media (min-width:769px){
+  body #screen-room.sf113-room > .app{
+    grid-template-rows:72px minmax(0,1fr)!important;
+  }
+  body #screen-room.sf113-room > .app > .header{
+    height:72px!important;
+    min-height:72px!important;
+    max-height:72px!important;
+    padding:9px clamp(15px,2vw,34px)!important;
+    gap:15px!important;
+    background:#0b0b0d!important;
+    border-bottom:1px solid #3d3940!important;
+    box-sizing:border-box!important;
+  }
+  #screen-room.sf113-room > .app > .header .sf282-room-search{
+    width:min(585px,100%)!important;
+    max-width:585px!important;
+    height:44px!important;
+    min-height:44px!important;
+    flex:1 1 585px!important;
+    margin:0 auto 0 0!important;
+    padding:7px 17px!important;
+    background:#161518!important;
+    border-color:#77717c!important;
+  }
+  #screen-room.sf113-room > .app > .header .sf282-room-search input{
+    font-size:14px!important;
+  }
+  #screen-room.sf113-room > .app > .header .header-right{
+    margin-left:auto!important;
+  }
+}
+@media (min-width:769px) and (max-width:1100px){
+  #screen-room.sf113-room > .app > .header .sf282-room-search{
+    width:min(585px,100%)!important;
+    max-width:585px!important;
+    flex:1 1 240px!important;
+  }
+}
