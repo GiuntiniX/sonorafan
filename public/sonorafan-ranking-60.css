@@ -66,3 +66,91 @@
  #lbModal .sf60-leader{min-height:52px}
 }
 @media(prefers-reduced-motion:reduce){#lbModal *{transition:none!important;animation:none!important}}
+
+/* SonoraFan 280 · The Main Stage — ranking musical.
+   Only presentation: existing score, rank and privacy remain server-owned. */
+#lbModal .sf60-ranking-modal{
+ background:radial-gradient(ellipse at 80% 0%,rgba(255,147,0,.10),transparent 38%),
+ radial-gradient(ellipse at 5% 30%,rgba(200,255,0,.045),transparent 45%),#160a1e!important;
+ border:1px solid #5d3150!important;border-radius:21px!important;
+}
+#lbModal .sf60-head h3{font-weight:900!important;letter-spacing:-.025em!important}
+#lbModal .sf60-kicker{color:#c8ff00!important}
+#lbModal .sf60-tabs button[aria-selected="true"]{background:#c8ff00!important;color:#120616!important;border-color:#c8ff00!important}
+#lbModal .sf280-stage{position:relative;margin:18px 0 22px;padding:17px 17px 20px;
+ background:linear-gradient(148deg,#24102b,#1a0c22 72%);border:1px solid #633b63;
+ border-radius:18px;overflow:hidden;isolation:isolate}
+#lbModal .sf280-stage:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 100%,rgba(255,147,0,.13),transparent 65%)}
+#lbModal .sf280-stage-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+#lbModal .sf280-stage-title span:first-child{display:block;font-size:9px;font-weight:900;color:#c8ff00;letter-spacing:.16em}
+#lbModal .sf280-stage-title h4{margin:4px 0 2px;font-size:clamp(18px,2.5vw,25px);color:#f6f1fb}
+#lbModal .sf280-stage-title p{margin:0;font-size:11px;color:#cdb9da;line-height:1.45}
+#lbModal .sf280-stage-title .sf280-stage-deco{color:#ff9300;font-size:25px;white-space:nowrap}
+#lbModal .sf60-podium{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:end!important;gap:11px!important;margin:8px 0 0!important}
+#lbModal .sf60-podium-card.sf280-podium-card{
+ appearance:none;position:relative;display:flex!important;flex-direction:column;align-items:center;justify-content:flex-end;
+ text-align:center;gap:6px;min-width:0;margin:0!important;padding:16px 12px 0!important;cursor:pointer;
+ border-radius:15px 15px 12px 12px!important;
+ color:#f6f1fb;background:#27182f;transition:border-color .18s ease,transform .18s ease!important;
+}
+#lbModal .sf280-podium-card:hover{transform:translateY(-3px)!important}
+#lbModal .sf280-podium-card.sf280-gold{order:2!important;min-height:226px!important;
+ border:1px solid #e5ad39!important;background:linear-gradient(155deg,#51341b,#2a1931 73%)!important;
+ box-shadow:0 0 26px rgba(255,178,32,.12)}
+#lbModal .sf280-podium-card.sf280-silver{order:1!important;min-height:185px!important;
+ border:1px solid #a6a7c1!important;background:linear-gradient(150deg,#343446,#28182f 75%)!important}
+#lbModal .sf280-podium-card.sf280-bronze{order:3!important;min-height:170px!important;
+ border:1px solid #bf7853!important;background:linear-gradient(150deg,#48302f,#29172e 75%)!important}
+#lbModal .sf280-podium-ribbon{font-size:clamp(29px,4vw,48px);line-height:1.2;filter:drop-shadow(0 4px 6px rgba(0,0,0,.3))}
+#lbModal .sf280-podium-position{font-size:10px;font-weight:900;letter-spacing:.1em;color:#f2d092}
+#lbModal .sf280-silver .sf280-podium-position{color:#d9dcf3}
+#lbModal .sf280-bronze .sf280-podium-position{color:#edb99b}
+#lbModal .sf280-podium-card strong{display:block!important;margin:0!important;font-size:clamp(11px,1.4vw,15px)!important;
+ color:#fff!important;line-height:1.35!important;overflow-wrap:anywhere;max-width:100%}
+#lbModal .sf280-podium-card>small{font-size:10px;color:#dacbdf;max-width:100%;overflow-wrap:anywhere}
+#lbModal .sf280-podium-points{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:5px;font-size:10px;color:#dacbdf}
+#lbModal .sf280-podium-points b{font-size:clamp(16px,2.4vw,24px);color:#fff;font-variant-numeric:tabular-nums}
+#lbModal .sf280-podium-plinth{display:block;width:calc(100% + 24px);padding:9px 6px;margin-top:7px;
+ background:rgba(255,183,41,.18);color:#ffdc89;font-size:13px;font-weight:900}
+#lbModal .sf280-silver .sf280-podium-plinth{background:rgba(200,206,240,.12);color:#d9e2fa}
+#lbModal .sf280-bronze .sf280-podium-plinth{background:rgba(222,126,77,.17);color:#f1b59b}
+#lbModal .sf280-leader-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:15px 0 10px}
+#lbModal .sf280-leader-heading h4{margin:0;color:#fff;font-size:15px}
+#lbModal .sf280-leader-heading small{font-size:11px;color:#cdb9da}
+#lbModal .sf60-leader.sf280-leader{padding:12px!important;gap:11px;border-radius:13px;
+ border-color:#503556!important;background:#22132b!important;min-height:70px}
+#lbModal .sf280-leader.sf280-gold{border-left:3px solid #eab34d!important}
+#lbModal .sf280-leader.sf280-silver{border-left:3px solid #b4bad7!important}
+#lbModal .sf280-leader.sf280-bronze{border-left:3px solid #c58a61!important}
+#lbModal .sf280-leader.sf280-other{border-left:3px solid #635074!important}
+#lbModal .sf60-leader.sf280-leader:hover{border-color:#ff9300!important;background:#2d1937!important}
+#lbModal .sf280-leader .sf280-place{display:grid;place-items:center;min-width:39px;height:38px;
+ border-radius:10px;background:#35213e;color:#c8ff00;font-size:18px;font-weight:900}
+#lbModal .sf280-leader .sf60-user{display:grid;gap:4px;flex:1;min-width:0}
+#lbModal .sf280-leader .sf60-user strong{display:block;overflow-wrap:anywhere;font-size:12px;line-height:1.35}
+#lbModal .sf280-user-avatar{margin-right:6px}
+#lbModal .sf280-leader .sf60-user small{font-size:10px;color:#ccb7d7!important;margin:0!important}
+#lbModal .sf280-bar{display:block;width:100%;max-width:280px;height:4px;border-radius:99px;background:#49314f;overflow:hidden}
+#lbModal .sf280-bar i{display:block;height:100%;max-width:100%;border-radius:99px;background:linear-gradient(90deg,#ff9300,#c8ff00)}
+#lbModal .sf280-leader .sf60-score{display:grid;gap:2px;justify-items:end;text-align:right;font-size:15px;color:#c8ff00!important}
+#lbModal .sf280-leader .sf60-score small{font-size:10px;color:#cdb9da;font-weight:500}
+#lbModal .sf280-podium-card:focus-visible,#lbModal .sf280-leader:focus-visible{outline:2px solid #c8ff00!important;outline-offset:3px!important}
+@media(max-width:650px){
+ #lbModal .sf280-stage{padding:12px 8px 13px}
+ #lbModal .sf60-podium{gap:5px!important}
+ #lbModal .sf60-podium-card.sf280-podium-card{padding:9px 5px 0!important;gap:4px}
+ #lbModal .sf280-podium-card.sf280-gold{min-height:190px!important}
+ #lbModal .sf280-podium-card.sf280-silver{min-height:163px!important}
+ #lbModal .sf280-podium-card.sf280-bronze{min-height:150px!important}
+ #lbModal .sf280-podium-ribbon{font-size:28px}
+ #lbModal .sf280-podium-position{font-size:8px}
+ #lbModal .sf280-podium-card strong{font-size:10px!important}
+ #lbModal .sf280-podium-card>small{font-size:9px}
+ #lbModal .sf280-podium-plinth{width:calc(100% + 10px);font-size:10px}
+ #lbModal .sf280-stage-deco{display:none}
+ #lbModal .sf280-leader .sf280-place{min-width:30px;height:32px;font-size:15px}
+ #lbModal .sf60-leader.sf280-leader{gap:7px;padding:9px!important}
+ #lbModal .sf280-leader .sf60-score{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){#lbModal .sf280-podium-card{transition:none!important;transform:none!important}}
