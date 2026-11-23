@@ -1118,7 +1118,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
                 artist:clean(c.artist,65),genre:clean(c.genre||'outros',32),theme:clean(THEMES.has(c.theme)?c.theme:'geral',40),
                 coverType:clean(c.coverType||'legacy',15),coverImageUrl:c.coverType==='external'?validExternalCover(c.coverImageUrl):'',
                 coverGalleryId:c.coverType==='gallery'&&Object.hasOwn(GALLERY_COVERS,c.coverGalleryId)?c.coverGalleryId:'',
-                coverVersion:Number(c.coverVersion)||0,title:clean(e.data().title,90),roomSlug:clean(e.data().roomSlug||'',100),roomName:clean(rooms.get(e.data().roomSlug)?.name||'',90),
+                coverVersion:Number(c.coverVersion)||0,coverEventImageUrl:validPostImageUrl(e.data().coverImageUrl)||'',title:clean(e.data().title,90),roomSlug:clean(e.data().roomSlug||'',100),roomName:clean(rooms.get(e.data().roomSlug)?.name||'',90),
                 description:clean(e.data().description,300),startAt:Number(e.data().startAt),
                 durationMinutes:Number(e.data().durationMinutes)||60,notifyMembers:e.data().notifyMembers!==false,sendRoomLink:e.data().sendRoomLink!==false,remindStart:e.data().remindStart!==false,
                  attendees:unique(e.data().attendeeIds).length,
@@ -1130,7 +1130,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
           Number(e.startAt)>=now-3600000&&Number(e.startAt)<=now+90*86400000&&rooms.has(e.roomSlug)&&!rooms.get(e.roomSlug).isPrivate)
           .map(e=>({id:String(e.id),type:'room',roomSlug:String(e.roomSlug),roomName:clean(e.roomName,90),
             genre:clean(rooms.get(e.roomSlug)?.genre||e.theme||'outros',32),theme:clean(e.theme||'indie',32),hostName:clean(e.hostName,80),
-            title:clean(e.title,90),description:clean(e.description,300),startAt:Number(e.startAt),
+            title:clean(e.title,90),description:clean(e.description,300),coverEventImageUrl:validPostImageUrl(e.coverImageUrl)||'',startAt:Number(e.startAt),
             durationMinutes:Number(e.durationMinutes)||90,attendees:unique(e.attendees).length,attendeeIds:unique(e.attendees),hostId:e.hostId}));
         items=[...clubItems.flat(),...roomItems].sort((a,b)=>a.startAt-b.startAt).slice(0,180);
         agendaCache.items=items;agendaCache.expires=Date.now()+30000;
@@ -1181,7 +1181,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(!member(data,me)||unique(data.blockedIds).includes(me.id))throwHttp(403,'Participe para ver os eventos.');
       const snap=await ref.collection('events').orderBy('startAt','asc').limit(40).get();
       const events=snap.docs.filter(d=>Number(d.data().startAt)>Date.now()-3600000)
-       .slice(0,20).map(d=>({id:d.id,title:d.data().title,description:d.data().description,
+       .slice(0,20).map(d=>({id:d.id,title:d.data().title,description:d.data().description,coverImageUrl:validPostImageUrl(d.data().coverImageUrl)||'',
         startAt:d.data().startAt,durationMinutes:d.data().durationMinutes,roomSlug:clean(d.data().roomSlug||'',100),roomName:clean(rooms.get(d.data().roomSlug)?.name||'',90),
         attendees:unique(d.data().attendeeIds).length,going:unique(d.data().attendeeIds).includes(me.id),
         canDelete:canModerate(data,me)||d.data().creatorId===me.id,canEdit:canModerate(data,me)||d.data().creatorId===me.id,
@@ -1192,6 +1192,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   app.post('/api/fan-clubs/:id/events',rateLimit(8,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
     const title=clean(req.body?.title,90),description=clean(req.body?.description,300),startAt=Number(req.body?.startAt);
+    const coverImageUrl=validPostImageUrl(req.body?.coverImageUrl);
+    if(coverImageUrl===null)return res.status(400).json({error:'A imagem deve ser uma URL HTTPS pública válida.'});
     const durationMinutes=[30,60,90,120].includes(Number(req.body?.durationMinutes))?Number(req.body.durationMinutes):60;
     const roomSlug=clean(req.body?.roomSlug,100);
     const notifyMembers=req.body?.notifyMembers!==false,sendRoomLink=req.body?.sendRoomLink!==false,remindStart=req.body?.remindStart!==false;
@@ -1203,7 +1205,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       if(roomSlug&&(!unique(data.roomSlugs).includes(roomSlug)||!rooms.has(roomSlug)||rooms.get(roomSlug).isPrivate))
         throwHttp(400,'Escolha uma sala pública vinculada a este Fan Club.');
       const doc=ref.collection('events').doc();
-      await doc.create({title,description,startAt,durationMinutes,roomSlug,notifyMembers,sendRoomLink,remindStart,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
+      await doc.create({title,description,coverImageUrl,startAt,durationMinutes,roomSlug,notifyMembers,sendRoomLink,remindStart,attendeeIds:[],createdAt:Date.now(),creatorId:me.id});
       agendaCache.expires=0;publish(req.params.id,'events');res.status(201).json({id:doc.id});
       if(notifyMembers)notifyPostMembers(req.params.id,data,me.id,me.name,{title:'Novo encontro no Fan Club',message:me.name+' agendou '+title+(sendRoomLink&&roomSlug?' · Sala: '+clean(rooms.get(roomSlug)?.name,80):'')+'. Confirme presença na Agenda Musical.',roomSlug:sendRoomLink?roomSlug:''});
     }catch(e){error(res,e);}
@@ -1214,6 +1216,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
     const title=clean(req.body?.title,90),description=clean(req.body?.description,300),
       startAt=Number(req.body?.startAt),durationMinutes=Number(req.body?.durationMinutes),
       roomSlug=clean(req.body?.roomSlug,100);
+    const newCoverImageUrl=req.body?.coverImageUrl===undefined?undefined:validPostImageUrl(req.body.coverImageUrl);
+    if(newCoverImageUrl===null)return res.status(400).json({error:'A imagem deve ser uma URL HTTPS pública válida.'});
     if(title.length<5||!Number.isSafeInteger(startAt)||startAt<Date.now()+300000||startAt>Date.now()+90*86400000||
        ![30,60,90,120].includes(durationMinutes))
       return res.status(400).json({error:'Informe título, data futura (5 minutos a 90 dias) e duração válida.'});
@@ -1227,7 +1231,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
         if(!event.exists)throwHttp(404,'Evento não encontrado.');
         if(event.data().creatorId!==me.id&&!canModerate(data,me))throwHttp(403,'Somente quem criou ou administra este evento pode editar.');
         if(Number(event.data().startAt)<Date.now()-3600000)throwHttp(409,'Eventos encerrados não podem ser editados.');
-        tx.update(eventRef,{title,description,startAt,durationMinutes,roomSlug,
+        tx.update(eventRef,{title,description,...(newCoverImageUrl===undefined?{}:{coverImageUrl:newCoverImageUrl}),startAt,durationMinutes,roomSlug,
           notifyMembers:req.body?.notifyMembers!==false,sendRoomLink:req.body?.sendRoomLink!==false,
           remindStart:req.body?.remindStart!==false,updatedAt:Date.now(),updatedBy:me.id});
       });
