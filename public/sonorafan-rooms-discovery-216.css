@@ -343,3 +343,36 @@
     max-height:none!important;
   }
 }
+
+/* SonoraFan 285 — o explorador acompanha a borda da área principal.
+   Antes o max-width:1420px centralizado adicionava um recuo que crescia
+   em monitores largos, causando o salto visual ao clicar em Salas. */
+#screen-lobby.sf125-platform.sf216-explore-mode .sf216-shell{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode .sf216-page{
+  width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+  padding:20px clamp(14px,2.2vw,38px) 65px!important;
+  box-sizing:border-box!important;
+}
+/* Não altera a largura da sidebar ao trocar o destino. */
+@media(min-width:769px){
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-app.sf125-app{
+    grid-template-columns:248px minmax(0,1fr)!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode #sf125Sidebar{
+    width:248px!important;
+    min-width:248px!important;
+    max-width:248px!important;
+    box-sizing:border-box!important;
+  }
+}
+@media(max-width:768px){
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-page{
+    padding:12px 12px 96px!important;
+  }
+}
