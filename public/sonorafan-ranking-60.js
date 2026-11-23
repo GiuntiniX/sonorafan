@@ -17,16 +17,39 @@
     if(elem){elem.textContent=message||'';elem.hidden=!message;}
   }
   const metricName=()=>state.category==='forum'?'reputação':state.category==='dj'?'XP de DJ':'XP';
+  const rankTheme=()=>state.category==='dj'
+    ?{icon:'🎧',label:'DJs em destaque',unit:'XP de DJ'}
+    :state.category==='forum'
+    ?{icon:'🎤',label:'Vozes da comunidade',unit:'Reputação'}
+    :{icon:'🎵',label:'Estrelas do SonoraFan',unit:'XP'};
+  const medalFor=position=>position===1?'🏆':position===2?'🥈':position===3?'🥉':'♫';
+  const rankTone=position=>position===1?'gold':position===2?'silver':position===3?'bronze':'other';
+  const maxScore=()=>Math.max(1,...(state.ranking?.items||[]).map(p=>Number(p.score)||0));
+  const scorePct=score=>Math.max(0,Math.min(100,(Number(score)||0)/maxScore()*100));
   function rankCard(p){
-    return '<button class="sf60-leader" type="button" data-sf60-compare="'+esc(p.id)+'" aria-label="Comparar progresso com '+esc(p.name)+'">'+
-      '<span class="sf60-place">#'+fmt(p.position)+'</span>'+
-      '<span class="sf60-user">'+esc(p.avatar)+' <strong>'+esc(p.name)+'</strong><small>'+
-      esc(p.level?.name||((p.medals||[]).slice(0,2).join(' · '))||'Participante da comunidade')+'</small></span>'+
-      '<span class="sf60-score">'+fmt(p.score)+' <small>'+esc(metricName())+'</small></span></button>';
+    const position=Number(p.position),tone=rankTone(position);
+    const icon=medalFor(position),name=String(p.name||'Participante');
+    const topic=rankTheme();
+    const pct=scorePct(p.score);
+    return '<button class="sf60-leader sf280-leader sf280-'+tone+'" type="button" data-sf60-compare="'+esc(p.id)+
+      '" aria-label="Comparar progresso com '+esc(name)+' · posição '+fmt(position)+'">'+
+      '<span class="sf60-place sf280-place" aria-hidden="true">'+(tone==='other'?'#'+fmt(position):icon)+'</span>'+
+      '<span class="sf60-user sf280-user"><strong><span class="sf280-user-avatar" aria-hidden="true">'+esc(p.avatar||'🎵')+'</span>'+esc(name)+'</strong>'+
+      '<small>'+esc(p.level?.name||((p.medals||[]).slice(0,2).join(' · '))||'Participante da comunidade')+'</small>'+
+      '<span class="sf280-bar" aria-hidden="true"><i style="width:'+pct+'%"></i></span></span>'+
+      '<span class="sf60-score">'+fmt(p.score)+' <small>'+esc(topic.unit)+'</small></span></button>';
   }
   function podiumCard(p,i){
-    return '<div class="sf60-podium-card"><span aria-hidden="true">'+['🥇','🥈','🥉'][i]+'</span>'+
-      '<strong>'+esc(p.avatar)+' '+esc(p.name)+'</strong><small>'+fmt(p.score)+' '+esc(metricName())+'</small></div>';
+    const position=Number(p.position)||i+1,tone=rankTone(position);
+    const icon=medalFor(position),topic=rankTheme();
+    return '<button type="button" class="sf60-podium-card sf280-podium-card sf280-'+tone+
+      '" data-sf60-compare="'+esc(p.id)+'" aria-label="Comparar com '+esc(p.name)+' · '+fmt(position)+'º lugar">'+
+      '<span class="sf280-podium-ribbon" aria-hidden="true">'+icon+'</span>'+
+      '<span class="sf280-podium-position">'+fmt(position)+'º LUGAR</span>'+
+      '<strong><span aria-hidden="true">'+esc(p.avatar||'🎵')+'</span> '+esc(p.name)+'</strong>'+
+      '<small>'+esc(p.level?.name||'SonoraFan')+'</small>'+
+      '<div class="sf280-podium-points"><b>'+fmt(p.score)+'</b> <span>'+esc(topic.unit)+'</span></div>'+
+      '<span class="sf280-podium-plinth" aria-hidden="true">'+icon+' '+fmt(position)+'</span></button>';
   }
   function chooseTabs(){
     root().querySelectorAll('[data-sf60-tab]').forEach(btn=>{
@@ -55,11 +78,11 @@
       '<div class="sf60-stat"><strong>'+fmt(items.length)+'</strong><small>Participantes visíveis</small></div></div>'+
       '<p class="sf60-notice">'+esc(d.note||'')+(d.partial?' · Ranking mostra uma amostra dos participantes; posições fora dela não são estimadas.':'')+
       (rank.rank===null?' · Sua posição não está na faixa consultada.':'')+'</p>'+
-      (podium.length?'<h4>🏆 Pódio</h4><div class="sf60-podium">'+podium.map(podiumCard).join('')+'</div>':'<p class="sf60-notice">Ainda não há pontuações nesta classificação.</p>')+
+      (podium.length?'<section class="sf280-stage" aria-label="Pódio do ranking"><div class="sf280-stage-title"><div><span>✦ THE MAIN STAGE</span><h4>🏆 Pódio do SonoraFan</h4><p>'+esc(rankTheme().icon)+' '+esc(rankTheme().label)+' · '+esc(state.period==='week'?'Esta semana':state.period==='month'?'Este mês':'Histórico geral')+'</p></div><span class="sf280-stage-deco" aria-hidden="true">♫ ♪ ✦</span></div><div class="sf60-podium">'+podium.map(podiumCard).join('')+'</div></section>':'<p class="sf60-notice">Ainda não há pontuações nesta classificação.</p>')+
       (compare?'<div class="sf60-compare" role="status"><strong>Comparar progresso</strong><div>Você: '+fmt(myScore)+' · '+esc(compare.name)+': '+fmt(compare.score)+'</div>'+
         '<div>Diferença: '+fmt(Math.abs(myScore-compare.score))+' '+esc(metricName())+' · '+
         (myScore>=compare.score?'você está à frente ou empatado':'participante está à frente')+'</div></div>':'')+
-      (items.length?'<h4>Classificação · até 50 participantes</h4><div class="sf60-leader-list">'+items.map(rankCard).join('')+'</div>':'');
+      (items.length?'<div class="sf280-leader-heading"><h4>♫ Classificação completa</h4><small>Até 50 participantes · clique para comparar</small></div><div class="sf60-leader-list">'+items.map(rankCard).join('')+'</div>':'');
   }
   function progress(){
     const d=state.me;if(!d)return '<p class="sf60-notice">Carregando progresso…</p>';
