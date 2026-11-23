@@ -2,6 +2,7 @@
 // SonoraFan Games 280: partidas Stop isoladas do player, chat e fila musical.
 // Estado efêmero do jogo: nenhuma credencial ou resposta é armazenada no Firestore.
 const crypto = require('node:crypto');
+const {FieldValue}=require('firebase-admin/firestore');
 const MODES = Object.freeze({
   classic:{label:'Stop Clássico',categories:['Nome','Cidade','País','Animal','Comida','Objeto','Cor']},
   music:{label:'Stop Musical',categories:['Artista ou banda','Música','Álbum','Festival','Instrumento','Gênero musical']},
@@ -11,7 +12,7 @@ const LETTERS='ABCDEFGHIJLMNOPRSTUV';
 const clean=(s,n=80)=>String(s??'').replace(/[<>\x00-\x1f\x7f]/g,' ').trim().slice(0,n);
 const norm=s=>clean(s,100).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').replace(/\s+/g,' ').trim();
 const initial=(s,letter)=>norm(s).startsWith(String(letter||'').toLowerCase());
-function installStopGames(io,{sessions,users,rooms}){
+function installStopGames(io,{sessions,users,rooms,db}){
  const ns=io.of('/stop'),games=new Map(),connected=new Map();
  const capacities={min:2,max:10},limitGames=60;
  const ackError=(ack,message)=>{if(typeof ack==='function')ack({ok:false,error:message});};
@@ -27,6 +28,25 @@ function installStopGames(io,{sessions,users,rooms}){
   review:g.phase==='review'?g.review.map(row=>({category:row.category,items:row.items.map(item=>({...item,voters:undefined}))})):[],
   scores:g.scores||[],updatedAt:Date.now()});
  const broadcast=g=>ns.to(roomKey(g)).emit('stop:state',publicGame(g));
+ const weekId=()=>{
+  const now=new Date(),day=now.getUTCDay()||7;
+  now.setUTCDate(now.getUTCDate()-day+1);
+  return now.toISOString().slice(0,10);
+ };
+ const saveScores=async(g,roundScores)=>{
+  if(!db)return;
+  const weekly=db.collection('stop280Weeks').doc(weekId()).collection('players');
+  const global=db.collection('stop280Players');
+  await Promise.all(roundScores.filter(x=>x.roundPoints>0).map(async x=>{
+   const player=[...g.players.values()].find(p=>p.id===x.id);
+   if(!player)return;
+   const data={name:player.name,points:FieldValue.increment(x.roundPoints),rounds:FieldValue.increment(1),updatedAt:Date.now()};
+   await Promise.all([
+    weekly.doc(x.id).set(data,{merge:true}),
+    global.doc(x.id).set(data,{merge:true})
+   ]);
+  }));
+ };
  const cancel=g=>{if(g.timer){clearTimeout(g.timer);g.timer=null;}};
  const destroy=g=>{cancel(g);for(const timeout of g.pending.values())clearTimeout(timeout);g.pending.clear();games.delete(g.id);ns.to(roomKey(g)).emit('stop:closed');};
  function schedule(g,delay,callback){
@@ -68,6 +88,7 @@ function installStopGames(io,{sessions,users,rooms}){
   }
   g.scores=roundScores.sort((a,b)=>b.total-a.total);
   g.phase='results';broadcast(g);
+  saveScores(g,roundScores).catch(e=>console.error('Stop: falha no ranking persistente:',e.message));
  }
  function access(socket,g){
   if(!g)return 'Partida não encontrada.';
@@ -115,6 +136,12 @@ function installStopGames(io,{sessions,users,rooms}){
    if(!g.players.has(email))g.players.set(email,{id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:g.categories.map(()=>''),ready:false,submitted:false});
    if(g.pending.has(email)){clearTimeout(g.pending.get(email));g.pending.delete(email);}
    connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id,playerId:publicId(email)});broadcast(g);
+  });
+  socket.on('stop:ranking',async(_,ack)=>{
+   try{
+    const snap=await db.collection('stop280Weeks').doc(weekId()).collection('players').orderBy('points','desc').limit(10).get();
+    respond(ack,{week:weekId(),items:snap.docs.map(d=>({id:d.id,name:clean(d.data().name,32),points:Math.max(0,Number(d.data().points)||0)}))});
+   }catch(e){ackError(ack,'Ranking semanal indisponível.');}
   });
   socket.on('stop:list',(ack)=>{
    const result=[...games.values()].filter(g=>g.kind==='standalone').map(g=>({id:g.id,mode:g.mode,phase:g.phase,count:g.players.size,max:capacities.max}));
