@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/*.test.js"
+    "test": "node --test tests/*.test.js",
+    "audit:assets": "node scripts/audit-theme-assets.js"
   },
   "dependencies": {
     "compression": "^1.8.2",
