@@ -147,6 +147,8 @@ function takeSource(input){
  labelFields();
 }
 function init(){
+ const headerInput=$('sf107Search');
+ if(headerInput)headerInput.placeholder='Buscar em todo o SonoraFan…';
  panel=document.createElement('div');
  panel.id='sf208SearchResults';panel.className='sf208-search-results sf282-search-results';
  panel.setAttribute('role','listbox');panel.hidden=true;
@@ -164,6 +166,7 @@ function init(){
   schedule(event.target.value);
  },true);
  document.addEventListener('keydown',event=>{
+  if(source&&event.target?.id===source.id&&event.target!==source)source=event.target;
   if(!visible||!source||event.target!==source)return;
   if(event.key==='Escape'){event.preventDefault();close();return;}
   if(!results.length)return;
