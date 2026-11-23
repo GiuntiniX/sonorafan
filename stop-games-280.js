@@ -28,7 +28,7 @@ function installStopGames(io,{sessions,users,rooms}){
   scores:g.scores||[],updatedAt:Date.now()});
  const broadcast=g=>ns.to(roomKey(g)).emit('stop:state',publicGame(g));
  const cancel=g=>{if(g.timer){clearTimeout(g.timer);g.timer=null;}};
- const destroy=g=>{cancel(g);games.delete(g.id);ns.to(roomKey(g)).emit('stop:closed');};
+ const destroy=g=>{cancel(g);for(const timeout of g.pending.values())clearTimeout(timeout);g.pending.clear();games.delete(g.id);ns.to(roomKey(g)).emit('stop:closed');};
  function schedule(g,delay,callback){
   cancel(g);g.timer=setTimeout(()=>{g.timer=null;if(games.get(g.id)===g)callback();},delay);
   g.timer.unref?.();
@@ -103,7 +103,7 @@ function installStopGames(io,{sessions,users,rooms}){
    let id;
    do{id=crypto.randomBytes(3).toString('hex').toUpperCase();}while(games.has(id));
    const p={id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:[],ready:false,submitted:false};
-   const g={id,kind,roomSlug,mode,categories:[...categories],round:0,maxRounds,duration,phase:'lobby',letter:'',deadline:0,stopAt:0,host:email,players:new Map([[email,p]]),review:[],scores:[],timer:null,createdAt:Date.now()};
+   const g={id,kind,roomSlug,mode,categories:[...categories],round:0,maxRounds,duration,phase:'lobby',letter:'',deadline:0,stopAt:0,host:email,players:new Map([[email,p]]),review:[],scores:[],timer:null,pending:new Map(),createdAt:Date.now()};
    games.set(id,g);connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id,playerId:publicId(email)});broadcast(g);
   });
   socket.on('stop:join',(input={},ack)=>{
@@ -113,6 +113,7 @@ function installStopGames(io,{sessions,users,rooms}){
    if(!g.players.has(email)&&g.players.size>=capacities.max)return ackError(ack,'Partida cheia (até 10 jogadores).');
    if(!g.players.has(email)&&g.phase!=='lobby'&&g.phase!=='results')return ackError(ack,'Aguarde a próxima rodada para entrar.');
    if(!g.players.has(email))g.players.set(email,{id:publicId(email),name:clean(users.get(email)?.nome||email.split('@')[0],32),score:0,answers:g.categories.map(()=>''),ready:false,submitted:false});
+   if(g.pending.has(email)){clearTimeout(g.pending.get(email));g.pending.delete(email);}
    connected.set(socket.id,id);socket.join(roomKey(g));respond(ack,{id,playerId:publicId(email)});broadcast(g);
   });
   socket.on('stop:list',(ack)=>{
@@ -152,19 +153,33 @@ function installStopGames(io,{sessions,users,rooms}){
    respond(ack,{});broadcast(g);
   });
   socket.on('stop:score',(_,ack)=>{const g=own();if(!g)return ackError(ack,'Entre na partida.');if(g.host!==email)return ackError(ack,'Apenas o anfitrião pode encerrar a conferência.');if(g.phase!=='review')return ackError(ack,'Aguarde a conferência.');reviewComplete(g);respond(ack,{});});
-  socket.on('stop:leave',(_,ack)=>{leave();respond(ack,{});});
-  function leave(){
+  socket.on('stop:leave',(_,ack)=>{leave(false);respond(ack,{});});
+  function leave(disconnected){
    const id=connected.get(socket.id);if(!id)return;
    connected.delete(socket.id);const g=games.get(id);if(!g)return;socket.leave(roomKey(g));
    // Só remover o jogador quando nenhuma outra conexão dele estiver na partida.
    if([...connected.entries()].some(([sid,gid])=>gid===id&&ns.sockets.get(sid)?.stopEmail===email))return;
-   g.players.delete(email);
-   if(!g.players.size){destroy(g);return;}
-   if(g.host===email)g.host=g.players.keys().next().value;
-   if(g.phase==='playing'&&g.players.size<2)finishRound(g);
-   broadcast(g);
+   // Intervalo de recuperação: quedas breves de rede no celular não eliminam a partida.
+   if(disconnected){
+    const timeout=setTimeout(()=>{
+     if(games.get(g.id)!==g)return;
+     g.pending.delete(email);
+     if([...connected.entries()].some(([sid,gid])=>gid===g.id&&ns.sockets.get(sid)?.stopEmail===email))return;
+     removePlayer();
+    },30000);
+    timeout.unref?.();
+    g.pending.set(email,timeout);broadcast(g);return;
+   }
+   removePlayer();
+   function removePlayer(){
+    g.players.delete(email);
+    if(!g.players.size){destroy(g);return;}
+    if(g.host===email)g.host=g.players.keys().next().value;
+    if(g.phase==='playing'&&g.players.size<2)finishRound(g);
+    broadcast(g);
+   }
   }
-  socket.on('disconnect',leave);
+  socket.on('disconnect',()=>leave(true));
  });
  setInterval(()=>{const cutoff=Date.now()-12*3600000;for(const g of games.values())if(g.createdAt<cutoff)destroy(g);},3600000).unref?.();
  return {MODES,games};
