@@ -1,82 +1,189 @@
-/* SonoraFan 208 — busca unificada, pesquisa somente dados autorizados. */
+/* SonoraFan 282 — busca global consistente em páginas públicas.
+ * Campos principais compartilham o mesmo índice federado de recursos autorizados.
+ * Filtros locais continuam operando; ferramentas de música, DM e admin são contextuais.
+ */
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id);
-const html=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let timer=null,serial=0,results=[],current=0,open=false;
-const select=()=>document.querySelector('.sf107-search');
-function close(){open=false;$('sf208SearchResults')?.setAttribute('hidden','');$('sf107Search')?.setAttribute('aria-expanded','false');}
-const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
-const contains=(s,q)=>normalize(s).includes(normalize(q));
-const fetchJSON=async(url,signal)=>{const r=await fetch(url,{credentials:'include',signal,cache:'no-store'});if(!r.ok)throw Error('Dados temporariamente indisponíveis');return r.json();};
-let aborter=null;
-async function search(q){
- const target=$('sf208SearchResults');if(!target)return;
- if(q.length<2){results=[];close();return;}
- const id=++serial;aborter?.abort();aborter=new AbortController();const signal=aborter.signal;
- target.hidden=false;open=true;target.innerHTML='<p class="sf208-search-state">Buscando em salas, Fan Clubs, eventos e pessoas…</p>';
- $('sf107Search')?.setAttribute('aria-expanded','true');
- const calls=[
- fetchJSON('/api/rooms',signal),
- fetchJSON('/api/fan-clubs?q='+encodeURIComponent(q),signal),
- fetchJSON('/api/music-agenda',signal),
- fetchJSON('/api/social/search?q='+encodeURIComponent(q),signal),
- fetchJSON('/api/favorites',signal)
- ];
- const a=await Promise.allSettled(calls);if(id!==serial||signal.aborted)return;
- const rooms=a[0].status==='fulfilled'&&Array.isArray(a[0].value)?a[0].value.filter(r=>!r.isPrivate&&contains([r.name,r.genre,r.description,r.currentTrack?.title,r.currentTrack?.artist].join(' '),q)).slice(0,8):[];
- const clubs=a[1].status==='fulfilled'?a[1].value?.clubs?.slice(0,8)||[]:[];
- const events=a[2].status==='fulfilled'?a[2].value?.events?.filter(e=>contains([e.title,e.description,e.artist,e.clubName,e.roomName,e.genre].join(' '),q)).slice(0,8)||[]:[];
- const people=a[3].status==='fulfilled'&&Array.isArray(a[3].value)?a[3].value.slice(0,8):[];
- const favorites=a[4].status==='fulfilled'&&Array.isArray(a[4].value)?a[4].value.filter(track=>contains([track.title,track.artist].join(' '),q)).slice(0,6):[];
- results=[...rooms.map(r=>({type:'room',id:r.slug,title:r.name,desc:'Sala musical · '+(r.genre||'Geral'),icon:'♫'})),
- ...clubs.map(c=>({type:'club',id:c.id,title:c.title,desc:(c.artist||'Fan Club')+' · '+(c.memberCount||0)+' membros',icon:'♧'})),
- ...events.map(e=>({type:'event',id:e.type+':'+(e.clubId||e.roomSlug)+':'+e.id,title:e.title,desc:(e.type==='fanclub'?'Fan Club':'Sala')+' · '+new Date(Number(e.startAt)).toLocaleDateString('pt-BR'),icon:'▦'})),
- ...people.map(u=>({type:'person',id:u.id,title:u.name,desc:u.bio||'Perfil SonoraFan',icon:'◉'})),
- ...favorites.map(f=>({type:'favorite',id:f.id,title:f.title||'Música favorita',desc:f.artist||'Minha biblioteca',icon:'♫'}))];
- current=0;
- const labels={room:'Salas',club:'Fan Clubs',event:'Eventos',person:'Pessoas',favorite:'Minhas músicas favoritas'};
- const sections=['room','club','event','person','favorite'].map(type=>{
-  const items=results.map((v,i)=>({...v,i})).filter(v=>v.type===type);
-  return items.length?'<section class="sf208-search-group"><h3>'+labels[type]+'</h3>'+items.map(x=>
-   '<button type="button" role="option" aria-selected="'+(x.i===current)+'" data-sf208-index="'+x.i+'"><span class="sf208-search-icon">'+x.icon+'</span><span><strong>'+html(x.title)+'</strong><small>'+html(x.desc)+'</small></span><b>›</b></button>').join('')+'</section>':'';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+const contains=(haystack,q)=>norm(haystack).includes(norm(q));
+const MAIN_IDS=new Set(['sf107Search','sf200Search','sf235Search','sf216Search','sf191ClubSearch','sf71ClubSearch']);
+let panel=null,source=null,results=[],index=0,seq=0,timer=null,controller=null,visible=false;
+const names={room:'Salas',club:'Fan Clubs',event:'Agenda Musical',person:'Pessoas',favorite:'Minhas favoritas'};
+const validInput=node=>node?.tagName==='INPUT'&&MAIN_IDS.has(node.id)&&node.type==='search';
+async function json(url,signal){
+ const res=await fetch(url,{credentials:'include',cache:'no-store',signal});
+ if(!res.ok)throw new Error('Fonte indisponível');
+ return res.json();
+}
+function close(){
+ visible=false;
+ if(panel)panel.hidden=true;
+ if(source?.isConnected)source.setAttribute('aria-expanded','false');
+}
+function reposition(){
+ if(!visible||!panel||!source?.isConnected)return;
+ const r=source.getBoundingClientRect();
+ if(r.width<30||r.bottom<0||r.top>innerHeight){close();return;}
+ const width=Math.min(Math.max(r.width,330),Math.max(280,innerWidth-16));
+ const left=Math.max(8,Math.min(r.left,innerWidth-width-8));
+ const freeBelow=innerHeight-r.bottom;
+ const above=freeBelow<225&&r.top>freeBelow+100;
+ panel.style.position='fixed';
+ panel.style.width=width+'px';
+ panel.style.left=left+'px';
+ panel.style.right='auto';
+ panel.style.top=above?'auto':Math.min(innerHeight-45,r.bottom+7)+'px';
+ panel.style.bottom=above?(innerHeight-r.top+7)+'px':'auto';
+ panel.style.maxHeight=Math.max(140,Math.min(460,(above?r.top:freeBelow)-18))+'px';
+}
+function show(message){
+ if(!panel)return;
+ panel.hidden=false;
+ panel.innerHTML='<p class="sf208-search-state" role="status">'+esc(message)+'</p>';
+ visible=true;
+ if(source?.isConnected)source.setAttribute('aria-expanded','true');
+ reposition();
+}
+function labelFields(){
+ for(const id of MAIN_IDS){
+  const input=$(id);if(!input)return;
+  input.setAttribute('aria-label','Buscar em todo o SonoraFan');
+  input.setAttribute('aria-autocomplete','list');
+  input.setAttribute('aria-controls','sf208SearchResults');
+  input.setAttribute('aria-expanded',String(visible&&source===input));
+  input.closest('label')?.classList.add('sf282-unified-search');
+ }
+}
+function render(){
+ if(!panel)return;
+ const html=['room','club','event','person','favorite'].map(type=>{
+  const subset=results.map((x,i)=>({...x,i})).filter(x=>x.type===type);
+  if(!subset.length)return '';
+  return '<section class="sf208-search-group" aria-label="'+names[type]+'"><h3>'+names[type]+'</h3>'+
+    subset.map(x=>'<button type="button" role="option" data-sf208-index="'+x.i+'" aria-selected="'+(x.i===index)+
+      '"><span class="sf208-search-icon" aria-hidden="true">'+esc(x.icon)+'</span><span><strong>'+esc(x.title)+
+      '</strong><small>'+esc(x.desc)+'</small></span><b aria-hidden="true">›</b></button>').join('')+'</section>';
  }).join('');
- const failed=a.filter(v=>v.status==='rejected').length;
- target.innerHTML=results.length?sections+'<footer>↑ ↓ navegar · Enter abrir · Esc fechar'+(failed?' · Algumas fontes indisponíveis':'')+'</footer>':
- '<p class="sf208-search-state">'+(failed===5?'Não foi possível consultar a busca. Tente novamente.':'Nenhum resultado. Tente outro termo ou artista.')+'</p>';
+ panel.innerHTML=html?html+'<footer>↑ ↓ navegar · Enter abrir · Esc fechar</footer>':
+   '<p class="sf208-search-state">Nenhum resultado disponível para esse termo.</p>';
+ panel.hidden=false;visible=true;
+ if(source?.isConnected)source.setAttribute('aria-expanded','true');
+ reposition();
 }
 function activate(item){
- if(!item)return;close();
+ if(!item)return;
+ close();
  if(item.type==='room'){window.joinRoom?.(item.id);return;}
  if(item.type==='club'){
-  window.sf125Navigate?.('clubs');
-  window.sf71OpenFanClub?.(item.id);return;
+   window.sf125Navigate?.('clubs');
+   window.sf71OpenFanClub?.(item.id);
+   return;
  }
  if(item.type==='event'){
-  window.sf125Navigate?.('agenda');window.sf200OpenEvent?.(item.id);return;
+   window.sf125Navigate?.('agenda');
+   window.sf200OpenEvent?.(item.id);return;
  }
  if(item.type==='person'){window.sf53OpenInbox?.(item.id,item.title);return;}
  if(item.type==='favorite')window.sf125Navigate?.('library');
 }
+async function search(term){
+ const request=++seq;
+ controller?.abort();controller=new AbortController();
+ const signal=controller.signal;
+ if(term.length<2){results=[];close();return;}
+ show('Pesquisando salas, Fan Clubs, eventos, pessoas e favoritas…');
+ const calls=[
+  '/api/rooms',
+  '/api/fan-clubs?q='+encodeURIComponent(term),
+  '/api/music-agenda',
+  '/api/social/search?q='+encodeURIComponent(term),
+  '/api/favorites'
+ ];
+ const settled=await Promise.allSettled(calls.map(path=>json(path,signal)));
+ if(request!==seq||signal.aborted||!source?.isConnected)return;
+ const [r,c,e,p,f]=settled;
+ const rooms=r.status==='fulfilled'?(Array.isArray(r.value)?r.value:r.value?.rooms||[]):[];
+ const clubs=c.status==='fulfilled'?(Array.isArray(c.value)?c.value:c.value?.clubs||[]):[];
+ const events=e.status==='fulfilled'?(Array.isArray(e.value)?e.value:e.value?.events||[]):[];
+ const people=p.status==='fulfilled'?(Array.isArray(p.value)?p.value:p.value?.users||p.value?.people||[]):[];
+ const favorites=f.status==='fulfilled'?(Array.isArray(f.value)?f.value:f.value?.favorites||f.value?.tracks||[]):[];
+ const matches=(items,keys,max)=>items.filter(x=>contains(keys(x).join(' '),term)).slice(0,max);
+ const roomHits=matches(rooms.filter(x=>!x.isPrivate),x=>[x.name,x.genre,x.description,x.currentTrack?.title,x.currentTrack?.artist],7);
+ const clubHits=matches(clubs,x=>[x.title,x.artist,x.description,x.genre],7);
+ const eventHits=matches(events,x=>[x.title,x.description,x.artist,x.clubName,x.roomName,x.genre],7);
+ const peopleHits=matches(people,x=>[x.name,x.nickname,x.bio],6);
+ const favHits=matches(favorites,x=>[x.title,x.artist],6);
+ results=[
+  ...roomHits.filter(x=>x.slug).map(x=>({type:'room',id:x.slug,title:x.name||'Sala',desc:'Sala musical · '+(x.genre||'Geral'),icon:'♫'})),
+  ...clubHits.filter(x=>x.id).map(x=>({type:'club',id:x.id,title:x.title||'Fan Club',desc:(x.artist||'Comunidade')+' · '+(x.memberCount||0)+' membros',icon:'♧'})),
+  ...eventHits.filter(x=>x.id&&(x.clubId||x.roomSlug)).map(x=>({type:'event',id:x.type+':'+(x.clubId||x.roomSlug)+':'+x.id,
+     title:x.title||'Evento musical',desc:(x.type==='fanclub'?'Fan Club':'Sala')+' · '+new Date(Number(x.startAt)).toLocaleDateString('pt-BR'),icon:'▦'})),
+  ...peopleHits.filter(x=>x.id).map(x=>({type:'person',id:x.id,title:x.name||x.nickname||'Pessoa',desc:x.bio||'Comunidade SonoraFan',icon:'◉'})),
+  ...favHits.filter(x=>x.id).map(x=>({type:'favorite',id:x.id,title:x.title||'Música favorita',desc:x.artist||'Minha biblioteca',icon:'♫'}))
+ ];
+ index=0;
+ if(!results.length&&settled.every(x=>x.status==='rejected')){show('Não foi possível consultar a busca. Tente novamente.');return;}
+ render();
+ if(settled.some(x=>x.status==='rejected')){
+  const footer=panel?.querySelector('footer');
+  if(footer)footer.textContent+=' · Algumas fontes indisponíveis';
+ }
+}
+function schedule(term){
+ clearTimeout(timer);seq++;controller?.abort();
+ const q=String(term||'').trim().slice(0,90);
+ if(q.length<2){results=[];close();return;}
+ timer=setTimeout(()=>search(q),240);
+}
+function takeSource(input){
+ if(source!==input){
+  source?.setAttribute('aria-expanded','false');
+  source=input;
+ }
+ labelFields();
+}
 function init(){
- const input=$('sf107Search'),parent=select();if(!input||!parent)return;
- input.placeholder='Buscar salas, Fan Clubs, eventos e pessoas…';
- input.setAttribute('aria-label','Buscar em toda a plataforma SonoraFan');
- input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-controls','sf208SearchResults');
- const layer=document.createElement('div');layer.id='sf208SearchResults';layer.className='sf208-search-results';layer.setAttribute('role','listbox');layer.hidden=true;parent.after(layer);
- const align=()=>{if(innerWidth<=670){layer.style.left='8px';layer.style.width='calc(100vw - 16px)';}else{layer.style.left=parent.offsetLeft+'px';layer.style.width=parent.offsetWidth+'px';}};
- align();window.addEventListener('resize',align,{passive:true});
- // Não interrompe o filtro de salas já existente no lobby.
- input.addEventListener('input',()=>{const q=input.value.trim().slice(0,70);clearTimeout(timer);if(q.length<2){serial++;aborter?.abort();close();return;}timer=setTimeout(()=>search(q),240);});
- input.addEventListener('focus',()=>{align();if(input.value.trim().length>1)search(input.value.trim());});
- input.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){close();return;}
-  if(!open||!results.length)return;
-  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();current=(current+(e.key==='ArrowDown'?1:-1)+results.length)%results.length;layer.querySelectorAll('[data-sf208-index]').forEach(b=>b.setAttribute('aria-selected',String(Number(b.dataset.sf208Index)===current)));layer.querySelector('[data-sf208-index="'+current+'"]')?.scrollIntoView({block:'nearest'});}
-  if(e.key==='Enter'){e.preventDefault();activate(results[current]);}
+ panel=document.createElement('div');
+ panel.id='sf208SearchResults';panel.className='sf208-search-results sf282-search-results';
+ panel.setAttribute('role','listbox');panel.hidden=true;
+ document.body.appendChild(panel);
+ labelFields();
+ document.addEventListener('focusin',event=>{
+  if(!validInput(event.target))return;
+  takeSource(event.target);
+  if(event.target.value.trim().length>=2)schedule(event.target.value);
  });
- layer.addEventListener('click',e=>{const b=e.target.closest('[data-sf208-index]');if(b)activate(results[Number(b.dataset.sf208Index)]);});
- document.addEventListener('pointerdown',e=>{if(!parent.contains(e.target)&&!layer.contains(e.target))close();},true);
+ // Capture phase makes search independent of local rerenders of agenda or Fan Club.
+ document.addEventListener('input',event=>{
+  if(!validInput(event.target))return;
+  takeSource(event.target);
+  schedule(event.target.value);
+ },true);
+ document.addEventListener('keydown',event=>{
+  if(!visible||!source||event.target!==source)return;
+  if(event.key==='Escape'){event.preventDefault();close();return;}
+  if(!results.length)return;
+  if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+   event.preventDefault();
+   index=(index+(event.key==='ArrowDown'?1:-1)+results.length)%results.length;
+   panel.querySelectorAll('[data-sf208-index]').forEach(el=>el.setAttribute('aria-selected',String(Number(el.dataset.sf208Index)===index)));
+   panel.querySelector('[data-sf208-index="'+index+'"]')?.scrollIntoView({block:'nearest'});
+  }
+  if(event.key==='Enter'){event.preventDefault();activate(results[index]);}
+ },true);
+ panel.addEventListener('click',event=>{
+  const option=event.target.closest('[data-sf208-index]');
+  if(option)activate(results[Number(option.dataset.sf208Index)]);
+ });
+ document.addEventListener('pointerdown',event=>{
+  if(!panel.contains(event.target)&&event.target!==source&&!event.target.closest('.sf282-unified-search'))close();
+ },true);
+ document.addEventListener('scroll',reposition,true);
+ window.addEventListener('resize',reposition,{passive:true});
+ window.addEventListener('sf282:search-close',close);
+ window.sf282GlobalSearch={search:term=>{const input=$('sf107Search');if(input){takeSource(input);input.value=term;input.focus();schedule(term);}},close};
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
