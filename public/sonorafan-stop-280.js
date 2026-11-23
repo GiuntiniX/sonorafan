@@ -112,6 +112,7 @@ function gameView(){
  (host?'<button class="sf280-primary" data-stop="score">Concluir votação e contar pontos</button>':'<p>Aguardando a conferência do anfitrião…</p>');
  return top+'<div class="sf280-podium">🏆 Classificação</div><div class="sf280-ranks">'+g.players.slice().sort((a,b)=>b.score-a.score).map((p,i)=>'<div><b>'+(i+1)+'º</b><strong>'+esc(p.name)+'</strong><span>'+p.score+' pontos</span></div>').join('')+'</div>'+
  '<div class="sf280-roundscores">'+(g.scores||[]).map(p=>'<div>'+esc(p.name)+' <b>+'+p.roundPoints+'</b></div>').join('')+'</div>'+
+ '<div class="sf280-awards">'+(g.awards||[]).map(a=>'<span>'+esc(a.badge)+' · '+esc(a.name)+'</span>').join('')+'</div>'+
  (host&&g.round<g.maxRounds?'<button class="sf280-primary" data-stop="start">Próxima rodada →</button>':'')+
  (g.round>=g.maxRounds?'<p>Fim de jogo! Crie outra partida para continuar.</p>':'')+
  '<button data-stop="leave">Sair da partida</button>';
