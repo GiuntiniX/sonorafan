@@ -83,3 +83,15 @@ Aplica-se ao chat de sala, privada (inbox, conversa, busca de pessoas, configura
 4. Testar os níveis de brilho, persistência após recarregar e compatibilidade com mobile.
 5. Verificar ações de chat, DM, reações, favoritos, fila, player e autenticação.
 6. Confirmar deploy do commit `main`; alterações de repositório não garantem publicação automática.
+
+## 8. Busca global padronizada (v282.1)
+
+A pesquisa principal deve funcionar independentemente da página pública aberta. O usuário pesquisa simultaneamente **salas públicas, Fan Clubs, eventos da Agenda Musical, pessoas acessíveis e músicas favoritas próprias**. Resultados são agrupados por origem, com navegação por teclado (↑/↓, Enter e Esc), foco visível, busca com acentos normalizados, estados vazios e avisos de falha parcial.
+
+Campos integrados: `sf107Search` (topo padrão), `sf216Search` (Salas), `sf235Search` e `sf71ClubSearch` (Fan Clubs), `sf200Search` (Agenda Musical), `sf191ClubSearch` (comunidades) e `sf282RoomSearch` (sala ao vivo, com acesso compacto no mobile). A pesquisa local de cada página e seus filtros podem continuar complementares; **não devem substituir ou esconder os resultados globais**.
+
+Usar sempre a mesma linguagem visual do Design System: formato arredondado, fundo vinho-escuro, texto claro, borda suave e foco laranja. Exibir categorias e origem em cada resultado. Não consultar conteúdo privado sem autorização.
+
+Exceções funcionais deliberadas: buscadores do YouTube para adicionar faixas, mensagens privadas e ferramentas administrativas têm objetivos específicos e **não são substituídos** pela pesquisa pública global.
+
+Implementação: `public/sonorafan-global-search-208.js` e `.css` (motor unificado), `public/sonorafan-room-shell-276.js` (campo da sala), com importações versionadas em `public/index.html`. Validar interfaces mobile e desktop após o deploy.
