@@ -364,6 +364,7 @@ async function createEvent(preferredClub='',editing=null){
    state.toast=editing?'Evento atualizado com sucesso. Presenças mantidas.':'Evento publicado! Ele aparece agora em Meus eventos e no calendário.';
    if(editing?.type==='fanclub')document.dispatchEvent(new CustomEvent('sf203:event-updated',{detail:{clubId:editing.clubId,eventId:editing.id}}));
    await load(true,true);
+   document.dispatchEvent(new CustomEvent('sf279:agenda-updated',{detail:{action:editing?'updated':'created',type}}));
    const savedId=editing?.id||createdEvent?.id||createdEvent?.event?.id;
    const saved=state.events.find(e=>e.id===savedId&&e.type===type);
    if(saved)detail(saved);
@@ -403,6 +404,7 @@ async function deleteEvent(e){
   const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error||'Não foi possível cancelar o evento.');
   state.toast='Evento cancelado e removido da agenda.';state.lastLoad=0;
   await load(true,true);
+  document.dispatchEvent(new CustomEvent('sf279:agenda-updated',{detail:{action:'deleted',type:e.type}}));
  }catch(error){alert(error.message||'Não foi possível cancelar este evento.');}
 }
 function handle(event){
