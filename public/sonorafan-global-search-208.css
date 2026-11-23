@@ -15,3 +15,74 @@
 .sf208-search-state{font-size:12px;color:#f4e8fb;padding:13px}
 #sf208SearchResults footer{font-size:10px;color:#bea7c9;padding:10px;border-top:1px solid #68457a}
 @media(max-width:670px){#sf208SearchResults{position:fixed;top:65px;left:8px;right:8px;max-height:70dvh;min-width:0}}
+
+/* SonoraFan 282 — busca unificada da plataforma em todas as páginas públicas.
+   Música YouTube, mensagens privadas e pesquisas administrativas têm finalidade distinta. */
+#sf208SearchResults.sf282-search-results{
+  position:fixed!important;z-index:16000!important;
+  right:auto;left:8px;top:75px;bottom:auto;
+  background:#1a0c21!important;color:#f6f1fb!important;
+  border:1px solid #8a4b16!important;
+  border-radius:15px!important;
+  box-shadow:0 22px 65px rgba(0,0,0,.62)!important;
+  padding:9px!important;
+  min-width:0!important;
+  overflow:auto!important;
+}
+#sf208SearchResults.sf282-search-results .sf208-search-group h3{
+  color:#c8ff00!important;
+}
+#sf208SearchResults.sf282-search-results [data-sf208-index]:hover,
+#sf208SearchResults.sf282-search-results [data-sf208-index][aria-selected="true"]{
+  background:#2d1735!important;border-color:#ff9300!important;
+}
+#sf208SearchResults.sf282-search-results [data-sf208-index]{
+  color:#f6f1fb!important;
+}
+#sf208SearchResults.sf282-search-results .sf208-search-icon{
+  background:rgba(200,255,0,.1)!important;color:#c8ff00!important;
+}
+#sf208SearchResults.sf282-search-results [data-sf208-index]:focus-visible{
+  outline:2px solid #ff9300!important;outline-offset:-2px!important;
+}
+/* Shared style for primary searches; retain individual filtering functionality. */
+#screen-lobby.sf125-platform .sf282-unified-search{
+  border-color:#62506c!important;
+  border-radius:999px!important;
+  background:#201428!important;
+  color:#f6f1fb!important;
+}
+#screen-lobby.sf125-platform .sf282-unified-search:focus-within{
+  border-color:#ff9300!important;
+  box-shadow:0 0 0 2px rgba(255,147,0,.16)!important;
+}
+#screen-lobby.sf125-platform .sf282-unified-search input[type="search"]{
+  font-family:Inter,system-ui,sans-serif!important;
+  font-size:13px!important;
+  color:#f6f1fb!important;
+  min-width:0!important;
+}
+#screen-lobby.sf125-platform .sf282-unified-search input[type="search"]::placeholder{
+  color:#cdb9da!important;opacity:1!important;
+}
+#screen-lobby.sf125-platform .sf200-search.sf282-unified-search,
+#screen-lobby.sf125-platform .sf235-search.sf282-unified-search,
+#screen-lobby.sf125-platform .sf191-club-search.sf282-unified-search{
+  min-height:43px!important;
+  border:1px solid #62506c!important;
+  border-radius:999px!important;
+  padding:6px 13px!important;
+}
+#screen-lobby.sf125-platform .sf200-search.sf282-unified-search:focus-within,
+#screen-lobby.sf125-platform .sf235-search.sf282-unified-search:focus-within,
+#screen-lobby.sf125-platform .sf191-club-search.sf282-unified-search:focus-within{
+  border-color:#ff9300!important;
+}
+@media(max-width:670px){
+ #sf208SearchResults.sf282-search-results{
+  width:calc(100vw - 16px);max-height:min(64dvh,450px)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #sf208SearchResults.sf282-search-results *{animation:none!important;transition:none!important}
+}
