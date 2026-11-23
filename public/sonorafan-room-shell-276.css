@@ -1,0 +1,88 @@
+/* SonoraFan 276 — Rooms use the same sidebar/page split as lobby and agenda.
+   Desktop: persistent nav. Tablet: icon rail. Mobile: keep existing room tabs. */
+@media(min-width:769px){
+ body #screen-room.sf113-room > .app:has(> #sf276RoomSidebar),
+ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app:has(> #sf276RoomSidebar),
+ body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app:has(> #sf276RoomSidebar){
+  display:grid!important;
+  grid-template-columns:224px minmax(0,1fr)!important;
+  grid-template-rows:68px minmax(0,1fr)!important;
+  width:100%!important;max-width:100%!important;height:100%!important;
+  overflow:hidden!important;
+ }
+ #screen-room.sf113-room > .app > #sf276RoomSidebar{
+  grid-column:1!important;grid-row:1/3!important;
+  display:flex!important;flex-direction:column!important;
+  min-width:0!important;min-height:0!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  padding:20px 12px 14px!important;
+  background:radial-gradient(ellipse at 0 100%,#a9006b1b,transparent 55%),#120616!important;
+  border-right:1px solid #4d354f!important;
+  z-index:46!important;box-sizing:border-box!important;
+ }
+ body #screen-room.sf113-room > .app > .header,
+ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > .header,
+ body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app > .header{
+  grid-column:2!important;grid-row:1!important;
+  width:100%!important;min-width:0!important;
+  box-sizing:border-box!important;
+ }
+ body #screen-room.sf113-room > .app > #roomLayout,
+ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > #roomLayout,
+ body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app > #roomLayout{
+  grid-column:2!important;grid-row:2!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  box-sizing:border-box!important;
+ }
+ #screen-room.sf113-room > .app > .header .sf113-brand{display:none!important}
+ #screen-room.sf113-room > .app > .header .sf113-nav{max-width:calc(100% - 280px)}
+}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-brand{
+ display:flex;align-items:center;justify-content:center;
+ margin:0 0 15px;padding:1px 12px;min-height:67px;
+}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-brand img{display:block;width:100%;max-width:185px;height:auto;max-height:70px;object-fit:contain}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-nav{display:flex;flex-direction:column;gap:5px}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-nav button{
+ display:flex;align-items:center;gap:13px;
+ padding:10px 13px;min-height:45px;width:100%;
+ border-radius:999px;border:1px solid transparent;
+ background:transparent;color:#f6f1fb;
+ text-align:left;font:750 13px/1.3 Inter,system-ui,sans-serif;
+ cursor:pointer;white-space:nowrap;
+}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-nav button:hover{background:#2d1735;border-color:#5d3150}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-nav button.is-active{
+ background:#c8ff00!important;color:#16100e!important;border-color:#c8ff00!important;
+}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-nav button:focus-visible{outline:2px solid #ff9300;outline-offset:2px}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-icon{font-size:20px;min-width:25px;text-align:center;line-height:1}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-divider{height:1px;background:#493648;margin:18px 9px}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-section{font-size:11px;color:#cdb9da;font-weight:800;padding:0 13px 10px}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-create button{min-height:42px;border-radius:10px;font-size:12px}
+#screen-room.sf113-room #sf276RoomSidebar .sf276-ambient{
+ flex:1 1 70px;min-height:95px;margin-top:15px;
+ background:linear-gradient(#120616,transparent 70%,#120616),url('/art-33/speakers.webp') center bottom/contain no-repeat;
+ opacity:.65;pointer-events:none;
+}
+@media(min-width:769px) and (max-width:1430px){
+ body #screen-room.sf113-room > .app:has(> #sf276RoomSidebar),
+ body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app:has(> #sf276RoomSidebar),
+ body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app:has(> #sf276RoomSidebar){
+  grid-template-columns:68px minmax(0,1fr)!important;
+ }
+ #screen-room.sf113-room > .app > #sf276RoomSidebar{padding:12px 7px!important}
+ #screen-room.sf113-room #sf276RoomSidebar .sf276-brand{min-height:50px;padding:0;margin-bottom:9px}
+ #screen-room.sf113-room #sf276RoomSidebar .sf276-brand img{max-width:54px}
+ #screen-room.sf113-room #sf276RoomSidebar .sf276-nav button{
+   justify-content:center;padding:8px!important;min-height:43px;
+ }
+ #screen-room.sf113-room #sf276RoomSidebar .sf276-label,
+ #screen-room.sf113-room #sf276RoomSidebar .sf276-section,
+ #screen-room.sf113-room #sf276RoomSidebar .sf276-ambient{display:none}
+ #screen-room.sf113-room #sf276RoomSidebar .sf276-divider{margin:10px 3px}
+ #screen-room.sf113-room #sf276RoomSidebar .sf276-icon{min-width:auto}
+}
+@media(max-width:768px){
+ #screen-room.sf113-room > .app > #sf276RoomSidebar{display:none!important}
+}
