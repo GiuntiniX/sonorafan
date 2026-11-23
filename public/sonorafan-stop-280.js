@@ -4,6 +4,11 @@
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const modes={classic:'Stop Clássico',music:'Stop Musical',festival:'Stop Festival'};
+const cats={
+ classic:['Nome','Cidade','País','Animal','Comida','Objeto','Cor'],
+ music:['Artista ou banda','Música','Álbum','Festival','Instrumento','Gênero musical'],
+ festival:['Nome','Cidade','Animal','Comida','Artista ou banda','Música','Festival']
+};
 const s={socket:null,id:'',me:'',game:null,list:[],answers:{},error:'',visible:false};
 let overlay;
 const inRoom=()=>$('screen-room')?.classList.contains('active');
@@ -58,7 +63,9 @@ async function create(kind){
  try{
   const roomSlug=kind==='room'?slug():null;
   if(kind==='room'&&!roomSlug)throw Error('Entre primeiro em uma sala musical.');
-  const v=await api('stop:create',{roomSlug,mode:$('sf280Mode')?.value||'music',duration:Number($('sf280Duration')?.value||90),rounds:Number($('sf280Rounds')?.value||5)});
+  const categories=[...overlay.querySelectorAll('[data-stop-category]:checked')].map(x=>x.value);
+  if(categories.length<4)throw Error('Selecione pelo menos quatro categorias.');
+  const v=await api('stop:create',{roomSlug,mode:$('sf280Mode')?.value||'music',categories,duration:Number($('sf280Duration')?.value||90),rounds:Number($('sf280Rounds')?.value||5)});
   s.id=v.id;s.me=v.playerId;s.error='';render();
  }catch(e){issue(e)}
 }
@@ -68,11 +75,15 @@ function seconds(){
  const n=Math.max(0,Math.ceil((deadline-Date.now())/1000));
  return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');
 }
+function categoryOptions(mode){
+ return (cats[mode]||cats.music).map(label=>'<label><input type="checkbox" data-stop-category value="'+esc(label)+'" checked><span>'+esc(label)+'</span></label>').join('');
+}
 function lobby(){
  return '<div class="sf280-hero"><span>SONORAFAN GAMES</span><h2>STOP! <em>Jogue com a galera</em></h2><p>Escolha uma modalidade e desafie até 10 amigos. Música e chat continuam funcionando na sua sala.</p></div>'+
  '<div class="sf280-settings"><label>Modalidade<select id="sf280Mode"><option value="classic">Stop Clássico</option><option value="music" selected>Stop Musical</option><option value="festival">Stop Festival</option></select></label>'+
  '<label>Tempo por rodada<select id="sf280Duration"><option value="60">60 segundos</option><option value="90" selected>90 segundos</option><option value="120">120 segundos</option></select></label>'+
  '<label>Rodadas<select id="sf280Rounds"><option value="3">3</option><option value="5" selected>5</option><option value="7">7</option><option value="10">10</option></select></label></div>'+
+ '<div class="sf280-category-box"><strong>Categorias da partida</strong><p>Escolha pelo menos quatro categorias.</p><div id="sf280Categories">'+categoryOptions('music')+'</div></div>'+
  '<div class="sf280-buttons"><button class="sf280-primary" data-stop="create">＋ Criar partida</button>'+
  (slug()?'<button data-stop="create-room">♫ Jogar nesta sala</button><button data-stop="find-room">Encontrar partida da sala</button>':'')+'</div>'+
  '<div class="sf280-code"><label>Código para entrar</label><div><input id="sf280Code" placeholder="Código de 6 caracteres" maxlength="6"><button data-stop="join-code">Entrar</button></div></div>'+
@@ -129,7 +140,9 @@ function mount(){
   const button=e.target.closest('[data-stop]');if(button)act(button.dataset.stop);
  });
  overlay.addEventListener('input',e=>{const field=e.target.closest('[data-stop-answer]');if(field)s.answers[Number(field.dataset.stopAnswer)]=field.value});
- overlay.addEventListener('change',e=>{const field=e.target.closest('[data-stop-answer]');if(field)api('stop:answer',{index:Number(field.dataset.stopAnswer),text:field.value}).catch(issue)});
+ overlay.addEventListener('change',e=>{
+  if(e.target.id==='sf280Mode'){const box=$('sf280Categories');if(box)box.innerHTML=categoryOptions(e.target.value);return;}
+  const field=e.target.closest('[data-stop-answer]');if(field)api('stop:answer',{index:Number(field.dataset.stopAnswer),text:field.value}).catch(issue)});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&s.visible)close()});
  setInterval(()=>{if(s.visible&&s.game?.phase==='playing'){const el=$('sf280Clock');if(el){el.textContent=seconds();el.classList.toggle('low',seconds()==='00:10'||seconds().startsWith('00:0'))}}},500);
  const room=document.createElement('button');room.className='sf280-launch sf280-room-launch';room.type='button';room.textContent='🎮 Jogar Stop';room.addEventListener('click',open);
