@@ -96,3 +96,12 @@ body.sf280-open{overflow:hidden!important}
  .sf280-lobby-launch{font-size:11px}
 }
 @media(prefers-reduced-motion:reduce){#sf280Overlay *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Categorias configuráveis: seleção amigável ao toque. */
+#sf280Content .sf280-category-box{margin:6px 0 18px;padding:14px;border:1px solid #745184;background:#241630;border-radius:14px}
+#sf280Content .sf280-category-box>strong{display:block;font-size:14px;color:#f4e8ff}
+#sf280Content .sf280-category-box>p{font-size:12px;margin:4px 0 12px}
+#sf280Categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#sf280Categories label{display:flex;gap:9px;align-items:center;padding:9px 10px;min-width:0;background:#362443;border:1px solid #664676;border-radius:10px;cursor:pointer;line-height:1.35;overflow-wrap:anywhere}
+#sf280Categories input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;min-height:18px;padding:0;accent-color:#caff00}
+@media(max-width:390px){#sf280Categories{grid-template-columns:minmax(0,1fr)}}
