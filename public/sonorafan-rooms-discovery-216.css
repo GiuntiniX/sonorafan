@@ -330,7 +330,9 @@
   overflow-y:auto!important;
   overflow-x:hidden!important;
   overscroll-behavior:contain;
-  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:#5c5163 #0e0e10;
+  scrollbar-gutter:auto;
 }
 @media(max-width:768px){
   #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-app.sf125-app{
