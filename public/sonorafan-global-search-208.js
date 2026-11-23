@@ -8,7 +8,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
 const contains=(haystack,q)=>norm(haystack).includes(norm(q));
-const MAIN_IDS=new Set(['sf107Search','sf200Search','sf235Search','sf216Search','sf191ClubSearch','sf71ClubSearch']);
+const MAIN_IDS=new Set(['sf107Search','sf200Search','sf235Search','sf216Search','sf191ClubSearch','sf71ClubSearch','sf282RoomSearch']);
 let panel=null,source=null,results=[],index=0,seq=0,timer=null,controller=null,visible=false;
 const names={room:'Salas',club:'Fan Clubs',event:'Agenda Musical',person:'Pessoas',favorite:'Minhas favoritas'};
 const validInput=node=>node?.tagName==='INPUT'&&MAIN_IDS.has(node.id)&&node.type==='search';
