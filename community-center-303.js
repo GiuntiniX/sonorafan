@@ -124,7 +124,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    emitChanged();
    // A recompensa é entregue exclusivamente após o voto persistido, uma vez por campanha.
    let bonusApplied=false;
-   if(result.type==='mission'&&result.bonusXP>0){
+   if(result.type==='mission'&&(result.bonusXP>0||result.badgeName)){
      try{bonusApplied=!!await gamification45?.awardCampaignBonus?.(email,id,result.bonusXP,result.badgeName);}
      catch(e){console.error('Bônus de missão:',e.message);}
    }
@@ -137,7 +137,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    ensureReady();
    const email=sessionEmail(req);if(!email)throw httpError(401,'Faça login.');
    const id=String(req.params.id||''),c=current.get(id);
-   if(!c||c.type!=='mission'||!c.bonusXP)throw httpError(404,'Recompensa não encontrada.');
+   if(!c||c.type!=='mission'||(!c.bonusXP&&!c.badgeName))throw httpError(404,'Recompensa não encontrada.');
    const vote=await campaigns.doc(id).collection('votes').doc(hash(email)).get();
    if(!vote.exists)throw httpError(403,'Participe da missão antes de receber XP.');
    const result=await gamification45.awardCampaignBonus(email,id,c.bonusXP,c.badgeName);
