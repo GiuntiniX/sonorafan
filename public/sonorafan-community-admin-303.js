@@ -54,7 +54,7 @@ async function createCampaign(ev){
  try{
    await api('/api/admin/community303/campaigns',body);
    note('sf303CampaignNote','Rascunho criado. Revise antes de publicar.');
-   form.reset();await loadCampaigns();
+   form.reset();form.elements.type?.dispatchEvent(new Event('change'));form.elements.scope?.dispatchEvent(new Event('change'));await loadCampaigns();
  }catch(e){note('sf303CampaignNote',e.message);}
  finally{busy=false;if(button)button.disabled=false;}
 }
