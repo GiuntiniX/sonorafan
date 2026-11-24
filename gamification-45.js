@@ -209,12 +209,15 @@ function applyAction(doc, action, id, now = new Date()) {
 function createGamification45({ db, app, sessionEmail, users, userPoints, io }) {
   // Reset administrativo global, sempre disparado explicitamente e nunca no boot.
   let resetInProgress = false;
+  const activeAwards = new Set();
   const isResetting = () => resetInProgress;
   async function resetAllProgress(){
     if(resetInProgress) {
       const err=new Error('Já existe um reset de gamificação em andamento.');err.status=409;throw err;
     }
     resetInProgress=true;
+    // Deixe transações de XP em andamento terminarem antes de gravar o zero.
+    await Promise.allSettled([...activeAwards]);
     let players=0, rankingRecords=0;
     try {
       const period=localPeriod(new Date());
@@ -261,7 +264,7 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
     const snap = await pointsRef(email).get();
     return publicSnapshot(snap.exists ? snap.data() : { points: 0, badges: [] });
   }
-  async function award(email, action, key) {
+  async function awardInternal(email, action, key) {
     if (!email || !action || !key || resetInProgress) return null;
     const ref = pointsRef(email);
     // Ranking 6.0: períodos independentes do XP legado, atualizados na MESMA transação.
@@ -310,6 +313,13 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
       }
     }
     return { ...visible, gained: result.gained, rewards: result.rewards };
+  }
+  function award(email, action, key) {
+    if(resetInProgress)return Promise.resolve(null);
+    const running=awardInternal(email,action,key);
+    activeAwards.add(running);
+    running.then(()=>activeAwards.delete(running),()=>activeAwards.delete(running));
+    return running;
   }
   async function getLeaderboard(limit = 10) {
     const size = Math.max(1, Math.min(30, Number(limit) || 10));
