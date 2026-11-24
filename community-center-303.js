@@ -30,6 +30,8 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
  const reportError=(res,e)=>res.status(e.status||503).json({error:e.status?e.message:'Serviço temporariamente indisponível.'});
  const eligiblePeriod=c=>c.status==='published'&&c.startsAt<=Date.now()&&c.endsAt>Date.now();
  function emitChanged(){io.emit('sf303:changed',{at:Date.now()});}
+ let lastVoteSignal=0;
+ function signalVoteChanged(){const now=Date.now();if(now-lastVoteSignal>=5000){lastVoteSignal=now;emitChanged();}}
  async function load(){
   if(loadingInitial)return;
   loadingInitial=true;
@@ -143,7 +145,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
     return {...c,counts,totalVotes:(Number(c.totalVotes)||0)+1,id};
    });
    if(result.totalVotes>=Number(current.get(id)?.totalVotes||0))current.set(id,result);
-   emitChanged();
+   signalVoteChanged();
    // A recompensa é entregue exclusivamente após o voto persistido, uma vez por campanha.
    let bonusApplied=false;
    if(result.type==='mission'&&(result.bonusXP>0||result.badgeName)){
