@@ -1,9 +1,9 @@
 'use strict';
 // SonoraFan 304 — máscara de palavras de baixo calão em português, inglês e espanhol.
 const BASE_304=Object.freeze({
- pt:['merda','merdas','bosta','bostas','porra','porras','caralho','caralhos','carai','puta','puto','putas','putos','putaria','putinha','putinho','foda','foder','fode','fodeu','fodase','fodasse','fodido','fodida','fudido','fudida','buceta','boceta','piroca','cuzão','arrombado','arrombada','desgraçado','desgraçada','filhodaputa','vagabunda','vagabundo'],
- en:['fuck','fucks','fucker','fuckers','fucking','fucked','motherfucker','motherfucking','shit','shits','shitty','bullshit','bitch','bitches','bastard','bastards','asshole','assholes','dick','dicks','cock','cocks','prick','pricks','pussy','cunt','cunts','slut','sluts','whore','whores','wtf','dammit'],
- es:['mierda','mierdas','joder','jodete','jodido','jodida','puta','puto','putas','putos','coño','cojones','cabrón','cabrona','pendejo','pendeja','chingada','chingado','chingar','chinga','verga','vergas','culero','culera','culo','carajo','gilipollas','maricón','boludo','boluda','pelotudo','pelotuda','gonorrea','malparido','malparida']
+ pt:['merda','merdas','bosta','bostas','porra','porras','caralho','caralhos','carai','puta','puto','putas','putos','putaria','putinha','putinho','foda','foder','fode','fodeu','fodase','fodasse','fodido','fodida','fudido','fudida','buceta','boceta','piroca','cuzão','arrombado','arrombada','desgraçado','desgraçada','filhodaputa','vagabunda','vagabundo','fdp','pqp','vsf','tmnc','krl','crl'],
+ en:['fuck','fucks','fucker','fuckers','fucking','fucked','motherfucker','motherfucking','shit','shits','shitty','bullshit','bitch','bitches','bastard','bastards','asshole','assholes','dick','dicks','cock','cocks','prick','pricks','pussy','cunt','cunts','slut','sluts','whore','whores','wtf','dammit','douchebag','jackass'],
+ es:['mierda','mierdas','joder','jodete','jodido','jodida','puta','puto','putas','putos','coño','cojones','cabrón','cabrona','pendejo','pendeja','chingada','chingado','chingar','chinga','verga','vergas','culero','culera','culo','carajo','gilipollas','maricón','boludo','boluda','pelotudo','pelotuda','gonorrea','malparido','malparida','hijoputa','hijueputa','huevon','soplapollas']
 });
 const LEET_304={'@':'a','4':'a','0':'o','1':'i','!':'i','3':'e','$':'s','5':'s','7':'t','8':'b'};
 const ALT_304={a:'[aáàâãä@4]',e:'[eéèêë3]',i:'[iíìîï1!]',o:'[oóòôõö0]',u:'[uúùûü]',c:'[cç]',n:'[nñ]',s:'[s$5]',t:'[t7]',b:'[b8]'};
