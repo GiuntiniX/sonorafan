@@ -6,7 +6,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const valid=v=>typeof v==='string'&&v.length>0&&v.length<=140&&!/[\/\\\u0000-\u001f\u007f]/.test(v); // inclui identificadores antigos com acentos
 const fmt=v=>Math.max(0,Number(v)||0).toLocaleString('pt-BR');
-const state={rooms:[],bookmarks:new Set(),mode:'discover',query:'',style:'',activity:'all',sort:'popular',view:'grid',limit:12,ready:false,loading:false,lastFetch:0,lastFavorites:0,favoritesError:''};
+const state={rooms:[],bookmarks:new Set(),mode:'discover',query:'',style:'',activity:'all',sort:'popular',view:'grid',featuredIndex:0,limit:12,ready:false,loading:false,lastFetch:0,lastFavorites:0,favoritesError:''};
 const styles=[['','Todos'],['kpop','K-pop'],['pop','Pop'],['jpop','J-pop'],['trap','Trap'],['lofi','Lo-fi'],['indie','Indie'],['rock','Rock'],['mpb','MPB'],['eletronica','Eletrônica'],['funk','Funk'],['rap','Rap'],['sertanejo','Sertanejo'],['pagode','Pagode'],['reggae','Reggae'],['forro','Forró'],['jazz','Jazz'],['metal','Metal'],['samba','Samba']];
 function fallback(r){const theme=String(r.roomTheme||'');const set={geral:'/themes/final-172/indie.webp',indie:'/themes/final-164/indie.webp',kpop:'/themes/festival-214/kpop.svg',bts:'/themes/festival-214/bts.svg',jpop:'/themes/festival-214/jpop.svg',trap:'/themes/festival-214/trap.svg',lofi:'/themes/festival-214/lofi.svg',rock:'/themes/final-164/rock.webp',pop:'/themes/final-164/pop.webp',reggae:'/themes/final-170/reggae.webp',jazz:'/themes/final-170/jazz.webp'};return set[theme]||'/themes/final-172/indie.webp';}
 function cover(r){
@@ -36,10 +36,31 @@ function renderSideFavorites(){
 }
 function renderHero(list){
  const hero=$('sf216Hero');if(!hero)return;
- const eligible=state.mode==='discover'&&!state.query&&!state.style&&state.activity==='all'&&list.length;
- hero.hidden=!eligible;if(!eligible)return;
- const r=list[0],saved=state.bookmarks.has(r.slug);
- hero.innerHTML='<div class="sf216-hero-art">'+pic(r)+'</div><div class="sf216-hero-content"><span class="sf216-hero-kicker">♛ SALA EM DESTAQUE</span><h2>'+esc(r.name)+'</h2><p>'+esc(genre(r))+' · '+fmt(r.listenerCount)+' ouvintes</p><small>'+esc(r.currentTrack?.title?'♫ Tocando agora: '+r.currentTrack.title:'Entre na sala e escolha sua próxima música')+'</small><div class="sf216-hero-actions"><button type="button" data-sf216-join="'+esc(r.slug)+'">▶ Entrar na sala</button><button type="button" data-sf216-fav="'+esc(r.slug)+'" aria-pressed="'+saved+'" aria-label="'+(saved?'Remover dos favoritos':'Favoritar sala')+'">'+(saved?'♥':'♡')+'</button></div></div>';
+ const eligible=state.mode==='discover'&&!state.query&&!state.style&&state.activity==='all'&&list.length>0;
+ hero.hidden=!eligible;
+ if(!eligible){hero.replaceChildren();return;}
+ // Carrossel com os dados reais de /api/rooms. Nenhum card artificial.
+ const slides=list.filter(r=>valid(r.slug));
+ if(!slides.length){hero.hidden=true;return;}
+ state.featuredIndex=Math.min(Math.max(0,state.featuredIndex),slides.length-1);
+ const current=slides[state.featuredIndex],saved=state.bookmarks.has(current.slug);
+ const status=current.isPlaying?'● Tocando agora':'♫ Sala disponível';
+ const track=current.currentTrack?.title?'♫ '+current.currentTrack.title:'Escolha a próxima música com a galera';
+ hero.setAttribute('role','region');
+ hero.setAttribute('aria-roledescription','carrossel');
+ hero.setAttribute('aria-label','Salas disponíveis neste momento');
+ hero.innerHTML='<div class="sf216-slider-head"><div><strong>♫ Salas disponíveis agora</strong><small>'+fmt(slides.length)+' '+(slides.length===1?'sala':'salas')+' para descobrir</small></div>'+
+ '<div class="sf216-slider-controls"><span class="sf216-slider-count" aria-live="polite">'+(state.featuredIndex+1)+' / '+slides.length+'</span>'+
+ '<button type="button" data-sf216-slide="-1" aria-label="Sala anterior" '+(slides.length===1?'disabled':'')+'>‹</button>'+
+ '<button type="button" data-sf216-slide="1" aria-label="Próxima sala" '+(slides.length===1?'disabled':'')+'>›</button></div></div>'+
+ '<div class="sf216-slider-item" aria-label="Sala '+(state.featuredIndex+1)+' de '+slides.length+'">'+
+ '<div class="sf216-slider-art">'+pic(current)+'</div>'+
+ '<div class="sf216-slider-info"><span class="sf216-slider-badge">'+status+'</span>'+
+ '<h2>'+esc(current.name||'Sala musical')+'</h2>'+
+ '<p>'+esc(genre(current))+' · '+fmt(current.listenerCount)+' '+(Number(current.listenerCount)===1?'ouvinte':'ouvintes')+'</p>'+
+ '<small title="'+esc(track)+'">'+esc(track)+'</small>'+
+ '<div class="sf216-slider-actions"><button type="button" data-sf216-join="'+esc(current.slug)+'">▶ Entrar na sala</button>'+
+ '<button type="button" data-sf216-fav="'+esc(current.slug)+'" aria-pressed="'+saved+'" aria-label="'+(saved?'Remover dos favoritos':'Favoritar sala')+'">'+(saved?'♥':'♡')+'</button></div></div></div>';
  attachImageFallback(hero);
 }
 function renderFilters(){const holder=$('sf216Styles');if(!holder)return;holder.innerHTML=styles.map(([id,label])=>'<button type="button" data-sf216-style="'+esc(id)+'" aria-pressed="'+(state.style===id)+'" class="'+(state.style===id?'is-active':'')+'">'+esc(label)+'</button>').join('');
@@ -75,10 +96,11 @@ function showError(message){const node=$('sf216Status');if(node){node.textConten
 function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');const globalSearch=$('sf107Search');if(globalSearch){globalSearch.placeholder='Buscar em todo o SonoraFan…';globalSearch.value='';globalSearch.dispatchEvent(new Event('input',{bubbles:true}));}document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});window.sf207SetActive?.('lobby');}
 function open(mode='discover'){const page=$('sf216Explorer');if(!page)return;if(!$('screen-lobby')?.classList.contains('active')&&typeof window.showScreen==='function')window.showScreen('lobby');window.sf207LeavePage?.();window.sf200CloseAgenda?.();
 const search=$('sf107Search');if(search){search.placeholder='Buscar em todo o SonoraFan…';search.value=state.query;}
-state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discover';state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
+state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discover';state.featuredIndex=0;state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
-function onClick(e){const node=e.target.closest('[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage],[data-sf216-community]');if(!node)return;
+function onClick(e){const node=e.target.closest('[data-sf216-slide],[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage],[data-sf216-community]');if(!node)return;
+if(node.hasAttribute('data-sf216-slide')){const list=all().filter(r=>valid(r.slug));if(!list.length)return;const delta=Number(node.dataset.sf216Slide);if(delta!==1&&delta!==-1)return;state.featuredIndex=(state.featuredIndex+delta+list.length)%list.length;renderHero(list);return;}
 if(node.hasAttribute('data-sf216-manage')){enterRoom(node.dataset.sf216Manage,true);return;}
 if(node.hasAttribute('data-sf216-join')){enterRoom(node.dataset.sf216Join);return;}
 if(node.hasAttribute('data-sf216-fav'))return void toggleFavorite(node.dataset.sf216Fav);
