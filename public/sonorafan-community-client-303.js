@@ -60,7 +60,7 @@ function render(){
  el.innerHTML='<div class="sf303-live-header"><strong>♫ '+label+status+'</strong><button data-sf303-close type="button" aria-label="Dispensar e continuar ouvindo">✕</button></div>'+
  '<div class="sf303-live-body"><h2>'+esc(c.title)+'</h2>'+
  (c.description?'<p>'+esc(c.description)+'</p>':'')+
- (c.type==='mission'?'<small class="sf303-bonus">⭐ Participe e ganhe até '+fmt(c.bonusXP)+' XP</small>':'')+
+ (c.type==='mission'?'<small class="sf303-bonus">⭐ '+fmt(c.bonusXP)+' XP'+(c.badgeName?' · Medalha: '+esc(c.badgeName):'')+'</small>':'')+
  (c.type==='announcement'?'<button class="sf303-okay" data-sf303-close type="button">Entendi</button>':
  c.voted?renderResults(c):
  '<fieldset><legend class="sf303-sr">Escolha uma opção</legend>'+
