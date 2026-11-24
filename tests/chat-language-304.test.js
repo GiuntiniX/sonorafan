@@ -20,6 +20,8 @@ test('does not redact innocent words containing shorter letter sequences',()=>{
  assert.equal(maskText304('computador, classificado, passar, segurança e chocolate'),
   'computador, classificado, passar, segurança e chocolate');
  assert.equal(maskText304('Pop, rock, indie e festival 🎸'), 'Pop, rock, indie e festival 🎸');
+ assert.equal(maskText304('El cono es azul.'), 'El cono es azul.');
+ assert.equal(maskText304('¡Coño!'), '¡***!');
 });
 
 test('only exact matched spans are redacted',()=>{
