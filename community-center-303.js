@@ -19,7 +19,7 @@ const publicCampaign=c=>({
  scope:c.scope,scopeId:c.scopeId,channel:c.channel,
  startsAt:c.startsAt,endsAt:c.endsAt,status:c.status,
  counts:c.counts||[],totalVotes:c.totalVotes||0,
- bonusXP:c.type==='mission'?c.bonusXP:0
+ bonusXP:c.type==='mission'?c.bonusXP:0,badgeName:c.type==='mission'?c.badgeName||'':''
 });
 function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,audit,gamification45}){
  const campaigns=db.collection('sonorafanCampaigns303');
@@ -89,7 +89,8 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
   let endsAt=body?.endsAt?Date.parse(body.endsAt):startsAt+24*3600e3;
   if(!Number.isFinite(startsAt)||!Number.isFinite(endsAt)||startsAt<now-86400000||startsAt>now+90*86400000||endsAt<=startsAt||endsAt>startsAt+30*86400000)throw httpError(400,'Período inválido: início em até 90 dias e duração máxima de 30 dias.');
   const bonusXP=type==='mission'?bound(body?.bonusXP,0,50):0;
-  return {type,title,description,scope,scopeId:scope==='all'?'':scopeId,channel,choices:type==='announcement'?[]:choices,startsAt,endsAt,bonusXP};
+  const badgeName=type==='mission'?clean(body?.badgeName,36):'';
+  return {type,title,description,scope,scopeId:scope==='all'?'':scopeId,channel,choices:type==='announcement'?[]:choices,startsAt,endsAt,bonusXP,badgeName};
  }
  app.get('/api/community303/active',rateLimit(45,60000),async(req,res)=>{
   try{const email=sessionEmail(req);if(!email)return res.status(401).json({error:'Faça login.'});
@@ -124,7 +125,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    // A recompensa é entregue exclusivamente após o voto persistido, uma vez por campanha.
    let bonusApplied=false;
    if(result.type==='mission'&&result.bonusXP>0){
-     try{bonusApplied=!!await gamification45?.awardCampaignBonus?.(email,id,result.bonusXP);}
+     try{bonusApplied=!!await gamification45?.awardCampaignBonus?.(email,id,result.bonusXP,result.badgeName);}
      catch(e){console.error('Bônus de missão:',e.message);}
    }
    res.json({success:true,counts:result.counts,totalVotes:result.totalVotes,bonusApplied});
@@ -139,7 +140,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    if(!c||c.type!=='mission'||!c.bonusXP)throw httpError(404,'Recompensa não encontrada.');
    const vote=await campaigns.doc(id).collection('votes').doc(hash(email)).get();
    if(!vote.exists)throw httpError(403,'Participe da missão antes de receber XP.');
-   const result=await gamification45.awardCampaignBonus(email,id,c.bonusXP);
+   const result=await gamification45.awardCampaignBonus(email,id,c.bonusXP,c.badgeName);
    res.json({success:true,bonusApplied:!!result});
   }catch(e){reportError(res,e);}
  });
