@@ -111,3 +111,19 @@ test('missão entrega recompensa somente após voto persistido',async()=>{
  await h.req('POST','/api/community303/:id/vote',{user:'fan@example.com',params:{id},body:{option:0}});
  assert.equal(h.calls.filter(x=>x[0]==='XP').length,1);
 });
+
+test('batalha encerrada divulga vencedor sem publicar dados individuais',async()=>{
+ const h=harness();await new Promise(resolve=>setImmediate(resolve));
+ const created=await h.req('POST','/api/admin/community303/campaigns',{body:{
+  type:'battle',title:'Disputa entre estilos musicais',choices:['Rock','Pop'],scope:'all',channel:'banner'
+ }});
+ const id=created.payload.campaign.id;
+ await h.req('POST','/api/admin/community303/campaigns/:id/action',{params:{id},body:{action:'publish'}});
+ await h.req('POST','/api/community303/:id/vote',{user:'fan@example.com',params:{id},body:{option:0}});
+ await h.req('POST','/api/admin/community303/campaigns/:id/action',{params:{id},body:{action:'close'}});
+ const result=await h.req('GET','/api/community303/battle-highlight',{user:'fan@example.com'});
+ assert.equal(result.code,200);
+ assert.equal(result.payload.battle.winner,'Rock');
+ assert.equal(result.payload.battle.votes,1);
+ assert.equal(Object.hasOwn(result.payload.battle,'email'),false);
+});
