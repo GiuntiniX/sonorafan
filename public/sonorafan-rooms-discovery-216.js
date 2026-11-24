@@ -9,16 +9,21 @@ const fmt=v=>Math.max(0,Number(v)||0).toLocaleString('pt-BR');
 const state={rooms:[],bookmarks:new Set(),mode:'discover',query:'',style:'',activity:'all',sort:'popular',view:'grid',featuredIndex:0,limit:12,ready:false,loading:false,lastFetch:0,lastFavorites:0,favoritesError:''};
 // O destaque avança sozinho, exceto durante interações ou com movimento reduzido.
 const SF216_SLIDE_MS=6000;
+function sf216FeaturedRooms(){
+ // Ordem independente dos filtros de ordenação da lista: maior audiência primeiro.
+ const rooms=state.rooms.filter(r=>valid(r.slug));
+ return rooms.sort((a,b)=>Math.max(0,Number(b.listenerCount)||0)-Math.max(0,Number(a.listenerCount)||0)||Number(!!b.isPlaying)-Number(!!a.isPlaying)||String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
+}
 let sf216LastInteraction=0;
 let sf216AutoplayPaused=false;
 function sf216AutoplayTick(){
  const page=$('sf216Explorer'),hero=$('sf216Hero');
  if(!page||page.hidden||hero?.hidden||!hero?.isConnected)return;
  if(!$('screen-lobby')?.classList.contains('active')||!$('screen-lobby')?.classList.contains('sf216-explore-mode'))return;
- if(document.hidden||sf216AutoplayPaused||hero.matches(':hover')||hero.contains(document.activeElement))return;
+ if(document.hidden||sf216AutoplayPaused)return;
  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
- if(Date.now()-sf216LastInteraction<10000)return;
- const list=all().filter(r=>valid(r.slug));
+ if(Date.now()-sf216LastInteraction<6000)return;
+ const list=sf216FeaturedRooms();
  if(list.length<2)return;
  state.featuredIndex=(state.featuredIndex+1)%list.length;
  renderHero(list);
@@ -56,7 +61,7 @@ function renderHero(list){
  hero.hidden=!eligible;
  if(!eligible){hero.replaceChildren();return;}
  // Carrossel com os dados reais de /api/rooms. Nenhum card artificial.
- const slides=list.filter(r=>valid(r.slug));
+ const slides=sf216FeaturedRooms();
  if(!slides.length){hero.hidden=true;return;}
  state.featuredIndex=Math.min(Math.max(0,state.featuredIndex),slides.length-1);
  const current=slides[state.featuredIndex],saved=state.bookmarks.has(current.slug);
@@ -65,7 +70,7 @@ function renderHero(list){
  hero.setAttribute('role','region');
  hero.setAttribute('aria-roledescription','carrossel');
  hero.setAttribute('aria-label','Salas disponíveis neste momento');
- hero.innerHTML='<div class="sf216-slider-head"><div><strong>♫ Salas disponíveis agora</strong><small>'+fmt(slides.length)+' '+(slides.length===1?'sala':'salas')+' para descobrir</small></div>'+
+ hero.innerHTML='<div class="sf216-slider-head"><div><strong>♫ Salas com mais ouvintes</strong><small>'+fmt(slides.length)+' '+(slides.length===1?'sala':'salas')+' para descobrir</small></div>'+
  '<div class="sf216-slider-controls"><span class="sf216-slider-count" aria-live="polite">'+(state.featuredIndex+1)+' / '+slides.length+'</span>'+
  '<button type="button" data-sf216-slide="-1" aria-label="Sala anterior" '+(slides.length===1?'disabled':'')+'>‹</button>'+
  '<button type="button" data-sf216-slide="1" aria-label="Próxima sala" '+(slides.length===1?'disabled':'')+'>›</button></div></div>'+
@@ -116,7 +121,7 @@ state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discove
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
 function onClick(e){const node=e.target.closest('[data-sf216-slide],[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage],[data-sf216-community]');if(!node)return;
-if(node.hasAttribute('data-sf216-slide')){const list=all().filter(r=>valid(r.slug));if(!list.length)return;const delta=Number(node.dataset.sf216Slide);if(delta!==1&&delta!==-1)return;state.featuredIndex=(state.featuredIndex+delta+list.length)%list.length;sf216LastInteraction=Date.now();renderHero(list);$('sf216Hero')?.querySelector('[data-sf216-slide="'+delta+'"]')?.focus({preventScroll:true});return;}
+if(node.hasAttribute('data-sf216-slide')){const list=sf216FeaturedRooms();if(!list.length)return;const delta=Number(node.dataset.sf216Slide);if(delta!==1&&delta!==-1)return;state.featuredIndex=(state.featuredIndex+delta+list.length)%list.length;sf216LastInteraction=Date.now();renderHero(list);$('sf216Hero')?.querySelector('[data-sf216-slide="'+delta+'"]')?.focus({preventScroll:true});return;}
 if(node.hasAttribute('data-sf216-manage')){enterRoom(node.dataset.sf216Manage,true);return;}
 if(node.hasAttribute('data-sf216-join')){enterRoom(node.dataset.sf216Join);return;}
 if(node.hasAttribute('data-sf216-fav'))return void toggleFavorite(node.dataset.sf216Fav);
@@ -147,8 +152,9 @@ render();
 function init(){build();if(!$('sf216Explorer'))return;
 const sf216HeroEl=$('sf216Hero');
 if(sf216HeroEl){
- sf216HeroEl.addEventListener('pointerenter',()=>{sf216AutoplayPaused=true;});
- sf216HeroEl.addEventListener('pointerleave',()=>{sf216AutoplayPaused=false;sf216LastInteraction=Date.now();});
+ // A rotação segue ativa ao passar o mouse sobre o card; pausa apenas
+ // durante uma interação efetiva (clique, toque ou navegação pelo teclado).
+ sf216HeroEl.addEventListener('pointerdown',()=>{sf216LastInteraction=Date.now();});
  sf216HeroEl.addEventListener('focusin',()=>{sf216AutoplayPaused=true;});
  sf216HeroEl.addEventListener('focusout',e=>{if(!sf216HeroEl.contains(e.relatedTarget)){sf216AutoplayPaused=false;sf216LastInteraction=Date.now();}});
 }
