@@ -80,6 +80,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
     scope=clean(body?.scope||'all',12),scopeId=clean(body?.scopeId,100),
     channel=clean(body?.channel||'card',15);
   if(!TYPES.has(type)||!CHANNELS.has(channel)||!AUDIENCES.has(scope)||title.length<5)throw httpError(400,'Tipo, título ou exibição inválidos.');
+  if(channel==='chat'&&scope!=='room')throw httpError(400,'Exibição no chat requer uma sala específica.');
   if(scope!=='all'&&(!/^[a-zA-Z0-9_-]{2,100}$/.test(scopeId)))throw httpError(400,'Identificador de público inválido.');
   const choices=Array.isArray(body?.choices)?body.choices.map(v=>clean(v,70)).filter(Boolean):[];
   if(type!=='announcement'&&(choices.length<2||choices.length>6||new Set(choices.map(x=>x.toLowerCase())).size!==choices.length))throw httpError(400,'Use de 2 a 6 alternativas diferentes.');
@@ -180,11 +181,18 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
  async function recordVisit(email,section){
   if(!email||!['lobby','rooms','clubs','ranking','profile','agenda'].includes(section))return;
   newDay();
-  const key=hash(email)+':'+section;
+  const key=hash(email+':'+day()+':'+section);
   if(seenVisits.has(key))return;
   seenVisits.add(key);
-  try{await engagement.doc(day()).set({sections:{[section]:inc(1)},updatedAt:Date.now()},{merge:true});}
-  catch(e){seenVisits.delete(key);console.error('Visita303:',e.message);}
+  const ref=db.collection('sonorafanSectionVisits303').doc(key);
+  try{
+   await db.runTransaction(async tx=>{
+    const previous=await tx.get(ref);
+    if(previous.exists)return;
+    tx.set(ref,{section,day:day(),at:Date.now()});
+    tx.set(engagement.doc(day()),{sections:{[section]:inc(1)},updatedAt:Date.now()},{merge:true});
+   });
+  }catch(e){seenVisits.delete(key);console.error('Visita303:',e.message);}
  }
  async function recordJoin(room,email){
   if(!email||!room)return;
@@ -193,14 +201,20 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
   userSeen.add(key);
   try{
    if(first){
-    const ref=people.doc(key);
-    const previous=await ref.get(),lastDay=previous.exists?previous.data().lastDay:null;
-    await Promise.all([
-      ref.set({lastDay:day(),visits:inc(1),lastSeen:Date.now()},{merge:true}),
-      engagement.doc(day()).set({uniqueUsers:inc(1),returningUsers:lastDay&&lastDay!==day()?inc(1):inc(0),roomJoins:inc(1),updatedAt:Date.now()},{merge:true})
-    ]);
+    const ref=people.doc(key),dayRef=engagement.doc(day());
+    await db.runTransaction(async tx=>{
+     const snap=await tx.get(ref);
+     const prev=snap.exists?snap.data():{};
+     const isNewDay=prev.lastDay!==day();
+     tx.set(ref,{lastDay:day(),visits:inc(1),lastSeen:Date.now()},{merge:true});
+     tx.set(dayRef,{
+      uniqueUsers:inc(isNewDay?1:0),
+      returningUsers:inc(isNewDay&&!!prev.lastDay?1:0),
+      roomJoins:inc(1),updatedAt:Date.now()
+     },{merge:true});
+    });
    }else await engagement.doc(day()).set({roomJoins:inc(1),updatedAt:Date.now()},{merge:true});
-  }catch(e){console.error('Engajamento303:',e.message);}
+  }catch(e){if(first)userSeen.delete(key);console.error('Engajamento303:',e.message);}
  }
  async function recordRoomPlayback(room){
   if(!room?.isPlaying||!room.queue?.length)return;
@@ -211,11 +225,13 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
   seenTracks.set(room.slug,marker);
   const rawGenre=String(room.genre||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const genre=GENRES.has(rawGenre)?rawGenre:'outros';
-  try{await Promise.all([
-    metrics.doc(day()).set({starts:inc(1),genres:{[genre]:inc(1)},updatedAt:Date.now()},{merge:true}),
-    tracks.doc(track.id).set({title:clean(track.title,135),artist:clean(track.artist,95),genre,starts:inc(1),updatedAt:Date.now()},{merge:true}),
-    artists.doc(hash(clean(track.artist,95)||'artista sem nome')).set({artist:clean(track.artist,95)||'Artista sem nome',starts:inc(1),updatedAt:Date.now()},{merge:true})
-  ]);}
+  try{
+    const batch=db.batch(),at=Date.now(),artist=clean(track.artist,95)||'Artista sem nome';
+    batch.set(metrics.doc(day()),{starts:inc(1),genres:{[genre]:inc(1)},updatedAt:at},{merge:true});
+    batch.set(tracks.doc(track.id),{title:clean(track.title,135),artist,genre,starts:inc(1),updatedAt:at},{merge:true});
+    batch.set(artists.doc(hash(artist)),{artist,starts:inc(1),updatedAt:at},{merge:true});
+    await batch.commit();
+  }
   catch(e){seenTracks.delete(room.slug);console.error('Reprodução303:',e.message);}
  }
  async function recordSkip(room){
@@ -225,10 +241,12 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
  }
  async function recordAdded(room,track){
   if(!/^[a-zA-Z0-9_-]{11}$/.test(String(track?.id||'')))return;
-  try{await Promise.all([
-    tracks.doc(track.id).set({title:clean(track.title,135),artist:clean(track.artist,95),added:inc(1),updatedAt:Date.now()},{merge:true}),
-    artists.doc(hash(clean(track.artist,95)||'artista sem nome')).set({artist:clean(track.artist,95)||'Artista sem nome',added:inc(1),updatedAt:Date.now()},{merge:true})
-  ]);}catch(e){console.error('Adições303:',e.message);}
+  try{
+    const batch=db.batch(),artist=clean(track.artist,95)||'Artista sem nome',at=Date.now();
+    batch.set(tracks.doc(track.id),{title:clean(track.title,135),artist,added:inc(1),updatedAt:at},{merge:true});
+    batch.set(artists.doc(hash(artist)),{artist,added:inc(1),updatedAt:at},{merge:true});
+    await batch.commit();
+  }catch(e){console.error('Adições303:',e.message);}
  }
  app.post('/api/community303/visit',rateLimit(30,60000),async(req,res)=>{
   const email=sessionEmail(req);if(!email)return res.status(401).json({error:'Faça login.'});
