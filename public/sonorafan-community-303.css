@@ -47,6 +47,7 @@
 #sf303CommunityCard button:focus-visible{outline:2px solid #caff00;outline-offset:2px}
 #adminPanel .sf303-layout{display:grid;grid-template-columns:minmax(265px,.9fr) minmax(0,1.1fr);gap:15px;min-width:0;align-items:start}
 #adminPanel .sf303-form{display:grid;gap:10px;min-width:0}
+#adminPanel .sf303-form [hidden]{display:none!important}
 #adminPanel .sf303-form label{display:grid;gap:5px;font-size:12px;font-weight:750;color:#e8d7f2}
 #adminPanel .sf303-form :is(input,textarea,select){
  width:100%;min-width:0;max-width:100%;font:500 13px Inter,system-ui,sans-serif;
