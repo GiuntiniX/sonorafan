@@ -36,6 +36,8 @@ function scanText304(value){
    const found=[...lookup304].find(([key])=>key.replace(/(.)\1+/gu,'$1')===compact);
    if(found){term=found[0];lang=found[1];}
   }
+  // Em espanhol "cono" (cone) não deve virar "coño" por remoção de acento.
+  if(term==='cono'&&!/[ñÑ]/u.test(match[0]))lang=undefined;
   if(lang)spans.push({start:match.index,end:match.index+match[0].length,term,lang});
  }
  for(const item of separated304)for(const match of original.matchAll(item.regex)){
