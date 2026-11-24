@@ -93,6 +93,25 @@ async function onClick(e){
    }catch(e){button.disabled=false;note(e.message);}
  }
 }
+async function loadBattleHighlight(){
+ if(!document.querySelector('#screen-lobby.active'))return;
+ const hero=$('sf125LobbyHero');if(!hero)return;
+ try{
+  const response=await fetch('/api/community303/battle-highlight',{credentials:'include',cache:'no-store'});
+  if(!response.ok)return;
+  const data=await response.json(),battle=data.battle;
+  let banner=$('sf303BattleHighlight');
+  if(!battle){banner?.remove();return;}
+  if(!banner){
+   banner=document.createElement('aside');banner.id='sf303BattleHighlight';
+   banner.className='sf303-battle-highlight';
+   hero.insertAdjacentElement('afterend',banner);
+  }
+  banner.innerHTML='<span>🏆 Resultado da Batalha Musical</span>'+
+   '<strong>'+esc(battle.winner)+'</strong>'+
+   '<small>'+esc(battle.title)+' · '+fmt(battle.votes)+' votos</small>';
+ }catch(_){}
+}
 async function refresh(force=false){
  if(loading||!appVisible()||document.hidden)return;
  if(!force&&Date.now()-lastFetched<12000)return;
@@ -104,6 +123,7 @@ async function refresh(force=false){
    const data=await res.json();campaigns=Array.isArray(data.campaigns)?data.campaigns:[];
    campaigns.forEach(c=>{if(c.type==='mission'&&c.voted)claimBonus(c);});
    render();
+   loadBattleHighlight();
  }catch(_){}
  finally{loading=false;}
 }
