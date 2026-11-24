@@ -47,8 +47,8 @@ async function createCampaign(ev){
   scopeId:read('scopeId'),channel:read('channel'),choices,bonusXP:Number(read('bonusXP'))||0
  };
  const start=read('startsAt'),end=read('endsAt');
- if(start)body.startsAt=new Date(start).toISOString();
- if(end)body.endsAt=new Date(end).toISOString();
+ try{if(start)body.startsAt=new Date(start).toISOString();if(end)body.endsAt=new Date(end).toISOString();}
+ catch(_){note('sf303CampaignNote','Preencha datas e horários válidos.');return;}
  if(type!=='announcement'&&(choices.length<2||choices.length>6)){note('sf303CampaignNote','Informe de 2 a 6 opções, uma por linha.');return;}
  busy=true;const button=form.querySelector('[type=submit]');if(button)button.disabled=true;
  try{
@@ -123,9 +123,9 @@ function init(){
  $('sf303InsightsRefresh')?.addEventListener('click',()=>loadInsights().catch(e=>note('sf303InsightsNote',e.message)));
  $('sf303EngagementRefresh')?.addEventListener('click',()=>loadInsights().catch(e=>note('sf303EngagementNote',e.message)));
  const type=$('sf303CampaignForm')?.elements?.type;
- if(type)type.addEventListener('change',()=>{const mission=$('sf303MissionXP');if(mission)mission.hidden=type.value!=='mission';});
+ if(type)type.addEventListener('change',()=>{const mission=$('sf303MissionXP'),choices=$('sf303Choices');if(mission)mission.hidden=type.value!=='mission';if(choices)choices.hidden=type.value==='announcement';});
  const scope=$('sf303CampaignForm')?.elements?.scope;
- if(scope)scope.addEventListener('change',()=>{const container=$('sf303ScopeTarget');if(container)container.hidden=scope.value==='all';});
+ if(scope)scope.addEventListener('change',()=>{const container=$('sf303ScopeTarget'),channel=$('sf303CampaignForm')?.elements?.channel;if(container)container.hidden=scope.value==='all';if(channel&&scope.value!=='room'&&channel.value==='chat')channel.value='card';});
 }
 window.sf303Admin={loadCampaigns,loadInsights,loadOperations};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
