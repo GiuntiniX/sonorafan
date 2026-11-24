@@ -19,8 +19,26 @@
   function go(action){
     const screen=$('screen-lobby');
     switch(action){
-      case 'lobby':window.sf200CloseAgenda?.();screen?.classList.contains('active')&&qs('#sf125LobbyHero')?.scrollIntoView({block:'start',behavior:'smooth'});break;
-      case 'rooms':window.sf200CloseAgenda?.();qs('#sf107Popular')?.scrollIntoView({block:'start',behavior:'smooth'});break;
+      case 'lobby':
+        window.sf200CloseAgenda?.();
+        // Voltar ao início sem scrollIntoView: ele rolava também o viewport
+        // externo e desalinhava o header e a navegação fixa no Android.
+        if(screen?.classList.contains('active')){
+          const content=qs('.sf28-lobby-content',screen);
+          if(content)content.scrollTop=0;
+          const main=qs('.sf28-lobby-main',screen);
+          if(main && main.scrollTop)main.scrollTop=0;
+          if(window.scrollY)window.scrollTo(0,0);
+        }
+        break;
+      case 'rooms':window.sf200CloseAgenda?.();{
+        const target=qs('#sf107Popular');
+        const pane=qs('.sf28-lobby-content',screen||document);
+        if(target&&pane){
+          pane.scrollTop=Math.max(0,target.getBoundingClientRect().top-pane.getBoundingClientRect().top+pane.scrollTop);
+        }
+        break;
+      }
        case 'agenda':
          if(screen&&!screen.classList.contains('active')){
            if(typeof window.leaveRoom==='function')window.leaveRoom();
