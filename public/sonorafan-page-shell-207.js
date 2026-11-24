@@ -4,6 +4,15 @@
 const $=id=>document.getElementById(id);
 let isPage=false,lastSection='lobby';
 let secondaryPage='';
+function resetOuterScroll(){
+ const screen=$('screen-lobby');
+ const main=screen?.querySelector('.sf28-lobby-main');
+ // A página de destino mantém sua rolagem, mas o contêiner externo nunca.
+ if(screen)screen.scrollTop=0;
+ if(main)main.scrollTop=0;
+ if(document.scrollingElement?.scrollTop)document.scrollingElement.scrollTop=0;
+}
+
 function menu(section){
  lastSection=section;
  document.querySelectorAll('#sf125Sidebar .sf125-side-nav:not(.sf125-side-secondary) [data-sf125-go],#sf125MobileBar [data-sf125-go]').forEach(button=>{
@@ -24,6 +33,7 @@ function restore(){
  const p=$('sf43ProfileModal');if(p){p.setAttribute('role','dialog');p.setAttribute('aria-modal','true');}
  document.body.classList.remove('sf43-modal-open');
  if(lastSection==='profile')menu(content.classList.contains('sf200-is-open')?'agenda':'lobby');
+ resetOuterScroll();
 }
 
 function endSecondary(){
@@ -38,6 +48,7 @@ function endSecondary(){
  if(old==='clubs')content.querySelector('.sf5-community-layer .sf5-close')?.click();
  if(old==='ranking'&&$('lbModal')?.classList.contains('active'))window.sf60Ranking?.close?.();
  if(old)menu('lobby');
+ resetOuterScroll();
 }
 function startSecondary(type){
  const screen=$('screen-lobby'),content=screen?.querySelector('.sf28-lobby-content');
@@ -59,6 +70,7 @@ function startSecondary(type){
  secondaryPage=type;
  menu(type);
  content.scrollTo({top:0,behavior:'instant'});
+ resetOuterScroll();
 }
 function openProfile(tab='overview'){
  if(secondaryPage)endSecondary();
@@ -84,6 +96,7 @@ function openProfile(tab='overview'){
  else originalOpen?.();
  document.body.classList.remove('sf43-modal-open');
  content.scrollTo({top:0,behavior:'instant'});
+ resetOuterScroll();
  menu('profile');
 }
 let originalOpen=null,originalClose=null,originalNavigate=null;
