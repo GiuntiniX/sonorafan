@@ -280,11 +280,13 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
   try{
    ensureReady();
    const days=Array.from({length:7},(_,i)=>day(Date.now()-(6-i)*86400000));
-   const [daily,trackSnap,userSnap,artistSnap]=await Promise.all([
+   const [daily,trackSnap,userSnap,artistSnap,mostAddedTracks,mostAddedArtists]=await Promise.all([
      Promise.all(days.map(d=>Promise.all([metrics.doc(d).get(),engagement.doc(d).get()]))),
      tracks.orderBy('starts','desc').limit(35).get(),
      db.collection('users').limit(1000).get(),
-     artists.orderBy('starts','desc').limit(25).get()
+     artists.orderBy('starts','desc').limit(25).get(),
+     tracks.orderBy('added','desc').limit(15).get(),
+     artists.orderBy('added','desc').limit(15).get()
    ]);
    const genreCounts={},dailyStats=[];
    for(let i=0;i<days.length;i++){
@@ -297,7 +299,9 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    res.set('Cache-Control','no-store');res.json({
      period:'Últimos 7 dias (UTC)',daily:dailyStats,genres:genreCounts,declaredGenres:favorites,
      profilesSampled:userSnap.size,profilesCapped:userSnap.size===1000,
-     tracks:trackRows,artists:artistSnap.docs.map(d=>({artist:d.data().artist||'Artista',starts:Number(d.data().starts||0),added:Number(d.data().added||0)})),source:'starts = início de reprodução, não minutos ou ouvintes individuais',
+     tracks:trackRows,artists:artistSnap.docs.map(d=>({artist:d.data().artist||'Artista',starts:Number(d.data().starts||0),added:Number(d.data().added||0)})),
+     mostAddedTracks:mostAddedTracks.docs.map(d=>({title:d.data().title||'Música',artist:d.data().artist||'Artista',added:Number(d.data().added||0)})),
+     mostAddedArtists:mostAddedArtists.docs.map(d=>({artist:d.data().artist||'Artista',added:Number(d.data().added||0)})),source:'starts = início de reprodução, não minutos ou ouvintes individuais',
      campaigns:adminList().slice(0,30)
    });
   }catch(e){reportError(res,e);}
