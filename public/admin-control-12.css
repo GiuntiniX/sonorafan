@@ -73,3 +73,18 @@
 #adminPanel .sf12-queue-detail{margin:0 0 12px 22px;padding:9px;border-left:2px solid #67358b;background:#100d18;border-radius:0 0 10px 10px}
 #adminPanel .sf12-queue-detail .sf12-row{margin-bottom:7px}
 #adminPanel .sf12-queue-detail button{padding:7px 10px;cursor:pointer;border:1px solid #5d3b7d}
+
+/* Admin 297 — ação destrutiva distinta da manutenção cotidiana. */
+#adminPanel .sf12-settings-grid button.sf12-danger-action{
+  border:1px solid #db7780!important;
+  background:linear-gradient(135deg,#4d1d35,#341625)!important;
+  color:#ffe4e8!important;
+}
+#adminPanel .sf12-settings-grid button.sf12-danger-action:hover:not(:disabled){
+  border-color:#ff9ca6!important;
+  background:#64213b!important;
+}
+#adminPanel .sf12-settings-grid button.sf12-danger-action:disabled{
+  opacity:.55!important;cursor:wait!important;
+}
+#adminPanel .sf12-reset-help p{line-height:1.6;}
