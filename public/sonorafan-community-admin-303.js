@@ -87,6 +87,13 @@ async function loadInsights(){
  if($('sf303Artists'))$('sf303Artists').innerHTML=list(artists.map((a,i)=>
   '<div class="sf303-track"><b>'+(i+1)+'</b><div><strong>'+esc(a.artist||'Artista')+'</strong><small>'+fmt(a.added)+' músicas adicionadas</small></div><span>'+fmt(a.starts)+' ▶</span></div>'
  ),'Ainda não há dados de reproduções por artista.');
+ const addedTracks=(data.mostAddedTracks||[]),addedArtists=(data.mostAddedArtists||[]);
+ if($('sf303MostAddedTracks'))$('sf303MostAddedTracks').innerHTML=list(addedTracks.map((t,i)=>
+  '<div class="sf303-track"><b>'+(i+1)+'</b><div><strong>'+esc(t.title||'Música')+'</strong><small>'+esc(t.artist||'Artista')+'</small></div><span>'+fmt(t.added)+' +</span></div>'
+ ),'Sem histórico de adições.');
+ if($('sf303MostAddedArtists'))$('sf303MostAddedArtists').innerHTML=list(addedArtists.map((a,i)=>
+  '<div class="sf303-track"><b>'+(i+1)+'</b><div><strong>'+esc(a.artist||'Artista')+'</strong></div><span>'+fmt(a.added)+' +</span></div>'
+ ),'Sem histórico de adições por artista.');
  if($('sf303TrackTable'))$('sf303TrackTable').innerHTML=list(tracks.slice(0,20).map((t,i)=>
   '<div class="sf303-track"><b>'+(i+1)+'</b><div><strong>'+esc(t.title||'Música')+'</strong><small>'+esc(t.artist||'Artista desconhecido')+'</small></div>'+
   '<span>'+fmt(t.starts)+' ▶ · '+fmt(t.added)+' + · '+fmt(t.skips)+' ⏭</span></div>'
