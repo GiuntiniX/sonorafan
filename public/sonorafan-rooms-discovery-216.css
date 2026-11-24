@@ -378,3 +378,42 @@
     padding:12px 12px 96px!important;
   }
 }
+
+/* SonoraFan 287 — opção de recolher o menu apenas na página de Salas. */
+#sf287RoomsSidebarToggle{display:none!important}
+#screen-lobby.sf125-platform.sf216-explore-mode #sf287RoomsSidebarToggle{
+ display:inline-flex!important;align-items:center;justify-content:center;
+ gap:8px;flex:0 0 auto;min-width:44px;height:39px;min-height:39px;
+ padding:0 11px;margin:0;border:1px solid #615469;border-radius:11px;
+ background:#211729;color:#f6f1fb;font:700 12px Inter,system-ui,sans-serif;
+ cursor:pointer;white-space:nowrap;box-shadow:none;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode #sf287RoomsSidebarToggle:hover{
+ background:#372241;border-color:#bd7fcf;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode #sf287RoomsSidebarToggle:focus-visible{
+ outline:2px solid #c8ff00;outline-offset:2px;
+}
+#screen-lobby.sf125-platform.sf216-explore-mode #sf287RoomsSidebarToggle>span:first-child{
+ font-size:19px;line-height:1;
+}
+@media(min-width:769px){
+ #screen-lobby.sf125-platform.sf216-explore-mode.sf287-rooms-sidebar-collapsed .sf28-lobby-app.sf125-app{
+   grid-template-columns:0 minmax(0,1fr)!important;
+ }
+ #screen-lobby.sf125-platform.sf216-explore-mode.sf287-rooms-sidebar-collapsed #sf125Sidebar{
+   display:none!important;width:0!important;min-width:0!important;max-width:0!important;
+   padding:0!important;overflow:hidden!important;
+ }
+}
+@media(min-width:769px) and (max-width:1060px){
+ #screen-lobby.sf125-platform.sf216-explore-mode #sf287RoomsSidebarToggle .sf287-menu-label{
+   display:none!important;
+ }
+}
+@media(max-width:768px){
+ #screen-lobby.sf125-platform.sf216-explore-mode #sf287RoomsSidebarToggle{
+   display:none!important;
+ }
+}
+/* Oculto nas outras seções: não influencia Início, Fan Clubs ou Agenda. */
