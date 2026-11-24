@@ -396,63 +396,95 @@
  #screen-lobby.sf125-platform .sf125-toolbar .sf107-more summary{width:28px!important;}
 }
 
-/* v301 — impedir deslocamento do frame ao retornar ao Início.
-   O documento não deve rolar; somente as áreas internas das páginas. */
+/* v302 — estabilização de navegação e viewport mobile.
+   Problema raiz: .screen.active animada com transform e fill-mode:both
+   cria um containing block para a barra inferior que deveria estar fixa.
+   Uso de height:100% combinado com 100dvh também podia acumular alturas. */
 @media(max-width:920px){
+  /* O app é de tela cheia; NÃO remova animações de cards internos. */
+  #screen-lobby.screen.active,
+  #screen-room.screen.active{
+    animation:none!important;
+    transform:none!important;
+    filter:none!important;
+    perspective:none!important;
+  }
   html:has(#screen-lobby.active),
   body:has(#screen-lobby.active){
-    width:100%!important;
-    min-width:0!important;
-    height:100%!important;
-    min-height:100%!important;
-    max-height:100%!important;
-    margin:0!important;
-    overflow:hidden!important;
-    overscroll-behavior:none!important;
-  }
-  #screen-lobby.sf125-platform.active{
-    position:relative!important;
-    inset:auto!important;
-    width:100%!important;
-    max-width:100%!important;
+    width:100%!important;min-width:0!important;
     height:100dvh!important;
-    min-height:0!important;
-    max-height:100dvh!important;
-    overflow:hidden!important;
-    transform:none!important;
+    min-height:0!important;max-height:100dvh!important;
+    margin:0!important;padding:0!important;
+    overflow:hidden!important;overscroll-behavior:none!important;
   }
-  #screen-lobby.sf125-platform.active .sf28-lobby-app.sf125-app{
-    height:100%!important;
-    min-height:0!important;
-    max-height:100%!important;
+  body:has(#screen-lobby.active){display:flex!important;flex-direction:column!important;}
+  #screen-lobby.sf125-platform.active{
+    display:flex!important;
+    position:relative!important;inset:auto!important;
+    flex:1 1 0%!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    height:100%!important;min-height:0!important;max-height:100%!important;
+    margin:0!important;padding:0!important;
     overflow:hidden!important;
+    animation:none!important;transform:none!important;
+  }
+  #screen-lobby.sf125-platform.active > .sf28-lobby-app.sf125-app{
+    display:block!important;
+    flex:1 1 0%!important;
+    height:100%!important;min-height:0!important;max-height:100%!important;
+    width:100%!important;max-width:100%!important;
+    overflow:hidden!important;transform:none!important;
   }
   #screen-lobby.sf125-platform.active .sf28-lobby-main.sf125-main{
+    display:flex!important;flex-direction:column!important;
     position:relative!important;
-    min-height:0!important;
-    height:100%!important;
-    max-height:100%!important;
-    overflow:hidden!important;
+    height:100%!important;min-height:0!important;max-height:100%!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    margin:0!important;padding:0!important;
+    overflow:hidden!important;transform:none!important;
   }
-  #screen-lobby.sf125-platform.active .sf28-lobby-content{
+  #screen-lobby.sf125-platform.active .sf28-lobby-main > .sf107-top.sf125-toolbar{
+    position:relative!important;top:auto!important;bottom:auto!important;
+    left:auto!important;right:auto!important;
+    flex-shrink:0!important;
+    width:100%!important;max-width:100%!important;
+    margin:0!important;transform:none!important;
+  }
+  #screen-lobby.sf125-platform.active .sf28-lobby-main > .sf28-lobby-content{
     flex:1 1 0%!important;
-    min-height:0!important;
-    height:auto!important;
-    max-height:none!important;
-    overflow-x:hidden!important;
-    overflow-y:auto!important;
-    overscroll-behavior-y:contain!important;
-  }
-  #screen-lobby.sf125-platform.active #sf125MobileBar.sf125-mobile-bar{
-    position:fixed!important;
-    left:0!important;
-    right:0!important;
-    bottom:0!important;
-    top:auto!important;
-    width:100%!important;
-    max-width:100%!important;
+    min-width:0!important;min-height:0!important;max-width:100%!important;
+    height:auto!important;max-height:none!important;
     margin:0!important;
-    transform:none!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    overscroll-behavior-y:contain!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  #screen-lobby.sf125-platform.active.sf216-explore-mode .sf28-lobby-main > #sf216Explorer{
+    display:block!important;flex:1 1 0%!important;
+    min-height:0!important;height:auto!important;max-height:none!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+  }
+  #screen-lobby.sf125-platform.active.sf216-explore-mode .sf28-lobby-main > #sf216Explorer[hidden]{
+    display:none!important;
+  }
+  /* Alça inferior fica ancorada no próprio screen, não no body transformado. */
+  #screen-lobby.sf125-platform.active #sf125MobileBar.sf125-mobile-bar{
+    position:absolute!important;
+    inset:auto 0 0 0!important;
+    left:0!important;right:0!important;bottom:0!important;top:auto!important;
+    width:100%!important;max-width:100%!important;
+    margin:0!important;transform:none!important;
     box-sizing:border-box!important;
+    padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;
+  }
+}
+@media(max-width:768px){
+  /* Evita que os indicadores e atalhos empurrem o cabeçalho para fora. */
+  #screen-lobby.sf125-platform.active .sf125-toolbar .sf107-top-actions{
+    min-width:0!important;flex-shrink:1!important;
+  }
+  #screen-lobby.sf125-platform.active .sf125-toolbar .sf107-search input{
+    min-width:0!important;max-width:100%!important;
+    text-overflow:ellipsis!important;
   }
 }
