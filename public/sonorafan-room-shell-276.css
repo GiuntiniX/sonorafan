@@ -247,3 +247,59 @@
 @media(prefers-reduced-motion:reduce){
  #screen-room.sf113-room #sf288RoomSidebarHandle{transition:none!important;}
 }
+
+/* SonoraFan 289 — o recolhimento da navegação redimensiona de verdade
+   o palco, a fila e o chat da sala. Não altera a página de descoberta. */
+@media(min-width:769px){
+  body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app,
+  body.sf64-room-sidebar-collapsed #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app,
+  body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app{
+    grid-template-columns:0px minmax(0,1fr)!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+  body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > .header,
+  body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > #roomLayout{
+    grid-column:2 / 3!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin-left:0!important;
+    box-sizing:border-box!important;
+  }
+  /* Todos os painéis participam da expansão, sem larguras fixas herdadas. */
+  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout > .sf113-now-card,
+  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout .player-column,
+  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout .queue-column,
+  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout .chat-column{
+    min-width:0!important;
+    max-width:100%!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout{
+    min-width:0!important;
+    max-width:100%!important;
+    width:100%!important;
+    justify-content:stretch!important;
+    align-items:stretch!important;
+  }
+  /* A arte nova é compartilhada com o menu padrão. */
+  #screen-room.sf113-room #sf276RoomSidebar .sf276-ambient{
+    background:
+      linear-gradient(to bottom,#120616 0%,transparent 33%,#120616 99%),
+      url('/art-288/sonorafan-menu-boombox.png') center bottom / contain no-repeat!important;
+    opacity:1!important;
+    filter:none!important;
+  }
+}
+@media(min-width:1280px){
+  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout.room-layout{
+    grid-template-columns:minmax(195px,.82fr) minmax(0,2fr) minmax(245px,1.08fr)!important;
+  }
+}
+@media(min-width:769px) and (max-width:1279px){
+  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout.room-layout{
+    grid-template-columns:minmax(180px,.7fr) minmax(0,1.85fr)!important;
+  }
+}
