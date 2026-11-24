@@ -134,3 +134,27 @@
   display:flex!important;
  }
 }
+
+/* SonoraFan 301 — a single typographic and sizing contract for global search.
+   Keep widths flexible and do not change page-specific visibility or filters. */
+body #screen-lobby.sf125-platform label:has(> input:is(#sf107Search,#sf200Search,#sf235Search,#sf216Search,#sf191ClubSearch,#sf71ClubSearch,#sf282RoomSearch)),
+body #screen-room.sf113-room label:has(> input#sf282RoomSearch){
+ box-sizing:border-box!important;
+ height:44px!important;min-height:44px!important;max-height:44px!important;
+ padding:0 10px!important;gap:8px!important;
+ font-size:18px!important;line-height:1!important;
+ border-radius:999px!important;
+}
+body #screen-lobby.sf125-platform input:is(#sf107Search,#sf200Search,#sf235Search,#sf216Search,#sf191ClubSearch,#sf71ClubSearch,#sf282RoomSearch),
+body #screen-room.sf113-room input#sf282RoomSearch{
+ box-sizing:border-box!important;
+ font:500 16px/1.25 Inter,system-ui,sans-serif!important;
+ letter-spacing:normal!important;text-transform:none!important;
+ height:100%!important;min-height:0!important;max-height:100%!important;
+ padding:0!important;margin:0!important;min-width:0!important;
+ text-overflow:ellipsis!important;
+}
+body #screen-lobby.sf125-platform input:is(#sf107Search,#sf200Search,#sf235Search,#sf216Search,#sf191ClubSearch,#sf71ClubSearch,#sf282RoomSearch)::placeholder,
+body #screen-room.sf113-room input#sf282RoomSearch::placeholder{
+ font:inherit!important;letter-spacing:inherit!important;opacity:1!important;
+}
