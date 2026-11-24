@@ -1,4 +1,5 @@
 'use strict';
+const {maskText304}=require('./chat-language-304');
 // SonoraFan 71 — comunidades permanentes criadas por fãs.
 // O servidor decide acesso e moderação usando a sessão; o navegador nunca define papéis.
 const crypto = require('crypto');
@@ -75,7 +76,7 @@ const clean = (value, max) => typeof value === 'string'
   : '';
 const unique = values => Array.from(new Set(Array.isArray(values) ? values.filter(x=>typeof x==='string') : []));
 
-function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser, gamification45, ranking60, io }) {
+function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, rawCoverParser, gamification45, ranking60, io, moderation304 }) {
   const coverRef = id => db.collection(COVERS).doc(id);
   const refFor = id => db.collection(CLUBS).doc(id);
   // Índice reverso persistente: a sala conhece seus Fanclubs vinculados.
@@ -146,12 +147,12 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   const validateId = id => typeof id==='string' && /^[a-f0-9-]{36}$/.test(id);
   // Fórum 6.0: documentos legados permanecem nos mesmos IDs e recebem títulos derivados na leitura.
   const forumTags = value => Array.isArray(value) ? [...new Set(value.slice(0,8)
-    .map(t=>clean(t,24).toLocaleLowerCase('pt-BR').replace(/[^\p{L}\p{N} -]/gu,'').trim().replace(/\s+/g,'-'))
+    .map(t=>clean(maskText304(t),24).toLocaleLowerCase('pt-BR').replace(/[^\p{L}\p{N} -]/gu,'').trim().replace(/\s+/g,'-'))
     .filter(t=>t.length>=2))].slice(0,5) : [];
   const forumTitle = post => clean(post?.title,110)||clean(String(post?.text||'').split(/[.!?\n]/)[0],95)||'Discussão da comunidade';
   const forumPost = (doc,data,me,profile={}) => {
     const p=doc.data(),id=doc.id;
-    return {id,...p,imageUrl:validPostImageUrl(p.imageUrl)||'',youtubeId:/^[A-Za-z0-9_-]{11}$/.test(String(p.youtubeId||''))?p.youtubeId:'',title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
+    return {id,...p,text:maskText304(p.text),title:maskText304(forumTitle(p)),imageUrl:validPostImageUrl(p.imageUrl)||'',youtubeId:/^[A-Za-z0-9_-]{11}$/.test(String(p.youtubeId||''))?p.youtubeId:'',title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
       pinned:id===data.pinnedPostId,likeCount:unique(p.likedBy).length,
       liked:unique(p.likedBy).includes(me.id),favorite:unique(profile.favorites).includes(id),
       unread:!Number(profile.readAt?.[id])||
@@ -723,7 +724,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   });
   app.post('/api/fan-clubs/:id/posts',rateLimit(12,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
-    const text=clean(req.body?.text,600),title=clean(req.body?.title,110),tags=forumTags(req.body?.tags);
+    const text=moderation304.mask(clean(req.body?.text,600),'fanclub-post'),title=moderation304.mask(clean(req.body?.title,110),'fanclub-title'),tags=forumTags(req.body?.tags);
      const imageUrl=validPostImageUrl(req.body?.imageUrl);
      if(imageUrl===null)return res.status(400).json({error:'Informe uma URL HTTPS pública válida para a imagem.'});
      const youtubeId=youtubeVideoId(req.body?.youtubeUrl);
@@ -741,7 +742,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   });
   app.post('/api/fan-clubs/:id/posts/:postId/edit',rateLimit(18,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
-    const text=clean(req.body?.text,600),title=clean(req.body?.title,110),tags=req.body?.tags===undefined?null:forumTags(req.body?.tags);
+    const text=moderation304.mask(clean(req.body?.text,600),'fanclub-post'),title=moderation304.mask(clean(req.body?.title,110),'fanclub-title'),tags=req.body?.tags===undefined?null:forumTags(req.body?.tags);
     if(text.length<3)return res.status(400).json({error:'A publicação deve ter pelo menos 3 caracteres.'});
     try{
       const {ref,data}=await readClub(req.params.id);
@@ -867,8 +868,8 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       // Apenas o índice simples postId é necessário; ordenação é feita em memória.
       const snap=await ref.collection('comments').where('postId','==',req.params.postId).limit(300).get();
       const comments=snap.docs.sort((a,b)=>(a.data().createdAt||0)-(b.data().createdAt||0))
-        .map(d=>({...d.data(),id:d.id,parentId:d.data().parentId||null,depth:Math.min(3,Math.max(0,Number(d.data().depth)||0)),
-          quoteText:clean(d.data().quoteText,160)||null,
+        .map(d=>({...d.data(),text:maskText304(d.data().text),id:d.id,parentId:d.data().parentId||null,depth:Math.min(3,Math.max(0,Number(d.data().depth)||0)),
+          quoteText:maskText304(clean(d.data().quoteText,160))||null,
           editable:d.data().authorId===me.id||canModerate(data,me),
           best:d.id===post.data().bestCommentId}));
       res.json({comments});
@@ -876,7 +877,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   });
   app.post('/api/fan-clubs/:id/posts/:postId/comments',rateLimit(12,60000),async(req,res)=>{
     const me=identity(req,res);if(!me)return;
-    const text=clean(req.body?.text,350),parentId=String(req.body?.parentId||''),quoteId=String(req.body?.quoteId||'');
+    const text=moderation304.mask(clean(req.body?.text,350),'fanclub-comment'),parentId=String(req.body?.parentId||''),quoteId=String(req.body?.quoteId||'');
     if(text.length<2)return res.status(400).json({error:'Escreva pelo menos 2 caracteres.'});
     try{
       const {ref,data}=await readClub(req.params.id);
@@ -894,7 +895,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
       const depth=parent?Math.min(3,Math.max(0,Number(parent.depth)||0)+1):0;
       // Profundidade limitada e referências apenas na mesma discussão.
       const comment={postId:req.params.postId,authorId:me.id,authorName:me.name,text,
-        parentId:parentId||null,quoteId:quoteId||null,quoteText:quote?clean(quote.text,160):null,
+        parentId:parentId||null,quoteId:quoteId||null,quoteText:quote?maskText304(clean(quote.text,160)):null,
         depth,createdAt:Date.now()};
       const doc=ref.collection('comments').doc(),postRef=ref.collection('posts').doc(req.params.postId);
       await db.runTransaction(async tx=>{
