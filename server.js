@@ -1644,14 +1644,23 @@ app.post('/api/admin/clear-all-rooms', (req, res) => {
 });
 
 app.get('/api/admin/export-data', (req, res) => {
-  const data = {
-    users: Array.from(users.values()),
-    rooms: Array.from(rooms.values()).map(r => ({ ...r, lastAddTime: undefined, skipVotes: undefined, passHash: undefined, passSalt: undefined, invite: undefined, allowed: undefined })),
-    favorites: Array.from(userFavorites.entries()),
-    points: Array.from(userPoints.entries()),
-    settings,
-  };
-  res.json(data);
+  // Exportacao operacional, nao backup de segredos ou estado interno do servidor.
+  // Lista positiva impede expor hash de senha, convites privados ou tokens futuros.
+  res.set('Cache-Control','no-store');
+  res.json({
+    exportedAt:new Date().toISOString(),
+    users:Array.from(users.entries()).map(([email,u])=>({
+      email,nome:String(u.nome||''),avatar:String(u.avatar||''),banned:!!u.banned,isMod:!!u.isMod
+    })),
+    rooms:Array.from(rooms.values()).map(r=>({
+      slug:r.slug,name:r.name,owner:r.admin,ownerEmail:r.ownerEmail||null,
+      isPrivate:!!r.isPrivate,listeners:Number(r.listenerCount||0),
+      queueLength:Array.isArray(r.queue)?r.queue.length:0,isPlaying:!!r.isPlaying
+    })),
+    favorites:Array.from(userFavorites.entries()),
+    points:Array.from(userPoints.entries()).map(([email,p])=>[email,{points:Number(p.points||0),badges:Array.isArray(p.badges)?p.badges:[]}]),
+    settings:{maxQueue:settings.maxQueue,cooldown:settings.cooldown,maxDuration:settings.maxDuration,maxListeners:settings.maxListeners}
+  });
 });
 
 // ========== API DO YOUTUBE ==========
