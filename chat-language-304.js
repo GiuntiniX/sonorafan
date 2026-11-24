@@ -57,13 +57,13 @@ function rebuild304(){
  for(const phrase of PT_PHRASES_305){
   const normalized=fold304(phrase);
   const pieces=normalized.split(/\s+/).map(part=>
-   Array.from(part,c=>ALT_304[c]||c).join(''));
+   Array.from(part,c=>ALT_304[c]||c).join('[\\s._\\-*·/]{0,3}'));
   const expression=pieces.join('[\\s._\\-*·/]{1,6}');
   phrasePatterns304.push({term:normalized,lang:'pt',
    regex:new RegExp('(?<![\\p{L}\\p{N}])'+expression+'(?![\\p{L}\\p{N}])','giu')});
  }
  for(const [term,lang] of lookup304){
-  if(term.length<4||term.length>24||!/^[a-z]+$/.test(term))continue;
+  if(term.length<3||term.length>24||!/^[a-z]+$/.test(term))continue;
   const expression=Array.from(term,c=>ALT_304[c]||c).join('[\\s._\\-*·/]{1,4}');
   separated304.push({term,lang,regex:new RegExp('(?<![\\p{L}\\p{N}])'+expression+'(?![\\p{L}\\p{N}])','giu')});
  }
