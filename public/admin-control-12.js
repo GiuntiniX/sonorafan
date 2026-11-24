@@ -129,6 +129,21 @@
     const action=e.target.closest('[data-sf12-action]');
     if(action){const type=action.dataset.sf12Action;
       if(type==='export'){ if(typeof adminExport==='function')adminExport();return; }
+      if(type==='reset-gamification'){
+        const phrase='ZERAR GAMIFICACAO';
+        const typed=prompt('Esta ação irá zerar XP, níveis, medalhas, missões e rankings atuais de TODOS os usuários. Não há desfazer. Digite exatamente '+phrase+' para confirmar:');
+        if(typed!==phrase){if(typed!==null)notice('Confirmação incorreta. Nenhum progresso foi alterado.');return;}
+        if(!confirm('Confirmar o reset global de gamificação para ZERO? Esta operação não pode ser desfeita.'))return;
+        action.disabled=true;
+        notice('Zerando gamificação. Não feche este painel até receber a resposta.');
+        try{
+          const result=await post('/api/admin/gamification/reset',{confirmation:phrase});
+          notice('Gamificação zerada para '+Number(result.players||0).toLocaleString('pt-BR')+' usuários. Ranking atual atualizado.');
+          if(typeof toast==='function')toast('Gamificação reiniciada','success');
+        }catch(err){notice('Erro no reset: '+err.message);}
+        finally{action.disabled=false;}
+        return;
+      }
       if(type==='broadcast'){const msg=prompt('Comunicado para todos:');if(!msg?.trim())return;if(!confirm('Enviar comunicado a todas as salas?'))return;if(typeof socket!=='undefined')socket.emit('adminBroadcast',{message:msg.trim().slice(0,300)});return;}
       const phrase=type==='clear-chats'?'LIMPAR CHATS':'ENCERRAR SALAS';
       const typed=prompt(`Operação irreversível. Digite exatamente ${phrase} para confirmar:`);
