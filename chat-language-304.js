@@ -5,16 +5,63 @@ const BASE_304=Object.freeze({
  en:['fuck','fucks','fucker','fuckers','fucking','fucked','motherfucker','motherfucking','shit','shits','shitty','bullshit','bitch','bitches','bastard','bastards','asshole','assholes','dick','dicks','cock','cocks','prick','pricks','pussy','cunt','cunts','slut','sluts','whore','whores','wtf','dammit','douchebag','jackass'],
  es:['mierda','mierdas','joder','jodete','jodido','jodida','puta','puto','putas','putos','coño','cojones','cabrón','cabrona','pendejo','pendeja','chingada','chingado','chingar','chinga','verga','vergas','culero','culera','culo','carajo','gilipollas','maricón','boludo','boluda','pelotudo','pelotuda','gonorrea','malparido','malparida','hijoputa','hijueputa','huevon','soplapollas']
 });
+// Vocabulário brasileiro adicional solicitado para a moderação de todos os chats.
+// Os termos comuns (ovo, dar, comer etc.) são intencionalmente bloqueados somente
+// quando aparecem como palavras inteiras; isso pode censurar usos não ofensivos.
+const PT_EXPANDED_305=Object.freeze([
+ 'cacete','cacetes','cacetada','cacetadas','fudeu',
+ 'cusão','cusao','babaca','babacas','otário','otaria','otários','otarias',
+ 'escroto','escrota','escrotos','escrotas',
+ 'maldito','maldita','malditos','malditas','lazarento','lazarenta','lazarentos','lazarentas',
+ 'corno','corna','cornos','cornas','pilantra','pilantras',
+ 'safado','safada','safados','safadas',
+ 'pau','paus','pica','picas','rola','rolas','pinto','pintos',
+ 'saco','sacos','ovo','ovos','xoxota','xoxotas','xereca','xerecas',
+ 'perereca','pererecas','cu','cus','rabo','rabos','bunda','bundas',
+ 'cagar','cagou','cagando','cagada','cagadas',
+ 'transar','transando','transou','meter','meteu','metendo','trepar','trepando',
+ 'comer','comendo','chupar','chupando','chupou','dar','boquete','boquetes',
+ 'punheta','punhetas','siririca','siriricas',
+ 'piranha','piranhas','vadia','vadias','quenga','quengas',
+ 'viado','viada','viados','viadas','bicha','bichas',
+ 'sapatão','sapatona','sapatões','traveco','travecos',
+ 'retardado','retardada','retardados','retardadas',
+ 'mongoloide','mongoloides','aleijado','aleijada','aleijados','aleijadas',
+ 'vtnc','filhadaputa'
+]);
+const PT_PHRASES_305=Object.freeze([
+ 'puta que pariu','filho da puta','filha da puta','filhos da puta','filhas da puta',
+ 'pau no cu','pau no cú','vai tomar no cu','vá tomar no cu','toma no cu',
+ 'vai se foder','vá se foder','vai se fuder','vá se fuder',
+ 'vai à merda','vai a merda','vai pra merda','vai para a merda',
+ 'vai pra puta que pariu','vai para a puta que pariu','vai à puta que pariu',
+ 'encher o saco','enche o saco'
+]);
+const DICTIONARY_305=Object.freeze({
+ pt:Object.freeze([...new Set([...BASE_304.pt,...PT_EXPANDED_305])]),
+ en:BASE_304.en,es:BASE_304.es
+});
 const LEET_304={'@':'a','4':'a','0':'o','1':'i','!':'i','3':'e','$':'s','5':'s','7':'t','8':'b'};
 const ALT_304={a:'[aáàâãä@4]',e:'[eéèêë3]',i:'[iíìîï1!]',o:'[oóòôõö0]',u:'[uúùûü]',c:'[cç]',n:'[nñ]',s:'[s$5]',t:'[t7]',b:'[b8]'};
 const fold304=value=>String(value??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[@401!3$578]/g,c=>LEET_304[c]||c);
 const baseMap304=new Map();
-for(const [lang,terms] of Object.entries(BASE_304))for(const term of terms){const folded=fold304(term);if(!baseMap304.has(folded))baseMap304.set(folded,lang);}
-let extra304=[],lookup304=new Map(baseMap304),separated304=[];
+for(const [lang,terms] of Object.entries(DICTIONARY_305))for(const term of terms){const folded=fold304(term);if(!baseMap304.has(folded))baseMap304.set(folded,lang);}
+let extra304=[],lookup304=new Map(baseMap304),separated304=[],phrasePatterns304=[];
 function rebuild304(){
  lookup304=new Map(baseMap304);
  for(const term of extra304)lookup304.set(fold304(term),'custom');
  separated304=[];
+ phrasePatterns304=[];
+ // Correspondência de frases antes das palavras isoladas, preservando *** para
+ // a expressão inteira em vez de fragmentos como "*** que pariu".
+ for(const phrase of PT_PHRASES_305){
+  const normalized=fold304(phrase);
+  const pieces=normalized.split(/\s+/).map(part=>
+   Array.from(part,c=>ALT_304[c]||c).join(''));
+  const expression=pieces.join('[\\s._\\-*·/]{1,6}');
+  phrasePatterns304.push({term:normalized,lang:'pt',
+   regex:new RegExp('(?<![\\p{L}\\p{N}])'+expression+'(?![\\p{L}\\p{N}])','giu')});
+ }
  for(const [term,lang] of lookup304){
   if(term.length<4||term.length>24||!/^[a-z]+$/.test(term))continue;
   const expression=Array.from(term,c=>ALT_304[c]||c).join('[\\s._\\-*·/]{1,4}');
@@ -40,6 +87,9 @@ function scanText304(value){
   if(term==='cono'&&!/[ñÑ]/u.test(match[0]))lang=undefined;
   if(lang)spans.push({start:match.index,end:match.index+match[0].length,term,lang});
  }
+ for(const item of phrasePatterns304)for(const match of original.matchAll(item.regex)){
+  spans.push({start:match.index,end:match.index+match[0].length,term:item.term,lang:item.lang});
+ }
  for(const item of separated304)for(const match of original.matchAll(item.regex)){
   spans.push({start:match.index,end:match.index+match[0].length,term:item.term,lang:item.lang});
  }
@@ -51,7 +101,7 @@ function scanText304(value){
  return {text:masked,matches:unique.map(({term,lang})=>({term,lang}))};
 }
 const maskText304=value=>scanText304(value).text;
-const dictionary304=()=>({pt:[...BASE_304.pt],en:[...BASE_304.en],es:[...BASE_304.es],custom:[...extra304]});
+const dictionary304=()=>({pt:[...DICTIONARY_305.pt,...PT_PHRASES_305],en:[...DICTIONARY_305.en],es:[...DICTIONARY_305.es],custom:[...extra304]});
 const validCustom304=value=>typeof value==='string'&&value.trim().length>=3&&value.trim().length<=32&&/^[\p{L}]+$/u.test(value.trim());
 function createLanguageModeration304({app,db,rateLimit,audit}){
  const config=db.collection('sonorafanLanguage304').doc('dictionary'),events=db.collection('sonorafanLanguageEvents304');
@@ -98,4 +148,4 @@ function createLanguageModeration304({app,db,rateLimit,audit}){
  });
  return {mask,display:maskText304,refresh};
 }
-module.exports={BASE_304,scanText304,maskText304,dictionary304,createLanguageModeration304};
+module.exports={BASE_304,PT_EXPANDED_305,PT_PHRASES_305,scanText304,maskText304,dictionary304,createLanguageModeration304};
