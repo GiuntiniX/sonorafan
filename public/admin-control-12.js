@@ -96,7 +96,7 @@
     try { await task(); await load(state.view); if(typeof toast==='function')toast('Operação concluída','success'); }
     catch(err){notice(err.message);}
   }
-  panel.addEventListener('click',e=>{
+  panel.addEventListener('click',async e=>{
     const nav=e.target.closest('[data-sf12-nav], [data-sf12-goto]'); if(nav){view(nav.dataset.sf12Nav||nav.dataset.sf12Goto);return;}
     const user=e.target.closest('[data-sf12-user]');
     if(user){const email=user.dataset.email,act=user.dataset.sf12User, item=state.users.find(u=>u.email===email);if(!item||item.isAdmin)return;
