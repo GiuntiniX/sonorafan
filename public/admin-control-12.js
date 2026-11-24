@@ -15,6 +15,9 @@
     music: ['Música & Insights','Indicadores musicais realmente registrados no servidor.'],
     system: ['Saúde da plataforma','Diagnóstico instantâneo de serviços e conexões.'],
     insights: ['Alertas operacionais','Regras transparentes sobre os contadores disponíveis.'],
+    interactions: ['Interações e campanhas','Crie enquetes globais ou segmentadas, batalhas musicais e comunicados.'],
+    musicintel: ['Music Intelligence','Reproduções por gênero, artistas e preferências de usuários.'],
+    engagement: ['Engajamento','Acompanhe atividade, retorno às salas e participação nas seções.'],
     audit: ['Auditoria','Acompanhe as ações administrativas registradas.'],
     settings: ['Operação','Comunicação e manutenção da plataforma.']
   };
@@ -81,8 +84,11 @@
     music:async()=>window.sf13Load?.('music'),
     system:async()=>window.sf13Load?.('system'),
     insights:async()=>window.sf13Load?.('insights'),
+    interactions:async()=>window.sf303Admin?.loadCampaigns(),
+    musicintel:async()=>window.sf303Admin?.loadInsights(),
+    engagement:async()=>window.sf303Admin?.loadInsights(),
     audit:async()=>{state.logs=await json('/api/admin/log');renderAudit();},
-    settings:async()=>{}
+    settings:async()=>window.sf303Admin?.loadOperations()
   };
   async function load(name=state.view) {
     if (!panel.classList.contains('active') || !loaders[name]) return;
