@@ -1,305 +1,75 @@
-/* SonoraFan 276 — Rooms use the same sidebar/page split as lobby and agenda.
-   Desktop: persistent nav. Tablet: icon rail. Mobile: keep existing room tabs. */
-@media(min-width:769px){
- body #screen-room.sf113-room > .app:has(> #sf276RoomSidebar),
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app:has(> #sf276RoomSidebar),
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app:has(> #sf276RoomSidebar){
-  display:grid!important;
-  grid-template-columns:224px minmax(0,1fr)!important;
-  grid-template-rows:68px minmax(0,1fr)!important;
-  width:100%!important;max-width:100%!important;height:100%!important;
-  overflow:hidden!important;
- }
- #screen-room.sf113-room > .app > #sf276RoomSidebar{
-  grid-column:1!important;grid-row:1/3!important;
-  display:flex!important;flex-direction:column!important;
-  min-width:0!important;min-height:0!important;
-  overflow-y:auto!important;overflow-x:hidden!important;
-  padding:20px 12px 14px!important;
-  background:radial-gradient(ellipse at 0 100%,#a9006b1b,transparent 55%),#120616!important;
-  border-right:1px solid #4d354f!important;
-  z-index:46!important;box-sizing:border-box!important;
- }
- body #screen-room.sf113-room > .app > .header,
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > .header,
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app > .header{
-  grid-column:2!important;grid-row:1!important;
-  width:100%!important;min-width:0!important;
-  box-sizing:border-box!important;
- }
- body #screen-room.sf113-room > .app > #roomLayout,
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > #roomLayout,
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app > #roomLayout{
-  grid-column:2!important;grid-row:2!important;
-  width:100%!important;max-width:100%!important;min-width:0!important;
-  box-sizing:border-box!important;
- }
- #screen-room.sf113-room > .app > .header .sf113-brand{display:none!important}
- #screen-room.sf113-room > .app > .header .sf113-nav{max-width:calc(100% - 280px)}
-}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-brand{
- display:flex;align-items:center;justify-content:center;
- margin:0 0 15px;padding:1px 12px;min-height:67px;
-}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-brand img{display:block;width:100%;max-width:185px;height:auto;max-height:70px;object-fit:contain}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-nav{display:flex;flex-direction:column;gap:5px}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-nav button{
- display:flex;align-items:center;gap:13px;
- padding:10px 13px;min-height:45px;width:100%;
- border-radius:999px;border:1px solid transparent;
- background:transparent;color:#f6f1fb;
- text-align:left;font:750 13px/1.3 Inter,system-ui,sans-serif;
- cursor:pointer;white-space:nowrap;
-}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-nav button:hover{background:#2d1735;border-color:#5d3150}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-nav button.is-active{
- background:#c8ff00!important;color:#16100e!important;border-color:#c8ff00!important;
-}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-nav button:focus-visible{outline:2px solid #ff9300;outline-offset:2px}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-icon{font-size:20px;min-width:25px;text-align:center;line-height:1}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-divider{height:1px;background:#493648;margin:18px 9px}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-section{font-size:11px;color:#cdb9da;font-weight:800;padding:0 13px 10px}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-create button{min-height:42px;border-radius:10px;font-size:12px}
-#screen-room.sf113-room #sf276RoomSidebar .sf276-ambient{
- flex:1 1 70px;min-height:95px;margin-top:15px;
- background:linear-gradient(#120616,transparent 70%,#120616),url('/art-33/speakers.webp') center bottom/contain no-repeat;
- opacity:.65;pointer-events:none;
-}
-@media(min-width:769px) and (max-width:1430px){
- body #screen-room.sf113-room > .app:has(> #sf276RoomSidebar),
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app:has(> #sf276RoomSidebar),
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app:has(> #sf276RoomSidebar){
-  grid-template-columns:68px minmax(0,1fr)!important;
- }
- #screen-room.sf113-room > .app > #sf276RoomSidebar{padding:12px 7px!important}
- #screen-room.sf113-room #sf276RoomSidebar .sf276-brand{min-height:50px;padding:0;margin-bottom:9px}
- #screen-room.sf113-room #sf276RoomSidebar .sf276-brand img{max-width:54px}
- #screen-room.sf113-room #sf276RoomSidebar .sf276-nav button{
-   justify-content:center;padding:8px!important;min-height:43px;
- }
- #screen-room.sf113-room #sf276RoomSidebar .sf276-label,
- #screen-room.sf113-room #sf276RoomSidebar .sf276-section,
- #screen-room.sf113-room #sf276RoomSidebar .sf276-ambient{display:none}
- #screen-room.sf113-room #sf276RoomSidebar .sf276-divider{margin:10px 3px}
- #screen-room.sf113-room #sf276RoomSidebar .sf276-icon{min-width:auto}
-}
-@media(max-width:768px){
- #screen-room.sf113-room > .app > #sf276RoomSidebar{display:none!important}
-}
-
-/* SonoraFan 277 — structural room sidebar, no dependency on :has() or injected
-   DOM nodes. Overrides legacy one-column rules from sf113/sf115. */
-@media(min-width:769px){
- body #screen-room.sf113-room > .app,
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app,
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app{
-   display:grid!important;
-   grid-template-columns:248px minmax(0,1fr)!important;
-   grid-template-rows:68px minmax(0,1fr)!important;
-   max-width:100%!important;width:100%!important;min-width:0!important;
-   height:100%!important;overflow:hidden!important;
- }
- body #screen-room.sf113-room > .app > #sf276RoomSidebar{
-   grid-column:1!important;grid-row:1 / 3!important;
-   display:flex!important;position:relative!important;visibility:visible!important;
-   align-self:stretch!important;z-index:46!important;
-   padding:18px 13px!important;width:100%!important;
- }
- body #screen-room.sf113-room > .app > .header,
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > .header,
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app > .header{
-   grid-column:2!important;grid-row:1!important;
-   width:100%!important;min-width:0!important;max-width:100%!important;
- }
- body #screen-room.sf113-room > .app > #roomLayout,
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > #roomLayout,
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app > #roomLayout{
-   grid-column:2!important;grid-row:2!important;
-   min-width:0!important;width:100%!important;max-width:100%!important;
- }
-}
-@media(min-width:769px) and (max-width:1160px){
- body #screen-room.sf113-room > .app,
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app,
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app{
-   grid-template-columns:68px minmax(0,1fr)!important;
- }
- body #screen-room.sf113-room > .app > #sf276RoomSidebar{
-   padding:12px 7px!important;
- }
-}
-@media(min-width:1161px){
- #screen-room.sf113-room #sf276RoomSidebar .sf276-label,
- #screen-room.sf113-room #sf276RoomSidebar .sf276-section,
- #screen-room.sf113-room #sf276RoomSidebar .sf276-ambient{
-   display:initial!important;
- }
- #screen-room.sf113-room #sf276RoomSidebar .sf276-nav button{
-   justify-content:flex-start!important;padding:10px 13px!important;
- }
- #screen-room.sf113-room #sf276RoomSidebar .sf276-brand img{max-width:185px!important}
- #screen-room.sf113-room #sf276RoomSidebar .sf276-ambient{display:block!important}
-}
-@media(max-width:768px){
- body #screen-room.sf113-room > .app > #sf276RoomSidebar{display:none!important}
-}
-
-/* SonoraFan 283 — Cabeçalho da sala alinhado ao toolbar global.
-   A busca e a altura não devem mudar ao navegar entre Lobby e Sala. */
+/* SonoraFan 290 — sala de reproducao em largura total.
+ * A navegacao lateral existe somente no lobby; a sala conserva Voltar.
+ * Nao altera player, fila, chat, eventos ou administracao. */
 @media (min-width:769px){
-  body #screen-room.sf113-room > .app{
+  body #screen-room.sf113-room > .app,
+  body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app,
+  body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
     grid-template-rows:72px minmax(0,1fr)!important;
+    gap:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:100%!important;
+    overflow:hidden!important;
   }
-  body #screen-room.sf113-room > .app > .header{
+  body #screen-room.sf113-room > .app > .header,
+  body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > .header,
+  body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app > .header{
+    grid-column:1/-1!important;
+    grid-row:1!important;
     height:72px!important;
     min-height:72px!important;
     max-height:72px!important;
-    padding:9px clamp(15px,2vw,34px)!important;
-    gap:15px!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
     background:#0b0b0d!important;
     border-bottom:1px solid #3d3940!important;
+    padding:9px clamp(15px,2vw,34px)!important;
+  }
+  body #screen-room.sf113-room > .app > #roomLayout,
+  body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app > #roomLayout,
+  body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room > .app > #roomLayout{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    margin:0!important;
     box-sizing:border-box!important;
   }
-  #screen-room.sf113-room > .app > .header .sf282-room-search{
-    width:min(585px,100%)!important;
-    max-width:585px!important;
-    height:44px!important;
-    min-height:44px!important;
-    flex:1 1 585px!important;
-    margin:0 auto 0 0!important;
-    padding:7px 17px!important;
-    background:#161518!important;
-    border-color:#77717c!important;
-  }
-  #screen-room.sf113-room > .app > .header .sf282-room-search input{
-    font-size:14px!important;
-  }
-  #screen-room.sf113-room > .app > .header .header-right{
-    margin-left:auto!important;
+  /* Os paineis ja usam tracks proporcionais nas folhas do player.
+     Com a sidebar fora do grid, essas tracks passam a preencher a tela. */
+  #screen-room.sf113-room #roomLayout > *,
+  #screen-room.sf113-room #roomLayout .player-column,
+  #screen-room.sf113-room #roomLayout .queue-column,
+  #screen-room.sf113-room #roomLayout .chat-column{
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
   }
 }
-@media (min-width:769px) and (max-width:1100px){
-  #screen-room.sf113-room > .app > .header .sf282-room-search{
-    width:min(585px,100%)!important;
-    max-width:585px!important;
-    flex:1 1 240px!important;
-  }
+#screen-room.sf113-room > .app > #sf276RoomSidebar,
+#screen-room.sf113-room > .app > #sf288RoomSidebarHandle,
+#screen-room.sf113-room > .app > #sf64RoomSidebar,
+#screen-room.sf113-room #sf64RoomSidebarToggle,
+#screen-room.sf113-room #sf64RoomSidebarShow{
+  display:none!important;
 }
-
-/* SonoraFan 288 — alça discreta integrada à borda do menu da SALA ATUAL. */
-@media(min-width:769px){
- #screen-room.sf113-room > .app{position:relative!important;}
- #screen-room.sf113-room #sf288RoomSidebarHandle{
-   position:absolute!important;
-   top:50%!important;left:248px!important;transform:translateY(-50%)!important;
-   display:grid!important;place-items:center!important;
-   width:18px!important;height:82px!important;min-width:18px!important;
-   padding:0!important;margin:0!important;
-   border:1px solid #65436c!important;border-left:0!important;
-   border-radius:0 10px 10px 0!important;
-   background:#1f1029!important;color:#d8ff46!important;
-   font:800 15px/1 Inter,system-ui,sans-serif!important;
-   box-shadow:3px 0 12px #0005!important;
-   cursor:pointer!important;z-index:180!important;
-   transition:left .2s ease,background .2s ease!important;
- }
- #screen-room.sf113-room #sf288RoomSidebarHandle:hover{
-   background:#3a2047!important;
- }
- #screen-room.sf113-room #sf288RoomSidebarHandle:focus-visible{
-   outline:2px solid #c8ff00!important;outline-offset:2px!important;
- }
- body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app,
- body.sf64-room-sidebar-collapsed #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app,
- body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app{
-   grid-template-columns:0 minmax(0,1fr)!important;
- }
- #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > #sf276RoomSidebar{
-   display:none!important;width:0!important;min-width:0!important;
-   max-width:0!important;padding:0!important;overflow:hidden!important;
- }
- body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > .header,
- body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > #roomLayout{
-   grid-column:2!important;
-   min-width:0!important;
- }
- #screen-room.sf113-room.sf288-room-sidebar-collapsed #sf288RoomSidebarHandle{
-   left:0!important;
- }
- /* Busca global deve permanecer nas páginas de navegação, não na sala ativa. */
- #screen-room.sf113-room > .app > .header .sf282-room-search,
- #screen-room.sf113-room > .app > .header .sf282-room-search-toggle{
-   display:none!important;
- }
-}
-@media(min-width:769px) and (max-width:1160px){
- #screen-room.sf113-room:not(.sf288-room-sidebar-collapsed) #sf288RoomSidebarHandle{
-   left:68px!important;
- }
+#screen-room.sf113-room > .app > .header .sf282-room-search,
+#screen-room.sf113-room > .app > .header .sf282-room-search-toggle{
+  display:none!important;
 }
 @media(max-width:768px){
- #screen-room.sf113-room #sf288RoomSidebarHandle{display:none!important;}
- #screen-room.sf113-room > .app > .header .sf282-room-search,
- #screen-room.sf113-room > .app > .header .sf282-room-search-toggle{
-   display:none!important;
- }
-}
-@media(prefers-reduced-motion:reduce){
- #screen-room.sf113-room #sf288RoomSidebarHandle{transition:none!important;}
-}
-
-/* SonoraFan 289 — o recolhimento da navegação redimensiona de verdade
-   o palco, a fila e o chat da sala. Não altera a página de descoberta. */
-@media(min-width:769px){
-  body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app,
-  body.sf64-room-sidebar-collapsed #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app,
-  body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app{
-    grid-template-columns:0px minmax(0,1fr)!important;
-    width:100%!important;
-    max-width:100%!important;
-  }
-  body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > .header,
-  body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > #roomLayout{
-    grid-column:2 / 3!important;
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    margin-left:0!important;
-    box-sizing:border-box!important;
-  }
-  /* Todos os painéis participam da expansão, sem larguras fixas herdadas. */
-  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout > .sf113-now-card,
-  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout .player-column,
-  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout .queue-column,
-  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout .chat-column{
-    min-width:0!important;
-    max-width:100%!important;
-    width:100%!important;
-    box-sizing:border-box!important;
-  }
-  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout{
-    min-width:0!important;
-    max-width:100%!important;
-    width:100%!important;
-    justify-content:stretch!important;
-    align-items:stretch!important;
-  }
-  /* A arte nova é compartilhada com o menu padrão. */
-  #screen-room.sf113-room #sf276RoomSidebar .sf276-ambient{
-    background:
-      linear-gradient(to bottom,#120616 0%,transparent 33%,#120616 99%),
-      url('/art-288/sonorafan-menu-boombox.png') center bottom / contain no-repeat!important;
-    opacity:1!important;
-    filter:none!important;
-  }
-}
-@media(min-width:1280px){
-  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout.room-layout{
-    grid-template-columns:minmax(195px,.82fr) minmax(0,2fr) minmax(245px,1.08fr)!important;
-  }
-}
-@media(min-width:769px) and (max-width:1279px){
-  #screen-room.sf113-room.sf288-room-sidebar-collapsed #roomLayout.room-layout{
-    grid-template-columns:minmax(180px,.7fr) minmax(0,1.85fr)!important;
+  /* Restaura o layout mobile existente, sem menu lateral novo. */
+  body #screen-room.sf113-room > .app,
+  body.sf64-room-sidebar-collapsed #screen-room.sf113-room > .app{
+    grid-template-columns:minmax(0,1fr)!important;
   }
 }
