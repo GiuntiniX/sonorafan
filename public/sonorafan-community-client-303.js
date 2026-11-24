@@ -9,7 +9,7 @@ const dismissed=new Set(),claimed=new Set(),claiming=new Set();
 let campaigns=[],currentId='',loading=false,lastFetched=0;
 try{(JSON.parse(sessionStorage.getItem('sf303Dismissed')||'[]')||[]).forEach(x=>dismissed.add(x));}catch{}
 async function claimBonus(c){
- if(!c||c.type!=='mission'||!c.voted||!c.bonusXP||claimed.has(c.id)||claiming.has(c.id))return;
+ if(!c||c.type!=='mission'||!c.voted||(!c.bonusXP&&!c.badgeName)||claimed.has(c.id)||claiming.has(c.id))return;
  claiming.add(c.id);
  try{
   const res=await fetch('/api/community303/'+encodeURIComponent(c.id)+'/claim',{
