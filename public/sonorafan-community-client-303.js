@@ -6,7 +6,7 @@
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
 const dismissed=new Set();
-let campaigns=[],currentId='',loading=false;
+let campaigns=[],currentId='',loading=false,lastFetched=0;
 try{(JSON.parse(sessionStorage.getItem('sf303Dismissed')||'[]')||[]).forEach(x=>dismissed.add(x));}catch{}
 function storeDismissed(){
  try{sessionStorage.setItem('sf303Dismissed',JSON.stringify([...dismissed].slice(-80)));}catch{}
@@ -80,9 +80,10 @@ async function onClick(e){
    }catch(e){button.disabled=false;note(e.message);}
  }
 }
-async function refresh(){
+async function refresh(force=false){
  if(loading||!appVisible()||document.hidden)return;
- loading=true;
+ if(!force&&Date.now()-lastFetched<12000)return;
+ loading=true;lastFetched=Date.now();
  try{
    const res=await fetch('/api/community303/active',{credentials:'include',cache:'no-store'});
    if(res.status===401){campaigns=[];host().hidden=true;return;}
@@ -109,10 +110,10 @@ function init(){
  host();
  refresh();
  const sockets=typeof socket!=='undefined'?socket:null;
- sockets?.on('sf303:changed',refresh);
- sockets?.on('connect',refresh);
+ sockets?.on('sf303:changed',()=>refresh(true));
+ sockets?.on('connect',()=>refresh(true));
  sockets?.on('roomState',()=>{refresh();});
- sockets?.on('sf303:operation',()=>{refresh();});
+ sockets?.on('sf303:operation',()=>{refresh(true);});
  const lobby=$('screen-lobby'),room=$('screen-room');
  if(lobby)new MutationObserver(()=>{refresh();trackSection();}).observe(lobby,{attributes:true,attributeFilter:['class']});
  if(room)new MutationObserver(refresh).observe(room,{attributes:true,attributeFilter:['class']});
