@@ -1416,6 +1416,21 @@ app.post('/api/update-theme', async (req, res) => {
   res.json({ success: true });
 });
 
+// Gamificação: reset global somente mediante confirmação administrativa explícita.
+app.post('/api/admin/gamification/reset', async (req,res)=>{
+  if(req.body?.confirmation!=='ZERAR GAMIFICACAO')
+    return res.status(400).json({error:'Digite ZERAR GAMIFICACAO para confirmar.'});
+  try {
+    const result=await gamification45.resetAllProgress();
+    audit(req.adminEmail,'gamification-reset',result.players+' usuários; '+result.rankingRecords+' registros de ranking zerados');
+    res.set('Cache-Control','no-store');
+    return res.json({success:true,...result});
+  }catch(error){
+    console.error('Erro no reset administrativo da gamificação:',error);
+    return res.status(error.status||503).json({error:error.status===409?error.message:'Não foi possível concluir o reset. Verifique os registros antes de tentar novamente.'});
+  }
+});
+
 // ========== ADMIN ROTAS (protegidas por requireAdmin) ==========
 app.get('/api/admin/stats', async (req, res) => {
   try {
