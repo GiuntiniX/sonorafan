@@ -237,7 +237,7 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
           const batch=db.batch();
           for(const doc of page.docs){
             if(source.type==='points'){
-              batch.set(doc.ref,{points:0,badges:[],campaignRewardIds:[],gamification:normalizeProgress(null,period),ranking60:{...(doc.data()?.ranking60||{}),djXP:0}},{merge:true});
+              batch.set(doc.ref,{points:0,badges:[],gamification:normalizeProgress(null,period),ranking60:{...(doc.data()?.ranking60||{}),djXP:0}},{merge:true});
               players++;
             }else{
               batch.set(doc.ref,{score:0,djXP:0,events:0,actionCounts:{}},{merge:true});
