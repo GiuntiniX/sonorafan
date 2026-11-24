@@ -1519,6 +1519,7 @@
   <link rel="stylesheet" href="/sonorafan-room-shell-276.css?v=290.0">
   <link rel="stylesheet" href="/sonorafan-events-cover-276.css?v=277.0">
   <link rel="stylesheet" href="/sonorafan-mobile-audit-298.css?v=302.0">
+  <link rel="stylesheet" href="/sonorafan-community-303.css?v=303.0">
 </head>
 <body>
 
@@ -1798,6 +1799,9 @@
           <button type="button" data-sf12-nav="insights">✧ <span>Alertas</span></button>
           <button type="button" data-sf12-nav="moderation">⬡ <span>Moderação</span></button>
           <button type="button" data-sf12-nav="audit">▤ <span>Auditoria</span></button>
+          <button type="button" data-sf12-nav="interactions">🗳 <span>Interações e campanhas</span></button>
+          <button type="button" data-sf12-nav="musicintel">♫ <span>Music Intelligence</span></button>
+          <button type="button" data-sf12-nav="engagement">♧ <span>Engajamento</span></button>
           <button type="button" data-sf12-nav="settings">⚙ <span>Operação</span></button>
         </nav>
         <div class="sf12-admin-security">🔒 <div><strong>Acesso restrito</strong><small>admin@sonora.com</small></div></div>
@@ -1849,8 +1853,59 @@
             <div class="sf12-card"><div class="sf12-card-head"><div><h3>Sinais que merecem atenção</h3><p>Falhas de busca, recusas na fila e ausência de ouvintes.</p></div></div><div class="sf13-op-list" id="sf13InsightsList"></div></div>
             <div class="sf12-card"><div class="sf12-card-head"><div><h3>Salas mais movimentadas agora</h3></div><button type="button" data-sf12-goto="rooms">Ver salas</button></div><div class="sf12-stack" id="sf13InsightsRooms"></div></div>
           </section>
-          <section class="sf12-admin-view" data-sf12-view="audit"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Histórico de ações</h3><p>Registro de operações administrativas</p></div><button type="button" id="sf12RefreshAudit">↻ Atualizar</button></div><div id="sf12AuditList"></div></div></section>
-          <section class="sf12-admin-view" data-sf12-view="settings"><div class="sf12-card"><h3>Comunicação e manutenção</h3><p>Estas ações afetam a comunidade e exigem confirmação.</p><div class="sf12-settings-grid"><button type="button" data-sf12-action="broadcast">📣 Enviar comunicado</button><button type="button" data-sf12-action="export">⇩ Exportar informações</button><button type="button" data-sf12-action="clear-chats">⌫ Limpar todos os chats</button><button type="button" class="sf12-danger-action" data-sf12-action="reset-gamification" title="Zera XP, missões e conquistas de todos os usuários, com confirmação">↺ Zerar gamificação (XP e níveis)</button><button type="button" data-sf12-action="clear-rooms">⚠ Encerrar todas as salas criadas</button></div></div><div class="sf12-card sf12-reset-help"><h3>Reset de gamificação</h3><p>Zera XP, níveis, missões e medalhas dos usuários e as pontuações dos rankings da semana e do mês atuais. Não exclui contas, músicas, salas ou Fan Clubs. Esta operação é irreversível e exige confirmação dupla.</p></div><div class="sf12-card"><h3>Política de acesso</h3><p>As APIs administrativas exigem uma sessão válida da conta <strong>admin@sonora.com</strong>. Donos de salas continuam gerenciando apenas suas próprias salas.</p></div></section>
+          <section class="sf12-admin-view" data-sf12-view="interactions">
+  <div class="sf13-note">Gerencie comunicações, votações e batalhas sem interromper a música. Novas campanhas começam em rascunho e só aparecem após publicação.</div>
+  <div class="sf303-layout">
+    <div class="sf12-card"><h3>Nova interação com a comunidade</h3>
+      <form id="sf303CampaignForm" class="sf303-form" autocomplete="off">
+        <label>Modalidade<select name="type" required><option value="poll">Enquete</option><option value="battle">Batalha musical</option><option value="announcement">Comunicado</option><option value="mission">Missão com recompensa de XP</option></select></label>
+        <label>Título<input name="title" maxlength="110" required minlength="5" placeholder="Ex.: Qual estilo vence hoje?"></label>
+        <label>Mensagem e contexto<textarea name="description" maxlength="500" rows="3" placeholder="Explique a proposta aos usuários"></textarea></label>
+        <label id="sf303Choices">Alternativas (uma por linha)<textarea name="choices" rows="5" maxlength="800" placeholder="Rock&#10;K-pop&#10;Pop"></textarea></label>
+        <div class="sf303-duo">
+          <label>Destino<select name="scope"><option value="all">Todos os usuários</option><option value="room">Sala específica</option><option value="club">Fan Club específico</option></select></label>
+          <label>Apresentação<select name="channel"><option value="card">Card discreto</option><option value="banner">Banner</option><option value="chat">Destaque no chat da sala</option></select></label>
+        </div>
+        <label id="sf303ScopeTarget" hidden>Identificador da sala ou do Fan Club<input name="scopeId" maxlength="100" placeholder="slug da sala ou ID do Fan Club"></label>
+        <div class="sf303-duo">
+          <label>Início (vazio = agora)<input name="startsAt" type="datetime-local"></label>
+          <label>Término (vazio = +24 horas)<input name="endsAt" type="datetime-local"></label>
+        </div>
+        <label id="sf303MissionXP" hidden>XP por participação validada (máx. 50)<input name="bonusXP" type="number" min="0" max="50" value="10"></label>
+        <button type="submit">Salvar rascunho</button>
+        <p class="sf303-note" id="sf303CampaignNote" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+    <div class="sf12-card"><div class="sf12-card-head"><div><h3>Campanhas e resultados</h3><p>Votos únicos por conta; resultados persistentes. As ações são auditadas.</p></div><button id="sf303CampaignRefresh" type="button">↻ Atualizar</button></div><div id="sf303CampaignList" class="sf303-stack"><p class="sf303-muted">Abra esta seção para consultar as campanhas.</p></div></div>
+  </div>
+</section>
+<section class="sf12-admin-view" data-sf12-view="musicintel">
+  <div class="sf13-note" id="sf303SampleNote">Os eventos são coletados a partir da ativação. Início de reprodução não equivale a música efetivamente ouvida até o fim.</div>
+  <div class="sf12-card"><div class="sf12-card-head"><div><h3>Music Intelligence</h3><p>Comportamento musical observado, separado das preferências declaradas.</p></div><button id="sf303InsightsRefresh" type="button">↻ Atualizar</button></div><div id="sf303MusicSummary" class="sf303-stat-grid"></div><p id="sf303InsightsNote" class="sf303-note" role="status"></p></div>
+  <div class="sf12-grid-two">
+    <div class="sf12-card"><h3>Gêneros mais reproduzidos</h3><p>Inícios de reprodução nos últimos sete dias (gênero da sala).</p><div id="sf303GenreStarts"></div></div>
+    <div class="sf12-card"><h3>Gêneros favoritos declarados</h3><p>Preferências registradas nos perfis; não correspondem a escutas.</p><div id="sf303GenreFavorites"></div></div>
+  </div>
+  <div class="sf12-grid-two">
+    <div class="sf12-card"><h3>Evolução de reproduções</h3><div id="sf303DailyMusic"></div></div>
+    <div class="sf12-card"><h3>Faixas mais iniciadas</h3><p>▶ Inícios · + Adições · ⏭ Pulos registrados. Histórico a partir desta versão.</p><div id="sf303TrackTable"></div></div>
+  </div>
+</section>
+<section class="sf12-admin-view" data-sf12-view="engagement">
+  <div class="sf12-card"><div class="sf12-card-head"><div><h3>Engajamento da comunidade</h3><p>Participação agregada, sem acesso administrativo a registros pessoais de navegação.</p></div><button id="sf303EngagementRefresh" type="button">↻ Atualizar</button></div><div id="sf303EngagementSummary" class="sf303-stat-grid"></div><p id="sf303EngagementNote" class="sf303-note" role="status"></p></div>
+  <div class="sf12-grid-two">
+    <div class="sf12-card"><h3>Atividade diária</h3><p>Contagens por dia; a soma de usuários únicos diários não é uma contagem distinta de sete dias.</p><div id="sf303EngagementDaily"></div></div>
+    <div class="sf12-card"><h3>Seções visitadas</h3><p>Contagens de usuários únicos por seção e por instância diária.</p><div id="sf303Sections"></div></div>
+  </div>
+</section>
+<section class="sf12-admin-view" data-sf12-view="audit"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Histórico de ações</h3><p>Registro de operações administrativas</p></div><button type="button" id="sf12RefreshAudit">↻ Atualizar</button></div><div id="sf12AuditList"></div></div></section>
+          <section class="sf12-admin-view" data-sf12-view="settings"><div class="sf12-card"><h3>Comunicação e manutenção</h3><p>Estas ações afetam a comunidade e exigem confirmação.</p><div class="sf12-settings-grid"><button type="button" data-sf12-action="broadcast">📣 Enviar comunicado</button><button type="button" data-sf12-action="export">⇩ Exportar informações</button><button type="button" data-sf12-action="clear-chats">⌫ Limpar todos os chats</button><button type="button" class="sf12-danger-action" data-sf12-action="reset-gamification" title="Zera XP, missões e conquistas de todos os usuários, com confirmação">↺ Zerar gamificação (XP e níveis)</button><button type="button" data-sf12-action="clear-rooms">⚠ Encerrar todas as salas criadas</button></div></div><div class="sf12-card"><h3>Controle de incidentes</h3><p>Restrinja temporariamente funções para usuários, sem encerrar salas ou apagar dados. Administradores continuam podendo moderar.</p>
+ <div class="sf303-operation-controls">
+  <label><input id="sf303HoldChat" type="checkbox"> Pausar envio de mensagens no chat</label>
+  <label><input id="sf303HoldCreate" type="checkbox"> Pausar criação de novas salas</label>
+  <button class="sf303-primary" type="button" id="sf303SaveOperations">Aplicar controles operacionais</button>
+  <p id="sf303OperationNote" role="status" aria-live="polite"></p>
+ </div></div><div class="sf12-card sf12-reset-help"><h3>Reset de gamificação</h3><p>Zera XP, níveis, missões e medalhas dos usuários e as pontuações dos rankings da semana e do mês atuais. Não exclui contas, músicas, salas ou Fan Clubs. Esta operação é irreversível e exige confirmação dupla.</p></div><div class="sf12-card"><h3>Política de acesso</h3><p>As APIs administrativas exigem uma sessão válida da conta <strong>admin@sonora.com</strong>. Donos de salas continuam gerenciando apenas suas próprias salas.</p></div></section>
         </div>
       </div>
       <div class="sf12-admin-legacy" hidden aria-hidden="true">
@@ -5136,6 +5191,8 @@ function openRoomCfg() {
   
   <script defer src="/admin-control-12.js?v=297.0"></script>
   <script defer src="/admin-control-13.js?v=225.1"></script>
+  <script defer src="/sonorafan-community-admin-303.js?v=303.0"></script>
+  <script defer src="/sonorafan-community-client-303.js?v=303.0"></script>
   
   <script defer src="/visual-stage4.js"></script>
   <script src="/room-stage5.js"></script>
