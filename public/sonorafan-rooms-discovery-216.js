@@ -114,7 +114,14 @@ function enterRoom(slug,manage=false){
  try{join(slug);}catch(error){window.sf216ManageRoomAfterJoin=null;showError('Erro ao entrar na sala. Tente novamente.');console.error('sf216 enterRoom:',error);open(state.mode);}
 }
 function showError(message){const node=$('sf216Status');if(node){node.textContent=message;node.hidden=false;}else if(typeof window.toast==='function')window.toast(message,'error');}
-function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');const globalSearch=$('sf107Search');if(globalSearch){globalSearch.placeholder='Buscar em todo o SonoraFan…';globalSearch.value='';globalSearch.dispatchEvent(new Event('input',{bubbles:true}));}document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});window.sf207SetActive?.('lobby');}
+function close(){const page=$('sf216Explorer');if(!page)return;page.hidden=true;$('screen-lobby')?.classList.remove('sf216-explore-mode');const globalSearch=$('sf107Search');if(globalSearch){globalSearch.placeholder='Buscar em todo o SonoraFan…';globalSearch.value='';globalSearch.dispatchEvent(new Event('input',{bubbles:true}));}document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='lobby');});window.sf207SetActive?.('lobby');
+ // Quando a exploração deixa de ocupar o main, ele não pode conservar
+ // o scrollTop antigo (senão oculta o cabeçalho ao voltar ao Início).
+ const main=$('screen-lobby')?.querySelector('.sf28-lobby-main');
+ const body=$('screen-lobby')?.querySelector('.sf28-lobby-content');
+ if(main)main.scrollTop=0;
+ if(body)body.scrollTop=0;
+}
 function open(mode='discover'){const page=$('sf216Explorer');if(!page)return;if(!$('screen-lobby')?.classList.contains('active')&&typeof window.showScreen==='function')window.showScreen('lobby');window.sf207LeavePage?.();window.sf200CloseAgenda?.();
 const search=$('sf107Search');if(search){search.placeholder='Buscar em todo o SonoraFan…';search.value=state.query;}
 state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discover';state.featuredIndex=0;state.limit=12;page.hidden=false;$('screen-lobby').classList.add('sf216-explore-mode');document.querySelectorAll('[data-sf125-go]').forEach(el=>{el.classList.toggle('is-active',el.dataset.sf125Go==='rooms');});
