@@ -4,7 +4,7 @@
   const panel = document.getElementById('adminPanel');
   if (!panel) return;
   const $ = id => document.getElementById(id);
-  const state = { users: [], rooms: [], logs: [], sanctions: [], stats: null, view: 'overview', loading: false };
+  const state = { users: [], rooms: [], logs: [], sanctions: [], stats: null, view: 'overview', loading: false, requestSeq: 0, pendingLoads: 0 };
   const titles = {
     overview: ['Visão geral','Acompanhe a operação da comunidade em tempo real.'],
     users: ['Usuários','Gerencie contas, permissões e acessos.'],
@@ -85,11 +85,21 @@
     settings:async()=>{}
   };
   async function load(name=state.view) {
-    if (!panel.classList.contains('active') || state.loading) return;
+    if (!panel.classList.contains('active') || !loaders[name]) return;
+    // Uma requisição lenta de outra aba não deve bloquear a aba selecionada.
+    const request=++state.requestSeq;
+    state.pendingLoads++;
     state.loading=true;
-    try { await loaders[name](); notice(''); }
-    catch (err) { notice('Não foi possível carregar os dados: '+err.message); }
-    finally { state.loading=false; }
+    try {
+      await loaders[name]();
+      if (request===state.requestSeq && state.view===name) notice('');
+    } catch (err) {
+      if (request===state.requestSeq && state.view===name)
+        notice('Não foi possível carregar os dados: '+err.message);
+    } finally {
+      state.pendingLoads=Math.max(0,state.pendingLoads-1);
+      state.loading=state.pendingLoads>0;
+    }
   }
   async function mutate(task,confirmText) {
     if (confirmText && !confirm(confirmText)) return;
