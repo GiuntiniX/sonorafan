@@ -100,6 +100,25 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
     res.set('Cache-Control','no-store');res.json({campaigns:await visible(email)});
   }catch(e){reportError(res,e);}
  });
+ app.get('/api/community303/battle-highlight',rateLimit(20,60000),async(req,res)=>{
+  try{
+   ensureReady();
+   const email=sessionEmail(req);if(!email)throw httpError(401,'Faça login.');
+   const now=Date.now();
+   const candidates=[...current.values()]
+    .filter(c=>c.type==='battle'&&c.totalVotes>0&&['closed','published'].includes(c.status)&&
+      (c.status==='closed'||c.endsAt<=now)&&c.updatedAt>now-7*86400000)
+    .sort((a,b)=>b.updatedAt-a.updatedAt);
+   let battle=null;
+   for(const c of candidates.slice(0,15)){
+    if(await audienceMatches(c,email)){battle=c;break;}
+   }
+   if(!battle)return res.json({battle:null});
+   const max=Math.max(...battle.counts.map(Number)),winning=battle.choices.filter((_,i)=>Number(battle.counts[i])===max);
+   res.set('Cache-Control','no-store');res.json({battle:{id:battle.id,title:battle.title,
+     winner:winning.length===1?winning[0]:'Empate',votes:battle.totalVotes,at:battle.updatedAt}});
+  }catch(e){reportError(res,e);}
+ });
  app.post('/api/community303/:id/vote',rateLimit(20,60000),async(req,res)=>{
   try{
    ensureReady();
