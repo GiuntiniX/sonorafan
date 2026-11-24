@@ -120,7 +120,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
     tx.update(ref,{counts,totalVotes:(Number(c.totalVotes)||0)+1,updatedAt:Date.now()});
     return {...c,counts,totalVotes:(Number(c.totalVotes)||0)+1,id};
    });
-   current.set(id,result);
+   if(result.totalVotes>=Number(current.get(id)?.totalVotes||0))current.set(id,result);
    emitChanged();
    // A recompensa é entregue exclusivamente após o voto persistido, uma vez por campanha.
    let bonusApplied=false;
