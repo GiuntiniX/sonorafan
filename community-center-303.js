@@ -232,6 +232,13 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    }else await engagement.doc(day()).set({roomJoins:inc(1),updatedAt:Date.now()},{merge:true});
   }catch(e){if(first)userSeen.delete(key);console.error('Engajamento303:',e.message);}
  }
+ async function recordStay(startedAt){
+  const seconds=Math.floor((Date.now()-Number(startedAt||0))/1000);
+  if(!Number.isFinite(seconds)||seconds<5||seconds>12*3600)return;
+  try{
+   await engagement.doc(day()).set({completedStays:inc(1),staySeconds:inc(seconds),updatedAt:Date.now()},{merge:true});
+  }catch(e){console.error('Permanência303:',e.message);}
+ }
  async function recordRoomPlayback(room){
   if(!room?.isPlaying||!room.queue?.length)return;
   newDay();
@@ -282,7 +289,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    const genreCounts={},dailyStats=[];
    for(let i=0;i<days.length;i++){
      const a=daily[i][0].exists?daily[i][0].data():{},b=daily[i][1].exists?daily[i][1].data():{};
-     dailyStats.push({day:days[i],starts:a.starts||0,uniqueUsers:b.uniqueUsers||0,returningUsers:b.returningUsers||0,roomJoins:b.roomJoins||0,sections:b.sections||{}});
+     dailyStats.push({day:days[i],starts:a.starts||0,uniqueUsers:b.uniqueUsers||0,returningUsers:b.returningUsers||0,roomJoins:b.roomJoins||0,completedStays:b.completedStays||0,staySeconds:b.staySeconds||0,sections:b.sections||{}});
      for(const [genre,count] of Object.entries(a.genres||{}))genreCounts[genre]=(genreCounts[genre]||0)+Number(count||0);
    }
    const favorites={};userSnap.forEach(d=>{for(const x of Array.isArray(d.data().musicGenres)?d.data().musicGenres:[]){const g=clean(x,30).toLowerCase();if(GENRES.has(g))favorites[g]=(favorites[g]||0)+1;}});
@@ -296,6 +303,6 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
   }catch(e){reportError(res,e);}
  });
  return {isChatHeld:()=>ready&&operations.chatHold,isCreationHeld:()=>ready&&operations.createHold,
-    recordRoomPlayback,recordJoin,recordAdded,recordSkip,recordVisit};
+    recordRoomPlayback,recordJoin,recordStay,recordAdded,recordSkip,recordVisit};
 }
 module.exports={createCommunityCenter303,clean,day,publicCampaign};
