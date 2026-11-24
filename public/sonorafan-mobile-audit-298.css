@@ -1,0 +1,212 @@
+/* SonoraFan Mobile 298 — camada final e específica para telas pequenas.
+ * Consolida quebras de layout sem alterar as regras de reprodução e autenticação.
+ * Breakpoint 920px acompanha o lobby v126 (evita sidebar ressurgir em Salas). */
+@media (max-width:920px) {
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-app.sf125-app,
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-app {
+    display:block!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    min-width:0!important;width:100%!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode #sf125Sidebar {
+    display:none!important;
+    width:0!important;min-width:0!important;max-width:0!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main.sf125-main {
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    height:100dvh!important;max-height:100dvh!important;overflow:hidden!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main > #sf216Explorer {
+    overflow-y:auto!important;overflow-x:hidden!important;
+    min-height:0!important;overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode #sf216Explorer.sf216-page {
+    min-width:0!important;width:100%!important;max-width:100%!important;
+    box-sizing:border-box!important;
+    padding:14px 12px calc(90px + env(safe-area-inset-bottom,0px))!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-shell,
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-content {
+    min-width:0!important;max-width:100%!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-cards {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-cards.sf216-list-mode {
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-card {
+    min-width:0!important;max-width:100%!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-head,
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-tabs {
+    min-width:0!important;max-width:100%!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-styles {
+    max-width:100%!important;overflow-x:auto!important;
+    overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+  }
+  #adminPanel .sf12-admin-shell{min-width:0!important;}
+}
+@media (max-width:768px) {
+  html { -webkit-text-size-adjust:100%; }
+  #screen-lobby, #screen-room, #adminPanel { min-width:0!important; }
+  #screen-lobby :is(.sf28-lobby-main,.sf125-main,.sf28-lobby-content,.sf107-main,.sf207-in-page),
+  #screen-room :is(.app,#roomLayout,.player-column,.queue-column,.chat-column) {
+    min-width:0!important;max-width:100%!important;
+  }
+  #screen-lobby :is(.sf107-room-card,.sf216-card,.sf216-slider-item),
+  #screen-room :is(.queue-item,.chat-message,.sf113-now-card) {
+    min-width:0!important;box-sizing:border-box!important;
+  }
+  #screen-lobby :is(.sf107-room-card,.sf216-card,.sf216-slider-item) img,
+  #screen-room :is(.player-frame,video,iframe){
+    max-width:100%;
+  }
+  #screen-lobby :is(input,textarea,select),
+  #screen-room :is(input,textarea,select),
+  #adminPanel :is(input,textarea,select) {
+    font-size:16px!important;min-width:0!important;max-width:100%!important;
+  }
+  #screen-lobby :is(button,a,[role="button"]),
+  #screen-room :is(button,a,[role="button"]),
+  #adminPanel :is(button,a,[role="button"]){touch-action:manipulation;}
+  #screen-room.sf113-room.active > .app > #roomLayout.room-layout {
+    min-width:0!important;max-width:100%!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-y:contain!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  #screen-room.sf113-room.active #roomLayout :is(.queue-column,.chat-column,.player-column){
+    min-width:0!important;max-width:100%!important;
+  }
+  #screen-room.sf113-room.active #roomLayout :is(.queue-item,.chat-message,.sf128-queue-tracks){
+    overflow-wrap:anywhere;
+  }
+  #screen-room.sf113-room.active .player-frame{
+    width:100%!important;aspect-ratio:16/9!important;
+    max-width:100%!important;
+  }
+  #screen-room.sf113-room.active > .app > #mTabs.mtabs{
+    padding-bottom:calc(7px + env(safe-area-inset-bottom,0px))!important;
+    max-width:100%!important;
+  }
+  #screen-room.sf113-room.active #chatInput {
+    min-width:0!important;max-width:100%!important;font-size:16px!important;
+  }
+  /* Os overlays recebem rolagem vertical sem cortar os botões finais. */
+  :is(#createRoomModal,#roomCfgModal,#favoritesModal,#sf43ProfileModal,#lbModal,#legalModal,#pwModal)
+  .modal {
+    max-width:calc(100vw - 16px)!important;
+    max-height:calc(100dvh - 16px - env(safe-area-inset-top,0px))!important;
+    overflow-y:auto!important;overscroll-behavior:contain;
+  }
+  #adminPanel{
+    padding:0!important;
+    width:100%!important;max-width:100%!important;
+  }
+  #adminPanel .sf12-admin-shell{
+    width:100%!important;max-width:100%!important;
+    height:100dvh!important;max-height:100dvh!important;
+    border-radius:0!important;overflow:hidden!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto minmax(0,1fr)!important;
+  }
+  #adminPanel .sf12-admin-sidebar{
+    min-width:0!important;padding:8px 10px!important;
+    overflow:hidden!important;
+  }
+  #adminPanel .sf12-admin-nav{
+    display:flex!important;flex-direction:row!important;
+    flex-wrap:nowrap!important;gap:5px!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    scrollbar-width:thin;overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  #adminPanel .sf12-admin-nav button{
+    flex:0 0 auto!important;white-space:nowrap!important;
+    min-height:40px!important;padding:8px 11px!important;
+  }
+  #adminPanel .sf12-admin-main{min-width:0!important;min-height:0!important;}
+  #adminPanel .sf12-admin-top{
+    gap:8px!important;padding:12px!important;min-width:0!important;
+  }
+  #adminPanel .sf12-admin-top h2{
+    font-size:clamp(18px,5vw,24px)!important;overflow-wrap:anywhere;
+  }
+  #adminPanel .sf12-admin-content{
+    min-width:0!important;padding:12px 12px calc(18px + env(safe-area-inset-bottom,0px))!important;
+    overflow-y:auto!important;overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;
+  }
+  #adminPanel .sf12-grid-two,
+  #adminPanel .sf13-top-grid,
+  #adminPanel .sf12-settings-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #adminPanel .sf12-record{
+    flex-direction:column!important;align-items:stretch!important;
+    min-width:0!important;
+  }
+  #adminPanel .sf12-record-actions{
+    justify-content:flex-start!important;min-width:0!important;
+  }
+  #adminPanel .sf12-record-actions button{
+    min-height:40px;white-space:normal;overflow-wrap:anywhere;
+  }
+  #adminPanel .sf12-card{min-width:0!important;padding:13px!important;}
+  #adminPanel .sf12-row{min-width:0!important;flex-wrap:wrap;}
+  #adminPanel .sf12-queue-detail{margin-left:0!important;min-width:0!important;}
+}
+@media (max-width:560px) {
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-cards{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-card{
+    grid-template-columns:minmax(0,36%) minmax(0,1fr)!important;
+    height:auto!important;min-height:142px!important;max-height:none!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-card-body {
+    min-width:0!important;max-width:100%!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-card-actions{
+    flex-wrap:wrap!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-search-row{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-slider-item{
+    grid-template-columns:minmax(0,1fr)!important;height:auto!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-slider-art{
+    height:132px!important;min-height:0!important;
+  }
+  #adminPanel .sf12-metrics,#adminPanel .sf13-summary-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  #adminPanel .sf12-metric{min-width:0!important;padding:11px!important;}
+  #adminPanel .sf12-metric strong{font-size:clamp(19px,6vw,26px)!important;}
+  #adminPanel .sf12-admin-topactions{flex:0 0 auto!important;gap:4px!important;}
+  #adminPanel .sf12-admin-topactions button{min-width:35px!important;min-height:35px!important;}
+  #adminPanel .sf12-card-head{flex-wrap:wrap;}
+  #adminPanel .sf12-card-head button{min-height:40px;}
+}
+@media (max-width:360px) {
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-search-row{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-card{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  #screen-lobby.sf125-platform.sf216-explore-mode .sf216-card .sf216-cover{
+    height:140px!important;width:100%!important;
+  }
+  #adminPanel .sf12-metrics{grid-template-columns:minmax(0,1fr)!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  #screen-lobby *,#screen-room *,#adminPanel *{
+    scroll-behavior:auto!important;
+  }
+}
