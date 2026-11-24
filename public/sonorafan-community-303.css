@@ -118,3 +118,15 @@
 @media(prefers-reduced-motion:reduce){
  #sf303CommunityCard *,#adminPanel .sf303-form *{transition:none!important;animation:none!important}
 }
+
+/* O resultado da última batalha fica no Lobby, sem ocupar o player. */
+#screen-lobby .sf303-battle-highlight{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  margin:12px 0;padding:12px 16px;border:1px solid #74509c;border-radius:13px;
+  color:#f5ecfa;background:linear-gradient(95deg,#251331,#171021);
+  font:650 12px/1.35 Inter,system-ui,sans-serif;
+}
+#screen-lobby .sf303-battle-highlight>strong{font-size:17px;color:#caff00}
+#screen-lobby .sf303-battle-highlight>small{font-size:11px;color:#cab4d5}
+#screen-lobby:is(.sf207-profile-page,.sf207-clubs-page,.sf207-ranking-page,.sf216-explore-mode) .sf303-battle-highlight{display:none!important}
+@media(max-width:768px){#screen-lobby .sf303-battle-highlight{padding:10px 12px;align-items:flex-start}}
