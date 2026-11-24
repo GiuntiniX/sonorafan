@@ -470,7 +470,7 @@ function addSystemMsg(slug, text) {
   if (isRoutineMusicChatNotice(text)) return;
   const room = rooms.get(slug);
   if (!room) return;
-  const msg = { _id: Date.now().toString() + Math.random(), user: 'Sistema', text, color: '#888', isSystem: true, createdAt: new Date() };
+  const msg = { _id: Date.now().toString() + Math.random(), user: 'Sistema', text:moderation304.display(text), color: '#888', isSystem: true, createdAt: new Date() };
   room.chatHistory.push(msg);
   if (room.chatHistory.length > 300) room.chatHistory.shift();
   io.to(slug).emit('chat', msg);
@@ -1561,7 +1561,7 @@ app.post('/api/admin/room-action', (req, res) => {
   if (action === 'skip') { room.lastAdvanceAt = 0; advanceQueue(room.slug); }
   else if (action === 'clear-queue') { room.queue = []; room.waitingQueue = []; room.isPlaying = false; room.currentIndex = 0; room.skipVotes = new Set(); broadcastState(room.slug); addSystemMsg(room.slug, '🧹 A fila foi limpa por um administrador.'); }
   else if (action === 'lock' || action === 'unlock') { room.chatLocked = action === 'lock'; addSystemMsg(room.slug, room.chatLocked ? '🔒 O chat foi travado por um administrador.' : '🔓 O chat foi liberado.'); }
-  else if (action === 'message' && text) addSystemMsg(room.slug, '📣 Admin: ' + String(text).slice(0, 300));
+  else if (action === 'message' && text) addSystemMsg(room.slug, '📣 Admin: ' + moderation304.mask(String(text).slice(0, 300),'announcement'));
   else return res.status(400).json({ error: 'Ação inválida' });
   res.json({ success: true });
 });
@@ -1932,7 +1932,7 @@ io.on('connection', (socket) => {
         room.queue.forEach(t => { const dj = t.dj || 'Desconhecido'; userCounts[dj] = (userCounts[dj] || 0) + 1; });
         Object.entries(userCounts).sort((a,b) => b[1] - a[1]).forEach(([user, count]) => { stats += `  ${user}: ${count} música(s)\n`; });
         stats += `Total: ${room.queue.length} músicas | Histórico: ${room.history.length}`;
-        socket.emit('chat', { _id: Date.now().toString() + Math.random(), user: 'Sistema', text: stats, color: '#888', isSystem: true, createdAt: new Date() });
+        socket.emit('chat', { _id: Date.now().toString() + Math.random(), user: 'Sistema', text: moderation304.display(stats), color: '#888', isSystem: true, createdAt: new Date() });
         break;
       case '/vote':
         if (room.queue.length === 0) { reply = 'Nenhuma música na fila.'; break; }
@@ -1959,17 +1959,17 @@ io.on('connection', (socket) => {
         if (room.history.length === 0) { reply = 'Nenhuma música no histórico.'; break; }
         let hist = '📜 Histórico:\n';
         room.history.slice(-5).forEach((t, i) => { hist += `  ${i+1}. ${t.title} — ${t.artist}\n`; });
-        socket.emit('chat', { _id: Date.now().toString() + Math.random(), user: 'Sistema', text: hist, color: '#888', isSystem: true, createdAt: new Date() });
+        socket.emit('chat', { _id: Date.now().toString() + Math.random(), user: 'Sistema', text: moderation304.display(hist), color: '#888', isSystem: true, createdAt: new Date() });
         return;
       case '/pin':
         if (!socket.isAdmin) { reply = 'Apenas admin pode fixar mensagens.'; break; }
         if (!args.length) { reply = 'Use: /pin texto da mensagem'; break; }
-        room.pinnedMessage = { author: socket.userName, text: args.join(' ').slice(0, 300) }; broadcastState(room.slug); reply = '📌 Mensagem fixada.';
+        room.pinnedMessage = { author: socket.userName, text: moderation304.mask(args.join(' ').slice(0, 300),'room-pin') }; broadcastState(room.slug); reply = '📌 Mensagem fixada.';
         break;
       default:
         reply = `Comando desconhecido: ${cmd}. Use /stats, /vote, /me, /history, /clear e /pin (admin)`;
     }
-    if (reply) socket.emit('chat', { _id: Date.now().toString() + Math.random(), user: 'Sistema', text: reply, color: '#888', isSystem: true, createdAt: new Date() });
+    if (reply) socket.emit('chat', { _id: Date.now().toString() + Math.random(), user: 'Sistema', text: moderation304.display(reply), color: '#888', isSystem: true, createdAt: new Date() });
   }
 
   // Cada evento passa por transação no Firestore: nunca sobrescreve pontos antigos.
@@ -2278,7 +2278,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('adminBroadcast', ({ message }) => {
-    try { if (adminEmails.has(socket.userEmail) && typeof message === 'string' && message.trim()) io.emit('adminBroadcast', { message: message.trim().slice(0, 300) }); } catch (e) {}
+    try { if (adminEmails.has(socket.userEmail) && typeof message === 'string' && message.trim()) io.emit('adminBroadcast', { message: moderation304.mask(message.trim().slice(0, 300),'announcement') }); } catch (e) {}
   });
 
   socket.on('removePinnedMessage', () => {
