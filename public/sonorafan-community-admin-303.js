@@ -81,6 +81,10 @@ async function loadInsights(){
  const genres=sorted(data.genres),favorites=sorted(data.declaredGenres);
  if($('sf303GenreStarts'))$('sf303GenreStarts').innerHTML=list(genres.map(x=>row(x[0],x[1],genres[0][1])),'Ainda não há reproduções instrumentadas.');
  if($('sf303GenreFavorites'))$('sf303GenreFavorites').innerHTML=list(favorites.map(x=>row(x[0],x[1],favorites[0][1])),'Nenhum gênero declarado no recorte.');
+ const artists=(data.artists||[]).slice(0,18);
+ if($('sf303Artists'))$('sf303Artists').innerHTML=list(artists.map((a,i)=>
+  '<div class="sf303-track"><b>'+(i+1)+'</b><div><strong>'+esc(a.artist||'Artista')+'</strong><small>'+fmt(a.added)+' músicas adicionadas</small></div><span>'+fmt(a.starts)+' ▶</span></div>'
+ ),'Ainda não há dados de reproduções por artista.');
  if($('sf303TrackTable'))$('sf303TrackTable').innerHTML=list(tracks.slice(0,20).map((t,i)=>
   '<div class="sf303-track"><b>'+(i+1)+'</b><div><strong>'+esc(t.title||'Música')+'</strong><small>'+esc(t.artist||'Artista desconhecido')+'</small></div>'+
   '<span>'+fmt(t.starts)+' ▶ · '+fmt(t.added)+' + · '+fmt(t.skips)+' ⏭</span></div>'
