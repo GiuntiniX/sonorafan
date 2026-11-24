@@ -17,7 +17,8 @@
  };
  const label={pt:'Português',en:'Inglês',es:'Espanhol',custom:'Termos personalizados'};
  const surface={room:'Chat da sala',dm:'Mensagem privada','fanclub-post':'Publicação no Fan Club',
-  'fanclub-title':'Título do Fan Club','fanclub-comment':'Comentário no Fan Club'};
+  'fanclub-title':'Título do Fan Club','fanclub-comment':'Comentário no Fan Club',
+  'room-pin':'Mensagem fixada','announcement':'Comunicado administrativo'};
  function render(data){
   const dictionary=data.dictionary||{};
   const items=Array.isArray(data.recent)?data.recent:[];
