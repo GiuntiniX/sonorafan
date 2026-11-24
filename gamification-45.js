@@ -323,9 +323,10 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
   }
   // Bônus de missões especiais: validado APÓS o voto único no Firestore.
   // Persistido como chave idempotente por usuário e por campanha.
-  async function awardCampaignBonusInternal(email,campaignId,value){
+  async function awardCampaignBonusInternal(email,campaignId,value,badgeName){
     const bonus=Math.min(50,Math.max(0,Math.floor(Number(value)||0)));
-    if(!email||!bonus||!/^[a-f0-9-]{30,40}$/i.test(campaignId)||resetInProgress)return null;
+    const medal=String(badgeName||'').replace(/[<>\u0000-\u001f]/g,' ').trim().slice(0,36);
+    if(!email||(!bonus&&!medal)||!/^[a-f0-9-]{30,40}$/i.test(campaignId)||resetInProgress)return null;
     const ref=pointsRef(email);
     const result=await db.runTransaction(async tx=>{
       const now=new Date(),period=localPeriod(now);
@@ -333,10 +334,12 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
       const ids=Array.isArray(current.campaignRewardIds)?current.campaignRewardIds:[];
       if(ids.includes(campaignId))return null;
       const newPoints=positiveNumber(current.points)+bonus;
+      const oldBadges=Array.isArray(current.badges)?current.badges:[];
+      const newBadges=medal&&!oldBadges.includes(medal)?[...oldBadges,medal].slice(-80):oldBadges;
       const weekRef=db.collection('ranking60Weeks').doc(period.week).collection('players').doc(ranking60Id(email));
       const monthRef=db.collection('ranking60Months').doc(ranking60Month(now)).collection('players').doc(ranking60Id(email));
       const [weekly,monthly]=await Promise.all([tx.get(weekRef),tx.get(monthRef)]);
-      tx.set(ref,{points:newPoints,campaignRewardIds:[...ids.slice(-59),campaignId]}, {merge:true});
+      tx.set(ref,{points:newPoints,badges:newBadges,campaignRewardIds:[...ids.slice(-59),campaignId]}, {merge:true});
       for(const [target,snapshot] of [[weekRef,weekly],[monthRef,monthly]]){
         const prev=snapshot.exists?snapshot.data():{};
         tx.set(target,{
@@ -346,10 +349,10 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
           updatedAt:now.toISOString()
         },{merge:true});
       }
-      return {newPoints,bonus,previous:current};
+      return {newPoints,newBadges,bonus,previous:current};
     });
     if(!result)return null;
-    const next={...result.previous,points:result.newPoints};
+    const next={...result.previous,points:result.newPoints,badges:result.newBadges};
     userPoints.set(email,{points:result.newPoints,badges:next.badges||[]});
     const pub=publicSnapshot(next);
     for(const socket of io.sockets.sockets.values()){
@@ -359,9 +362,9 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
     }
     return {points:result.newPoints,gained:bonus};
   }
-  function awardCampaignBonus(email,campaignId,value){
+  function awardCampaignBonus(email,campaignId,value,badgeName){
     if(resetInProgress)return Promise.resolve(null);
-    const active=awardCampaignBonusInternal(email,campaignId,value);
+    const active=awardCampaignBonusInternal(email,campaignId,value,badgeName);
     activeAwards.add(active);
     active.then(()=>activeAwards.delete(active),()=>activeAwards.delete(active));
     return active;
