@@ -169,6 +169,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
  // Events are aggregated. No chat text, query terms, or personal listening log stored.
  const metrics=db.collection('sonorafanMusicDaily303');
  const tracks=db.collection('sonorafanTrackStats303');
+ const artists=db.collection('sonorafanArtistStats303');
  const engagement=db.collection('sonorafanEngagementDaily303');
  const people=db.collection('sonorafanEngagementUsers303');
  const userSeen=new Set();
@@ -208,10 +209,12 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
   const marker=track.id+':'+room.startedAt;
   if(seenTracks.get(room.slug)===marker)return;
   seenTracks.set(room.slug,marker);
-  const genre=GENRES.has(String(room.genre||'').toLowerCase())?String(room.genre).toLowerCase():'outros';
+  const rawGenre=String(room.genre||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const genre=GENRES.has(rawGenre)?rawGenre:'outros';
   try{await Promise.all([
     metrics.doc(day()).set({starts:inc(1),genres:{[genre]:inc(1)},updatedAt:Date.now()},{merge:true}),
-    tracks.doc(track.id).set({title:clean(track.title,135),artist:clean(track.artist,95),genre,starts:inc(1),updatedAt:Date.now()},{merge:true})
+    tracks.doc(track.id).set({title:clean(track.title,135),artist:clean(track.artist,95),genre,starts:inc(1),updatedAt:Date.now()},{merge:true}),
+    artists.doc(hash(clean(track.artist,95)||'artista sem nome')).set({artist:clean(track.artist,95)||'Artista sem nome',starts:inc(1),updatedAt:Date.now()},{merge:true})
   ]);}
   catch(e){seenTracks.delete(room.slug);console.error('Reprodução303:',e.message);}
  }
@@ -222,7 +225,10 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
  }
  async function recordAdded(room,track){
   if(!/^[a-zA-Z0-9_-]{11}$/.test(String(track?.id||'')))return;
-  try{await tracks.doc(track.id).set({title:clean(track.title,135),artist:clean(track.artist,95),added:inc(1),updatedAt:Date.now()},{merge:true});}catch(e){console.error('Adições303:',e.message);}
+  try{await Promise.all([
+    tracks.doc(track.id).set({title:clean(track.title,135),artist:clean(track.artist,95),added:inc(1),updatedAt:Date.now()},{merge:true}),
+    artists.doc(hash(clean(track.artist,95)||'artista sem nome')).set({artist:clean(track.artist,95)||'Artista sem nome',added:inc(1),updatedAt:Date.now()},{merge:true})
+  ]);}catch(e){console.error('Adições303:',e.message);}
  }
  app.post('/api/community303/visit',rateLimit(30,60000),async(req,res)=>{
   const email=sessionEmail(req);if(!email)return res.status(401).json({error:'Faça login.'});
@@ -233,10 +239,11 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
   try{
    ensureReady();
    const days=Array.from({length:7},(_,i)=>day(Date.now()-(6-i)*86400000));
-   const [daily,trackSnap,userSnap]=await Promise.all([
+   const [daily,trackSnap,userSnap,artistSnap]=await Promise.all([
      Promise.all(days.map(d=>Promise.all([metrics.doc(d).get(),engagement.doc(d).get()]))),
      tracks.orderBy('starts','desc').limit(35).get(),
-     db.collection('users').limit(1000).get()
+     db.collection('users').limit(1000).get(),
+     artists.orderBy('starts','desc').limit(25).get()
    ]);
    const genreCounts={},dailyStats=[];
    for(let i=0;i<days.length;i++){
@@ -249,7 +256,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    res.set('Cache-Control','no-store');res.json({
      period:'Últimos 7 dias (UTC)',daily:dailyStats,genres:genreCounts,declaredGenres:favorites,
      profilesSampled:userSnap.size,profilesCapped:userSnap.size===1000,
-     tracks:trackRows,source:'starts = início de reprodução, não minutos ou ouvintes individuais',
+     tracks:trackRows,artists:artistSnap.docs.map(d=>({artist:d.data().artist||'Artista',starts:Number(d.data().starts||0),added:Number(d.data().added||0)})),source:'starts = início de reprodução, não minutos ou ouvintes individuais',
      campaigns:adminList().slice(0,30)
    });
   }catch(e){reportError(res,e);}
