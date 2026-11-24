@@ -7,7 +7,7 @@ const validId = id => typeof id === 'string' && /^[a-f0-9]{24}$/.test(id);
 const threadId = (a, b) => crypto.createHash('sha256').update([a,b].sort().join(':')).digest('hex').slice(0, 40);
 const validPolicy = v => ['everyone', 'following', 'nobody'].includes(v);
 
-function installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit }) {
+function installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit, moderation304 }) {
   const auth = (req,res,next) => {
     const email = sessionEmail(req);
     if (!email || !users.get(email) || users.get(email).banned) return res.status(401).json({ error:'Faça login para acessar o chat.' });
@@ -81,7 +81,7 @@ function installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, 
         const d=doc.data(); const otherId=(d.participants||[]).find(v=>v!==req.chat53Id);
         const u=otherId&&findSocialUser(otherId);
         if (!u || u[1].banned) return;
-        arr.push({id:otherId,name:String(u[1].nome||'Ouvinte').slice(0,40),avatar:String(u[1].avatar||'🎧').slice(0,8),updatedAt:Number(d.updatedAt)||0,preview:safeText(d.lastMessage,90),unread:d.lastSender!==req.chat53Id && (Number(d.readAt?.[req.chat53Id])||0)<(Number(d.updatedAt)||0)});
+        arr.push({id:otherId,name:String(u[1].nome||'Ouvinte').slice(0,40),avatar:String(u[1].avatar||'🎧').slice(0,8),updatedAt:Number(d.updatedAt)||0,preview:moderation304.display(safeText(d.lastMessage,90)),unread:d.lastSender!==req.chat53Id && (Number(d.readAt?.[req.chat53Id])||0)<(Number(d.updatedAt)||0)});
       });
       arr.sort((a,b)=>b.updatedAt-a.updatedAt);
       res.json(arr.slice(0,60));
@@ -94,13 +94,13 @@ function installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, 
       const can=await access(req.chat53Id,req.params.id);
       if(!can.allowed)return res.status(403).json({error:can.reason});
       const snap=await convRef(threadId(req.chat53Id,req.params.id)).collection('messages').orderBy('createdAt','desc').limit(80).get();
-      const rows=[];snap.forEach(doc=>rows.push(doc.data()));rows.reverse();
+      const rows=[];snap.forEach(doc=>{const m=doc.data();rows.push({...m,text:moderation304.display(m.text)});});rows.reverse();
       res.json({messages:rows,other:{id:req.params.id,name:String(target[1].nome||'Ouvinte').slice(0,40)},myId:req.chat53Id});
     }catch(e){console.error('chat53 messages',e.message);res.status(503).json({error:'Mensagens indisponíveis'});}
   });
   const throttled=new Map();
   app.post(api + '/messages', auth, rateLimit(30,60000), async(req,res)=>{
-    const id=req.body?.to, text=safeText(req.body?.text,700);
+    const id=req.body?.to, text=moderation304.mask(safeText(req.body?.text,700),'dm');
     const target=resolve(id,req.chat53Email);
     if(!target || !text || String(req.body?.text||'').length>700)return res.status(400).json({error:'Mensagem ou destinatário inválido'});
     if (Date.now()-(throttled.get(req.chat53Id)||0)<900) return res.status(429).json({error:'Aguarde um instante antes de enviar outra mensagem.'});
