@@ -986,3 +986,12 @@ body.sf125-global :is(.sf63-panel,.sf92-account-panel,.sf95-panel) :is(h2,h3,str
 #screen-lobby.sf125-platform #sf125LobbyHero .sf126-hero-link{
   display:none!important;
 }
+
+/* SonoraFan 289 — arte aprovada de boombox no menu principal (asset existente). */
+#screen-lobby.sf125-platform .sf125-sidebar-art{
+  background:
+    linear-gradient(to bottom,#0b0b0d 0%,transparent 28%,#0b0b0d 100%),
+    url('/art-288/sonorafan-menu-boombox.png') center bottom / contain no-repeat!important;
+  filter:none!important;
+  opacity:1!important;
+}
