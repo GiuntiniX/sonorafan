@@ -5,9 +5,20 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-const dismissed=new Set();
+const dismissed=new Set(),claimed=new Set(),claiming=new Set();
 let campaigns=[],currentId='',loading=false,lastFetched=0;
 try{(JSON.parse(sessionStorage.getItem('sf303Dismissed')||'[]')||[]).forEach(x=>dismissed.add(x));}catch{}
+async function claimBonus(c){
+ if(!c||c.type!=='mission'||!c.voted||!c.bonusXP||claimed.has(c.id)||claiming.has(c.id))return;
+ claiming.add(c.id);
+ try{
+  const res=await fetch('/api/community303/'+encodeURIComponent(c.id)+'/claim',{
+   method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:'{}'
+  });
+  if(res.ok)claimed.add(c.id);
+ }catch(_){}
+ finally{claiming.delete(c.id);}
+}
 function storeDismissed(){
  try{sessionStorage.setItem('sf303Dismissed',JSON.stringify([...dismissed].slice(-80)));}catch{}
 }
@@ -76,6 +87,8 @@ async function onClick(e){
      const data=await resp.json();
      if(!resp.ok)throw Error(data.error||'Não foi possível votar.');
      c.voted=true;c.counts=data.counts;c.totalVotes=data.totalVotes;
+     if(data.bonusApplied)claimed.add(c.id);
+     else if(c.type==='mission')claimBonus(c);
      render();note('Voto registrado! Obrigado por participar.');
    }catch(e){button.disabled=false;note(e.message);}
  }
@@ -89,6 +102,7 @@ async function refresh(force=false){
    if(res.status===401){campaigns=[];host().hidden=true;return;}
    if(!res.ok)return;
    const data=await res.json();campaigns=Array.isArray(data.campaigns)?data.campaigns:[];
+   campaigns.forEach(c=>{if(c.type==='mission'&&c.voted)claimBonus(c);});
    render();
  }catch(_){}
  finally{loading=false;}
