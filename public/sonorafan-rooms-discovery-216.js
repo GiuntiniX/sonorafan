@@ -106,7 +106,32 @@ $('sf216Activity').addEventListener('change',e=>{state.activity=e.target.value;s
 $('sf216Sort').addEventListener('change',e=>{state.sort=e.target.value;render();});
 render();
 }
-function init(){build();if(!$('sf216Explorer'))return;
+/* SonoraFan 287 — Recolhimento opcional do menu exclusivamente em Salas. */
+function setupRoomsSidebarToggle(){
+ const lobby=$('screen-lobby');
+ const toolbar=lobby?.querySelector('.sf107-top.sf125-toolbar');
+ if(!lobby||!toolbar)return;
+ if($('sf287RoomsSidebarToggle'))return;
+ const button=document.createElement('button');
+ button.type='button';button.id='sf287RoomsSidebarToggle';
+ button.className='sf287-rooms-sidebar-toggle';
+ button.setAttribute('aria-controls','sf125Sidebar');
+ const update=()=>{
+   const collapsed=lobby.classList.contains('sf287-rooms-sidebar-collapsed');
+   button.setAttribute('aria-expanded',String(!collapsed));
+   button.setAttribute('aria-label',collapsed?'Reabrir menu lateral':'Recolher menu lateral');
+   button.title=collapsed?'Reabrir menu':'Recolher menu';
+   button.innerHTML='<span aria-hidden="true">☰</span><span class="sf287-menu-label">'+(collapsed?'Abrir menu':'Recolher menu')+'</span>';
+ };
+ button.addEventListener('click',()=>{
+   if(!lobby.classList.contains('sf216-explore-mode'))return;
+   lobby.classList.toggle('sf287-rooms-sidebar-collapsed');
+   update();
+ });
+ toolbar.insertBefore(button,toolbar.firstElementChild);
+ update();
+}
+function init(){build();if(!$('sf216Explorer'))return;setupRoomsSidebarToggle();
 const globalSearch=$('sf107Search');
 if(globalSearch)globalSearch.addEventListener('input',e=>{
  if(!$('screen-lobby')?.classList.contains('sf216-explore-mode'))return;
