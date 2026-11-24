@@ -272,3 +272,126 @@
    grid-template-columns:190px minmax(0,1fr)!important;
  }
 }
+
+/* SonoraFan v300 — busca global e notificações no cabeçalho superior,
+   à direita do logo; não sobrepor o conteúdo da página Perfil. */
+@media(max-width:768px){
+ #screen-lobby.sf125-platform .sf107-top.sf125-toolbar,
+ #screen-lobby.sf125-platform.sf216-explore-mode .sf28-lobby-main > .sf107-top.sf125-toolbar{
+   display:flex!important;
+   flex-direction:row!important;
+   flex-wrap:nowrap!important;
+   align-items:center!important;
+   justify-content:space-between!important;
+   gap:8px!important;
+   position:relative!important;
+   inset:auto!important;
+   width:100%!important;max-width:100%!important;
+   height:76px!important;min-height:76px!important;max-height:76px!important;
+   flex:0 0 76px!important;
+   margin:0!important;
+   padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px!important;
+   background:#0b0b0d!important;
+   border-bottom:1px solid #403447!important;
+   box-sizing:border-box!important;
+   overflow:visible!important;
+   z-index:75!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar > .sf107-logo{
+   display:block!important;visibility:visible!important;
+   width:clamp(108px,31vw,154px)!important;
+   max-width:154px!important;
+   flex:0 0 clamp(108px,31vw,154px)!important;
+   height:51px!important;
+   object-fit:contain!important;
+   object-position:left center!important;
+   margin:0!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-top-actions{
+   display:flex!important;
+   flex:1 1 0%!important;
+   min-width:0!important;
+   max-width:none!important;
+   width:auto!important;
+   height:100%!important;
+   align-items:center!important;justify-content:flex-end!important;
+   gap:7px!important;
+   margin:0!important;
+   position:relative!important;
+   flex-wrap:nowrap!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-search{
+   display:flex!important;align-items:center!important;
+   flex:1 1 0%!important;
+   width:0!important;min-width:0!important;max-width:none!important;
+   height:40px!important;min-height:40px!important;max-height:40px!important;
+   margin:0!important;
+   padding:5px 9px!important;
+   border-radius:999px!important;
+   box-sizing:border-box!important;
+   overflow:visible!important;
+   font-size:16px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-search input{
+   display:block!important;
+   flex:1 1 0%!important;
+   width:100%!important;min-width:0!important;max-width:100%!important;
+   font-size:16px!important;line-height:1.2!important;
+   text-overflow:ellipsis!important;overflow:hidden!important;
+   white-space:nowrap!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar #sf107NoticeButton.sf111-lobby-bell{
+   display:grid!important;place-items:center!important;
+   position:relative!important;inset:auto!important;
+   flex:0 0 40px!important;width:40px!important;
+   min-width:40px!important;max-width:40px!important;
+   height:40px!important;min-height:40px!important;
+   padding:0!important;margin:0!important;
+   border-radius:50%!important;
+   z-index:2!important;
+ }
+ /* O perfil já está na navegação inferior; libera espaço ao buscador. */
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-profile{
+   display:none!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-more{
+   display:block!important;
+   flex:0 0 32px!important;
+   width:32px!important;min-width:32px!important;
+   margin:0!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-more summary{
+   display:grid!important;place-items:center!important;
+   width:32px!important;min-height:40px!important;
+   padding:0!important;font-size:18px!important;
+   white-space:nowrap!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-more summary span{
+   display:none!important;
+ }
+ #sf208SearchResults.sf282-search-results{
+   position:fixed!important;
+   top:calc(76px + env(safe-area-inset-top,0px))!important;
+   left:8px!important;right:8px!important;
+   width:calc(100vw - 16px)!important;
+   max-width:calc(100vw - 16px)!important;
+   max-height:min(62dvh,460px)!important;
+   z-index:1000!important;
+ }
+ #screen-lobby.sf125-platform .sf28-lobby-main.sf125-main{
+   min-height:0!important;
+ }
+}
+@media(max-width:380px){
+ #screen-lobby.sf125-platform .sf125-toolbar>.sf107-logo{
+   width:106px!important;max-width:106px!important;flex-basis:106px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-top-actions{gap:4px!important;}
+ #screen-lobby.sf125-platform .sf125-toolbar #sf107NoticeButton.sf111-lobby-bell{
+   width:36px!important;min-width:36px!important;flex-basis:36px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-more{
+   width:28px!important;min-width:28px!important;flex-basis:28px!important;
+ }
+ #screen-lobby.sf125-platform .sf125-toolbar .sf107-more summary{width:28px!important;}
+}
