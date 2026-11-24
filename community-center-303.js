@@ -24,19 +24,22 @@ const publicCampaign=c=>({
 function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,audit,gamification45}){
  const campaigns=db.collection('sonorafanCampaigns303');
  const config=db.collection('sonorafanOperations303').doc('current');
- let current=new Map(),ready=false,disabled=false;
+ let current=new Map(),ready=false,disabled=false,loadingInitial=false;
  let operations={chatHold:false,createHold:false};
  const seenTracks=new Map(),seenVisits=new Set();
  const reportError=(res,e)=>res.status(e.status||503).json({error:e.status?e.message:'Serviço temporariamente indisponível.'});
  const eligiblePeriod=c=>c.status==='published'&&c.startsAt<=Date.now()&&c.endsAt>Date.now();
  function emitChanged(){io.emit('sf303:changed',{at:Date.now()});}
  async function load(){
+  if(loadingInitial)return;
+  loadingInitial=true;
   try{
    const [list,settings]=await Promise.all([campaigns.orderBy('createdAt','desc').limit(150).get(),config.get()]);
    current=new Map(list.docs.map(d=>[d.id,{...d.data(),id:d.id}]));
    operations=settings.exists?{chatHold:!!settings.data().chatHold,createHold:!!settings.data().createHold}:{chatHold:false,createHold:false};
-   ready=true;
+   ready=true;disabled=false;
   }catch(e){console.error('Community303: falha na restauração:',e.message);disabled=true;ready=false;}
+  finally{loadingInitial=false;}
  }
  const initialized=load();
  function ensureReady(){if(!ready||disabled)throw httpError(503,'Campanhas ainda não disponíveis.');}
@@ -46,7 +49,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
   const active=[...current.values()].filter(eligiblePeriod).map(x=>x.id).sort().join(',');
   if(active!==lastActive){lastActive=active;emitChanged();}
  };
- const ticker=setInterval(checkSchedule,12000);ticker.unref?.();
+ const ticker=setInterval(()=>{if(!ready)load().then(checkSchedule);else checkSchedule();},12000);ticker.unref?.();
  initialized.then(checkSchedule);
  async function audienceMatches(c,email){
   if(c.scope==='all')return true;
