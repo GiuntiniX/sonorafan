@@ -1,0 +1,119 @@
+/* SonoraFan 303 · Central de interações e Inteligência Musical */
+#sf303CommunityCard[hidden]{display:none!important}
+#sf303CommunityCard{
+ --sf303-line:#775187;--sf303-lime:#caff00;
+ position:fixed;right:18px;bottom:18px;top:auto;left:auto;
+ z-index:2500;width:min(355px,calc(100vw - 32px));
+ max-height:min(68dvh,535px);overflow:auto;overscroll-behavior:contain;
+ border:1px solid var(--sf303-line);border-radius:17px;
+ color:#fff;background:linear-gradient(148deg,#2a1735,#160d22 68%,#100b18);
+ box-shadow:0 18px 65px #0009;
+ font:500 13px/1.45 Inter,system-ui,sans-serif;
+}
+#sf303CommunityCard.sf303-banner{right:12px;bottom:12px;width:min(475px,calc(100vw - 24px))}
+#sf303CommunityCard.sf303-chat{right:15px;bottom:18px;border-color:#c359b5}
+#sf303CommunityCard .sf303-live-header{
+ display:flex;justify-content:space-between;align-items:center;gap:8px;
+ padding:12px 14px;background:#210f2a;border-bottom:1px solid #533862;
+}
+#sf303CommunityCard .sf303-live-header strong{font-size:12px;color:#d9ff76}
+#sf303CommunityCard .sf303-live-header button{
+ background:transparent;border:1px solid #775187;color:#fff;
+ border-radius:9px;min-width:31px;min-height:31px;cursor:pointer
+}
+#sf303CommunityCard .sf303-live-body{padding:14px;display:grid;gap:9px}
+#sf303CommunityCard h2{font-size:clamp(16px,2vw,20px);line-height:1.2;color:#fff;margin:0}
+#sf303CommunityCard p{font-size:12px;color:#dfd1e9;margin:0}
+#sf303CommunityCard fieldset{display:grid;gap:5px;min-width:0;border:0;padding:0;margin:0}
+#sf303CommunityCard .sf303-option{
+ display:flex;align-items:center;gap:10px;min-height:39px;padding:7px 9px;
+ border:1px solid #533b61;border-radius:9px;background:#160f21;cursor:pointer;
+}
+#sf303CommunityCard .sf303-option:has(input:checked){border-color:#caff00;background:#253018}
+#sf303CommunityCard .sf303-option input{accent-color:#caff00;flex:none}
+#sf303CommunityCard .sf303-option span{overflow-wrap:anywhere}
+#sf303CommunityCard .sf303-vote,#sf303CommunityCard .sf303-okay{
+ width:100%;min-height:42px;background:#caff00;border:0;color:#0e1605;
+ font:850 13px Inter,system-ui,sans-serif;border-radius:10px;cursor:pointer;
+}
+#sf303CommunityCard .sf303-vote:disabled{opacity:.55;cursor:wait}
+#sf303CommunityCard .sf303-live-note{font-size:11px;color:#d6ffaa}
+#sf303CommunityCard .sf303-bonus{font-weight:800;color:#caff00}
+#sf303CommunityCard .sf303-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#sf303CommunityCard .sf303-results{display:grid;gap:9px}
+#sf303CommunityCard .sf303-result>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:12px}
+#sf303CommunityCard .sf303-result-bar{height:7px;border-radius:999px;background:#4a3159;overflow:hidden;margin-top:5px}
+#sf303CommunityCard .sf303-result-bar i{display:block;height:100%;border-radius:999px;background:#caff00}
+#sf303CommunityCard button:focus-visible{outline:2px solid #caff00;outline-offset:2px}
+#adminPanel .sf303-layout{display:grid;grid-template-columns:minmax(265px,.9fr) minmax(0,1.1fr);gap:15px;min-width:0;align-items:start}
+#adminPanel .sf303-form{display:grid;gap:10px;min-width:0}
+#adminPanel .sf303-form label{display:grid;gap:5px;font-size:12px;font-weight:750;color:#e8d7f2}
+#adminPanel .sf303-form :is(input,textarea,select){
+ width:100%;min-width:0;max-width:100%;font:500 13px Inter,system-ui,sans-serif;
+ padding:10px;border:1px solid #61436e;border-radius:10px;
+ background:#1b1326;color:#fff;box-sizing:border-box;
+}
+#adminPanel .sf303-form textarea{resize:vertical;min-height:66px}
+#adminPanel .sf303-form .sf303-duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#adminPanel .sf303-form button[type=submit],#adminPanel .sf303-primary{
+ min-height:42px;background:#caff00;color:#111a06;font-weight:850;border:0;
+ border-radius:10px;padding:9px 14px;cursor:pointer;
+}
+#adminPanel .sf303-muted,#adminPanel .sf303-note{font-size:12px;color:#c4b5ce;line-height:1.5}
+#adminPanel .sf303-stack{display:grid;gap:10px;min-width:0}
+#adminPanel .sf303-campaign{border:1px solid #533b64;background:#191122;border-radius:13px;padding:13px;display:grid;gap:7px;min-width:0}
+#adminPanel .sf303-campaign-head{display:flex;gap:8px;justify-content:space-between;align-items:start}
+#adminPanel .sf303-campaign-head strong{overflow-wrap:anywhere}
+#adminPanel .sf303-campaign p{color:#e9dcec;font-size:12px}
+#adminPanel .sf303-campaign small{display:block;color:#b7a3c7;font-size:11px;overflow-wrap:anywhere}
+#adminPanel .sf303-pill{padding:3px 7px;background:#392343;border-radius:999px;white-space:nowrap;font-size:10px;color:#d9fba4}
+#adminPanel .sf303-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:3px}
+#adminPanel .sf303-actions button,#adminPanel .sf303-refresh{
+ padding:7px 10px;border:1px solid #776087;border-radius:9px;color:white;background:#301c40;
+ cursor:pointer;min-height:35px;
+}
+#adminPanel .sf303-actions button.sf303-warn{background:#421d33;color:#ffe1dc;border-color:#a65468}
+#adminPanel .sf303-actions span{margin-left:auto;color:#ddcbe6;font-size:11px}
+#adminPanel .sf303-bar-row{display:grid;grid-template-columns:minmax(90px,140px) minmax(0,1fr) 45px;gap:8px;align-items:center;margin:8px 0;font-size:12px}
+#adminPanel .sf303-bar-row>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eadff2}
+#adminPanel .sf303-bar-row>strong{text-align:right;font-size:12px;font-variant-numeric:tabular-nums}
+#adminPanel .sf303-meter{height:9px;background:#3d294c;overflow:hidden;border-radius:20px}
+#adminPanel .sf303-meter i{display:block;height:100%;background:linear-gradient(90deg,#caff00,#db83e8);border-radius:20px}
+#adminPanel .sf303-stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:8px 0 18px}
+#adminPanel .sf303-stat{border:1px solid #614472;border-radius:13px;padding:13px;background:#1f142a;min-width:0}
+#adminPanel .sf303-stat small{display:block;font-size:11px;line-height:1.4;color:#cab6d6;margin-bottom:7px}
+#adminPanel .sf303-stat strong{display:block;font-size:23px;color:#caff00}
+#adminPanel .sf303-track{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:9px;padding:9px 0;border-bottom:1px solid #3d2c4a;font-size:12px;align-items:center}
+#adminPanel .sf303-track div{display:grid;gap:2px;min-width:0}
+#adminPanel .sf303-track strong{overflow-wrap:anywhere}
+#adminPanel .sf303-track small{font-size:11px;color:#b5a4c6}
+#adminPanel .sf303-track span{font-size:10px;color:#d0e9ab;text-align:right;white-space:nowrap}
+#adminPanel .sf303-day{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid #3d2c4a}
+#adminPanel .sf303-day span{font-size:12px;color:#d0bfe0}
+#adminPanel .sf303-operation-controls{display:grid;gap:11px}
+#adminPanel .sf303-operation-controls label{display:flex;gap:12px;align-items:center;min-height:38px;font-size:13px}
+#adminPanel .sf303-operation-controls input{accent-color:#caff00;width:19px;height:19px}
+#adminPanel .sf303-operation-controls p{color:#c8b6d5;font-size:12px}
+@media(max-width:1000px){
+ #adminPanel .sf303-layout{grid-template-columns:minmax(0,1fr)}
+ #adminPanel .sf303-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:768px){
+ #sf303CommunityCard{
+   bottom:calc(85px + env(safe-area-inset-bottom,0px));right:9px;
+   width:min(355px,calc(100vw - 18px));max-height:min(52dvh,385px);
+   z-index:850;
+ }
+ #screen-room.active~#sf303CommunityCard{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+ #adminPanel .sf303-form .sf303-duo{grid-template-columns:minmax(0,1fr)}
+ #adminPanel .sf303-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #adminPanel .sf303-track{grid-template-columns:20px minmax(0,1fr)}
+ #adminPanel .sf303-track span{grid-column:2;justify-self:start}
+}
+@media(max-width:400px){
+ #sf303CommunityCard{max-height:48dvh}
+ #adminPanel .sf303-bar-row{grid-template-columns:minmax(65px,100px) minmax(0,1fr) 33px}
+}
+@media(prefers-reduced-motion:reduce){
+ #sf303CommunityCard *,#adminPanel .sf303-form *{transition:none!important;animation:none!important}
+}
