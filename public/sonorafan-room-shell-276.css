@@ -185,3 +185,65 @@
     flex:1 1 240px!important;
   }
 }
+
+/* SonoraFan 288 — alça discreta integrada à borda do menu da SALA ATUAL. */
+@media(min-width:769px){
+ #screen-room.sf113-room > .app{position:relative!important;}
+ #screen-room.sf113-room #sf288RoomSidebarHandle{
+   position:absolute!important;
+   top:50%!important;left:248px!important;transform:translateY(-50%)!important;
+   display:grid!important;place-items:center!important;
+   width:18px!important;height:82px!important;min-width:18px!important;
+   padding:0!important;margin:0!important;
+   border:1px solid #65436c!important;border-left:0!important;
+   border-radius:0 10px 10px 0!important;
+   background:#1f1029!important;color:#d8ff46!important;
+   font:800 15px/1 Inter,system-ui,sans-serif!important;
+   box-shadow:3px 0 12px #0005!important;
+   cursor:pointer!important;z-index:180!important;
+   transition:left .2s ease,background .2s ease!important;
+ }
+ #screen-room.sf113-room #sf288RoomSidebarHandle:hover{
+   background:#3a2047!important;
+ }
+ #screen-room.sf113-room #sf288RoomSidebarHandle:focus-visible{
+   outline:2px solid #c8ff00!important;outline-offset:2px!important;
+ }
+ body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app,
+ body.sf64-room-sidebar-collapsed #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app,
+ body:not(.sf64-room-sidebar-collapsed) #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app{
+   grid-template-columns:0 minmax(0,1fr)!important;
+ }
+ #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > #sf276RoomSidebar{
+   display:none!important;width:0!important;min-width:0!important;
+   max-width:0!important;padding:0!important;overflow:hidden!important;
+ }
+ body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > .header,
+ body #screen-room.sf113-room.sf288-room-sidebar-collapsed > .app > #roomLayout{
+   grid-column:2!important;
+   min-width:0!important;
+ }
+ #screen-room.sf113-room.sf288-room-sidebar-collapsed #sf288RoomSidebarHandle{
+   left:0!important;
+ }
+ /* Busca global deve permanecer nas páginas de navegação, não na sala ativa. */
+ #screen-room.sf113-room > .app > .header .sf282-room-search,
+ #screen-room.sf113-room > .app > .header .sf282-room-search-toggle{
+   display:none!important;
+ }
+}
+@media(min-width:769px) and (max-width:1160px){
+ #screen-room.sf113-room:not(.sf288-room-sidebar-collapsed) #sf288RoomSidebarHandle{
+   left:68px!important;
+ }
+}
+@media(max-width:768px){
+ #screen-room.sf113-room #sf288RoomSidebarHandle{display:none!important;}
+ #screen-room.sf113-room > .app > .header .sf282-room-search,
+ #screen-room.sf113-room > .app > .header .sf282-room-search-toggle{
+   display:none!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #screen-room.sf113-room #sf288RoomSidebarHandle{transition:none!important;}
+}
