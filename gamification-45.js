@@ -237,7 +237,7 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
           const batch=db.batch();
           for(const doc of page.docs){
             if(source.type==='points'){
-              batch.set(doc.ref,{points:0,badges:[],gamification:normalizeProgress(null,period),ranking60:{...(doc.data()?.ranking60||{}),djXP:0}},{merge:true});
+              batch.set(doc.ref,{points:0,badges:[],campaignRewardIds:[],gamification:normalizeProgress(null,period),ranking60:{...(doc.data()?.ranking60||{}),djXP:0}},{merge:true});
               players++;
             }else{
               batch.set(doc.ref,{score:0,djXP:0,events:0,actionCounts:{}},{merge:true});
@@ -321,6 +321,51 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
     running.then(()=>activeAwards.delete(running),()=>activeAwards.delete(running));
     return running;
   }
+  // Bônus de missões especiais: validado APÓS o voto único no Firestore.
+  // Persistido como chave idempotente por usuário e por campanha.
+  async function awardCampaignBonusInternal(email,campaignId,value){
+    const bonus=Math.min(50,Math.max(0,Math.floor(Number(value)||0)));
+    if(!email||!bonus||!/^[a-f0-9-]{30,40}$/i.test(campaignId)||resetInProgress)return null;
+    const ref=pointsRef(email);
+    const result=await db.runTransaction(async tx=>{
+      const now=new Date(),period=localPeriod(now);
+      const snap=await tx.get(ref),current=snap.exists?snap.data():{points:0,badges:[]};
+      const ids=Array.isArray(current.campaignRewardIds)?current.campaignRewardIds:[];
+      if(ids.includes(campaignId))return null;
+      const newPoints=positiveNumber(current.points)+bonus;
+      const weekRef=db.collection('ranking60Weeks').doc(period.week).collection('players').doc(ranking60Id(email));
+      const monthRef=db.collection('ranking60Months').doc(ranking60Month(now)).collection('players').doc(ranking60Id(email));
+      const [weekly,monthly]=await Promise.all([tx.get(weekRef),tx.get(monthRef)]);
+      tx.set(ref,{points:newPoints,campaignRewardIds:[...ids.slice(-59),campaignId]}, {merge:true});
+      for(const [target,snapshot] of [[weekRef,weekly],[monthRef,monthly]]){
+        const prev=snapshot.exists?snapshot.data():{};
+        tx.set(target,{
+          email,score:positiveNumber(prev.score)+bonus,
+          events:positiveNumber(prev.events)+1,
+          actionCounts:{...(prev.actionCounts||{}),campaign:positiveNumber(prev.actionCounts?.campaign)+1},
+          updatedAt:now.toISOString()
+        },{merge:true});
+      }
+      return {newPoints,bonus,previous:current};
+    });
+    if(!result)return null;
+    const next={...result.previous,points:result.newPoints};
+    userPoints.set(email,{points:result.newPoints,badges:next.badges||[]});
+    const pub=publicSnapshot(next);
+    for(const socket of io.sockets.sockets.values()){
+      if(socket.userEmail!==email)continue;
+      socket.emit('userPoints',{points:pub.points,badges:pub.badges});
+      socket.emit('gamificationUpdate',{...pub,gained:bonus,rewards:[]});
+    }
+    return {points:result.newPoints,gained:bonus};
+  }
+  function awardCampaignBonus(email,campaignId,value){
+    if(resetInProgress)return Promise.resolve(null);
+    const active=awardCampaignBonusInternal(email,campaignId,value);
+    activeAwards.add(active);
+    active.then(()=>activeAwards.delete(active),()=>activeAwards.delete(active));
+    return active;
+  }
   async function getLeaderboard(limit = 10) {
     const size = Math.max(1, Math.min(30, Number(limit) || 10));
     const snap = await db.collection('points').orderBy('points', 'desc').limit(50).get();
@@ -345,7 +390,7 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
     try { res.json({ items: await getLeaderboard(15) }); }
     catch (e) { res.status(503).json({ error: 'Ranking temporariamente indisponível.' }); }
   });
-  return { award, getSnapshot, getLeaderboard, resetAllProgress, isResetting };
+  return { award, awardCampaignBonus, getSnapshot, getLeaderboard, resetAllProgress, isResetting };
 }
 
 module.exports = { LEVELS, MISSIONS, NEW_BADGES, localPeriod, normalizeProgress, levelInfo, publicSnapshot, applyAction, createGamification45, ranking60Id, ranking60Month };
