@@ -1849,7 +1849,7 @@
             <div class="sf12-card"><div class="sf12-card-head"><div><h3>Salas mais movimentadas agora</h3></div><button type="button" data-sf12-goto="rooms">Ver salas</button></div><div class="sf12-stack" id="sf13InsightsRooms"></div></div>
           </section>
           <section class="sf12-admin-view" data-sf12-view="audit"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Histórico de ações</h3><p>Registro de operações administrativas</p></div><button type="button" id="sf12RefreshAudit">↻ Atualizar</button></div><div id="sf12AuditList"></div></div></section>
-          <section class="sf12-admin-view" data-sf12-view="settings"><div class="sf12-card"><h3>Comunicação e manutenção</h3><p>Estas ações afetam a comunidade e exigem confirmação.</p><div class="sf12-settings-grid"><button type="button" data-sf12-action="broadcast">📣 Enviar comunicado</button><button type="button" data-sf12-action="export">⇩ Exportar informações</button><button type="button" data-sf12-action="clear-chats">⌫ Limpar todos os chats</button><button type="button" data-sf12-action="reset-gamification" title="Zerar pontos e conquistas de todos os usuários">↺ Zerar gamificação (XP e níveis)</button><button type="button" data-sf12-action="clear-rooms">⚠ Encerrar todas as salas criadas</button></div></div><div class="sf12-card"><h3>Política de acesso</h3><p>As APIs administrativas exigem uma sessão válida da conta <strong>admin@sonora.com</strong>. Donos de salas continuam gerenciando apenas suas próprias salas.</p></div></section>
+          <section class="sf12-admin-view" data-sf12-view="settings"><div class="sf12-card"><h3>Comunicação e manutenção</h3><p>Estas ações afetam a comunidade e exigem confirmação.</p><div class="sf12-settings-grid"><button type="button" data-sf12-action="broadcast">📣 Enviar comunicado</button><button type="button" data-sf12-action="export">⇩ Exportar informações</button><button type="button" data-sf12-action="clear-chats">⌫ Limpar todos os chats</button><button type="button" class="sf12-danger-action" data-sf12-action="reset-gamification" title="Zera XP, missões e conquistas de todos os usuários, com confirmação">↺ Zerar gamificação (XP e níveis)</button><button type="button" data-sf12-action="clear-rooms">⚠ Encerrar todas as salas criadas</button></div></div><div class="sf12-card sf12-reset-help"><h3>Reset de gamificação</h3><p>Zera XP, níveis, missões e medalhas dos usuários e as pontuações dos rankings da semana e do mês atuais. Não exclui contas, músicas, salas ou Fan Clubs. Esta operação é irreversível e exige confirmação dupla.</p></div><div class="sf12-card"><h3>Política de acesso</h3><p>As APIs administrativas exigem uma sessão válida da conta <strong>admin@sonora.com</strong>. Donos de salas continuam gerenciando apenas suas próprias salas.</p></div></section>
         </div>
       </div>
       <div class="sf12-admin-legacy" hidden aria-hidden="true">
@@ -5133,7 +5133,7 @@ function openRoomCfg() {
   
   <script defer src="/social-stage3.js?v=224.1"></script>
   
-  <script defer src="/admin-control-12.js?v=296.0"></script>
+  <script defer src="/admin-control-12.js?v=297.0"></script>
   <script defer src="/admin-control-13.js?v=225.1"></script>
   
   <script defer src="/visual-stage4.js"></script>
