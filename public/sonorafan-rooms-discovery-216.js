@@ -7,6 +7,22 @@ const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const valid=v=>typeof v==='string'&&v.length>0&&v.length<=140&&!/[\/\\\u0000-\u001f\u007f]/.test(v); // inclui identificadores antigos com acentos
 const fmt=v=>Math.max(0,Number(v)||0).toLocaleString('pt-BR');
 const state={rooms:[],bookmarks:new Set(),mode:'discover',query:'',style:'',activity:'all',sort:'popular',view:'grid',featuredIndex:0,limit:12,ready:false,loading:false,lastFetch:0,lastFavorites:0,favoritesError:''};
+// O destaque avança sozinho, exceto durante interações ou com movimento reduzido.
+const SF216_SLIDE_MS=6000;
+let sf216LastInteraction=0;
+let sf216AutoplayPaused=false;
+function sf216AutoplayTick(){
+ const page=$('sf216Explorer'),hero=$('sf216Hero');
+ if(!page||page.hidden||hero?.hidden||!hero?.isConnected)return;
+ if(!$('screen-lobby')?.classList.contains('active')||!$('screen-lobby')?.classList.contains('sf216-explore-mode'))return;
+ if(document.hidden||sf216AutoplayPaused||hero.matches(':hover')||hero.contains(document.activeElement))return;
+ if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+ if(Date.now()-sf216LastInteraction<10000)return;
+ const list=all().filter(r=>valid(r.slug));
+ if(list.length<2)return;
+ state.featuredIndex=(state.featuredIndex+1)%list.length;
+ renderHero(list);
+}
 const styles=[['','Todos'],['kpop','K-pop'],['pop','Pop'],['jpop','J-pop'],['trap','Trap'],['lofi','Lo-fi'],['indie','Indie'],['rock','Rock'],['mpb','MPB'],['eletronica','Eletrônica'],['funk','Funk'],['rap','Rap'],['sertanejo','Sertanejo'],['pagode','Pagode'],['reggae','Reggae'],['forro','Forró'],['jazz','Jazz'],['metal','Metal'],['samba','Samba']];
 function fallback(r){const theme=String(r.roomTheme||'');const set={geral:'/themes/final-172/indie.webp',indie:'/themes/final-164/indie.webp',kpop:'/themes/festival-214/kpop.svg',bts:'/themes/festival-214/bts.svg',jpop:'/themes/festival-214/jpop.svg',trap:'/themes/festival-214/trap.svg',lofi:'/themes/festival-214/lofi.svg',rock:'/themes/final-164/rock.webp',pop:'/themes/final-164/pop.webp',reggae:'/themes/final-170/reggae.webp',jazz:'/themes/final-170/jazz.webp'};return set[theme]||'/themes/final-172/indie.webp';}
 function cover(r){
@@ -100,7 +116,7 @@ state.mode=['discover','mine','favorites','manage'].includes(mode)?mode:'discove
 window.sf207SetActive?.('rooms');render();fetchRooms(true);fetchBookmarks(true);page.scrollTop=0;}
 function clear(){state.query='';state.style='';state.activity='all';state.sort='popular';state.limit=12;render();}
 function onClick(e){const node=e.target.closest('[data-sf216-slide],[data-sf216-join],[data-sf216-fav],[data-sf216-mode],[data-sf216-style],[data-sf216-create],[data-sf216-close],[data-sf216-clear],[data-sf216-more],[data-sf216-view],[data-sf216-profile],[data-sf216-manage],[data-sf216-community]');if(!node)return;
-if(node.hasAttribute('data-sf216-slide')){const list=all().filter(r=>valid(r.slug));if(!list.length)return;const delta=Number(node.dataset.sf216Slide);if(delta!==1&&delta!==-1)return;state.featuredIndex=(state.featuredIndex+delta+list.length)%list.length;renderHero(list);return;}
+if(node.hasAttribute('data-sf216-slide')){const list=all().filter(r=>valid(r.slug));if(!list.length)return;const delta=Number(node.dataset.sf216Slide);if(delta!==1&&delta!==-1)return;state.featuredIndex=(state.featuredIndex+delta+list.length)%list.length;sf216LastInteraction=Date.now();renderHero(list);$('sf216Hero')?.querySelector('[data-sf216-slide="'+delta+'"]')?.focus({preventScroll:true});return;}
 if(node.hasAttribute('data-sf216-manage')){enterRoom(node.dataset.sf216Manage,true);return;}
 if(node.hasAttribute('data-sf216-join')){enterRoom(node.dataset.sf216Join);return;}
 if(node.hasAttribute('data-sf216-fav'))return void toggleFavorite(node.dataset.sf216Fav);
@@ -129,6 +145,14 @@ $('sf216Sort').addEventListener('change',e=>{state.sort=e.target.value;render();
 render();
 }
 function init(){build();if(!$('sf216Explorer'))return;
+const sf216HeroEl=$('sf216Hero');
+if(sf216HeroEl){
+ sf216HeroEl.addEventListener('pointerenter',()=>{sf216AutoplayPaused=true;});
+ sf216HeroEl.addEventListener('pointerleave',()=>{sf216AutoplayPaused=false;sf216LastInteraction=Date.now();});
+ sf216HeroEl.addEventListener('focusin',()=>{sf216AutoplayPaused=true;});
+ sf216HeroEl.addEventListener('focusout',e=>{if(!sf216HeroEl.contains(e.relatedTarget)){sf216AutoplayPaused=false;sf216LastInteraction=Date.now();}});
+}
+setInterval(sf216AutoplayTick,SF216_SLIDE_MS);
 const globalSearch=$('sf107Search');
 if(globalSearch)globalSearch.addEventListener('input',e=>{
  if(!$('screen-lobby')?.classList.contains('sf216-explore-mode'))return;
