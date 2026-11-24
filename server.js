@@ -40,6 +40,7 @@ const { getStorage } = require('firebase-admin/storage');
 const { createGamification45 } = require('./gamification-45');
 const { createRanking60 } = require('./ranking-60');
 const { installChat53 } = require('./chat-social-53');
+const { createLanguageModeration304 } = require('./chat-language-304');
 const { installPlatform63 } = require('./sonorafan-platform-63');
 const { installFavoriteGenres67 } = require('./favorite-genres-67');
 const { installFanClubs71 } = require('./fan-clubs-71');
@@ -234,6 +235,7 @@ function clearWaitingSocket(socket) {
 const gamification45 = createGamification45({ db, app, sessionEmail, users, userPoints, io });
 const ranking60 = createRanking60({ app, db, sessionEmail, users, gamification45, rateLimit });
 const community303 = createCommunityCenter303({ app, db, io, sessionEmail, rateLimit, rooms, users, audit, gamification45 });
+const moderation304 = createLanguageModeration304({ app, db, rateLimit, audit });
 // 57–63: preserve XP, chats and queue; register server-validated new experiences.
 const platform63 = installPlatform63({ app, io, db, rooms, users, sessionEmail, userPoints, gamification45 });
 installFavoriteGenres67({ app, db, sessionEmail });
@@ -1137,10 +1139,10 @@ app.post('/api/social/invite-friend',rateLimit(8,60000),async(req,res)=>{
 });
 
 // 53.0 — mensagens privadas, caixa de entrada e privacidade persistidos no Firestore.
-installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit });
+installChat53({ app, io, db, sessionEmail, users, rooms, publicUserId, findSocialUser, getFollowing, sf15Notify, socketTokens, sessions, rateLimit, moderation304 });
 // Comunidades permanentes de fãs: membros e mural protegidos pela sessão.
 const fanclubRoomModule=installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, publicUserId, adminEmails, rateLimit, sf15Notify, gamification45,
-  ranking60, io, rawCoverParser: express.raw({type:['image/webp','image/jpeg','image/png'],limit:'256kb'}) });
+  ranking60, io, moderation304, rawCoverParser: express.raw({type:['image/webp','image/jpeg','image/png'],limit:'256kb'}) });
 
 // Administração de denúncias 53.0 — protegida por requireAdmin já aplicado em /api/admin.
 app.get('/api/admin/chat-reports', async(req,res)=>{
@@ -1829,7 +1831,7 @@ io.on('connection', (socket) => {
         })
         .catch(e=>console.warn('[Fanclubs] Falha ao sincronizar selo no ingresso:',e.message));
 
-      socket.emit('chatHistory', room.chatHistory.filter(m=>!m.isSystem||!/^⚙️ .* atualizou as configurações da sala$/.test(String(m.text||''))).slice(-150));
+      socket.emit('chatHistory', room.chatHistory.filter(m=>!m.isSystem||!/^⚙️ .* atualizou as configurações da sala$/.test(String(m.text||''))).slice(-150).map(m=>m.isSystem||m.isMusic?m:{...m,text:moderation304.display(m.text),...(m.replyTo?{replyTo:{...m.replyTo,text:moderation304.display(m.replyTo.text)}}:{})}));
       socket.emit('isAdmin', socket.isAdmin);
       socket.emit('isMod', !!socket.isMod);
       socket.emit('userPoints', userPoints.get(email) || { points: 0, badges: [] });
@@ -1886,6 +1888,7 @@ io.on('connection', (socket) => {
       const parts = text.trim().split(' ');
       const command = parts[0].toLowerCase();
       if (command.startsWith('/')) { handleCommand(socket, command, parts.slice(1), room); return; }
+       text = moderation304.mask(text, 'room');
       // Respostas só referenciam mensagens válidas da própria sala; nada é aceito por confiança no cliente.
       const refMsg = typeof replyTo==='string' && replyTo.length < 100 ? room.chatHistory.find(m=>m._id===replyTo&&!m.isSystem&&!m.isMusic) : null;
       // URLs de avatar derivadas apenas de metadados confiáveis salvos pelo servidor.
