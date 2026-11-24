@@ -89,7 +89,7 @@ app.use((req,res,next)=>{
 });
 app.get('/api/client-version',(req,res)=>{
   res.set('Cache-Control','no-store');
-  res.json({mobile:'302.0',ui:'303.1',features:{roomSidebar:false,eventCoverHttps:true,createdEventsGallery:true,communityCampaigns:true,musicIntelligence:true,missionBadges:true},commit:process.env.RENDER_GIT_COMMIT||null});
+  res.json({mobile:'302.0',ui:'303.2',features:{roomSidebar:false,eventCoverHttps:true,createdEventsGallery:true,communityCampaigns:true,musicIntelligence:true,missionBadges:true},commit:process.env.RENDER_GIT_COMMIT||null});
 });
 // Compatibilidade com páginas/atalhos ainda em cache das marcas v54/v64.
 // Os binários obsoletos podem ser retirados sem quebrar URLs legadas.
