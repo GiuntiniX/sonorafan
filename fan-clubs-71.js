@@ -149,7 +149,7 @@ function installFanClubs71({ app, db, sessionEmail, users, rooms, socialEvents, 
   const forumTags = value => Array.isArray(value) ? [...new Set(value.slice(0,8)
     .map(t=>clean(maskText304(t),24).toLocaleLowerCase('pt-BR').replace(/[^\p{L}\p{N} -]/gu,'').trim().replace(/\s+/g,'-'))
     .filter(t=>t.length>=2))].slice(0,5) : [];
-  const forumTitle = post => clean(post?.title,110)||clean(String(post?.text||'').split(/[.!?\n]/)[0],95)||'Discussão da comunidade';
+  const forumTitle = post => maskText304(clean(post?.title,110)||clean(String(post?.text||'').split(/[.!?\n]/)[0],95)||'Discussão da comunidade');
   const forumPost = (doc,data,me,profile={}) => {
     const p=doc.data(),id=doc.id;
     return {id,...p,text:maskText304(p.text),title:maskText304(forumTitle(p)),imageUrl:validPostImageUrl(p.imageUrl)||'',youtubeId:/^[A-Za-z0-9_-]{11}$/.test(String(p.youtubeId||''))?p.youtubeId:'',title:forumTitle(p),tags:forumTags(p.tags),likedBy:undefined,
