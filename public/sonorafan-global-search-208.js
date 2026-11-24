@@ -12,6 +12,29 @@ const MAIN_IDS=new Set(['sf107Search','sf200Search','sf235Search','sf216Search',
 let panel=null,source=null,results=[],index=0,seq=0,timer=null,controller=null,visible=false;
 const names={room:'Salas',club:'Fan Clubs',event:'Agenda Musical',person:'Pessoas',favorite:'Minhas favoritas'};
 const validInput=node=>node?.tagName==='INPUT'&&MAIN_IDS.has(node.id)&&node.type==='search';
+const SEARCH_PLACEHOLDER='Buscar…';
+const SEARCH_LABEL='Buscar em todo o SonoraFan';
+const MAIN_SELECTOR=Array.from(MAIN_IDS,id=>'#'+id).join(',');
+function standardizeField(input){
+ if(!validInput(input))return;
+ if(input.placeholder!==SEARCH_PLACEHOLDER)input.placeholder=SEARCH_PLACEHOLDER;
+ if(input.getAttribute('aria-label')!==SEARCH_LABEL)input.setAttribute('aria-label',SEARCH_LABEL);
+ input.closest('label')?.classList.add('sf282-unified-search');
+}
+function observeSearchFields(){
+ // The agenda, rooms and fan clubs recreate inputs when their contents change.
+ const observer=new MutationObserver(records=>{
+  for(const record of records){
+   if(record.type==='attributes'){standardizeField(record.target);continue;}
+   for(const node of record.addedNodes){
+    if(node.nodeType!==1)continue;
+    standardizeField(node);
+    node.querySelectorAll(MAIN_SELECTOR).forEach(standardizeField);
+   }
+  }
+ });
+ observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['placeholder']});
+}
 async function json(url,signal){
  const res=await fetch(url,{credentials:'include',cache:'no-store',signal});
  if(!res.ok)throw new Error('Fonte indisponível');
@@ -50,7 +73,7 @@ function show(message){
 function labelFields(){
  for(const id of MAIN_IDS){
   const input=$(id);if(!input)continue;
-  input.setAttribute('aria-label','Buscar em todo o SonoraFan');
+  standardizeField(input);
   input.setAttribute('aria-autocomplete','list');
   input.setAttribute('aria-controls','sf208SearchResults');
   input.setAttribute('aria-expanded',String(visible&&source===input));
@@ -147,13 +170,12 @@ function takeSource(input){
  labelFields();
 }
 function init(){
- const headerInput=$('sf107Search');
- if(headerInput)headerInput.placeholder='Buscar em todo o SonoraFan…';
  panel=document.createElement('div');
  panel.id='sf208SearchResults';panel.className='sf208-search-results sf282-search-results';
  panel.setAttribute('role','listbox');panel.hidden=true;
  document.body.appendChild(panel);
  labelFields();
+ observeSearchFields();
  document.addEventListener('focusin',event=>{
   if(!validInput(event.target))return;
   takeSource(event.target);
