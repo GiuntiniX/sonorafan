@@ -73,6 +73,8 @@ async function loadInsights(){
  const days=data.daily||[],tracks=data.tracks||[],starts=days.reduce((n,d)=>n+Number(d.starts||0),0);
  const joined=days.reduce((n,d)=>n+Number(d.roomJoins||0),0),returning=days.reduce((n,d)=>n+Number(d.returningUsers||0),0);
  const uniq=days.reduce((n,d)=>n+Number(d.uniqueUsers||0),0);
+ const completed=days.reduce((n,d)=>n+Number(d.completedStays||0),0);
+ const staySeconds=days.reduce((n,d)=>n+Number(d.staySeconds||0),0);
  if($('sf303MusicSummary'))$('sf303MusicSummary').innerHTML=[
   summary('Inícios de reprodução · 7 dias',starts),summary('Salas acessadas · 7 dias',joined),
   summary('Perfis consultados (amostra)',data.profilesSampled||0),summary('Campanhas cadastradas',campaigns.campaigns.length)
@@ -93,11 +95,11 @@ async function loadInsights(){
  if($('sf303DailyMusic'))$('sf303DailyMusic').innerHTML=dayRows.join('');
  if($('sf303SampleNote'))$('sf303SampleNote').textContent='Gêneros preferidos: '+fmt(data.profilesSampled)+' perfis consultados'+(data.profilesCapped?' (amostra limitada a 1.000)':'')+'. Inícios de reprodução ≠ tempo ouvido. Dados coletados após ativação desta versão.';
  if($('sf303EngagementSummary'))$('sf303EngagementSummary').innerHTML=[
-   summary('Usuários ativos por dia · soma',uniq),summary('Retornos registrados',returning),
-   summary('Entradas em salas',joined),summary('Inícios de reprodução',starts)
+   summary('Únicos em salas · soma diária',uniq),summary('Retornos registrados',returning),
+   summary('Entradas em salas',joined),summary('Permanência média · min',completed?Math.round(staySeconds/completed/60):0)
  ].join('');
  if($('sf303EngagementDaily'))$('sf303EngagementDaily').innerHTML=days.map(d=>
-  '<div class="sf303-day"><strong>'+esc(d.day)+'</strong><span>'+fmt(d.uniqueUsers)+' únicos · '+fmt(d.returningUsers)+' retornos · '+fmt(d.roomJoins)+' entradas</span></div>'
+  '<div class="sf303-day"><strong>'+esc(d.day)+'</strong><span>'+fmt(d.uniqueUsers)+' únicos · '+fmt(d.returningUsers)+' retornos · '+fmt(d.roomJoins)+' entradas · '+fmt(d.completedStays||0)+' saídas</span></div>'
  ).join('');
  const sections={};for(const d of days)for(const [k,v] of Object.entries(d.sections||{}))sections[k]=(sections[k]||0)+Number(v||0);
  const entries=sorted(sections);
