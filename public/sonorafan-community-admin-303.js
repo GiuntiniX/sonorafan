@@ -44,7 +44,7 @@ async function createCampaign(ev){
  const type=read('type'),choices=read('choices').split('\n').map(x=>x.trim()).filter(Boolean);
  const body={
   type,title:read('title'),description:read('description'),scope:read('scope'),
-  scopeId:read('scopeId'),channel:read('channel'),choices,bonusXP:Number(read('bonusXP'))||0
+  scopeId:read('scopeId'),channel:read('channel'),choices,bonusXP:Number(read('bonusXP'))||0,badgeName:read('badgeName')
  };
  const start=read('startsAt'),end=read('endsAt');
  try{if(start)body.startsAt=new Date(start).toISOString();if(end)body.endsAt=new Date(end).toISOString();}
@@ -123,7 +123,7 @@ function init(){
  $('sf303InsightsRefresh')?.addEventListener('click',()=>loadInsights().catch(e=>note('sf303InsightsNote',e.message)));
  $('sf303EngagementRefresh')?.addEventListener('click',()=>loadInsights().catch(e=>note('sf303EngagementNote',e.message)));
  const type=$('sf303CampaignForm')?.elements?.type;
- if(type)type.addEventListener('change',()=>{const mission=$('sf303MissionXP'),choices=$('sf303Choices');if(mission)mission.hidden=type.value!=='mission';if(choices)choices.hidden=type.value==='announcement';});
+ if(type)type.addEventListener('change',()=>{const mission=$('sf303MissionXP'),choices=$('sf303Choices');if(mission)mission.hidden=type.value!=='mission';const medal=$('sf303MissionBadge');if(medal)medal.hidden=type.value!=='mission';if(choices)choices.hidden=type.value==='announcement';});
  const scope=$('sf303CampaignForm')?.elements?.scope;
  if(scope)scope.addEventListener('change',()=>{const container=$('sf303ScopeTarget'),channel=$('sf303CampaignForm')?.elements?.channel;if(container)container.hidden=scope.value==='all';if(channel&&scope.value!=='room'&&channel.value==='chat')channel.value='card';});
 }
