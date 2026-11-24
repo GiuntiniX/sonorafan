@@ -1865,7 +1865,7 @@ io.on('connection', (socket) => {
   socket.on('chat', ({ text, replyTo }) => {
     try {
       if (!currentRoom || typeof text !== 'string' || !text.trim()) return;
-      if (community303.isChatHeld()&&!socket.isAdmin) return socket.emit('chatError','O chat está temporariamente pausado para manutenção.');
+      if (community303.isChatHeld()&&!adminEmails.has(socket.userEmail)) return socket.emit('chatError','O chat está temporariamente pausado para manutenção.');
       text = text.slice(0, 400);
       const mu = sanActive(socket.userEmail, 'mute', currentRoom);
       if (mu) return socket.emit('chatError', '🔇 Você está silenciado' + (mu.until ? ' por mais ' + Math.ceil((mu.until - Date.now()) / 60000) + ' min' : '') + (mu.reason ? ' — ' + mu.reason : ''));
