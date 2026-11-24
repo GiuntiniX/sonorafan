@@ -1520,6 +1520,7 @@
   <link rel="stylesheet" href="/sonorafan-events-cover-276.css?v=277.0">
   <link rel="stylesheet" href="/sonorafan-mobile-audit-298.css?v=302.0">
   <link rel="stylesheet" href="/sonorafan-community-303.css?v=303.3">
+  <link rel="stylesheet" href="/sonorafan-language-admin-304.css?v=304.0">
 </head>
 <body>
 
@@ -1798,6 +1799,7 @@
           <button type="button" data-sf12-nav="system">◈ <span>Saúde do sistema</span></button>
           <button type="button" data-sf12-nav="insights">✧ <span>Alertas</span></button>
           <button type="button" data-sf12-nav="moderation">⬡ <span>Moderação</span></button>
+           <button type="button" data-sf12-nav="language">✱ <span>Filtro de linguagem</span></button>
           <button type="button" data-sf12-nav="audit">▤ <span>Auditoria</span></button>
           <button type="button" data-sf12-nav="interactions">🗳 <span>Interações e campanhas</span></button>
           <button type="button" data-sf12-nav="musicintel">♫ <span>Music Intelligence</span></button>
@@ -1832,6 +1834,19 @@
           <section class="sf12-admin-view" data-sf12-view="rooms"><div class="sf12-toolbar"><label><span>Buscar sala</span><input id="sf12RoomSearch" type="search" placeholder="Nome, slug ou responsável..."></label><label><span>Visualizar</span><select id="sf12RoomStatus"><option value="all">Todas</option><option value="occupied">Com ouvintes</option><option value="private">Privadas</option><option value="locked">Chat travado</option></select></label><button type="button" id="sf12RefreshRooms">↻ Atualizar</button></div><div id="sf12RoomsTable" class="sf12-data-list"></div></section>
           <section class="sf12-admin-view" data-sf12-view="queues"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Filas compartilhadas</h3><p>Acompanhe a música atual e o tamanho de cada fila</p></div></div><div id="sf12QueuesList"></div></div></section>
           <section class="sf12-admin-view" data-sf12-view="moderation"><div class="sf12-card"><div class="sf12-card-head"><div><h3>Sanções ativas</h3><p>Silenciamentos e banimentos temporários registrados</p></div></div><div id="sf12ModerationList"></div></div><div class="sf12-card sf53-admin-card"><div class="sf12-card-head"><div><h3>Denúncias do chat</h3><p>Mensagens públicas e privadas denunciadas pelos participantes.</p></div><button type="button" id="sf53RefreshReports">↻ Atualizar</button></div><div id="sf53AdminReports" aria-live="polite"></div></div></section>
+          <section class="sf12-admin-view" data-sf12-view="language">
+            <div class="sf12-card">
+              <div class="sf12-card-head"><div><h3>Filtro de linguagem · PT / EN / ES</h3><p class="sf304-intro">Palavrões detectados são substituídos automaticamente por *** nas salas, conversas privadas e comentários do Fan Club. A regra é validada no servidor.</p></div><button type="button" id="sf304Refresh">↻ Atualizar</button></div>
+              <p id="sf304Totals" class="sf304-stat"></p><div class="sf304-top" id="sf304Top"></div><p id="sf304Note" role="status" aria-live="polite"></p>
+            </div>
+            <div class="sf304-grid">
+              <div class="sf12-card"><h3>Dicionário de palavras</h3><p class="sf304-intro">Inclua termos adicionais. O dicionário padrão nos três idiomas fica sempre ativo.</p>
+                <form id="sf304TermForm" class="sf304-form" autocomplete="off"><label>Nova palavra de baixo calão<input id="sf304Term" type="text" minlength="3" maxlength="32" required placeholder="Adicionar termo personalizado" spellcheck="false"></label><button type="submit">Adicionar</button></form>
+                <div id="sf304Dictionary"></div>
+              </div>
+              <div class="sf12-card"><h3>Histórico de ocorrências</h3><p class="sf304-intro">Últimos 100 registros, com data, área do site e termos detectados. Não exibe mensagens privadas nem guarda o texto original.</p><div id="sf304History" class="sf304-history" aria-live="polite"></div></div>
+            </div>
+          </section>
           <section class="sf12-admin-view" data-sf12-view="reports">
             <div class="sf12-card"><div class="sf12-card-head"><div><span class="sf13-card-kicker">CENTRAL DE MODERAÇÃO</span><h3>Denúncias registradas no chat</h3><p>Consulta limitada aos 100 registros mais recentes da API. Decisões são auditadas pelo servidor.</p></div><button type="button" data-sf12-goto="reports">↻ Atualizar</button></div>
               <div id="sf13ReportStats" class="sf13-summary-grid"></div>
@@ -5191,6 +5206,7 @@ function openRoomCfg() {
   <script defer src="/social-stage3.js?v=224.1"></script>
   
   <script defer src="/admin-control-12.js?v=303.0"></script>
+  <script defer src="/sonorafan-language-admin-304.js?v=304.0"></script>
   <script defer src="/admin-control-13.js?v=225.1"></script>
   <script defer src="/sonorafan-community-admin-303.js?v=303.3"></script>
   <script defer src="/sonorafan-community-client-303.js?v=303.3"></script>
