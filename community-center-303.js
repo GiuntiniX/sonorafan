@@ -107,7 +107,7 @@ function createCommunityCenter303({app,db,io,sessionEmail,rateLimit,rooms,users,
    const now=Date.now();
    const candidates=[...current.values()]
     .filter(c=>c.type==='battle'&&c.totalVotes>0&&['closed','published'].includes(c.status)&&
-      (c.status==='closed'||c.endsAt<=now)&&c.updatedAt>now-7*86400000)
+      (c.status==='closed'||c.endsAt<=now)&&Math.max(c.updatedAt||0,c.endsAt||0)>now-7*86400000)
     .sort((a,b)=>b.updatedAt-a.updatedAt);
    let battle=null;
    for(const c of candidates.slice(0,15)){
