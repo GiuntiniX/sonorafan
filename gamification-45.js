@@ -330,16 +330,19 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
     const ref=pointsRef(email);
     const result=await db.runTransaction(async tx=>{
       const now=new Date(),period=localPeriod(now);
-      const snap=await tx.get(ref),current=snap.exists?snap.data():{points:0,badges:[]};
+      const rewardRef=ref.collection('campaignRewards').doc(campaignId);
+      const [snap,previousReward]=await Promise.all([tx.get(ref),tx.get(rewardRef)]);
+      const current=snap.exists?snap.data():{points:0,badges:[]};
       const ids=Array.isArray(current.campaignRewardIds)?current.campaignRewardIds:[];
-      if(ids.includes(campaignId))return null;
+      if(ids.includes(campaignId)||previousReward.exists)return null;
       const newPoints=positiveNumber(current.points)+bonus;
       const oldBadges=Array.isArray(current.badges)?current.badges:[];
       const newBadges=medal&&!oldBadges.includes(medal)?[...oldBadges,medal].slice(-80):oldBadges;
       const weekRef=db.collection('ranking60Weeks').doc(period.week).collection('players').doc(ranking60Id(email));
       const monthRef=db.collection('ranking60Months').doc(ranking60Month(now)).collection('players').doc(ranking60Id(email));
       const [weekly,monthly]=await Promise.all([tx.get(weekRef),tx.get(monthRef)]);
-      tx.set(ref,{points:newPoints,badges:newBadges,campaignRewardIds:[...ids.slice(-59),campaignId]}, {merge:true});
+      tx.set(rewardRef,{at:Date.now(),bonus,medal});
+      tx.set(ref,{points:newPoints,badges:newBadges}, {merge:true});
       for(const [target,snapshot] of [[weekRef,weekly],[monthRef,monthly]]){
         const prev=snapshot.exists?snapshot.data():{};
         tx.set(target,{
@@ -353,8 +356,10 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
     });
     if(!result)return null;
     const next={...result.previous,points:result.newPoints,badges:result.newBadges};
-    userPoints.set(email,{points:result.newPoints,badges:next.badges||[]});
-    const pub=publicSnapshot(next);
+    const oldPoints=positiveNumber(userPoints.get(email)?.points);
+    const visiblePoints=Math.max(oldPoints,result.newPoints);
+    userPoints.set(email,{points:visiblePoints,badges:next.badges||[]});
+    const pub=publicSnapshot({...next,points:visiblePoints});
     for(const socket of io.sockets.sockets.values()){
       if(socket.userEmail!==email)continue;
       socket.emit('userPoints',{points:pub.points,badges:pub.badges});
