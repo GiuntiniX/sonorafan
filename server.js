@@ -1768,6 +1768,8 @@ io.on('connection', (socket) => {
       clearWaitingSocket(socket);
       // ✅ FIX: ao trocar de sala direto, propaga a saída da sala antiga
       if (currentRoom && currentRoom !== slug) {
+        if(socket.sf303JoinedAt)community303.recordStay(socket.sf303JoinedAt).catch(()=>{});
+        socket.sf303JoinedAt=0;socket.sf303Room=null;
         const oldSlug = currentRoom;
         socket.leave(oldSlug);
         const old = rooms.get(oldSlug);
@@ -1792,6 +1794,7 @@ io.on('connection', (socket) => {
       if (!email && token) { const rt = socketTokens.get(token); socketTokens.delete(token); if (rt && rt.exp > Date.now()) email = rt.email; }   // login feito depois de abrir a página
       userEmail = email;
       socket.userEmail = email;
+      if(email&&socket.sf303Room!==slug){socket.sf303JoinedAt=Date.now();socket.sf303Room=slug;}
       if (email) community303.recordJoin(room,email).catch(()=>{});
       if (email) platform63.onJoin(room,email).catch(e => console.error('Passport63:',e.message));
       const isGlobalAdmin = adminEmails.has(email);
@@ -2395,6 +2398,8 @@ io.on('connection', (socket) => {
       if (!currentRoom) { socket.sfSocialRoom=null; return; }
       const room = rooms.get(currentRoom);
       const oldSlug = currentRoom;
+      if(socket.sf303JoinedAt)community303.recordStay(socket.sf303JoinedAt).catch(()=>{});
+      socket.sf303JoinedAt=0;socket.sf303Room=null;
 
       // 1) Sai do "canal" do Socket.IO
       socket.leave(oldSlug);
@@ -2420,6 +2425,8 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     clearWaitingSocket(socket);
+    if(socket.sf303JoinedAt)community303.recordStay(socket.sf303JoinedAt).catch(()=>{});
+    socket.sf303JoinedAt=0;socket.sf303Room=null;
     if (currentRoom&&rooms.has(currentRoom)) {
       syncRoomOccupancy(currentRoom);
       broadcastState(currentRoom);
