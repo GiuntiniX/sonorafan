@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const https = require('https');
 const { Server } = require('socket.io');
+const { createCommunityCenter303 } = require('./community-center-303');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
@@ -232,6 +233,7 @@ function clearWaitingSocket(socket) {
 // 45.0 — mesma coleção `points`, com progressão transacional e ranking persistente.
 const gamification45 = createGamification45({ db, app, sessionEmail, users, userPoints, io });
 const ranking60 = createRanking60({ app, db, sessionEmail, users, gamification45, rateLimit });
+const community303 = createCommunityCenter303({ app, db, io, sessionEmail, rateLimit, rooms, users, audit, gamification45 });
 // 57–63: preserve XP, chats and queue; register server-validated new experiences.
 const platform63 = installPlatform63({ app, io, db, rooms, users, sessionEmail, userPoints, gamification45 });
 installFavoriteGenres67({ app, db, sessionEmail });
@@ -422,6 +424,7 @@ function sf141PartyPublic(slug){
 function broadcastState(slug) {
   const room = rooms.get(slug);
   if (!room) return;
+  community303.recordRoomPlayback(room).catch(()=>{});
   io.to(slug).emit('roomState', {
     slug: room.slug, name: room.name,
     currentIndex: room.currentIndex,
@@ -1229,6 +1232,7 @@ app.post('/api/rooms', rateLimit(5, 60000), (req, res) => {
   const { name, adminName, color, allowLong, allowLive } = req.body;
   const email = sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'Faça login para criar uma sala' });
+  if (community303.isCreationHeld() && !adminEmails.has(email)) return res.status(503).json({error:'A criação de salas está temporariamente pausada pela administração.'});
   if (!roomCatalogReady) return res.status(503).json({error:'As salas estão sendo carregadas. Tente novamente em instantes.'});
   if (!canCreateRoom(rooms)) return res.status(409).json({error:`Limite de ${MAX_ROOMS} salas atingido. Exclua uma sala antiga antes de criar outra.`,maxRooms:MAX_ROOMS,currentRooms:rooms.size});
   if (!name || name.trim().length < 2 || name.trim().length > 40) return res.status(400).json({ error: 'Nome inválido' });
@@ -1788,6 +1792,7 @@ io.on('connection', (socket) => {
       if (!email && token) { const rt = socketTokens.get(token); socketTokens.delete(token); if (rt && rt.exp > Date.now()) email = rt.email; }   // login feito depois de abrir a página
       userEmail = email;
       socket.userEmail = email;
+      if (email) community303.recordJoin(room,email).catch(()=>{});
       if (email) platform63.onJoin(room,email).catch(e => console.error('Passport63:',e.message));
       const isGlobalAdmin = adminEmails.has(email);
       // dono = quem criou (por e-mail). Só salas antigas, sem dono registrado, caem no nome de exibição.
@@ -1860,6 +1865,7 @@ io.on('connection', (socket) => {
   socket.on('chat', ({ text, replyTo }) => {
     try {
       if (!currentRoom || typeof text !== 'string' || !text.trim()) return;
+      if (community303.isChatHeld()&&!socket.isAdmin) return socket.emit('chatError','O chat está temporariamente pausado para manutenção.');
       text = text.slice(0, 400);
       const mu = sanActive(socket.userEmail, 'mute', currentRoom);
       if (mu) return socket.emit('chatError', '🔇 Você está silenciado' + (mu.until ? ' por mais ' + Math.ceil((mu.until - Date.now()) / 60000) + ' min' : '') + (mu.reason ? ' — ' + mu.reason : ''));
@@ -1978,14 +1984,14 @@ io.on('connection', (socket) => {
           (room.ownerEmail ? socket.userEmail !== room.ownerEmail : !socket.isAdmin)) {
         socket.emit('error','🔒 Somente o criador controla a reprodução nesta sala.');return;
       }
-      if (socket.isAdmin) { advanceQueue(currentRoom); addSystemMsg(currentRoom, `⏭️ ${socket.userName} pulou a música (admin)`); return; }
+      if (socket.isAdmin) { community303.recordSkip(room).catch(()=>{}); advanceQueue(currentRoom); addSystemMsg(currentRoom, `⏭️ ${socket.userName} pulou a música (admin)`); return; }
       if (room.skipVotes.has(socket.userName)) { socket.emit('error', 'Você já votou para pular.'); return; }
       room.skipVotes.add(socket.userName);
       const totalListeners = room.listenerCount || 1;
       const minVotes = Math.max(MIN_SKIP_VOTES, Math.ceil(totalListeners * SKIP_VOTE_THRESHOLD));
       const currentVotes = room.skipVotes.size;
       io.to(currentRoom).emit('skipVoteUpdate', { votes: currentVotes, needed: minVotes });
-      if (currentVotes >= minVotes) { addSystemMsg(currentRoom, `⏭️ Música pulada por votação! (${currentVotes} votos)`); advanceQueue(currentRoom); room.skipVotes = new Set(); }
+      if (currentVotes >= minVotes) { community303.recordSkip(room).catch(()=>{}); addSystemMsg(currentRoom, `⏭️ Música pulada por votação! (${currentVotes} votos)`); advanceQueue(currentRoom); room.skipVotes = new Set(); }
     } catch (e) { console.error('Erro no voteSkip:', e.message); }
   });
 
@@ -2121,7 +2127,7 @@ io.on('connection', (socket) => {
         reply(true, { placement: 'waiting', remainingMs: 30000, durationMs: 30000 });
         return;
       }
-      song.dj = socket.userName; song.addedByUserId = publicUserId(socket.userEmail); room.queue.push(song); sf95.onAddedSong(socket.userEmail,room,song); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2, 'song', currentRoom + ':' + song.id);
+      song.dj = socket.userName; song.addedByUserId = publicUserId(socket.userEmail); room.queue.push(song); community303.recordAdded(room,song).catch(()=>{}); sf95.onAddedSong(socket.userEmail,room,song); platform63.onSong(room,song,socket).catch(e=>console.error('Challenge63:',e.message)); if (room.musicMode === 'fair') { room.queue = fairMusicQueue(room.queue, room.currentIndex); room.currentIndex = 0; } room.lastAddTime.set(socket.userEmail || socket.userName, now); addPoints(socket.userEmail, 2, 'song', currentRoom + ':' + song.id);
       room.totalSongsAdded = (room.totalSongsAdded || 0) + 1;
       if (room.votePriority) sf95.applyPriority(room,getRoomVotes(currentRoom));
       if (!room.isPlaying && room.queue.length === 1) { room.isPlaying = true; room.currentIndex = 0; room.startedAt = Date.now(); room.lastAdvanceAt = Date.now(); addSystemMsg(currentRoom, `▶ ${song.title} — ${song.artist}`); }
