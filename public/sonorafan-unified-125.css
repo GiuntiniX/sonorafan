@@ -987,11 +987,19 @@ body.sf125-global :is(.sf63-panel,.sf92-account-panel,.sf95-panel) :is(h2,h3,str
   display:none!important;
 }
 
-/* SonoraFan 289 — arte aprovada de boombox no menu principal (asset existente). */
-#screen-lobby.sf125-platform .sf125-sidebar-art{
-  background:
-    linear-gradient(to bottom,#0b0b0d 0%,transparent 28%,#0b0b0d 100%),
-    url('/art-288/sonorafan-menu-boombox.png') center bottom / contain no-repeat!important;
+/* SonoraFan 294 — imagem do menu: sem sombreado que escondia a nova arte. */
+#screen-lobby.sf125-platform #sf125Sidebar .sf125-sidebar-art{
+  display:block!important;
+  flex:1 1 140px!important;
+  min-height:145px!important;
+  max-height:230px!important;
+  margin-top:20px!important;
+  width:100%!important;
+  background-color:#0b0b0d!important;
+  background-image:url('/art-288/sonorafan-menu-boombox.png?v=294')!important;
+  background-position:center bottom!important;
+  background-size:contain!important;
+  background-repeat:no-repeat!important;
   filter:none!important;
   opacity:1!important;
 }
