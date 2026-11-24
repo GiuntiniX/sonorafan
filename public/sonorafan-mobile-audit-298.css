@@ -395,3 +395,64 @@
  }
  #screen-lobby.sf125-platform .sf125-toolbar .sf107-more summary{width:28px!important;}
 }
+
+/* v301 — impedir deslocamento do frame ao retornar ao Início.
+   O documento não deve rolar; somente as áreas internas das páginas. */
+@media(max-width:920px){
+  html:has(#screen-lobby.active),
+  body:has(#screen-lobby.active){
+    width:100%!important;
+    min-width:0!important;
+    height:100%!important;
+    min-height:100%!important;
+    max-height:100%!important;
+    margin:0!important;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+  }
+  #screen-lobby.sf125-platform.active{
+    position:relative!important;
+    inset:auto!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:100dvh!important;
+    min-height:0!important;
+    max-height:100dvh!important;
+    overflow:hidden!important;
+    transform:none!important;
+  }
+  #screen-lobby.sf125-platform.active .sf28-lobby-app.sf125-app{
+    height:100%!important;
+    min-height:0!important;
+    max-height:100%!important;
+    overflow:hidden!important;
+  }
+  #screen-lobby.sf125-platform.active .sf28-lobby-main.sf125-main{
+    position:relative!important;
+    min-height:0!important;
+    height:100%!important;
+    max-height:100%!important;
+    overflow:hidden!important;
+  }
+  #screen-lobby.sf125-platform.active .sf28-lobby-content{
+    flex:1 1 0%!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    overscroll-behavior-y:contain!important;
+  }
+  #screen-lobby.sf125-platform.active #sf125MobileBar.sf125-mobile-bar{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    top:auto!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    transform:none!important;
+    box-sizing:border-box!important;
+  }
+}
