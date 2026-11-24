@@ -53,3 +53,38 @@ test('moderation incident only stores recognized terms, not raw messages or user
  assert.ok(routes.includes('/api/admin/language'));
  assert.ok(routes.includes('/api/admin/language/terms'));
 });
+
+test('extended Brazilian word list is masked across all chat surfaces',()=>{
+ const categories={
+  interjections:['porra','caralho','puta','merda','bosta','cacete','cacetada','foda','fodeu','fudeu'],
+  insults:['arrombado','cuzão','cusão','babaca','otário','escroto','desgraçado','maldito','lazarento','corno','vagabundo','pilantra','safado'],
+  anatomy:['pau','pica','piroca','rola','pinto','saco','ovo','buceta','xoxota','xereca','perereca','cu','rabo','bunda'],
+  sexuality:['cagar','foder','transar','meter','trepar','comer','dar','chupar','boquete','punheta','siririca'],
+  slurs:['piranha','vadia','vagabunda','quenga','viado','bicha','sapatão','traveco','retardado','mongoloide','aleijado'],
+  acronyms:['PQP','FDP','VTNC','VSF']
+ };
+ for(const [category,terms]of Object.entries(categories)){
+  for(const term of terms)assert.equal(maskText304(term),'***',category+': '+term);
+ }
+});
+
+test('full expressions become a single mask, including accented and disguised forms',()=>{
+ const phrases=[
+  'puta que pariu','filho da puta','filha da puta','pau no cu',
+  'vai tomar no cu','vai se foder','vai se fuder',
+  'vai à merda','vai a merda','vai pra merda',
+  'vai pra puta que pariu','vai para a puta que pariu'
+ ];
+ for(const phrase of phrases)assert.equal(maskText304(phrase),'***',phrase);
+ assert.equal(maskText304('Vai pra puta que pariu, seu babaca!'),'***, seu ***!');
+ assert.equal(maskText304('P.A.U. N.O. C.U.'),'***.');
+ assert.equal(maskText304('v.a.i t.o.m.a.r n.o c.u'),'***');
+ assert.equal(maskText304('F.D.P. e P.Q.P.'),'***. e ***.');
+});
+
+test('whole-word matching avoids changing harmless substrings; common words intentionally mask',()=>{
+ assert.equal(maskText304('cultura, computador, popular e classe'), 'cultura, computador, popular e classe');
+ assert.equal(maskText304('O ovo é bom e vou dar uma ideia'),
+  'O *** é bom e vou *** uma ideia');
+ assert.equal(maskText304('¡El cono es azul!'),'¡El cono es azul!');
+});
