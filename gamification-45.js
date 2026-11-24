@@ -207,13 +207,62 @@ function applyAction(doc, action, id, now = new Date()) {
 }
 
 function createGamification45({ db, app, sessionEmail, users, userPoints, io }) {
+  // Reset administrativo global, sempre disparado explicitamente e nunca no boot.
+  let resetInProgress = false;
+  const isResetting = () => resetInProgress;
+  async function resetAllProgress(){
+    if(resetInProgress) {
+      const err=new Error('Já existe um reset de gamificação em andamento.');err.status=409;throw err;
+    }
+    resetInProgress=true;
+    let players=0, rankingRecords=0;
+    try {
+      const period=localPeriod(new Date());
+      const month=ranking60Month(new Date());
+      const collections=[
+        {ref:db.collection('points'),type:'points'},
+        {ref:db.collection('ranking60Weeks').doc(period.week).collection('players'),type:'ranking'},
+        {ref:db.collection('ranking60Months').doc(month).collection('players'),type:'ranking'}
+      ];
+      for(const source of collections){
+        let last=null;
+        while(true){
+          let query=source.ref.orderBy('__name__').limit(200);
+          if(last)query=query.startAfter(last);
+          const page=await query.get();
+          if(page.empty)break;
+          const batch=db.batch();
+          for(const doc of page.docs){
+            if(source.type==='points'){
+              batch.set(doc.ref,{points:0,badges:[],gamification:normalizeProgress(null,period),ranking60:{...(doc.data()?.ranking60||{}),djXP:0}},{merge:true});
+              players++;
+            }else{
+              batch.set(doc.ref,{score:0,djXP:0,events:0,actionCounts:{}},{merge:true});
+              rankingRecords++;
+            }
+          }
+          await batch.commit();
+          last=page.docs[page.docs.length-1];
+          if(page.size<200)break;
+        }
+      }
+      userPoints.clear();
+      const clean=publicSnapshot({points:0,badges:[],gamification:null});
+      for(const socket of io.sockets.sockets.values()){
+        if(!socket.userEmail)continue;
+        socket.emit('userPoints',{points:0,badges:[]});
+        socket.emit('gamificationUpdate',{...clean,gained:0,rewards:[]});
+      }
+      return {players,rankingRecords};
+    }finally{resetInProgress=false;}
+  }
   const pointsRef = email => db.collection('points').doc(email);
   async function getSnapshot(email) {
     const snap = await pointsRef(email).get();
     return publicSnapshot(snap.exists ? snap.data() : { points: 0, badges: [] });
   }
   async function award(email, action, key) {
-    if (!email || !action || !key) return null;
+    if (!email || !action || !key || resetInProgress) return null;
     const ref = pointsRef(email);
     // Ranking 6.0: períodos independentes do XP legado, atualizados na MESMA transação.
     // Pontuação só nasce de eventos validados por applyAction.
@@ -286,7 +335,7 @@ function createGamification45({ db, app, sessionEmail, users, userPoints, io }) 
     try { res.json({ items: await getLeaderboard(15) }); }
     catch (e) { res.status(503).json({ error: 'Ranking temporariamente indisponível.' }); }
   });
-  return { award, getSnapshot, getLeaderboard };
+  return { award, getSnapshot, getLeaderboard, resetAllProgress, isResetting };
 }
 
 module.exports = { LEVELS, MISSIONS, NEW_BADGES, localPeriod, normalizeProgress, levelInfo, publicSnapshot, applyAction, createGamification45, ranking60Id, ranking60Month };
