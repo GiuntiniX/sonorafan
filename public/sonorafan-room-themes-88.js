@@ -26,7 +26,7 @@
    rooms.forEach(r=>{if(r&&typeof r.slug==='string'&&KNOWN_THEMES.has(r.roomTheme))roomHints.set(r.slug,r.roomTheme);});
  }
 
- let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null;
+ let createChoice='geral',editChoice='geral',modalChoice='geral',modalMode='room',previousFocus=null,galleryFilter='all';
  const KNOWN_THEMES=new Set(['geral','indie','metal','emo','mpb','eletronica','rock','pop','rap','funk','pagode','sertanejo','reggae','jazz','forro','bts','kpop','jpop','trap','lofi','cor-preto','cor-vermelho','cor-azul','cor-verde','cor-roxo','cor-rosa','cor-dourado','kpop-sakura-arena','bts-purple-monument','jpop-tokyo-night','trap-crown-stage','lofi-golden-listening','lofi-moonlight-live','kpop-cherry-city','bts-lights-festival','jpop-fuji-stage','trap-street-crown','lofi-riverside','lofi-acoustic-garden']);
  const safe=id=>KNOWN_THEMES.has(id)?id:'geral';
  const find=id=>byId.get(safe(id))||FALLBACK;
@@ -114,6 +114,7 @@
    b.setAttribute('aria-label',theme.name+' — '+theme.description);
    const img=document.createElement('img');
    img.src=theme.thumbnail||theme.art;img.alt='';img.loading='lazy';img.decoding='async';
+   img.addEventListener('error',()=>{if(img.dataset.sf314Backup)return;img.dataset.sf314Backup='1';if(img.src!==new URL(theme.art,location.href).href)img.src=theme.art;});
    const name=document.createElement('strong');name.textContent=theme.emoji+' '+theme.name;
    const check=document.createElement('span');check.className='sf88-card-check';check.textContent=selected?'✓':'';
    const detail=document.createElement('span');detail.className='sf88-card-detail';detail.textContent=theme.description;
@@ -124,6 +125,33 @@
    b.append(img,name,check,detail,palette);
    b.addEventListener('click',()=>{modalChoice=theme.id;updateSelection();});
    return b;
+ }
+ const normalizeGalleryText=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+ function filterGallery(){
+   const grid=$('sf88ThemeCards');
+   if(!grid)return;
+   const query=normalizeGalleryText($('sf314ThemeSearch')?.value).trim();
+   let illustrated=0,colors=0;
+   grid.querySelectorAll('.sf88-theme-card').forEach(button=>{
+     const theme=byId.get(button.dataset.theme);
+     if(!theme){button.hidden=true;return;}
+     const color=theme.type==='color';
+     const matchesGroup=galleryFilter==='all'||(galleryFilter==='color'?color:!color);
+     const matchesQuery=!query||normalizeGalleryText(theme.name+' '+theme.description).includes(query);
+     button.hidden=!(matchesGroup&&matchesQuery);
+     if(!button.hidden){if(color)colors++;else illustrated++;}
+   });
+   grid.querySelectorAll('[data-sf314-group]').forEach(group=>{
+     group.hidden=group.dataset.sf314Group==='color'?!colors:!illustrated;
+   });
+   $('sf314ThemeToolbar')?.querySelectorAll('[data-sf314-filter]').forEach(button=>{
+     button.setAttribute('aria-pressed',String(button.dataset.sf314Filter===galleryFilter));
+   });
+   const count=illustrated+colors;
+   const counter=$('sf314ThemeCount');
+   if(counter)counter.textContent=count+' '+(count===1?'tema':'temas');
+   const empty=$('sf314ThemeEmpty');
+   if(empty)empty.hidden=count>0;
  }
  function updateSelection(){
    const grid=$('sf88ThemeCards');
@@ -146,19 +174,21 @@
    const grid=$('sf88ThemeCards');
    if(!grid)return;
    const illustrated=themes.filter(t=>t.type!=='color'),colors=themes.filter(t=>t.type==='color');
-   const heading=(name,caption)=>{
+   const heading=(name,caption,group)=>{
      const h=document.createElement('div');h.className='sf88-group-heading';h.setAttribute('role','presentation');
+     h.dataset.sf314Group=group;
      const title=document.createElement('strong');title.textContent=name;
      const small=document.createElement('small');small.textContent=caption;
      h.append(title,small);return h;
    };
    grid.replaceChildren(
-     heading('🎪 Atmosferas ilustradas','Cenários musicais e festivais com arte própria'),
+     heading('🎪 Atmosferas ilustradas','Cenários musicais e festivais com arte própria','art'),
      ...illustrated.map(t=>card(t,modalMode)),
-     heading('🎨 Wallpapers por cor','Cenários de cor; interface SonoraFan permanece padrão'),
+     heading('🎨 Wallpapers por cor','Cenários de cor; interface SonoraFan permanece padrão','color'),
      ...colors.map(t=>card(t,modalMode))
    );
    updateSelection();
+   filterGallery();
    const title=$('sf88ThemeModalTitle');
    if(title)title.textContent=modalMode==='create'?'Tema da nova sala':modalMode==='edit'?'Personalizar o tema da sala':'Escolha sua atmosfera';
    const personal=$('sf88ThemePersonal');
@@ -183,6 +213,8 @@
    // No menu agrupado, devolva o foco ao gatilho visível após fechar o seletor.
    previousFocus=document.activeElement?.closest?.('#sf167MenuPanel') ? $('sf167MenuTrigger') : document.activeElement;
    modalMode=mode;
+   galleryFilter='all';
+   const gallerySearch=$('sf314ThemeSearch');if(gallerySearch)gallerySearch.value='';
    modalChoice=safe(mode==='create'?createChoice:mode==='edit'?editChoice:personalOverride||sharedTheme);
    drawModal();
    el.hidden=false;
@@ -252,12 +284,23 @@
  function init(){
    const overlay=$('sf88ThemeOverlay');
    $('sf88ThemeClose')?.addEventListener('click',close);
+   $('sf314ThemeToolbar')?.querySelectorAll('[data-sf314-filter]').forEach(button=>{
+     button.addEventListener('click',()=>{
+       galleryFilter=button.dataset.sf314Filter;
+       filterGallery();
+       const grid=$('sf88ThemeCards');if(grid)grid.scrollTop=0;
+     });
+   });
+   $('sf314ThemeSearch')?.addEventListener('input',()=>{
+     filterGallery();
+     const grid=$('sf88ThemeCards');if(grid)grid.scrollTop=0;
+   });
    overlay?.addEventListener('click',event=>{if(event.target===overlay)close();});
    document.addEventListener('keydown',event=>{
      if(!overlay||overlay.hidden)return;
      if(event.key==='Escape'){event.preventDefault();close();return;}
      if(event.key!=='Tab')return;
-     const controls=[...overlay.querySelectorAll('button:not(:disabled):not([hidden]),[tabindex="0"]')]
+     const controls=[...overlay.querySelectorAll('button:not(:disabled):not([hidden]),input:not(:disabled):not([hidden]),[tabindex="0"]')]
        .filter(node=>!node.closest('[hidden]')&&node.getClientRects().length);
      if(!controls.length)return;
      const first=controls[0],last=controls[controls.length-1];
