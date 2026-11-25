@@ -2690,7 +2690,19 @@
         <div><h2 id="sf88ThemeModalTitle">Escolha sua atmosfera</h2><p>Escolha o wallpaper da sala. As cores oficiais do SonoraFan são mantidas por padrão.</p></div>
         <button type="button" class="sf88-close" id="sf88ThemeClose" aria-label="Fechar temas">✕</button>
       </header>
+      <div id="sf314ThemeToolbar" class="sf314-toolbar" aria-label="Filtrar galeria de temas">
+        <div class="sf314-filters" role="group" aria-label="Tipo de tema">
+          <button class="sf314-filter" type="button" data-sf314-filter="all" aria-pressed="true">Todos</button>
+          <button class="sf314-filter" type="button" data-sf314-filter="art" aria-pressed="false">🎪 Ilustrados</button>
+          <button class="sf314-filter" type="button" data-sf314-filter="color" aria-pressed="false">🎨 Cores</button>
+        </div>
+        <div class="sf314-search-area">
+          <label class="sf314-search-wrap"><span class="sf314-search-icon" aria-hidden="true">⌕</span><input id="sf314ThemeSearch" class="sf314-search" type="search" placeholder="Buscar atmosfera..." aria-label="Buscar pelo nome ou descrição do tema" autocomplete="off" maxlength="80"></label>
+          <span id="sf314ThemeCount" class="sf314-count" role="status" aria-live="polite">39 temas</span>
+        </div>
+      </div>
       <div id="sf88ThemeCards" class="sf88-theme-grid" role="listbox" aria-label="Temas musicais"></div>
+      <p id="sf314ThemeEmpty" class="sf314-empty" hidden>Nenhum tema encontrado. Experimente outra busca.</p>
       <div class="sf88-footer">
         <div class="sf88-preview">
           <img id="sf88ThemePreviewArt" src="/themes/final-172/indie-thumb.webp" alt="" width="110" height="58">
@@ -5277,7 +5289,7 @@ function openRoomCfg() {
   
   <script defer src="/sonorafan-pwa-83.js?v=142.0"></script>
   <script defer src="/sonorafan-theme-bootstrap-226.js?v=226.0"></script>
-  <script defer src="/sonorafan-room-themes-88.js?v=266.0"></script>
+  <script defer src="/sonorafan-room-themes-88.js?v=314.0"></script>
   <script defer src="/sonorafan-room-menu-167.js?v=168.0"></script>
   <script defer src="/sonorafan-lobby-account-92.js?v=92"></script>
   <script defer src="/sonorafan-room-ux-93.js?v=93"></script>
@@ -5310,6 +5322,7 @@ function openRoomCfg() {
   <link rel="stylesheet" href="/sonorafan-festival-guide-265.css?v=265.1">
   <link rel="stylesheet" href="/sonorafan-brand-266.css?v=266.1">
   <link rel="stylesheet" href="/sonorafan-room-kpis-actions-270.css?v=274.0">
+  <link rel="stylesheet" href="/sonorafan-theme-picker-314.css?v=314.0">
   <script defer src="/sonorafan-cooldown-263.js?v=263.1"></script>
   <script defer src="/sonorafan-festival-guide-265.js?v=270.0"></script>
   <script defer src="/sonorafan-brand-266.js?v=266.1"></script>
