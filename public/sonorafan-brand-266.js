@@ -98,7 +98,8 @@
     '<div class="sf266-appearance-fields"><label>Cores da página<select id="sf266ColorMode"><option value="brand">Padrão SonoraFan</option><option value="theme">Seguir cores do tema</option></select></label>'+
     '<label>Intensidade do brilho<select id="sf266Glow"><option value="low">Discreto</option><option value="medium">Médio</option><option value="high">Intenso</option></select></label></div>'+
     '<div class="sf266-preview" id="sf266Preview" aria-label="Prévia das cores"><span data-sf266-title>Identidade SonoraFan</span><div><i></i><b>Adicionar música</b><em>AO VIVO</em></div></div>';
-   grid.before(section);
+   // Mantém aparência acima dos filtros da galeria, também no mobile.
+   ($('sf314ThemeToolbar')||grid).before(section);
    $('sf266ColorMode').addEventListener('change',e=>setMode(e.target.value));
    $('sf266Glow').addEventListener('change',e=>setGlow(e.target.value));
    syncControls();
